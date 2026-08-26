@@ -1,0 +1,7 @@
+{
+  "name": "Jane & Pals",
+  "description": "Comprehensive pet companion app with personalized care, partner grooming & boarding, and an INR (₹) multi-category Kerala pet care & veterinary marketplace across Kochi, Trivandrum, Kozhikode, and Thrissur with escrow checkout, exotics filter, and KSVC doctor consults.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
