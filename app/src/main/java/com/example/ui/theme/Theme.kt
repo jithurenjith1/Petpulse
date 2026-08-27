@@ -13,13 +13,13 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = BluePrimaryDarkTheme,
-    onPrimary = Color(0xFF003258),
+    onPrimary = Color(0xFF5C1A00),
     primaryContainer = BluePrimaryDark,
-    onPrimaryContainer = Color(0xFFD1E4FF),
+    onPrimaryContainer = Color(0xFFFFDBCC),
     secondary = BlueSecondaryDarkTheme,
-    onSecondary = Color(0xFF00344F),
-    secondaryContainer = Color(0xFF004B70),
-    onSecondaryContainer = Color(0xFFCBE6FF),
+    onSecondary = Color(0xFF003830),
+    secondaryContainer = Color(0xFF005048),
+    onSecondaryContainer = Color(0xFFB0F5EC),
     tertiary = BlueTertiaryDarkTheme,
     background = BlueBackgroundDark,
     onBackground = TextPrimaryDark,
@@ -32,12 +32,12 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
     primary = BluePrimary,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFD1E4FF),
-    onPrimaryContainer = Color(0xFF001D36),
+    primaryContainer = Color(0xFFFFDBCC),
+    onPrimaryContainer = Color(0xFF5C1A00),
     secondary = BlueSecondary,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFCBE6FF),
-    onSecondaryContainer = Color(0xFF001E30),
+    secondaryContainer = Color(0xFFB0F5EC),
+    onSecondaryContainer = Color(0xFF003830),
     tertiary = BlueTertiary,
     background = BlueBackgroundLight,
     onBackground = TextPrimaryLight,
@@ -50,7 +50,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Keep the custom blue theme prominent
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
@@ -68,4 +68,3 @@ fun MyApplicationTheme(
         content = content
     )
 }
-
