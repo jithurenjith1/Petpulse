@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "660176460397",
-    "project_id": "petpulse-eb789",
-    "storage_bucket": "petpulse-eb789.firebasestorage.app"
+    "project_number": "218116951607",
+    "project_id": "petz-58515",
+    "storage_bucket": "petz-58515.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:660176460397:android:e715a7dc867d22fc0cfd64",
+        "mobilesdk_app_id": "1:218116951607:android:932fc0521834a6f4d439b2",
         "android_client_info": {
-          "package_name": "com.example"
+          "package_name": "com.aistudio.petcompanion.jane"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB7V-kEICtqXrxOMUe1_oiUtf9D7IasQRA"
+          "current_key": "AIzaSyB-ljDxF2bwPoD95WMnpj0CXXZwUQW5W4w"
         }
       ],
       "services": {
