@@ -134,30 +134,5 @@ fun PetAppBottomBar(
             modifier = Modifier.testTag("nav_partners")
         )
 
-        // Tab 5: Profile & Stats
-        NavigationBarItem(
-            selected = currentTab == MainNavTab.PROFILE_STATS,
-            onClick = { onTabSelected(MainNavTab.PROFILE_STATS) },
-            icon = {
-                Icon(
-                    imageVector = if (currentTab == MainNavTab.PROFILE_STATS) Icons.Filled.AccountCircle else Icons.Outlined.AccountCircle,
-                    contentDescription = "Profile & Records",
-                    modifier = Modifier.size(22.dp)
-                )
-            },
-            label = {
-                Text(
-                    text = "Profile",
-                    fontSize = 11.sp,
-                    fontWeight = if (currentTab == MainNavTab.PROFILE_STATS) FontWeight.Bold else FontWeight.Normal
-                )
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = BluePrimary,
-                selectedTextColor = BluePrimary,
-                indicatorColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            modifier = Modifier.testTag("nav_profile")
-        )
     }
 }

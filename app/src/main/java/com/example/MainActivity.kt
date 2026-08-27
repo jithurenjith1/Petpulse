@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                JaneAndPalsApp(viewModel = viewModel)
+                PetpulseApp(viewModel = viewModel)
             }
         }
     }
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JaneAndPalsApp(viewModel: PetViewModel) {
+fun PetpulseApp(viewModel: PetViewModel) {
     val currentTab by viewModel.currentMainTab.collectAsStateWithLifecycle()
     val activePet by viewModel.activePet.collectAsStateWithLifecycle()
     val customer by viewModel.customerProfile.collectAsStateWithLifecycle()

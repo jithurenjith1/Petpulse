@@ -14,7 +14,7 @@ enum class MainNavTab {
     MY_PETS,
     MARKETPLACE,
     EXPLORE_PETS,
-    PARTNERS_SERVICES
+    PARTNERS_SERVICES,
 }
 
 enum class ExploreSubTab {
