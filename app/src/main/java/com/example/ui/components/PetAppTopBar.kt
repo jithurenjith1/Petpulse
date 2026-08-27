@@ -79,7 +79,7 @@ fun PetAppTopBar(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Pets,
-                            contentDescription = "Jane & Pals App Icon",
+                            contentDescription = "Petpulse App Icon",
                             tint = Color.White,
                             modifier = Modifier.size(24.dp)
                         )
@@ -88,26 +88,14 @@ fun PetAppTopBar(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Jane & Pals",
+                                text = "Petpulse",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 ),
                                 color = BluePrimaryDark
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = BluePrimary.copy(alpha = 0.15f)
-                            ) {
-                                Text(
-                                    text = "Kerala (₹)",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = BluePrimary,
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                                )
-                            }
+
                         }
                         Text(
                             text = if (customer.isLoggedIn) "Guardian: ${customer.name}" else "Tap to Sign In",
