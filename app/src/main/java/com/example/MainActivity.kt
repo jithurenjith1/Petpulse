@@ -145,6 +145,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel) {
                         customer = customer,
                         vaccinations = vaccinations,
                         medicalReports = medicalReports,
+                        healthScore = healthScore,
                         onEditPetClick = { showEditPetDialog = true },
                         onToggleVaccine = { viewModel.toggleVaccinationStatus(it) },
                         onAddVaccine = { name, date, due, status, doc ->
@@ -159,7 +160,13 @@ fun JaneAndPalsApp(viewModel: PetViewModel) {
                             viewModel.updatePetFavoriteFoodsAndPlays(foods, plays)
                             coroutineScope.launch { snackbarHostState.showSnackbar("Favorite food & plays updated for ${activePet.name}!") }
                         },
-                        onLoginClick = { showLoginDialog = true }
+                        onLoginClick = { showLoginDialog = true },
+                        onSavePetDirectly = { newName, newBreed, newAge, newGender ->
+                            viewModel.renameAndConfigurePet(newName, newBreed, newAge, newGender)
+                        },
+                        onShowMessage = { msg ->
+                            coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
+                        }
                     )
                 }
 
@@ -246,23 +253,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel) {
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         },
                         onActionNotification = { msg ->
-                            coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
-                        }
-                    )
-                }
-
-                MainNavTab.PROFILE_STATS -> {
-                    ProfileSettingsScreen(
-                        customer = customer,
-                        pet = activePet,
-                        vaccinations = vaccinations,
-                        healthScore = healthScore,
-                        onEditPetClick = { showEditPetDialog = true },
-                        onLoginClick = { showLoginDialog = true },
-                        onSavePetDirectly = { newName, newBreed, newAge, newGender ->
-                            viewModel.renameAndConfigurePet(newName, newBreed, newAge, newGender)
-                        },
-                        onShowMessage = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
                     )

@@ -39,7 +39,8 @@ enum class PetDetailSubmenu {
     CERTIFICATE,
     VACCINATION_MEDICAL,
     FOOD_AND_PLAYS,
-    TRAINING
+    TRAINING,
+    HEALTH_SETTINGS
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,12 +50,15 @@ fun MyPetsScreen(
     customer: CustomerProfile,
     vaccinations: List<VaccinationRecord>,
     medicalReports: List<MedicalReport>,
+    healthScore: Int,
     onEditPetClick: () -> Unit,
     onToggleVaccine: (VaccinationRecord) -> Unit,
     onAddVaccine: (name: String, date: String, nextDue: String, status: String, doctor: String) -> Unit,
     onAddMedicalReport: (title: String, clinic: String, diagnosis: String, prescription: String) -> Unit,
     onUpdateFoodPlays: (foods: String, plays: String) -> Unit,
     onLoginClick: () -> Unit,
+    onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
+    onShowMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -255,6 +259,7 @@ fun MyPetsScreen(
                         PetDetailSubmenu.VACCINATION_MEDICAL -> "💉 2. Medical & Vaccines"
                         PetDetailSubmenu.FOOD_AND_PLAYS -> "🍖 3. Food & Plays"
                         PetDetailSubmenu.TRAINING -> "🎓 4. Training"
+                        PetDetailSubmenu.HEALTH_SETTINGS -> "⚖️ 5. Health & Settings"
                     }
                     Tab(
                         selected = isSelected,
@@ -316,6 +321,19 @@ fun MyPetsScreen(
                     TrainingSubmenuSection(
                         pet = pet,
                         onEditTraining = onEditPetClick
+                    )
+                }
+            }
+            PetDetailSubmenu.HEALTH_SETTINGS -> {
+                item {
+                    HealthAndSettingsSection(
+                        pet = pet,
+                        customer = customer,
+                        vaccinations = vaccinations,
+                        healthScore = healthScore,
+                        onEditPetClick = onEditPetClick,
+                        onSavePetDirectly = onSavePetDirectly,
+                        onShowMessage = onShowMessage
                     )
                 }
             }
@@ -1048,4 +1066,261 @@ fun AddPreferenceItemDialog(
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
+}
+
+// ---------------- Submenu 5: Health & Settings (moved from Profile) ----------------
+@Composable
+fun HealthAndSettingsSection(
+    pet: UserPet,
+    customer: CustomerProfile,
+    vaccinations: List<VaccinationRecord>,
+    healthScore: Int,
+    onEditPetClick: () -> Unit,
+    onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
+    onShowMessage: (String) -> Unit
+) {
+    var petNameInput by remember(pet.name) { mutableStateOf(pet.name) }
+    var petBreedInput by remember(pet.breed) { mutableStateOf(pet.breed) }
+    var petAgeInput by remember(pet.ageYears) { mutableStateOf(pet.ageYears.toString()) }
+    var petGenderInput by remember(pet.gender) { mutableStateOf(pet.gender) }
+
+    // 1. Health & Care Statistics
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.QueryStats, contentDescription = null, tint = BluePrimary)
+                    Text(
+                        text = "${pet.name}'s Health & Care Statistics",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = BluePrimaryDark
+                    )
+                }
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = AccentGreen.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        text = "EXCELLENT",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AccentGreen,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            Divider()
+
+            // Stat Grid
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFF0F7FF),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Health Index", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimary)
+                        Text("Vitals Optimal", fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFF1F8E9),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Vaccinations", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text("${vaccinations.count { it.status == "Completed" }}/${vaccinations.size}", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = AccentGreen)
+                        Text("Up to date", fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFFFF8E1),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Est. Monthly", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text("$68", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFFE65100))
+                        Text("Food & Care", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = Color(0xFFF9FBFE),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Weekly Exercise & Walks:", fontSize = 11.sp)
+                        Text("14 Walks Completed (18.2 km)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                    }
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Microchip Tag Status:", fontSize = 11.sp)
+                        Text("Active (${pet.microchipNumber})", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AccentGreen)
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. Settings: Default Pet Configuration
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Default.Settings, contentDescription = null, tint = BluePrimary)
+                Text(
+                    text = "Settings: Default Pet Configuration",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = BluePrimaryDark
+                )
+            }
+
+            Text(
+                text = "Customize the default pet name and details for this account:",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            OutlinedTextField(
+                value = petNameInput,
+                onValueChange = { petNameInput = it },
+                label = { Text("Pet Name") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = petBreedInput,
+                    onValueChange = { petBreedInput = it },
+                    label = { Text("Breed") },
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedTextField(
+                    value = petGenderInput,
+                    onValueChange = { petGenderInput = it },
+                    label = { Text("Gender") },
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedTextField(
+                    value = petAgeInput,
+                    onValueChange = { petAgeInput = it },
+                    label = { Text("Age") },
+                    modifier = Modifier.weight(0.8f)
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                FilledTonalButton(onClick = onEditPetClick) {
+                    Text("Full Edit Form", fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        val years = petAgeInput.toIntOrNull() ?: pet.ageYears
+                        onSavePetDirectly(petNameInput, petBreedInput, years, petGenderInput)
+                        onShowMessage("Pet renamed to '$petNameInput' and settings saved!")
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                ) {
+                    Text("Save Pet Name", fontSize = 12.sp)
+                }
+            }
+        }
+    }
+
+    // 3. Safety & Notification Preferences
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                text = "Safety & Notification Preferences",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = BluePrimaryDark
+            )
+
+            var notifyLostPets by remember { mutableStateOf(true) }
+            var notifyVaccines by remember { mutableStateOf(true) }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("5km Radius Lost Pet Alerts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Receive emergency notifications when a pet is lost nearby", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Switch(
+                    checked = notifyLostPets,
+                    onCheckedChange = { notifyLostPets = it },
+                    colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary)
+                )
+            }
+
+            Divider()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Vaccination & Medication Due Reminders", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Automatic calendar reminders 7 days before due date", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Switch(
+                    checked = notifyVaccines,
+                    onCheckedChange = { notifyVaccines = it },
+                    colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary)
+                )
+            }
+        }
+    }
 }
