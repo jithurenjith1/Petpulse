@@ -3,6 +3,7 @@ package com.example.ui.viewmodel
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import androidx.lifecycle.ViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -19,7 +20,7 @@ data class AuthState(
     val isAuthenticated: Boolean = false
 )
 
-class AuthViewModel {
+class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val _authState = MutableStateFlow(AuthState())
