@@ -7,6 +7,7 @@ import com.example.data.local.PetDatabase
 import com.example.data.model.*
 import com.example.data.repository.MarketplaceRepository
 import com.example.data.repository.PetRepository
+import com.example.data.repository.FirestorePetRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
@@ -39,6 +40,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: PetRepository
     private val marketplaceRepo: MarketplaceRepository = MarketplaceRepository()
+    private val firestoreRepo: FirestorePetRepository = FirestorePetRepository()
 
     init {
         val db = PetDatabase.getInstance(application)
@@ -150,7 +152,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _activePetId = MutableStateFlow(1L)
     val activePetId: StateFlow<Long> = _activePetId.asStateFlow()
 
-    val allPets: StateFlow<List<UserPet>> = repository.allUserPets
+    val allPets: StateFlow<List<UserPet>> = firestoreRepo.getAllUserPets()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -159,7 +161,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     // Active pet - dynamically based on _activePetId
     val activePet: StateFlow<UserPet> = _activePetId
-        .flatMapLatest { petId -> repository.getPetById(petId) }
+        .flatMapLatest { petId -> firestoreRepo.getPetById(petId) }
         .filterNotNull()
         .stateIn(
             scope = viewModelScope,
@@ -168,7 +170,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         )
 
     val vaccinations: StateFlow<List<VaccinationRecord>> = _activePetId
-        .flatMapLatest { petId -> repository.getVaccinations(petId) }
+        .flatMapLatest { petId -> firestoreRepo.getVaccinationsForPet(petId) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -176,7 +178,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         )
 
     val medicalReports: StateFlow<List<MedicalReport>> = _activePetId
-        .flatMapLatest { petId -> repository.getMedicalReports(petId) }
+        .flatMapLatest { petId -> firestoreRepo.getMedicalReportsForPet(petId) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -624,7 +626,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 ageYears = ageYears,
                 gender = gender.ifBlank { "Female" }
             )
-            repository.savePet(updated)
+            firestoreRepo.savePet(updated)
         }
     }
 
@@ -656,7 +658,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 trainingLevel = trainingLevel,
                 notes = notes
             )
-            repository.savePet(updated)
+            firestoreRepo.savePet(updated)
         }
     }
 
@@ -667,14 +669,14 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 favoriteFoods = foods,
                 favoritePlays = plays
             )
-            repository.savePet(updated)
+            firestoreRepo.savePet(updated)
         }
     }
 
     fun toggleVaccinationStatus(record: VaccinationRecord) {
         viewModelScope.launch {
             val newStatus = if (record.status == "Completed") "Upcoming" else "Completed"
-            repository.updateVaccinationStatus(record.id, newStatus)
+            firestoreRepo.updateVaccinationStatus(activePet.value.id, record.id, newStatus)
         }
     }
 
@@ -689,7 +691,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 veterinarian = doctor,
                 batchNumber = "VAX-${(1000..9999).random()}"
             )
-            repository.addVaccination(vax)
+            firestoreRepo.addVaccination(activePet.value.id, vax)
         }
     }
 
@@ -703,7 +705,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 diagnosis = diagnosis,
                 prescription = prescription
             )
-            repository.addMedicalReport(report)
+            firestoreRepo.addMedicalReport(activePet.value.id, report)
         }
     }
 
@@ -799,24 +801,22 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 avatarRes = "img_dog_jane",
                 notes = ""
             )
-            repository.savePet(newPet)
-            // Switch to the new pet
-            // Get all pets and switch to the newest one
-            repository.allUserPets.first().lastOrNull()?.let {
-                _activePetId.value = it.id
-            }
+            firestoreRepo.savePet(newPet)
+            // Switch to the new pet (use timestamp as ID for new pet)
+            _activePetId.value = System.currentTimeMillis()
         }
     }
 
     fun deleteCurrentPet() {
         viewModelScope.launch {
             val currentId = activePet.value.id
-            repository.deletePet(currentId)
+            firestoreRepo.deletePet(currentId)
             // Switch to first available pet
-            val pets = repository.allUserPets.first()
+            val pets = firestoreRepo.getAllUserPets().first()
             _activePetId.value = pets.firstOrNull()?.id ?: 1L
         }
     }
 
 }
+
 
