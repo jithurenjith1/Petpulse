@@ -27,13 +27,20 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val viewModel: PetViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
+                val authState by authViewModel.authState.collectAsStateWithLifecycle()
+
+                if (authState.isAuthenticated && authState.user != null) {
                 JaneAndPalsApp(viewModel = viewModel)
+                } else {
+                    LoginScreen(authViewModel = authViewModel, onAuthSuccess = { })
+                }
             }
         }
     }
