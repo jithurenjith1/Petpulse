@@ -23,19 +23,8 @@ jobs:
       - name: Generate Gradle wrapper
         run: gradle wrapper --gradle-version 9.3.1
 
-      - name: Generate debug keystore
+      - name: Print keystore SHA-1
         run: |
-          # # keytool -genkeypair -v \
-            -storetype PKCS12 \
-            -keystore debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
-
           echo "=== SHA-1 FINGERPRINT ==="
           keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android 2>/dev/null | grep SHA1
 
