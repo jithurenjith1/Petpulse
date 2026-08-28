@@ -76,7 +76,7 @@ class AuthViewModel : ViewModel() {
             val credentialManager = CredentialManager.create(context)
 
             val googleIdOption = GetGoogleIdOption.Builder()
-                .setServerClientId("218116951607")
+                .setServerClientId("218116951607-j51mjfs8uslriun4id6qtgqg0k7akpjd.apps.googleusercontent.com")
                 .setFilterByAuthorizedAccounts(false)
                 .setAutoSelectEnabled(false)
                 .build()
