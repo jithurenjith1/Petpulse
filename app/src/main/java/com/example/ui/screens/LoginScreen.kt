@@ -59,7 +59,7 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
             val account = task.getResult(Exception::class.java)
             authViewModel.handleGoogleSignInResult(account)
         } catch (e: Exception) {
-            authViewModel.handleGoogleSignInResult(null)
+            Toast.makeText(context, e.localizedMessage ?: "Google error", Toast.LENGTH_LONG).show()
         }
     }
 
