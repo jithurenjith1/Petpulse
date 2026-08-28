@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -90,8 +89,10 @@ class AuthViewModel {
                 context = context
             )
 
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential)
-            val idToken: String = googleIdTokenCredential.idToken
+            val credential = result.credential
+            val idToken = credential.data.getString("googleIdToken")
+                ?: throw Exception("No ID token found in credential")
+
             val authCredential = GoogleAuthProvider.getCredential(idToken, null)
             val authResult = auth.signInWithCredential(authCredential).await()
 
