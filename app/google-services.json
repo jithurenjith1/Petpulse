@@ -12,7 +12,20 @@
           "package_name": "com.aistudio.petcompanion.jane"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "218116951607-hig9t4mrn11ugcpdlq993mrbntfm4krk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aistudio.petcompanion.jane",
+            "certificate_hash": "a1cb8c675ff6192a7bc67b03adae3e8a0725d54b"
+          }
+        },
+        {
+          "client_id": "218116951607-j51mjfs8uslriun4id6qtgqg0k7akpjd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB-ljDxF2bwPoD95WMnpj0CXXZwUQW5W4w"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "218116951607-j51mjfs8uslriun4id6qtgqg0k7akpjd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
