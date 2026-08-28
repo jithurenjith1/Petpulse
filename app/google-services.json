@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "218116951607-q2u1ub9l01m6q6i2bnabesib59iifh9a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aistudio.petcompanion.jane",
+            "certificate_hash": "cbc4cf6ede9169f86276d4770f1e668b1a8329bc"
+          }
+        },
+        {
           "client_id": "218116951607-j51mjfs8uslriun4id6qtgqg0k7akpjd.apps.googleusercontent.com",
           "client_type": 3
         }
