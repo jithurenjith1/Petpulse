@@ -3,7 +3,6 @@ package com.example.ui.viewmodel
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -91,9 +90,9 @@ class AuthViewModel {
                 context = context
             )
 
-            val credential = result.credential
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential)
-            val authCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential)
+            val idToken: String = googleIdTokenCredential.idToken
+            val authCredential = GoogleAuthProvider.getCredential(idToken, null)
             val authResult = auth.signInWithCredential(authCredential).await()
 
             _authState.value = AuthState(
