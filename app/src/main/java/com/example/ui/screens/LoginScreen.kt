@@ -55,14 +55,12 @@ fun LoginScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Navigate on successful auth
     LaunchedEffect(authState.isAuthenticated) {
         if (authState.isAuthenticated) {
             onAuthSuccess()
         }
     }
 
-    // Show error as toast
     LaunchedEffect(authState.error) {
         authState.error?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
@@ -82,7 +80,6 @@ fun LoginScreen(
                 .padding(top = 60.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -118,7 +115,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Email field
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -138,7 +134,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Password field
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -166,7 +161,6 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Confirm password (sign-up only)
             AnimatedVisibility(
                 visible = !isLoginMode,
                 enter = fadeIn(),
@@ -196,7 +190,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Main button
             Button(
                 onClick = {
                     if (isLoginMode) {
@@ -240,7 +233,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Divider
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -263,7 +255,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Google Sign-In button
             OutlinedButton(
                 onClick = {
                     scope.launch {
@@ -290,7 +281,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Toggle login/signup
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
