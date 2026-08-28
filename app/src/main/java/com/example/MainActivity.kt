@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
                 if (authState.isAuthenticated && authState.user != null) {
-                JaneAndPalsApp(viewModel = viewModel)
+                JaneAndPalsApp(viewModel = viewModel, authViewModel = authViewModel)
                 } else {
                     LoginScreen(authViewModel = authViewModel, onAuthSuccess = { })
                 }
@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JaneAndPalsApp(viewModel: PetViewModel) {
+fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null) {
     val currentTab by viewModel.currentMainTab.collectAsStateWithLifecycle()
     val activePet by viewModel.activePet.collectAsStateWithLifecycle()
     val customer by viewModel.customerProfile.collectAsStateWithLifecycle()
@@ -278,6 +278,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel) {
                 coroutineScope.launch { snackbarHostState.showSnackbar("Welcome back, $name!") }
             },
             onLogout = {
+                authViewModel.signOut()
                 viewModel.updateCustomerProfile("Guest Customer", "guest@janeandpals.com", "+1 (555) 000-0000")
                 coroutineScope.launch { snackbarHostState.showSnackbar("Signed out successfully.") }
             }
