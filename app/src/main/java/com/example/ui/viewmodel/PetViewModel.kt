@@ -8,6 +8,8 @@ import com.example.data.model.*
 import com.example.data.repository.MarketplaceRepository
 import com.example.data.repository.PetRepository
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 enum class MainNavTab {
@@ -144,8 +146,20 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         items.sumOf { it.quantity }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    // Default Inbuilt Pet from Room DB
-    val activePet: StateFlow<UserPet> = repository.defaultPet
+    // Multi-pet support
+    private val _activePetId = MutableStateFlow(1L)
+    val activePetId: StateFlow<Long> = _activePetId.asStateFlow()
+
+    val allPets: StateFlow<List<UserPet>> = repository.allUserPets
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    // Active pet - dynamically based on _activePetId
+    val activePet: StateFlow<UserPet> = _activePetId
+        .flatMapLatest { petId -> repository.getPetById(petId) }
         .filterNotNull()
         .stateIn(
             scope = viewModelScope,
@@ -153,14 +167,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = UserPet()
         )
 
-    val vaccinations: StateFlow<List<VaccinationRecord>> = repository.getVaccinations(1L)
+    val vaccinations: StateFlow<List<VaccinationRecord>> = _activePetId
+        .flatMapLatest { petId -> repository.getVaccinations(petId) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    val medicalReports: StateFlow<List<MedicalReport>> = repository.getMedicalReports(1L)
+    val medicalReports: StateFlow<List<MedicalReport>> = _activePetId
+        .flatMapLatest { petId -> repository.getMedicalReports(petId) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -665,7 +681,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun addVaccinationRecord(name: String, date: String, nextDue: String, status: String, doctor: String) {
         viewModelScope.launch {
             val vax = VaccinationRecord(
-                petId = 1L,
+                petId = activePet.value.id,
                 vaccineName = name,
                 dateGiven = date,
                 nextDueDate = nextDue,
@@ -680,7 +696,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun addMedicalReport(title: String, clinic: String, diagnosis: String, prescription: String) {
         viewModelScope.launch {
             val report = MedicalReport(
-                petId = 1L,
+                petId = activePet.value.id,
                 title = title,
                 clinicName = clinic,
                 date = "Aug 25, 2026",
@@ -754,4 +770,53 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             isLoggedIn = true
         )
     }
+
+    // ================= MULTI-PET SUPPORT =================
+    
+    fun switchPet(petId: Long) {
+        _activePetId.value = petId
+    }
+
+    fun addNewPet(name: String, species: String, breed: String, gender: String, ageYears: Int, ageMonths: Int) {
+        viewModelScope.launch {
+            val newPet = UserPet(
+                name = name.ifBlank { "New Pet" },
+                species = species,
+                breed = breed.ifBlank { "Mixed" },
+                gender = gender.ifBlank { "Unknown" },
+                ageYears = ageYears,
+                ageMonths = ageMonths,
+                weightKg = 0.0,
+                microchipNumber = "",
+                hasCertificate = false,
+                certificateNumber = "",
+                certificateIssuedBy = "",
+                certificateDate = "",
+                favoriteFoods = "",
+                favoritePlays = "",
+                trainingStatus = "",
+                trainingLevel = "Basic",
+                avatarRes = "img_dog_jane",
+                notes = ""
+            )
+            repository.savePet(newPet)
+            // Switch to the new pet
+            // Get all pets and switch to the newest one
+            repository.allUserPets.first().lastOrNull()?.let {
+                _activePetId.value = it.id
+            }
+        }
+    }
+
+    fun deleteCurrentPet() {
+        viewModelScope.launch {
+            val currentId = activePet.value.id
+            repository.deletePet(currentId)
+            // Switch to first available pet
+            val pets = repository.allUserPets.first()
+            _activePetId.value = pets.firstOrNull()?.id ?: 1L
+        }
+    }
+
 }
+

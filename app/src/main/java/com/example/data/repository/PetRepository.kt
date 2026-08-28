@@ -19,6 +19,14 @@ class PetRepository(private val petDao: PetDao) {
 
     suspend fun savePet(pet: UserPet) = petDao.insertOrUpdatePet(pet)
 
+    suspend fun deletePet(petId: Long) {
+        petDao.deleteVaccinationsForPet(petId)
+        petDao.deleteMedicalReportsForPet(petId)
+        petDao.deletePet(petId)
+    }
+
+    fun getPetById(petId: Long): Flow<UserPet?> = petDao.getPetById(petId)
+
     suspend fun addVaccination(record: VaccinationRecord) = petDao.insertVaccination(record)
 
     suspend fun updateVaccinationStatus(id: Long, newStatus: String) =
@@ -346,3 +354,4 @@ class PetRepository(private val petDao: PetDao) {
         )
     )
 }
+

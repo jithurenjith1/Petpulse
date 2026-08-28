@@ -18,6 +18,8 @@ import com.example.data.model.MarketPet
 import com.example.data.model.MarketProduct
 import com.example.data.model.VerifiedDoctor
 import com.example.ui.components.PetAppBottomBar
+import com.example.ui.components.PetSwitcher
+import com.example.ui.components.AddPetDialog
 import com.example.ui.components.PetAppTopBar
 import com.example.ui.screens.*
 import com.example.ui.theme.MyApplicationTheme
@@ -50,6 +52,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null) {
     val currentTab by viewModel.currentMainTab.collectAsStateWithLifecycle()
+    val allPets by viewModel.allPets.collectAsStateWithLifecycle()
+    val activePetId by viewModel.activePetId.collectAsStateWithLifecycle()
     val activePet by viewModel.activePet.collectAsStateWithLifecycle()
     val customer by viewModel.customerProfile.collectAsStateWithLifecycle()
     val vaccinations by viewModel.vaccinations.collectAsStateWithLifecycle()
@@ -101,6 +105,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showEditPetDialog by remember { mutableStateOf(false) }
     var showSosDialog by remember { mutableStateOf(false) }
     var showAddListingDialog by remember { mutableStateOf(false) }
+    var showAddPetDialog by remember { mutableStateOf(false) }
 
     // Marketplace Modal controllers
     var showCartModal by remember { mutableStateOf(false) }
@@ -138,6 +143,15 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
+        ) {
+            PetSwitcher(
+                pets = allPets,
+                activePetId = activePetId,
+                onPetSelected = { viewModel.switchPet(it) },
+                onAddPetClick = { showAddPetDialog = true }
+            )
         Crossfade(
             targetState = currentTab,
             label = "ScreenTransition",
@@ -265,6 +279,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                     )
                 }
             }
+        }
         }
     }
 
@@ -420,6 +435,17 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 
+    if (showAddPetDialog) {
+        AddPetDialog(
+            onDismiss = { showAddPetDialog = false },
+            onAddPet = { name, species, breed, gender, ageYears, ageMonths ->
+                viewModel.addNewPet(name, species, breed, gender, ageYears, ageMonths)
+                showAddPetDialog = false
+                coroutineScope.launch { snackbarHostState.showSnackbar("Welcome $name to the family!") }
+            }
+        )
+    }
+
     selectedDoctorForBooking?.let { doctor ->
         DoctorBookingModal(
             doctor = doctor,
@@ -434,3 +460,4 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 }
+

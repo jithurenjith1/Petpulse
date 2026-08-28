@@ -20,6 +20,9 @@ interface PetDao {
     @Query("SELECT * FROM user_pets")
     fun getAllUserPets(): Flow<List<UserPet>>
 
+    @Query("SELECT * FROM user_pets WHERE id = :petId LIMIT 1")
+    fun getPetById(petId: Long): Flow<UserPet?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdatePet(pet: UserPet)
 
@@ -56,4 +59,14 @@ interface PetDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPetListing(listing: PetListing)
+
+    @Query("DELETE FROM user_pets WHERE id = :petId")
+    suspend fun deletePet(petId: Long)
+
+    @Query("DELETE FROM vaccination_records WHERE petId = :petId")
+    suspend fun deleteVaccinationsForPet(petId: Long)
+
+    @Query("DELETE FROM medical_reports WHERE petId = :petId")
+    suspend fun deleteMedicalReportsForPet(petId: Long)
 }
+
