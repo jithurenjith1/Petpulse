@@ -278,7 +278,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 coroutineScope.launch { snackbarHostState.showSnackbar("Welcome back, $name!") }
             },
             onLogout = {
-                authViewModel.signOut()
+                authViewModel!!.signOut()
                 viewModel.updateCustomerProfile("Guest Customer", "guest@janeandpals.com", "+1 (555) 000-0000")
                 coroutineScope.launch { snackbarHostState.showSnackbar("Signed out successfully.") }
             }
