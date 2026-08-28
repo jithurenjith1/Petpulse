@@ -25,7 +25,7 @@ jobs:
 
       - name: Generate debug keystore
         run: |
-          # keytool -genkeypair -v \
+          # # keytool -genkeypair -v \
             -storetype PKCS12 \
             -keystore debug.keystore \
             -storepass android \
