@@ -1,5 +1,6 @@
 package com.example.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.data.model.UserPet
@@ -19,63 +20,134 @@ class FirestorePetRepository {
 
     private fun petsRef() = db.collection("users").document(uid()).collection("pets")
 
-    private fun petDoc(petId: String) = petsRef().document(petId)
+    // Map of pet Long ID -> Firestore doc ID
+    private val petDocIdMap = mutableMapOf<Long, String>()
+    private var nextLocalId = 1L
 
     fun getAllUserPets(): Flow<List<UserPet>> = callbackFlow {
         val subscription = petsRef().addSnapshotListener { snapshot, error ->
             if (error != null) {
+                Log.e("FirestorePetRepo", "Error getting pets", error)
                 close(error)
                 return@addSnapshotListener
             }
-            val pets = snapshot?.documents?.mapNotNull { doc ->
-                doc.toObject(UserPet::class.java)?.copy(id = doc.id.hashCode().toLong())
-            } ?: emptyList()
+            val pets = mutableListOf<UserPet>()
+            var maxId = 0L
+            snapshot?.documents?.forEach { doc ->
+                val pet = doc.toObject(UserPet::class.java)
+                if (pet != null) {
+                    // Use a stable ID from the document
+                    val stableId = doc.id.hashCode().toLong().let { 
+                        if (it < 0) -it else it 
+                    }
+                    petDocIdMap[stableId] = doc.id
+                    if (stableId > maxId) maxId = stableId
+                    pets.add(pet.copy(id = stableId))
+                }
+            }
+            nextLocalId = maxId + 1
             trySend(pets)
         }
         awaitClose { subscription.remove() }
     }
 
     fun getPetById(petId: Long): Flow<UserPet?> = callbackFlow {
-        val petDocId = findPetDocId(petId)
-        val subscription = petsRef().document(petDocId).addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
+        val docId = petDocIdMap[petId]
+        if (docId == null) {
+            // Try to find it by querying all pets
+            try {
+                val snapshot = petsRef().get().await()
+                var found = false
+                for (doc in snapshot.documents) {
+                    val stableId = doc.id.hashCode().toLong().let { 
+                        if (it < 0) -it else it 
+                    }
+                    if (stableId == petId) {
+                        petDocIdMap[petId] = doc.id
+                        val pet = doc.toObject(UserPet::class.java)?.copy(id = petId)
+                        if (pet != null) {
+                            trySend(pet)
+                            found = true
+                        }
+                        break
+                    }
+                }
+                if (!found) trySend(null)
+            } catch (e: Exception) {
+                trySend(null)
             }
-            val pet = snapshot?.toObject(UserPet::class.java)?.copy(id = petId)
-            trySend(pet)
+        } else {
+            val subscription = petsRef().document(docId).addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val pet = snapshot?.toObject(UserPet::class.java)?.copy(id = petId)
+                trySend(pet)
+            }
+            awaitClose { subscription.remove() }
+            return@callbackFlow
         }
-        awaitClose { subscription.remove() }
+        awaitClose { }
     }
 
     suspend fun savePet(pet: UserPet) {
         val petMap = petToMap(pet)
-        if (pet.id <= 0L) {
-            // New pet - add with auto-generated ID
-            val docRef = petsRef().add(petMap).await()
+        val existingDocId = petDocIdMap[pet.id]
+        
+        if (existingDocId != null) {
+            // Update existing pet
+            petsRef().document(existingDocId).set(petMap).await()
         } else {
-            // Existing pet - find and update
-            val petDocId = findPetDocId(pet.id)
-            petsRef().document(petDocId).set(petMap).await()
+            // Check if this pet already has a doc (by localId field)
+            val snapshot = petsRef().get().await()
+            var found = false
+            for (doc in snapshot.documents) {
+                val stableId = doc.id.hashCode().toLong().let { 
+                    if (it < 0) -it else it 
+                }
+                if (stableId == pet.id) {
+                    petDocIdMap[pet.id] = doc.id
+                    petsRef().document(doc.id).set(petMap).await()
+                    found = true
+                    break
+                }
+            }
+            if (!found) {
+                // Truly new pet - create new document
+                val docRef = petsRef().add(petMap).await()
+                val newStableId = docRef.id.hashCode().toLong().let { 
+                    if (it < 0) -it else it 
+                }
+                petDocIdMap[newStableId] = docRef.id
+            }
         }
     }
 
     suspend fun deletePet(petId: Long) {
-        val petDocId = findPetDocId(petId)
-        // Delete sub-collections first
-        deleteVaccinationsForPet(petId)
-        deleteMedicalReportsForPet(petId)
-        petsRef().document(petDocId).delete().await()
+        val docId = petDocIdMap[petId]
+        if (docId != null) {
+            // Delete sub-collections first
+            deleteVaccinationsForPet(docId)
+            deleteMedicalReportsForPet(docId)
+            petsRef().document(docId).delete().await()
+            petDocIdMap.remove(petId)
+        }
     }
 
     fun getVaccinationsForPet(petId: Long): Flow<List<VaccinationRecord>> = callbackFlow {
-        val petDocId = findPetDocId(petId)
-        val subscription = petsRef().document(petDocId)
+        val docId = petDocIdMap[petId] ?: run {
+            trySend(emptyList())
+            awaitClose { }
+            return@callbackFlow
+        }
+        val subscription = petsRef().document(docId)
             .collection("vaccinations")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) { close(error); return@addSnapshotListener }
                 val records = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(VaccinationRecord::class.java)?.copy(id = doc.id.hashCode().toLong())
+                    val vax = doc.toObject(VaccinationRecord::class.java)
+                    vax?.copy(id = doc.id.hashCode().toLong().let { if (it < 0) -it else it })
                 } ?: emptyList()
                 trySend(records)
             }
@@ -83,7 +155,7 @@ class FirestorePetRepository {
     }
 
     suspend fun addVaccination(petId: Long, record: VaccinationRecord) {
-        val petDocId = findPetDocId(petId)
+        val docId = petDocIdMap[petId] ?: return
         val recordMap = mapOf(
             "petId" to petId,
             "vaccineName" to record.vaccineName,
@@ -93,30 +165,40 @@ class FirestorePetRepository {
             "veterinarian" to record.veterinarian,
             "batchNumber" to record.batchNumber
         )
-        petsRef().document(petDocId).collection("vaccinations").add(recordMap).await()
+        petsRef().document(docId).collection("vaccinations").add(recordMap).await()
     }
 
     suspend fun updateVaccinationStatus(petId: Long, recordId: Long, newStatus: String) {
-        val petDocId = findPetDocId(petId)
-        val vaxDocId = findVaxDocId(petId, recordId)
-        petsRef().document(petDocId).collection("vaccinations").document(vaxDocId)
-            .update("status", newStatus).await()
+        val petDocId = petDocIdMap[petId] ?: return
+        val snapshot = petsRef().document(petDocId).collection("vaccinations").get().await()
+        for (doc in snapshot.documents) {
+            val stableId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+            if (stableId == recordId) {
+                petsRef().document(petDocId).collection("vaccinations").document(doc.id)
+                    .update("status", newStatus).await()
+                break
+            }
+        }
     }
 
-    private suspend fun deleteVaccinationsForPet(petId: Long) {
-        val petDocId = findPetDocId(petId)
+    private suspend fun deleteVaccinationsForPet(petDocId: String) {
         val snapshot = petsRef().document(petDocId).collection("vaccinations").get().await()
         snapshot.documents.forEach { doc -> doc.reference.delete().await() }
     }
 
     fun getMedicalReportsForPet(petId: Long): Flow<List<MedicalReport>> = callbackFlow {
-        val petDocId = findPetDocId(petId)
-        val subscription = petsRef().document(petDocId)
+        val docId = petDocIdMap[petId] ?: run {
+            trySend(emptyList())
+            awaitClose { }
+            return@callbackFlow
+        }
+        val subscription = petsRef().document(docId)
             .collection("medical_reports")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) { close(error); return@addSnapshotListener }
                 val reports = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(MedicalReport::class.java)?.copy(id = doc.id.hashCode().toLong())
+                    val report = doc.toObject(MedicalReport::class.java)
+                    report?.copy(id = doc.id.hashCode().toLong().let { if (it < 0) -it else it })
                 } ?: emptyList()
                 trySend(reports)
             }
@@ -124,7 +206,7 @@ class FirestorePetRepository {
     }
 
     suspend fun addMedicalReport(petId: Long, report: MedicalReport) {
-        val petDocId = findPetDocId(petId)
+        val docId = petDocIdMap[petId] ?: return
         val reportMap = mapOf(
             "petId" to petId,
             "title" to report.title,
@@ -133,56 +215,16 @@ class FirestorePetRepository {
             "diagnosis" to report.diagnosis,
             "prescription" to report.prescription
         )
-        petsRef().document(petDocId).collection("medical_reports").add(reportMap).await()
+        petsRef().document(docId).collection("medical_reports").add(reportMap).await()
     }
 
-    private suspend fun deleteMedicalReportsForPet(petId: Long) {
-        val petDocId = findPetDocId(petId)
+    private suspend fun deleteMedicalReportsForPet(petDocId: String) {
         val snapshot = petsRef().document(petDocId).collection("medical_reports").get().await()
         snapshot.documents.forEach { doc -> doc.reference.delete().await() }
     }
 
-    // Helper: find Firestore doc ID for a pet based on Long ID
-    private var petIdCache = mutableMapOf<Long, String>()
-
-    private suspend fun findPetDocId(petId: Long): String {
-        petIdCache[petId]?.let { return it }
-        val snapshot = petsRef().get().await()
-        // Try to find by matching - we store the long id as a field
-        for (doc in snapshot.documents) {
-            val storedId = doc.getLong("localId") ?: 0L
-            if (storedId == petId) {
-                petIdCache[petId] = doc.id
-                return doc.id
-            }
-        }
-        // If not found, return petId as string (for new pets)
-        val fallback = petId.toString()
-        petIdCache[petId] = fallback
-        return fallback
-    }
-
-    private var vaxIdCache = mutableMapOf<Long, String>()
-
-    private suspend fun findVaxDocId(petId: Long, recordId: Long): String {
-        vaxIdCache[recordId]?.let { return it }
-        val petDocId = findPetDocId(petId)
-        val snapshot = petsRef().document(petDocId).collection("vaccinations").get().await()
-        for (doc in snapshot.documents) {
-            val storedId = doc.getLong("localId") ?: 0L
-            if (storedId == recordId) {
-                vaxIdCache[recordId] = doc.id
-                return doc.id
-            }
-        }
-        val fallback = recordId.toString()
-        vaxIdCache[recordId] = fallback
-        return fallback
-    }
-
     private fun petToMap(pet: UserPet): Map<String, Any> {
         return mapOf(
-            "localId" to pet.id,
             "name" to pet.name,
             "species" to pet.species,
             "breed" to pet.breed,

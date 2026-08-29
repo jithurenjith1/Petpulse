@@ -802,8 +802,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 notes = ""
             )
             firestoreRepo.savePet(newPet)
-            // Switch to the new pet (use timestamp as ID for new pet)
-            _activePetId.value = System.currentTimeMillis()
+            // Wait briefly for Firestore to sync, then switch to newest pet
+            kotlinx.coroutines.delay(500)
+            val pets = firestoreRepo.getAllUserPets().first()
+            _activePetId.value = pets.lastOrNull()?.id ?: 1L
         }
     }
 
@@ -818,5 +820,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 }
+
 
 
