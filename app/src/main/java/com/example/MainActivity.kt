@@ -18,6 +18,8 @@ import com.example.data.model.MarketPet
 import com.example.data.model.MarketProduct
 import com.example.data.model.VerifiedDoctor
 import com.example.ui.components.PetAppBottomBar
+import com.example.ui.screens.MapScreen
+import com.example.ui.screens.RealSosScreen
 import com.example.ui.components.PetSwitcher
 import com.example.ui.components.AddPetDialog
 import com.example.ui.components.PetAppTopBar
@@ -105,6 +107,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showEditPetDialog by remember { mutableStateOf(false) }
     var showSosDialog by remember { mutableStateOf(false) }
     var showAddListingDialog by remember { mutableStateOf(false) }
+    var showMapScreen by remember { mutableStateOf(false) }
+    var showSosScreen by remember { mutableStateOf(false) }
     var showAddPetDialog by remember { mutableStateOf(false) }
 
     // Marketplace Modal controllers
@@ -128,18 +132,81 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 onSosClick = { showSosDialog = true },
                 onLoginClick = { showLoginDialog = true }
             )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
         },
         bottomBar = {
             PetAppBottomBar(
                 currentTab = currentTab,
                 onTabSelected = { viewModel.setMainTab(it) }
             )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
         },
         snackbarHost = {
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier.padding(bottom = 80.dp)
             )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
@@ -152,6 +219,27 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 onPetSelected = { viewModel.switchPet(it) },
                 onAddPetClick = { showAddPetDialog = true }
             )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
         Crossfade(
             targetState = currentTab,
             label = "ScreenTransition",
@@ -189,6 +277,27 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
                     )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
                 }
 
                 MainNavTab.MARKETPLACE -> {
@@ -232,6 +341,27 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             }
                         }
                     )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
                 }
 
                 MainNavTab.EXPLORE_PETS -> {
@@ -253,6 +383,27 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
                     )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
                 }
 
                 MainNavTab.PARTNERS_SERVICES -> {
@@ -277,9 +428,72 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
                     )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
                 }
             }
         }
+        }
+    }
+
+    if (showMapScreen) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showMapScreen = false },
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color(0xFFFFF8F3)
+        ) {
+            MapScreen()
+        }
+    }
+
+    if (showSosScreen) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showSosScreen = false },
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color(0xFFFFF8F3)
+        ) {
+            RealSosScreen(petName = activePet.value.name)
+        }
+    }
+
+    if (showMapScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            MapScreen()
+            FloatingActionButton(
+                onClick = { showMapScreen = false },
+                modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
+                containerColor = Color(0xFFE07856)
+            ) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+
+    if (showSosScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            RealSosScreen(petName = activePet.value.name)
+            FloatingActionButton(
+                onClick = { showSosScreen = false },
+                modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
+                containerColor = Color(0xFFE63946)
+            ) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
 
@@ -309,6 +523,27 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                     name, breed, gender, ageYears, ageMonths, weightKg,
                     foods, plays, trainingStatus, trainingLevel, notes
                 )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("Updated profile for $name!")
                 }
@@ -404,6 +639,27 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                     description = desc,
                     phone = phone
                 )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("🐾 Listing for $name submitted with Escrow Protection in $city!")
                 }
@@ -428,6 +684,27 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                     inPersonConsultFeeInr = inPersonFee,
                     phone = phone
                 )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showMapScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
+                ) {
+                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                Button(
+                    onClick = { showSosScreen = true },
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) {
+                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("🩺 Dr. $name registered & verified with KSVC in $city!")
                 }
@@ -460,4 +737,5 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 }
+
 
