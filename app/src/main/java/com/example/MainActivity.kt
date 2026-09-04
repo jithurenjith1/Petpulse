@@ -473,7 +473,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 
     if (showSosScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
-            RealSosScreen(petName = activePet.value.name)
+            RealSosScreen(petName = activePet.name)
             FloatingActionButton(
                 onClick = { showSosScreen = false },
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
