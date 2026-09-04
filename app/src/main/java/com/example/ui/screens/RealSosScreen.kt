@@ -85,7 +85,7 @@ fun RealSosScreen(petName: String = "My Pet") {
 
                         // Trail polyline
                         if (locationHistory.size > 1) {
-                            val polyline = Polyline().apply {
+                            val polyline = Polyline(mv).apply {
                                 setPoints(locationHistory)
                                 outlinePaint.color = android.graphics.Color.parseColor("#E63946")
                                 outlinePaint.strokeWidth = 8f
