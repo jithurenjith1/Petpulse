@@ -461,26 +461,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     }
 
     if (showMapScreen) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showMapScreen = false },
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color(0xFFFFF8F3)
-        ) {
-            MapScreen()
-        }
-    }
-
-    if (showSosScreen) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showSosScreen = false },
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color(0xFFFFF8F3)
-        ) {
-            RealSosScreen(petName = activePet.value.name)
-        }
-    }
-
-    if (showMapScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             MapScreen()
             FloatingActionButton(
@@ -742,5 +722,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 }
+
 
 
