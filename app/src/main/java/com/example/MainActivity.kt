@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.GroomingServiceItem
@@ -25,6 +26,13 @@ import com.example.data.model.VerifiedDoctor
 import com.example.ui.components.PetAppBottomBar
 import com.example.ui.screens.MapScreen
 import com.example.ui.screens.RealSosScreen
+import com.example.ui.screens.VaccinationRemindersScreen
+import com.example.ui.screens.FoodSubscriptionScreen
+import com.example.ui.screens.PetInsuranceScreen
+import com.example.ui.screens.PetCommunityScreen
+import com.example.ui.screens.LostPetAlertsScreen
+import com.example.ui.screens.PetCareTipsScreen
+import com.example.ui.screens.TrainingVideosScreen
 import com.example.ui.components.PetSwitcher
 import com.example.ui.components.AddPetDialog
 import com.example.ui.components.PetAppTopBar
@@ -114,6 +122,13 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showAddListingDialog by remember { mutableStateOf(false) }
     var showMapScreen by remember { mutableStateOf(false) }
     var showSosScreen by remember { mutableStateOf(false) }
+    var showVaccinationScreen by remember { mutableStateOf(false) }
+    var showFoodSubscriptionScreen by remember { mutableStateOf(false) }
+    var showInsuranceScreen by remember { mutableStateOf(false) }
+    var showCommunityScreen by remember { mutableStateOf(false) }
+    var showLostPetAlertsScreen by remember { mutableStateOf(false) }
+    var showCareTipsScreen by remember { mutableStateOf(false) }
+    var showTrainingScreen by remember { mutableStateOf(false) }
     var showAddPetDialog by remember { mutableStateOf(false) }
 
     // Marketplace Modal controllers
@@ -164,26 +179,20 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 onPetSelected = { viewModel.switchPet(it) },
                 onAddPetClick = { showAddPetDialog = true }
             )
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // Feature buttons grid
+            androidx.compose.foundation.lazy.LazyRow(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Button(
-                    onClick = { showMapScreen = true },
-                    modifier = Modifier.weight(1f).height(40.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F))
-                ) {
-                    Text("Nearby Services", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                }
-                Button(
-                    onClick = { showSosScreen = true },
-                    modifier = Modifier.weight(1f).height(40.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
-                ) {
-                    Text("SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
+                item { FeatureButton("SOS", Color(0xFFE63946)) { showSosScreen = true } }
+                item { FeatureButton("Nearby", Color(0xFF2A9D8F)) { showMapScreen = true } }
+                item { FeatureButton("Vaccines", Color(0xFF6A4C93)) { showVaccinationScreen = true } }
+                item { FeatureButton("Food Sub", Color(0xFFF77F00)) { showFoodSubscriptionScreen = true } }
+                item { FeatureButton("Insurance", Color(0xFF003049)) { showInsuranceScreen = true } }
+                item { FeatureButton("Community", Color(0xFF5B8E7D)) { showCommunityScreen = true } }
+                item { FeatureButton("Lost Alerts", Color(0xFFD62828)) { showLostPetAlertsScreen = true } }
+                item { FeatureButton("Care Tips", Color(0xFF4A90D9)) { showCareTipsScreen = true } }
+                item { FeatureButton("Training", Color(0xFFE07856)) { showTrainingScreen = true } }
             }
 
         Crossfade(
@@ -509,6 +518,51 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 
+
+    // === Feature Screen Overlays ===
+    if (showVaccinationScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            VaccinationRemindersScreen()
+            FloatingActionButton(onClick = { showVaccinationScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+    if (showFoodSubscriptionScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            FoodSubscriptionScreen()
+            FloatingActionButton(onClick = { showFoodSubscriptionScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+    if (showInsuranceScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            PetInsuranceScreen()
+            FloatingActionButton(onClick = { showInsuranceScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+    if (showCommunityScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            PetCommunityScreen()
+            FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+    if (showLostPetAlertsScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LostPetAlertsScreen()
+            FloatingActionButton(onClick = { showLostPetAlertsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+    if (showCareTipsScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            PetCareTipsScreen()
+            FloatingActionButton(onClick = { showCareTipsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+    if (showTrainingScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            TrainingVideosScreen()
+            FloatingActionButton(onClick = { showTrainingScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+
     selectedDoctorForBooking?.let { doctor ->
         DoctorBookingModal(
             doctor = doctor,
@@ -523,6 +577,36 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 }
+
+@Composable
+private fun FeatureButton(label: String, color: Color, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.height(36.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = color),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color.White)
+    }
+}
+
+@Composable
+fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFFFF8F3))) {
+        content()
+        FloatingActionButton(
+            onClick = { },
+            modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+            containerColor = Color(0xFFE07856),
+            shape = CircleShape
+        ) {
+            Text("X", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+
 
 
 
