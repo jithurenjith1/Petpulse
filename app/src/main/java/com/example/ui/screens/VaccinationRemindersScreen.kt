@@ -304,7 +304,7 @@ private fun AddReminderDialog(
                     label = { Text("Vaccine name") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = CoralPrimary,
                         focusedLabelColor = CoralPrimary,
                         cursorColor = CoralPrimary
@@ -316,7 +316,7 @@ private fun AddReminderDialog(
                     label = { Text("Due date (dd/MM/yyyy)") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = CoralPrimary,
                         focusedLabelColor = CoralPrimary,
                         cursorColor = CoralPrimary
@@ -328,7 +328,7 @@ private fun AddReminderDialog(
                     label = { Text("Veterinarian") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = CoralPrimary,
                         focusedLabelColor = CoralPrimary,
                         cursorColor = CoralPrimary

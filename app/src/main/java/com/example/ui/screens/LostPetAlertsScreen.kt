@@ -61,7 +61,7 @@ private val SosRed = Color(0xFFD62828)
  * A lost pet alert document mirrored from Firestore collection "lost_pet_alerts".
  * Field names match the Firestore document keys.
  */
-data class LostPetAlert(
+data class LostPetAlertItem(
     val petName: String = "",
     val species: String = "",
     val breed: String = "",
@@ -76,7 +76,7 @@ data class LostPetAlert(
  */
 sealed interface LostPetUiState {
     data object Loading : LostPetUiState
-    data class Success(val alerts: List<LostPetAlert>) : LostPetUiState
+    data class Success(val alerts: List<LostPetAlertItem>) : LostPetUiState
     data class Error(val message: String) : LostPetUiState
 }
 
@@ -122,7 +122,7 @@ fun lostPetAlertsFlow(
  */
 suspend fun fetchLostPetAlertsOnce(
     db: FirebaseFirestore = FirebaseFirestore.getInstance()
-): List<LostPetAlert> {
+): List<LostPetAlertItem> {
     val snapshot = db.collection("lost_pet_alerts")
         .orderBy("date", Query.Direction.DESCENDING)
         .get()
