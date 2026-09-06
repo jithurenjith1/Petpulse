@@ -185,15 +185,15 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                item { FeatureButton("SOS", Color(0xFFE63946)) { showSosScreen = true } }
-                item { FeatureButton("Nearby", Color(0xFF2A9D8F)) { showMapScreen = true } }
+                item { FeatureButton("SOS", Color(0xFFC9A227)) { showSosScreen = true } }
+                item { FeatureButton("Nearby", Color(0xFF6A4C93)) { showMapScreen = true } }
                 item { FeatureButton("Vaccines", Color(0xFF6A4C93)) { showVaccinationScreen = true } }
-                item { FeatureButton("Food Sub", Color(0xFFF77F00)) { showFoodSubscriptionScreen = true } }
-                item { FeatureButton("Insurance", Color(0xFF003049)) { showInsuranceScreen = true } }
-                item { FeatureButton("Community", Color(0xFF5B8E7D)) { showCommunityScreen = true } }
-                item { FeatureButton("Lost Alerts", Color(0xFFD62828)) { showLostPetAlertsScreen = true } }
-                item { FeatureButton("Care Tips", Color(0xFF4A90D9)) { showCareTipsScreen = true } }
-                item { FeatureButton("Training", Color(0xFFE07856)) { showTrainingScreen = true } }
+                item { FeatureButton("Food Sub", Color(0xFF6A4C93)) { showFoodSubscriptionScreen = true } }
+                item { FeatureButton("Insurance", Color(0xFF6A4C93)) { showInsuranceScreen = true } }
+                item { FeatureButton("Community", Color(0xFF6A4C93)) { showCommunityScreen = true } }
+                item { FeatureButton("Lost Alerts", Color(0xFFC9A227)) { showLostPetAlertsScreen = true } }
+                item { FeatureButton("Care Tips", Color(0xFF6A4C93)) { showCareTipsScreen = true } }
+                item { FeatureButton("Training", Color(0xFF6A4C93)) { showTrainingScreen = true } }
             }
 
         Crossfade(
@@ -524,43 +524,43 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     if (showVaccinationScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             VaccinationRemindersScreen()
-            FloatingActionButton(onClick = { showVaccinationScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showVaccinationScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showFoodSubscriptionScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             FoodSubscriptionScreen()
-            FloatingActionButton(onClick = { showFoodSubscriptionScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showFoodSubscriptionScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showInsuranceScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             PetInsuranceScreen()
-            FloatingActionButton(onClick = { showInsuranceScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showInsuranceScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showCommunityScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             PetCommunityScreen()
-            FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showLostPetAlertsScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             LostPetAlertsScreen()
-            FloatingActionButton(onClick = { showLostPetAlertsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showLostPetAlertsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showCareTipsScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             PetCareTipsScreen()
-            FloatingActionButton(onClick = { showCareTipsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showCareTipsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showTrainingScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             TrainingVideosScreen()
-            FloatingActionButton(onClick = { showTrainingScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFE07856)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showTrainingScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
 
@@ -606,6 +606,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 
