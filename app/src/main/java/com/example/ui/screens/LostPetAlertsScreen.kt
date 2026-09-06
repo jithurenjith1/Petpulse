@@ -105,7 +105,7 @@ fun lostPetAlertsFlow(
                 return@addSnapshotListener
             }
             val alerts = snapshot.documents.mapNotNull { doc ->
-                doc.toObject<LostPetAlert>()
+                doc.toObject<LostPetAlertItem>()
             }
             trySend(LostPetUiState.Success(alerts))
         }
@@ -127,7 +127,7 @@ suspend fun fetchLostPetAlertsOnce(
         .orderBy("date", Query.Direction.DESCENDING)
         .get()
         .await()
-    return snapshot.documents.mapNotNull { it.toObject<LostPetAlert>() }
+    return snapshot.documents.mapNotNull { it.toObject<LostPetAlertItem>() }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,7 +203,7 @@ fun LostPetAlertsScreen() {
 }
 
 @Composable
-private fun LostPetAlertCard(alert: LostPetAlert) {
+private fun LostPetAlertCard(alert: LostPetAlertItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
