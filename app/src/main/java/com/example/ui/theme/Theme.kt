@@ -12,39 +12,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BluePrimaryDarkTheme,
-    onPrimary = Color(0xFF5C1A00),
-    primaryContainer = BluePrimaryDark,
-    onPrimaryContainer = Color(0xFFFFDBCC),
-    secondary = BlueSecondaryDarkTheme,
-    onSecondary = Color(0xFF003830),
-    secondaryContainer = Color(0xFF005048),
-    onSecondaryContainer = Color(0xFFB0F5EC),
-    tertiary = BlueTertiaryDarkTheme,
-    background = BlueBackgroundDark,
+    primary = PurplePrimaryDarkTheme,
+    onPrimary = Color(0xFF1A0F2E),
+    primaryContainer = PurplePrimaryDark,
+    onPrimaryContainer = Color(0xFFE0D0F0),
+    secondary = PurpleSecondaryDarkTheme,
+    onSecondary = Color(0xFF3A2E00),
+    secondaryContainer = Color(0xFF524500),
+    onSecondaryContainer = Color(0xFFF5E5A0),
+    tertiary = PurpleTertiaryDarkTheme,
+    background = PurpleBackgroundDark,
     onBackground = TextPrimaryDark,
-    surface = BlueSurfaceDark,
+    surface = PurpleSurfaceDark,
     onSurface = TextPrimaryDark,
-    surfaceVariant = BlueSurfaceVariantDark,
+    surfaceVariant = PurpleSurfaceVariantDark,
     onSurfaceVariant = TextSecondaryDark,
+    error = AccentRed,
+    onError = Color.White,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = BluePrimary,
+    primary = PurplePrimary,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFFFDBCC),
-    onPrimaryContainer = Color(0xFF5C1A00),
-    secondary = BlueSecondary,
+    primaryContainer = Color(0xFFE0D0F0),
+    onPrimaryContainer = Color(0xFF1A0F2E),
+    secondary = PurpleSecondary,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFB0F5EC),
-    onSecondaryContainer = Color(0xFF003830),
-    tertiary = BlueTertiary,
-    background = BlueBackgroundLight,
+    secondaryContainer = Color(0xFFF5E5A0),
+    onSecondaryContainer = Color(0xFF3A2E00),
+    tertiary = PurpleTertiary,
+    background = PurpleBackgroundLight,
     onBackground = TextPrimaryLight,
-    surface = BlueSurfaceLight,
+    surface = PurpleSurfaceLight,
     onSurface = TextPrimaryLight,
-    surfaceVariant = BlueSurfaceVariantLight,
+    surfaceVariant = PurpleSurfaceVariantLight,
     onSurfaceVariant = TextSecondaryLight,
+    error = AccentRed,
+    onError = Color.White,
 )
 
 @Composable
@@ -68,3 +72,4 @@ fun MyApplicationTheme(
         content = content
     )
 }
+
