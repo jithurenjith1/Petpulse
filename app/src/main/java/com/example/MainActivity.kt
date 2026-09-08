@@ -27,13 +27,10 @@ import com.example.data.model.VerifiedDoctor
 import com.example.ui.components.PetAppBottomBar
 import com.example.ui.screens.MapScreen
 import com.example.ui.screens.RealSosScreen
-import com.example.ui.screens.VaccinationRemindersScreen
-import com.example.ui.screens.FoodSubscriptionScreen
 import com.example.ui.screens.PetInsuranceScreen
 import com.example.ui.screens.PetCommunityScreen
 import com.example.ui.screens.LostPetAlertsScreen
 import com.example.ui.screens.PetCareTipsScreen
-import com.example.ui.screens.TrainingVideosScreen
 import com.example.ui.components.PetSwitcher
 import com.example.ui.components.AddPetDialog
 import com.example.ui.components.PetAppTopBar
@@ -119,17 +116,13 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     // Dialog state controllers
     var showLoginDialog by remember { mutableStateOf(false) }
     var showEditPetDialog by remember { mutableStateOf(false) }
-    var showSosDialog by remember { mutableStateOf(false) }
     var showAddListingDialog by remember { mutableStateOf(false) }
     var showMapScreen by remember { mutableStateOf(false) }
     var showSosScreen by remember { mutableStateOf(false) }
-    var showVaccinationScreen by remember { mutableStateOf(false) }
-    var showFoodSubscriptionScreen by remember { mutableStateOf(false) }
     var showInsuranceScreen by remember { mutableStateOf(false) }
     var showCommunityScreen by remember { mutableStateOf(false) }
     var showLostPetAlertsScreen by remember { mutableStateOf(false) }
     var showCareTipsScreen by remember { mutableStateOf(false) }
-    var showTrainingScreen by remember { mutableStateOf(false) }
     var showAddPetDialog by remember { mutableStateOf(false) }
 
     // Marketplace Modal controllers
@@ -150,7 +143,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 pet = activePet,
                 cartItemCount = cartItemCount,
                 onCartClick = { showCartModal = true },
-                onSosClick = { showSosDialog = true },
+                // SOS removed from TopBar — now in FeatureButton row
                 onLoginClick = { showLoginDialog = true }
             )
 
@@ -187,13 +180,10 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             ) {
                 item { FeatureButton("SOS", Color(0xFFC9A227)) { showSosScreen = true } }
                 item { FeatureButton("Nearby", Color(0xFF6A4C93)) { showMapScreen = true } }
-                item { FeatureButton("Vaccines", Color(0xFF6A4C93)) { showVaccinationScreen = true } }
-                item { FeatureButton("Food Sub", Color(0xFF6A4C93)) { showFoodSubscriptionScreen = true } }
                 item { FeatureButton("Insurance", Color(0xFF6A4C93)) { showInsuranceScreen = true } }
                 item { FeatureButton("Community", Color(0xFF6A4C93)) { showCommunityScreen = true } }
                 item { FeatureButton("Lost Alerts", Color(0xFFC9A227)) { showLostPetAlertsScreen = true } }
                 item { FeatureButton("Care Tips", Color(0xFF6A4C93)) { showCareTipsScreen = true } }
-                item { FeatureButton("Training", Color(0xFF6A4C93)) { showTrainingScreen = true } }
             }
 
         Crossfade(
@@ -315,7 +305,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         petListings = petListings,
                         petNews = petNews,
                         events = events,
-                        onTriggerSosDialog = { showSosDialog = true },
                         onAddListingDialog = { showAddListingDialog = true },
                         onPartnerJoinClick = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
@@ -387,18 +376,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 
-    if (showSosDialog) {
-        LostPetSosDialog(
-            defaultPetName = activePet.name,
-            onDismiss = { showSosDialog = false },
-            onBroadcast = { petName, species, breed, location, reward, phone, desc ->
-                viewModel.broadcastLostPet(petName, species, breed, location, reward, phone, desc)
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("🚨 5km SOS Alert Broadcasted for $petName! Nearby users notified.")
-                }
-            }
-        )
-    }
+    // Old SOS dialog removed — use FeatureButton SOS + Lost Alerts instead
 
     if (showAddListingDialog) {
         AddPetListingDialog(
@@ -521,18 +499,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 
 
     // === Feature Screen Overlays ===
-    if (showVaccinationScreen) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            VaccinationRemindersScreen()
-            FloatingActionButton(onClick = { showVaccinationScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
-        }
-    }
-    if (showFoodSubscriptionScreen) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            FoodSubscriptionScreen()
-            FloatingActionButton(onClick = { showFoodSubscriptionScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
-        }
-    }
     if (showInsuranceScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             PetInsuranceScreen()
@@ -555,12 +521,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         Box(modifier = Modifier.fillMaxSize()) {
             PetCareTipsScreen()
             FloatingActionButton(onClick = { showCareTipsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
-        }
-    }
-    if (showTrainingScreen) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            TrainingVideosScreen()
-            FloatingActionButton(onClick = { showTrainingScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
 
@@ -606,6 +566,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 
