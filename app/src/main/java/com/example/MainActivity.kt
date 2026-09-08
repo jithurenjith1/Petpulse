@@ -143,7 +143,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 pet = activePet,
                 cartItemCount = cartItemCount,
                 onCartClick = { showCartModal = true },
-                // SOS removed from TopBar — now in FeatureButton row
+                onSosClick = { showSosScreen = true },
                 onLoginClick = { showLoginDialog = true }
             )
 
@@ -305,6 +305,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         petListings = petListings,
                         petNews = petNews,
                         events = events,
+                        onTriggerSosDialog = { showSosScreen = true },
                         onAddListingDialog = { showAddListingDialog = true },
                         onPartnerJoinClick = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
@@ -326,7 +327,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             FloatingActionButton(
                 onClick = { showMapScreen = false },
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
-                containerColor = Color(0xFFE07856)
+                containerColor = Color(0xFF6A4C93)
             ) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
@@ -337,7 +338,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             FloatingActionButton(
                 onClick = { showSosScreen = false },
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
-                containerColor = Color(0xFFE63946)
+                containerColor = Color(0xFFC9A227)
             ) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
@@ -559,13 +560,14 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         FloatingActionButton(
             onClick = { },
             modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
-            containerColor = Color(0xFFE07856),
+            containerColor = Color(0xFF6A4C93),
             shape = CircleShape
         ) {
             Text("X", color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }
+
 
 
 
