@@ -221,6 +221,13 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         },
                         onShowMessage = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
+                        },
+                        onDeletePet = {
+                            viewModel.deleteCurrentPet()
+                            coroutineScope.launch { snackbarHostState.showSnackbar("Pet removed") }
+                        },
+                        onPhotoSelected = { uri ->
+                            viewModel.updatePetPhoto(uri)
                         }
                     )
 
@@ -305,6 +312,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         petListings = petListings,
                         petNews = petNews,
                         events = events,
+                        onTriggerSosDialog = { showSosScreen = true },
                         onTriggerSosDialog = { showSosScreen = true },
                         onAddListingDialog = { showAddListingDialog = true },
                         onPartnerJoinClick = { msg ->
@@ -567,6 +575,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 

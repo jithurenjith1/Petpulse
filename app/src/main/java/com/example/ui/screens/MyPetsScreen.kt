@@ -64,6 +64,8 @@ fun MyPetsScreen(
     onLoginClick: () -> Unit,
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
+    onDeletePet: () -> Unit = {},
+    onPhotoSelected: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -71,6 +73,7 @@ fun MyPetsScreen(
     var showAddMedicalDialog by remember { mutableStateOf(false) }
     var showAddPreferenceDialog by remember { mutableStateOf(false) }
     var showCertificateUploadToast by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = modifier
@@ -161,12 +164,19 @@ fun MyPetsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Pet Avatar Picture — Tap to upload real photo
-                        val petPhotoUri = remember { mutableStateOf<Uri?>(null) }
+                        // Pet Avatar Picture — saved per-pet to Firestore
                         val photoPickerLauncher = rememberLauncherForActivityResult(
                             contract = ActivityResultContracts.GetContent()
                         ) { uri: Uri? ->
-                            petPhotoUri.value = uri
+                            if (uri != null) {
+                                try {
+                                    getApplication<android.app.Application>().contentResolver.takePersistableUriPermission(
+                                        uri,
+                                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                    )
+                                } catch (e: Exception) { }
+                                onPhotoSelected(uri.toString())
+                            }
                         }
                         Box(
                             modifier = Modifier
@@ -175,9 +185,9 @@ fun MyPetsScreen(
                                 .border(2.dp, BluePrimary.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
                                 .clickable { photoPickerLauncher.launch("image/*") }
                         ) {
-                            if (petPhotoUri.value != null) {
+                            if (pet.photoUri.isNotEmpty()) {
                                 Image(
-                                    painter = rememberAsyncImagePainter(petPhotoUri.value),
+                                    painter = rememberAsyncImagePainter(Uri.parse(pet.photoUri)),
                                     contentDescription = "${pet.name} Photo",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
@@ -238,7 +248,11 @@ fun MyPetsScreen(
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            // Rename / Edit Jane Quick Action Button
+                            // Edit / Rename + Delete Pet buttons
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                             FilledTonalButton(
                                 onClick = onEditPetClick,
                                 modifier = Modifier
@@ -255,10 +269,48 @@ fun MyPetsScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Edit / Rename Pet", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
+                            OutlinedButton(
+                                onClick = { showDeleteDialog = true },
+                                modifier = Modifier.height(34.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                shape = RoundedCornerShape(10.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC9A227))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete Pet",
+                                    tint = Color(0xFFC9A227),
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Remove", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFFC9A227))
+                            }
+                            }
                         }
                     }
                 }
             }
+        }
+
+        // Delete Confirmation Dialog
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Remove ${pet.name}?") },
+                text = { Text("This will permanently delete ${pet.name} and all associated records. This cannot be undone.") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showDeleteDialog = false
+                            onDeletePet()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                    ) { Text("Delete") }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                }
+            )
         }
 
         // 3. Pet Submenu Navigation Chips (Certificate, Vaccination, Food & Plays, Training)
@@ -1228,3 +1280,4 @@ fun HealthAndSettingsSection(
         }
     }
 }
+

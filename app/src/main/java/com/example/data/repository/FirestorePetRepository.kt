@@ -242,8 +242,10 @@ class FirestorePetRepository {
             "trainingStatus" to pet.trainingStatus,
             "trainingLevel" to pet.trainingLevel,
             "avatarRes" to pet.avatarRes,
+            "photoUri" to pet.photoUri,
             "notes" to pet.notes
         )
     }
 }
+
 

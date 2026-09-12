@@ -23,6 +23,7 @@ data class UserPet(
     val trainingStatus: String = "Basic Completed (Sit, Stay, Paw, Heel)",
     val trainingLevel: String = "Basic", // Basic, Advanced, In Progress, Blank
     val avatarRes: String = "img_dog_jane",
+    val photoUri: String = "",
     val notes: String = "Very energetic, friendly with children, loves morning park walks."
 )
 
@@ -179,3 +180,4 @@ data class PetEventItem(
     val entryStatus: String,
     val prizePool: String
 )
+

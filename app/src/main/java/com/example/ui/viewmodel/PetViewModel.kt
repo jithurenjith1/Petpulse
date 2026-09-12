@@ -673,6 +673,14 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updatePetPhoto(photoUri: String) {
+        viewModelScope.launch {
+            val current = activePet.value
+            val updated = current.copy(photoUri = photoUri)
+            firestoreRepo.savePet(updated)
+        }
+    }
+
     fun toggleVaccinationStatus(record: VaccinationRecord) {
         viewModelScope.launch {
             val newStatus = if (record.status == "Completed") "Upcoming" else "Completed"
@@ -820,6 +828,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 }
+
 
 
 
