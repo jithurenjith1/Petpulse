@@ -34,6 +34,7 @@ import com.example.ui.screens.PetCareTipsScreen
 import com.example.ui.screens.AiSymptomCheckerScreen
 import com.example.ui.screens.VetTeleconsultScreen
 import com.example.ui.screens.PetpulseCareScreen
+import com.example.ui.screens.HealthRecordsHubScreen
 import com.example.ui.components.PetSwitcher
 import com.example.ui.components.AddPetDialog
 import com.example.ui.components.PetAppTopBar
@@ -129,6 +130,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showSymptomScreen by remember { mutableStateOf(false) }
     var showVetScreen by remember { mutableStateOf(false) }
     var showSubscriptionScreen by remember { mutableStateOf(false) }
+    var showHealthRecordsScreen by remember { mutableStateOf(false) }
     var marketSubTab by remember { mutableStateOf(0) } // 0=Shop, 1=Guides
     var showAddPetDialog by remember { mutableStateOf(false) }
 
@@ -192,6 +194,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 item { FeatureButton("AI Triage", Color(0xFFC9A227)) { showSymptomScreen = true } }
                 item { FeatureButton("Vet Online", Color(0xFFC9A227)) { showVetScreen = true } }
                 item { FeatureButton("Care Plan", Color(0xFF6A4C93)) { showSubscriptionScreen = true } }
+                item { FeatureButton("Records", Color(0xFF6A4C93)) { showHealthRecordsScreen = true } }
             }
 
         Crossfade(
@@ -588,6 +591,15 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         }
     }
 
+    if (showHealthRecordsScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            HealthRecordsHubScreen(
+                petName = activePet.name,
+                onClose = { showHealthRecordsScreen = false }
+            )
+        }
+    }
+
     selectedDoctorForBooking?.let { doctor ->
         DoctorBookingModal(
             doctor = doctor,
@@ -630,6 +642,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 
