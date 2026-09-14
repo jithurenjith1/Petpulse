@@ -31,6 +31,9 @@ import com.example.ui.screens.PetInsuranceScreen
 import com.example.ui.screens.PetCommunityScreen
 import com.example.ui.screens.LostPetAlertsScreen
 import com.example.ui.screens.PetCareTipsScreen
+import com.example.ui.screens.AiSymptomCheckerScreen
+import com.example.ui.screens.VetTeleconsultScreen
+import com.example.ui.screens.PetpulseCareScreen
 import com.example.ui.components.PetSwitcher
 import com.example.ui.components.AddPetDialog
 import com.example.ui.components.PetAppTopBar
@@ -123,6 +126,9 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showCommunityScreen by remember { mutableStateOf(false) }
     var showLostPetAlertsScreen by remember { mutableStateOf(false) }
     var showCareTipsScreen by remember { mutableStateOf(false) }
+    var showSymptomScreen by remember { mutableStateOf(false) }
+    var showVetScreen by remember { mutableStateOf(false) }
+    var showSubscriptionScreen by remember { mutableStateOf(false) }
     var marketSubTab by remember { mutableStateOf(0) } // 0=Shop, 1=Guides
     var showAddPetDialog by remember { mutableStateOf(false) }
 
@@ -183,6 +189,9 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 item { FeatureButton("Insurance", Color(0xFF6A4C93)) { showInsuranceScreen = true } }
                 item { FeatureButton("Community", Color(0xFF6A4C93)) { showCommunityScreen = true } }
                 item { FeatureButton("Care Tips", Color(0xFF6A4C93)) { showCareTipsScreen = true } }
+                item { FeatureButton("AI Triage", Color(0xFFC9A227)) { showSymptomScreen = true } }
+                item { FeatureButton("Vet Online", Color(0xFFC9A227)) { showVetScreen = true } }
+                item { FeatureButton("Care Plan", Color(0xFF6A4C93)) { showSubscriptionScreen = true } }
             }
 
         Crossfade(
@@ -553,6 +562,32 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         }
     }
 
+    if (showSymptomScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AiSymptomCheckerScreen(
+                petName = activePet.name,
+                onBookVet = { showSymptomScreen = false; showVetScreen = true },
+                onClose = { showSymptomScreen = false }
+            )
+        }
+    }
+
+    if (showVetScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            VetTeleconsultScreen(
+                onClose = { showVetScreen = false }
+            )
+        }
+    }
+
+    if (showSubscriptionScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            PetpulseCareScreen(
+                onClose = { showSubscriptionScreen = false }
+            )
+        }
+    }
+
     selectedDoctorForBooking?.let { doctor ->
         DoctorBookingModal(
             doctor = doctor,
@@ -595,6 +630,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 
