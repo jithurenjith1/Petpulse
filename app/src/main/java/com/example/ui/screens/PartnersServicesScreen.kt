@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -54,6 +56,7 @@ fun PartnersServicesScreen(
     var showBusinessPartnerDialog by remember { mutableStateOf(false) }
     var partnerCategoryToJoin by remember { mutableStateOf("Grooming Salon") }
     var showPartnerCategoryMenu by remember { mutableStateOf(false) }
+    var showFeaturedPlansDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = modifier
@@ -123,6 +126,58 @@ fun PartnersServicesScreen(
                         DropdownMenuItem(text = { Text("Veterinary Doctors & Clinics") }, onClick = { partnerCategoryToJoin = "Veterinary Doctors & Clinics"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
                         DropdownMenuItem(text = { Text("Boarding") }, onClick = { partnerCategoryToJoin = "Boarding"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
                         DropdownMenuItem(text = { Text("Sales") }, onClick = { partnerCategoryToJoin = "Sales"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                    }
+                }
+            }
+        }
+
+        // 1b. Featured Listings Promotion (Revenue)
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFAF6E8)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC9A227))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        tint = Color(0xFFC9A227),
+                        modifier = Modifier.size(30.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Get Featured — Top Placement",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = Color(0xFF8A6D1C)
+                        )
+                        Text(
+                            "Appear at the top of grooming, boarding & vet searches. Plans from Rs.999/month.",
+                            fontSize = 11.sp,
+                            color = Color(0xFF7A6A45)
+                        )
+                    }
+                    FilledTonalButton(
+                        onClick = { showFeaturedPlansDialog = true },
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.height(32.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = Color(0xFFC9A227),
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Promote", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -199,7 +254,7 @@ fun PartnersServicesScreen(
                     }
                 }
 
-                items(groomingCenters) { center ->
+                items(groomingCenters.sortedByDescending { it.isFeaturedPartner }) { center ->
                     GroomingCenterCard(
                         center = center,
                         onBookClick = { onActionNotification("Booking appointment at ${center.name}") },
@@ -366,6 +421,16 @@ fun PartnersServicesScreen(
                 }
             }
         }
+    }
+
+    if (showFeaturedPlansDialog) {
+        FeaturedPlansDialog(
+            onDismiss = { showFeaturedPlansDialog = false },
+            onSubscribe = { planName ->
+                showFeaturedPlansDialog = false
+                onPartnerJoinClick("Featured plan requested: $planName! Our team will contact you.")
+            }
+        )
     }
 
     if (showBusinessPartnerDialog) {
@@ -1150,6 +1215,143 @@ fun BusinessPartnerJoinDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
                 Text("Submit Application")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
+
+
+// ------------------------------------------------------------------
+// Featured Plans Dialog — promotional placement packages (revenue)
+// ------------------------------------------------------------------
+@Composable
+fun FeaturedPlansDialog(
+    onDismiss: () -> Unit,
+    onSubscribe: (planName: String) -> Unit
+) {
+    var selectedPlan by remember { mutableStateOf(1) }
+
+    val plans = listOf(
+        Triple("Basic", "Rs.999/month", listOf(
+            "Top placement in 1 category",
+            "Verified badge included",
+            "7-day visibility analytics",
+            "Standard listing support"
+        )),
+        Triple("Standard", "Rs.2,499/month", listOf(
+            "Top placement in 3 categories",
+            "Gold Featured ribbon",
+            "30-day analytics dashboard",
+            "Priority support",
+            "2x profile views (avg)"
+        )),
+        Triple("Premium", "Rs.4,999/month", listOf(
+            "#1 placement in all categories",
+            "Homepage banner spotlight",
+            "Unlimited analytics + export",
+            "Dedicated account manager",
+            "Promotional campaign monthly",
+            "Verified + Featured badges"
+        ))
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Get Featured") },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    "Promote your business to the top of search results. Petpulse users see featured partners first.",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                plans.forEachIndexed { index, (name, price, features) ->
+                    val isSelected = selectedPlan == index
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedPlan = index },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isSelected) Color(0xFFFAF6E8) else MaterialTheme.colorScheme.surface
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            width = if (isSelected) 2.dp else 1.dp,
+                            color = if (isSelected) Color(0xFFC9A227) else MaterialTheme.colorScheme.outline
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.TrendingUp,
+                                        contentDescription = null,
+                                        tint = Color(0xFFC9A227),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(name, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                    if (index == 1) {
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = Color(0xFFC9A227)
+                                        ) {
+                                            Text(
+                                                "Popular",
+                                                color = Color.Black,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                                Text(
+                                    price,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color(0xFF8A6D1C)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            features.forEach { feature ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = Color(0xFF4CAF50),
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Text(feature, fontSize = 11.sp)
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSubscribe(plans[selectedPlan].first) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC9A227))
+            ) {
+                Text("Request: ${plans[selectedPlan].first}", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }
         },
         dismissButton = {
