@@ -316,6 +316,10 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                     }
                 }
 
+                MainNavTab.EXPLORE_PETS -> {
+                    // Merged into Market tab — no separate screen
+                }
+
                 MainNavTab.PARTNERS_SERVICES -> {
                     PartnersServicesScreen(
                         currentSubTab = partnerSubTab,
@@ -591,6 +595,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 
