@@ -82,32 +82,6 @@ fun PetAppBottomBar(
             modifier = Modifier.testTag("nav_marketplace")
         )
 
-        // Tab 3: Explore Species & Nutrition
-        NavigationBarItem(
-            selected = currentTab == MainNavTab.EXPLORE_PETS,
-            onClick = { onTabSelected(MainNavTab.EXPLORE_PETS) },
-            icon = {
-                Icon(
-                    imageVector = if (currentTab == MainNavTab.EXPLORE_PETS) Icons.Filled.Category else Icons.Outlined.Category,
-                    contentDescription = "Explore Care",
-                    modifier = Modifier.size(22.dp)
-                )
-            },
-            label = {
-                Text(
-                    text = "Guides",
-                    fontSize = 11.sp,
-                    fontWeight = if (currentTab == MainNavTab.EXPLORE_PETS) FontWeight.Bold else FontWeight.Normal
-                )
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = BluePrimary,
-                selectedTextColor = BluePrimary,
-                indicatorColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            modifier = Modifier.testTag("nav_explore")
-        )
-
         // Tab 4: Partners & Services
         NavigationBarItem(
             selected = currentTab == MainNavTab.PARTNERS_SERVICES,
@@ -136,3 +110,4 @@ fun PetAppBottomBar(
 
     }
 }
+

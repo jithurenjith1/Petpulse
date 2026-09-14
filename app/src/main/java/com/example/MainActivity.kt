@@ -123,6 +123,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showCommunityScreen by remember { mutableStateOf(false) }
     var showLostPetAlertsScreen by remember { mutableStateOf(false) }
     var showCareTipsScreen by remember { mutableStateOf(false) }
+    var marketSubTab by remember { mutableStateOf(0) } // 0=Shop, 1=Guides
     var showAddPetDialog by remember { mutableStateOf(false) }
 
     // Marketplace Modal controllers
@@ -178,11 +179,9 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                item { FeatureButton("SOS", Color(0xFFC9A227)) { showSosScreen = true } }
                 item { FeatureButton("Nearby", Color(0xFF6A4C93)) { showMapScreen = true } }
                 item { FeatureButton("Insurance", Color(0xFF6A4C93)) { showInsuranceScreen = true } }
                 item { FeatureButton("Community", Color(0xFF6A4C93)) { showCommunityScreen = true } }
-                item { FeatureButton("Lost Alerts", Color(0xFFC9A227)) { showLostPetAlertsScreen = true } }
                 item { FeatureButton("Care Tips", Color(0xFF6A4C93)) { showCareTipsScreen = true } }
             }
 
@@ -234,6 +233,26 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 }
 
                 MainNavTab.MARKETPLACE -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Sub-tabs: Shop | Guides
+                        TabRow(
+                            selectedTabIndex = marketSubTab,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = Color(0xFF6A4C93),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Tab(
+                                selected = marketSubTab == 0,
+                                onClick = { marketSubTab = 0 },
+                                text = { Text("Shop", fontSize = 13.sp, fontWeight = if (marketSubTab == 0) FontWeight.Bold else FontWeight.Normal) }
+                            )
+                            Tab(
+                                selected = marketSubTab == 1,
+                                onClick = { marketSubTab = 1 },
+                                text = { Text("Guides", fontSize = 13.sp, fontWeight = if (marketSubTab == 1) FontWeight.Bold else FontWeight.Normal) }
+                            )
+                        }
+                        if (marketSubTab == 0) {
                     MarketplaceScreen(
                         selectedCity = selectedKeralaCity,
                         onSelectCity = { viewModel.selectKeralaCity(it) },
@@ -274,10 +293,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             }
                         }
                     )
-
-                }
-
-                MainNavTab.EXPLORE_PETS -> {
+                        } else {
                     ExplorePetsScreen(
                         speciesList = speciesList,
                         selectedSpecies = selectedSpecies,
@@ -296,7 +312,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
                     )
-
+                        }
+                    }
                 }
 
                 MainNavTab.PARTNERS_SERVICES -> {
@@ -574,6 +591,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 

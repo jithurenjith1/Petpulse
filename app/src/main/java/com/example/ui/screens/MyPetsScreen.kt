@@ -82,67 +82,6 @@ fun MyPetsScreen(
             .testTag("my_pets_screen"),
         contentPadding = PaddingValues(bottom = 90.dp, top = 8.dp)
     ) {
-        // 1. Customer Welcome Header
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                    .testTag("customer_welcome_banner"),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = BluePrimaryDark
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Welcome, ${customer.name}!",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Icon(
-                                imageVector = Icons.Default.Verified,
-                                contentDescription = "Verified Member",
-                                tint = AccentAmber,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "This dedicated dashboard manages all care records & schedules for your pets.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFD1E4FF)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = onLoginClick,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.2f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Switch Customer",
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-            }
-        }
-
         // 2. Jane's Hero Profile Card
         item {
             Card(
@@ -1280,5 +1219,6 @@ fun HealthAndSettingsSection(
         }
     }
 }
+
 
 
