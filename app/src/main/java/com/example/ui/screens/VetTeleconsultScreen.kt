@@ -113,6 +113,7 @@ private data class Vet(
     val consultCount: Int,
     val priceRupees: Int,
     val status: OnlineStatus,
+    val verified: Boolean = false,
 )
 
 private val DemoVets = listOf(
@@ -618,5 +619,6 @@ private fun BookingDialog(
         }
     )
 }
+
 
 
