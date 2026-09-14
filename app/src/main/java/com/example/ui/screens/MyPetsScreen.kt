@@ -165,12 +165,13 @@ fun MyPetsScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // Pet Avatar Picture — saved per-pet to Firestore
+                        val photoCtx = androidx.compose.ui.platform.LocalContext.current
                         val photoPickerLauncher = rememberLauncherForActivityResult(
-                            contract = ActivityResultContracts.GetContent()
+                            contract = ActivityResultContracts.OpenDocument()
                         ) { uri: Uri? ->
                             if (uri != null) {
                                 try {
-                                    getApplication<android.app.Application>().contentResolver.takePersistableUriPermission(
+                                    photoCtx.contentResolver.takePersistableUriPermission(
                                         uri,
                                         android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
                                     )
@@ -183,7 +184,7 @@ fun MyPetsScreen(
                                 .size(96.dp)
                                 .clip(RoundedCornerShape(18.dp))
                                 .border(2.dp, BluePrimary.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
-                                .clickable { photoPickerLauncher.launch("image/*") }
+                                .clickable { photoPickerLauncher.launch(arrayOf("image/*")) }
                         ) {
                             if (pet.photoUri.isNotEmpty()) {
                                 Image(
@@ -292,27 +293,6 @@ fun MyPetsScreen(
             }
         }
 
-        // Delete Confirmation Dialog
-        if (showDeleteDialog) {
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Remove ${pet.name}?") },
-                text = { Text("This will permanently delete ${pet.name} and all associated records. This cannot be undone.") },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showDeleteDialog = false
-                            onDeletePet()
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
-                    ) { Text("Delete") }
-                },
-                dismissButton = {
-                    OutlinedButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
-                }
-            )
-        }
-
         // 3. Pet Submenu Navigation Chips (Certificate, Vaccination, Food & Plays, Training)
         item {
             ScrollableTabRow(
@@ -414,6 +394,26 @@ fun MyPetsScreen(
     }
 
     // Dialogs
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Remove ${pet.name}?") },
+            text = { Text("This will permanently delete ${pet.name} and all associated records. This cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeletePet()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
+
     if (showAddVaccineDialog) {
         AddVaccinationRecordDialog(
             onDismiss = { showAddVaccineDialog = false },
@@ -1280,4 +1280,5 @@ fun HealthAndSettingsSection(
         }
     }
 }
+
 

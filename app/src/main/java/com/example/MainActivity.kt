@@ -313,7 +313,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         petNews = petNews,
                         events = events,
                         onTriggerSosDialog = { showSosScreen = true },
-                        onTriggerSosDialog = { showSosScreen = true },
                         onAddListingDialog = { showAddListingDialog = true },
                         onPartnerJoinClick = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
@@ -575,6 +574,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 
