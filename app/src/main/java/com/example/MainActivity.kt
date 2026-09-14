@@ -139,7 +139,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showEscrowCheckoutModal by remember { mutableStateOf(false) }
     var showOrderTrackingModal by remember { mutableStateOf(false) }
     var showListPetModal by remember { mutableStateOf(false) }
-    var showVetRegisterModal by remember { mutableStateOf(false) }
     var selectedDoctorForBooking by remember { mutableStateOf<VerifiedDoctor?>(null) }
 
     Scaffold(
@@ -284,7 +283,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         onOpenCart = { showCartModal = true },
                         onOpenOrders = { showOrderTrackingModal = true },
                         onOpenListPetModal = { showListPetModal = true },
-                        onOpenVetRegisterModal = { showVetRegisterModal = true },
                         onAddToCart = { product ->
                             viewModel.addProductToCart(product)
                             coroutineScope.launch {
@@ -502,31 +500,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 
-    if (showVetRegisterModal) {
-        RegisterVetFormModal(
-            onDismiss = { showVetRegisterModal = false },
-            onSubmit = { name, degrees, ksvcNumber, spec, exp, clinic, city, address, videoFee, inPersonFee, phone ->
-                viewModel.registerVeterinarian(
-                    name = name,
-                    degrees = degrees,
-                    ksvcRegNumber = ksvcNumber,
-                    specialization = spec,
-                    experienceYears = exp,
-                    clinicName = clinic,
-                    clinicCity = city,
-                    clinicAddress = address,
-                    videoConsultFeeInr = videoFee,
-                    inPersonConsultFeeInr = inPersonFee,
-                    phone = phone
-                )
-
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("🩺 Dr. $name registered & verified with KSVC in $city!")
-                }
-            }
-        )
-    }
-
     if (showAddPetDialog) {
         AddPetDialog(
             onDismiss = { showAddPetDialog = false },
@@ -642,6 +615,7 @@ fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 
 

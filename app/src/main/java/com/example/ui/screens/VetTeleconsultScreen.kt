@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
@@ -119,6 +120,7 @@ private val DemoVets = listOf(
         name = "Dr. Ananya Menon",
         qualification = "BVSc, MVSc",
         registration = "KVC-2018-4291",
+        verified = true,
         specialisation = "Small Animal Medicine",
         experienceYears = 8,
         rating = 4.9,
@@ -130,6 +132,7 @@ private val DemoVets = listOf(
         name = "Dr. Rajesh Kumar",
         qualification = "BVSc & AH",
         registration = "KVC-2015-3387",
+        verified = true,
         specialisation = "Surgery & Orthopedics",
         experienceYears = 12,
         rating = 4.8,
@@ -141,6 +144,7 @@ private val DemoVets = listOf(
         name = "Dr. Priya Nair",
         qualification = "BVSc",
         registration = "KVC-2020-5612",
+        verified = true,
         specialisation = "Dermatology & Allergies",
         experienceYears = 5,
         rating = 4.7,
@@ -152,6 +156,7 @@ private val DemoVets = listOf(
         name = "Dr. Mohammed Faizal",
         qualification = "MVSc Medicine",
         registration = "KVC-2012-2214",
+        verified = true,
         specialisation = "Internal Medicine, Diabetes & Kidney care",
         experienceYears = 15,
         rating = 4.9,
@@ -163,6 +168,7 @@ private val DemoVets = listOf(
         name = "Dr. Lakshmi Warrier",
         qualification = "BVSc, Certified Feline Specialist",
         registration = "KVC-2019-4820",
+        verified = true,
         specialisation = "Cats & Exotics",
         experienceYears = 6,
         rating = 4.8,
@@ -390,12 +396,23 @@ private fun VetCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = vet.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = vet.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    if (vet.verified) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = "KVC Verified",
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
                 OnlineChip(vet.status)
             }
 
@@ -601,4 +618,5 @@ private fun BookingDialog(
         }
     )
 }
+
 

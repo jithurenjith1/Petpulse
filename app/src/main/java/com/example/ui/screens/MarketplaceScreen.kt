@@ -50,7 +50,6 @@ fun MarketplaceScreen(
     onOpenCart: () -> Unit,
     onOpenOrders: () -> Unit,
     onOpenListPetModal: () -> Unit,
-    onOpenVetRegisterModal: () -> Unit,
     onAddToCart: (MarketProduct) -> Unit,
     onBookDoctor: (VerifiedDoctor) -> Unit,
     onBookGrooming: (GroomingServiceItem) -> Unit,
@@ -80,7 +79,6 @@ fun MarketplaceScreen(
         item {
             MarketplaceQuickActionRow(
                 onOpenListPetModal = onOpenListPetModal,
-                onOpenVetRegisterModal = onOpenVetRegisterModal
             )
         }
 
@@ -407,8 +405,7 @@ fun KeralaHeroLocationBar(
 
 @Composable
 fun MarketplaceQuickActionRow(
-    onOpenListPetModal: () -> Unit,
-    onOpenVetRegisterModal: () -> Unit
+    onOpenListPetModal: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -419,7 +416,7 @@ fun MarketplaceQuickActionRow(
         OutlinedButton(
             onClick = onOpenListPetModal,
             modifier = Modifier
-                .weight(1f)
+                .fillMaxWidth()
                 .height(44.dp),
             shape = RoundedCornerShape(12.dp),
             border = BorderStroke(1.dp, BluePrimary),
@@ -435,30 +432,6 @@ fun MarketplaceQuickActionRow(
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "List a Pet (Owner)",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Button(
-            onClick = onOpenVetRegisterModal,
-            modifier = Modifier
-                .weight(1f)
-                .height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF00796B),
-                contentColor = Color.White
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Default.MedicalInformation,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = "Register as Vet",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -1294,3 +1267,4 @@ fun EmptyMarketState(
         }
     }
 }
+

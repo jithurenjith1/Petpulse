@@ -53,6 +53,7 @@ fun PartnersServicesScreen(
 ) {
     var showBusinessPartnerDialog by remember { mutableStateOf(false) }
     var partnerCategoryToJoin by remember { mutableStateOf("Grooming Salon") }
+    var showPartnerCategoryMenu by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = modifier
@@ -102,10 +103,7 @@ fun PartnersServicesScreen(
                     )
 
                     Button(
-                        onClick = {
-                            partnerCategoryToJoin = "General Business Entity"
-                            showBusinessPartnerDialog = true
-                        },
+                        onClick = { showPartnerCategoryMenu = true },
                         colors = ButtonDefaults.buttonColors(containerColor = AccentAmber),
                         shape = RoundedCornerShape(10.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
@@ -114,6 +112,17 @@ fun PartnersServicesScreen(
                         Icon(Icons.Default.Handshake, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text("Join as Business Partner", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    DropdownMenu(
+                        expanded = showPartnerCategoryMenu,
+                        onDismissRequest = { showPartnerCategoryMenu = false }
+                    ) {
+                        DropdownMenuItem(text = { Text("Food & Accessories") }, onClick = { partnerCategoryToJoin = "Food & Accessories"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text("Pet Trainers") }, onClick = { partnerCategoryToJoin = "Pet Trainers"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text("Veterinary Doctors & Clinics") }, onClick = { partnerCategoryToJoin = "Veterinary Doctors & Clinics"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text("Boarding") }, onClick = { partnerCategoryToJoin = "Boarding"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text("Sales") }, onClick = { partnerCategoryToJoin = "Sales"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
                     }
                 }
             }
@@ -425,7 +434,24 @@ fun GroomingCenterCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(center.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = BluePrimaryDark)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(center.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = BluePrimaryDark)
+                        if (center.verified) {
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = Color(0xFFE8F5E9)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Icon(Icons.Default.CheckCircle, contentDescription = "Verified", tint = Color(0xFF4CAF50), modifier = Modifier.size(12.dp))
+                                    Text("Verified", fontSize = 9.sp, color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
                     Text(center.tagLine, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -1045,46 +1071,79 @@ fun BusinessPartnerJoinDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var category by remember { mutableStateOf(initialCategory) }
-    var city by remember { mutableStateOf("Metro District") }
-    var phone by remember { mutableStateOf("+1 (555) 000-1122") }
+    var city by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var regNumber by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
+    val categoryDescriptions = mapOf(
+        "Food & Accessories" to "Register your pet food brand, treat shop, or accessories store on Petpulse.",
+        "Pet Trainers" to "Join as a certified pet trainer. Offer obedience, agility, and behavior training.",
+        "Veterinary Doctors & Clinics" to "Register your veterinary clinic or practice. Connect with pet owners.",
+        "Boarding" to "List your boarding facility, pet daycare, or home sitting service.",
+        "Sales" to "Register as a pet sales partner — breeders, pet shops, and adoption centers.",
+        "Grooming Salon" to "Register your grooming salon on Petpulse."
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Join as Business Partner") },
+        title = { Text("Join: $category") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Register your grooming salon, boarding facility, food brand, or training center on Jane & Pals.", fontSize = 12.sp)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    categoryDescriptions[category] ?: "Register your business on Petpulse.",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Business / Store Name") },
+                    label = { Text("Business / Store Name *") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = category,
-                    onValueChange = { category = it },
-                    label = { Text("Business Category") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = city,
-                    onValueChange = { city = it },
-                    label = { Text("Service City / Location") },
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email Address") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Business Phone") },
+                    label = { Text("Phone Number *") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = city,
+                    onValueChange = { city = it },
+                    label = { Text("City / Location *") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = regNumber,
+                    onValueChange = { regNumber = it },
+                    label = { Text("Registration / License No. (for Verified badge)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Brief description of your services") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (name.isNotBlank()) {
+                    if (name.isNotBlank() && phone.isNotBlank() && city.isNotBlank()) {
                         onSubmit(name, category, city, phone)
                     }
                 },
@@ -1098,3 +1157,4 @@ fun BusinessPartnerJoinDialog(
         }
     )
 }
+

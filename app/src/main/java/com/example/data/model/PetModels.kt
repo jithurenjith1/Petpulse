@@ -141,7 +141,9 @@ data class GroomingCenter(
     val packages: List<String>,
     val startingPrice: String,
     val phone: String,
-    val isFeaturedPartner: Boolean = true
+    val isFeaturedPartner: Boolean = true,
+    val verified: Boolean = true,
+    val verificationId: String = ""
 )
 
 data class FoodSubscription(
@@ -180,4 +182,5 @@ data class PetEventItem(
     val entryStatus: String,
     val prizePool: String
 )
+
 
