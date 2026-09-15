@@ -10,6 +10,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.concurrent.ConcurrentHashMap
 
 class FirestorePetRepository {
 
@@ -20,29 +21,37 @@ class FirestorePetRepository {
 
     private fun petsRef() = db.collection("users").document(uid()).collection("pets")
 
-    // Map of pet Long ID -> Firestore doc ID
-    private val petDocIdMap = mutableMapOf<Long, String>()
+    // Thread-safe map of pet Long ID -> Firestore doc ID
+    private val petDocIdMap = ConcurrentHashMap<Long, String>()
     private var nextLocalId = 1L
+
+    private fun stableIdOf(docId: String): Long {
+        val h = docId.hashCode().toLong()
+        return if (h < 0) -h else h
+    }
 
     fun getAllUserPets(): Flow<List<UserPet>> = callbackFlow {
         val subscription = petsRef().addSnapshotListener { snapshot, error ->
             if (error != null) {
+                // Log but NEVER close with error — that crashes the app
                 Log.e("FirestorePetRepo", "Error getting pets", error)
-                close(error)
+                trySend(emptyList())
                 return@addSnapshotListener
             }
             val pets = mutableListOf<UserPet>()
             var maxId = 0L
             snapshot?.documents?.forEach { doc ->
-                val pet = doc.toObject(UserPet::class.java)
-                if (pet != null) {
-                    // Use a stable ID from the document
-                    val stableId = doc.id.hashCode().toLong().let { 
-                        if (it < 0) -it else it 
+                try {
+                    val pet = doc.toObject(UserPet::class.java)
+                    if (pet != null) {
+                        val stableId = stableIdOf(doc.id)
+                        petDocIdMap[stableId] = doc.id
+                        if (stableId > maxId) maxId = stableId
+                        pets.add(pet.copy(id = stableId))
                     }
-                    petDocIdMap[stableId] = doc.id
-                    if (stableId > maxId) maxId = stableId
-                    pets.add(pet.copy(id = stableId))
+                } catch (e: Exception) {
+                    // Skip malformed docs instead of crashing
+                    Log.e("FirestorePetRepo", "Skipping malformed pet doc ${doc.id}", e)
                 }
             }
             nextLocalId = maxId + 1
@@ -59,12 +68,15 @@ class FirestorePetRepository {
                 val snapshot = petsRef().get().await()
                 var found = false
                 for (doc in snapshot.documents) {
-                    val stableId = doc.id.hashCode().toLong().let { 
-                        if (it < 0) -it else it 
-                    }
+                    val stableId = stableIdOf(doc.id)
                     if (stableId == petId) {
                         petDocIdMap[petId] = doc.id
-                        val pet = doc.toObject(UserPet::class.java)?.copy(id = petId)
+                        val pet = try {
+                            doc.toObject(UserPet::class.java)?.copy(id = petId)
+                        } catch (e: Exception) {
+                            Log.e("FirestorePetRepo", "Malformed pet doc ${doc.id}", e)
+                            null
+                        }
                         if (pet != null) {
                             trySend(pet)
                             found = true
@@ -74,15 +86,24 @@ class FirestorePetRepository {
                 }
                 if (!found) trySend(null)
             } catch (e: Exception) {
+                // Emit null instead of crashing — UI falls back to previous pet
+                Log.e("FirestorePetRepo", "Error querying pets", e)
                 trySend(null)
             }
         } else {
             val subscription = petsRef().document(docId).addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    // NEVER close with error — crash source. Log and emit null instead.
+                    Log.e("FirestorePetRepo", "Pet listener error", error)
+                    trySend(null)
                     return@addSnapshotListener
                 }
-                val pet = snapshot?.toObject(UserPet::class.java)?.copy(id = petId)
+                val pet = try {
+                    snapshot?.toObject(UserPet::class.java)?.copy(id = petId)
+                } catch (e: Exception) {
+                    Log.e("FirestorePetRepo", "Malformed pet snapshot", e)
+                    null
+                }
                 trySend(pet)
             }
             awaitClose { subscription.remove() }
@@ -94,18 +115,14 @@ class FirestorePetRepository {
     suspend fun savePet(pet: UserPet) {
         val petMap = petToMap(pet)
         val existingDocId = petDocIdMap[pet.id]
-        
+
         if (existingDocId != null) {
-            // Update existing pet
             petsRef().document(existingDocId).set(petMap).await()
         } else {
-            // Check if this pet already has a doc (by localId field)
             val snapshot = petsRef().get().await()
             var found = false
             for (doc in snapshot.documents) {
-                val stableId = doc.id.hashCode().toLong().let { 
-                    if (it < 0) -it else it 
-                }
+                val stableId = stableIdOf(doc.id)
                 if (stableId == pet.id) {
                     petDocIdMap[pet.id] = doc.id
                     petsRef().document(doc.id).set(petMap).await()
@@ -114,11 +131,8 @@ class FirestorePetRepository {
                 }
             }
             if (!found) {
-                // Truly new pet - create new document
                 val docRef = petsRef().add(petMap).await()
-                val newStableId = docRef.id.hashCode().toLong().let { 
-                    if (it < 0) -it else it 
-                }
+                val newStableId = stableIdOf(docRef.id)
                 petDocIdMap[newStableId] = docRef.id
             }
         }
@@ -127,11 +141,31 @@ class FirestorePetRepository {
     suspend fun deletePet(petId: Long) {
         val docId = petDocIdMap[petId]
         if (docId != null) {
-            // Delete sub-collections first
-            deleteVaccinationsForPet(docId)
-            deleteMedicalReportsForPet(docId)
+            try {
+                deleteVaccinationsForPet(docId)
+            } catch (e: Exception) {
+                Log.e("FirestorePetRepo", "Error deleting vaccinations", e)
+            }
+            try {
+                deleteMedicalReportsForPet(docId)
+            } catch (e: Exception) {
+                Log.e("FirestorePetRepo", "Error deleting medical reports", e)
+            }
             petsRef().document(docId).delete().await()
             petDocIdMap.remove(petId)
+        } else {
+            // Pet not in map — find by scanning
+            try {
+                val snapshot = petsRef().get().await()
+                for (doc in snapshot.documents) {
+                    if (stableIdOf(doc.id) == petId) {
+                        petsRef().document(doc.id).delete().await()
+                        break
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("FirestorePetRepo", "Error deleting pet", e)
+            }
         }
     }
 
@@ -144,10 +178,19 @@ class FirestorePetRepository {
         val subscription = petsRef().document(docId)
             .collection("vaccinations")
             .addSnapshotListener { snapshot, error ->
-                if (error != null) { close(error); return@addSnapshotListener }
+                if (error != null) {
+                    Log.e("FirestorePetRepo", "Vaccination listener error", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 val records = snapshot?.documents?.mapNotNull { doc ->
-                    val vax = doc.toObject(VaccinationRecord::class.java)
-                    vax?.copy(id = doc.id.hashCode().toLong().let { if (it < 0) -it else it })
+                    try {
+                        val vax = doc.toObject(VaccinationRecord::class.java)
+                        vax?.copy(id = stableIdOf(doc.id))
+                    } catch (e: Exception) {
+                        Log.e("FirestorePetRepo", "Malformed vaccination doc", e)
+                        null
+                    }
                 } ?: emptyList()
                 trySend(records)
             }
@@ -172,8 +215,7 @@ class FirestorePetRepository {
         val petDocId = petDocIdMap[petId] ?: return
         val snapshot = petsRef().document(petDocId).collection("vaccinations").get().await()
         for (doc in snapshot.documents) {
-            val stableId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
-            if (stableId == recordId) {
+            if (stableIdOf(doc.id) == recordId) {
                 petsRef().document(petDocId).collection("vaccinations").document(doc.id)
                     .update("status", newStatus).await()
                 break
@@ -195,10 +237,19 @@ class FirestorePetRepository {
         val subscription = petsRef().document(docId)
             .collection("medical_reports")
             .addSnapshotListener { snapshot, error ->
-                if (error != null) { close(error); return@addSnapshotListener }
+                if (error != null) {
+                    Log.e("FirestorePetRepo", "Medical reports listener error", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 val reports = snapshot?.documents?.mapNotNull { doc ->
-                    val report = doc.toObject(MedicalReport::class.java)
-                    report?.copy(id = doc.id.hashCode().toLong().let { if (it < 0) -it else it })
+                    try {
+                        val report = doc.toObject(MedicalReport::class.java)
+                        report?.copy(id = stableIdOf(doc.id))
+                    } catch (e: Exception) {
+                        Log.e("FirestorePetRepo", "Malformed medical report doc", e)
+                        null
+                    }
                 } ?: emptyList()
                 trySend(reports)
             }
@@ -247,5 +298,4 @@ class FirestorePetRepository {
         )
     }
 }
-
 

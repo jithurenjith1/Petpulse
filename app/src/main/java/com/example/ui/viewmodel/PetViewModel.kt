@@ -809,25 +809,42 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 avatarRes = "img_dog_jane",
                 notes = ""
             )
-            firestoreRepo.savePet(newPet)
+            try {
+                firestoreRepo.savePet(newPet)
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "Error saving new pet", e)
+            }
             // Wait briefly for Firestore to sync, then switch to newest pet
-            kotlinx.coroutines.delay(500)
-            val pets = firestoreRepo.getAllUserPets().first()
-            _activePetId.value = pets.lastOrNull()?.id ?: 1L
+            try {
+                kotlinx.coroutines.delay(500)
+                val pets = firestoreRepo.getAllUserPets().first()
+                _activePetId.value = pets.lastOrNull()?.id ?: 1L
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "Error switching to new pet", e)
+            }
         }
     }
 
     fun deleteCurrentPet() {
         viewModelScope.launch {
-            val currentId = activePet.value.id
-            firestoreRepo.deletePet(currentId)
+            try {
+                val currentId = activePet.value.id
+                firestoreRepo.deletePet(currentId)
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "Error deleting pet", e)
+            }
             // Switch to first available pet
-            val pets = firestoreRepo.getAllUserPets().first()
-            _activePetId.value = pets.firstOrNull()?.id ?: 1L
+            try {
+                val pets = firestoreRepo.getAllUserPets().first()
+                _activePetId.value = pets.firstOrNull()?.id ?: 1L
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "Error switching after delete", e)
+            }
         }
     }
 
 }
+
 
 
 
