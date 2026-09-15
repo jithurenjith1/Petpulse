@@ -67,7 +67,9 @@ enum class TipCategory(val label: String, val icon: ImageVector) {
 data class CareTip(
     val title: String,
     val description: String,
-    val category: TipCategory
+    val category: TipCategory,
+    val malTitle: String = "",
+    val malDescription: String = ""
 )
 
 private val careTips: List<CareTip> = listOf(
@@ -75,34 +77,46 @@ private val careTips: List<CareTip> = listOf(
     CareTip(
         title = "Measure meals, don't free-feed",
         description = "Portion control prevents obesity. Use a measuring cup and follow your vet's daily calorie guidance based on your pet's weight and activity level.",
-        category = TipCategory.Nutrition
+        category = TipCategory.Nutrition,
+        malTitle = "ഭക്ഷണം അളന്ന് കൊടുക്കുക, സ്വതന്ത്രമായി തിന്നാൻ വിടരുത്",
+        malDescription = "ഭക്ഷണം അളക്കുന്നത് പൊണ്ണത്തരം തടയുന്നു. നിങ്ങളുടെ വെറ്ററിനറിയൻ്റെ നിർദ്ദേശപ്രകാരം അളവ് കൃത്യമായി പാലിക്കുക."
     ),
     CareTip(
         title = "Keep fresh water available",
         description = "Change water at least twice a day. Cats especially prefer running water — a fountain can boost their daily intake.",
-        category = TipCategory.Nutrition
+        category = TipCategory.Nutrition,
+        malTitle = "ശുദ്ധമായ വെള്ളം ലഭ്യമാക്കുക",
+        malDescription = "ദിവസേന രണ്ടു പ്രാവശ്യം വെള്ളം മാറ്റുക. പൂച്ചകൾക്ക് ഒഴുകുന്ന വെള്ളം കൂടുതൽ ഇഷ്ടമാണ്."
     ),
     CareTip(
         title = "Avoid toxic human foods",
         description = "Chocolate, grapes, onions, garlic, and xylitol (in sugar-free gum) are dangerous for dogs and cats. Keep them out of reach.",
-        category = TipCategory.Nutrition
+        category = TipCategory.Nutrition,
+        malTitle = "വിഷമുള്ള മനുഷ്യ ഭക്ഷണങ്ങൾ ഒഴിവാക്കുക",
+        malDescription = "ചോക്കലേറ്റ്, മുന്തിരി, സവാള, വെളുത്തുള്ളി എന്നിവ നായ്ക്കൾക്കും പൂച്ചകൾക്കും അപകടകരമാണ്."
     ),
     CareTip(
         title = "Introduce new food gradually",
         description = "Transition over 7–10 days by mixing increasing amounts of new food with old food to avoid stomach upset.",
-        category = TipCategory.Nutrition
+        category = TipCategory.Nutrition,
+        malTitle = "പുതിയ ഭക്ഷണം പതുക്കെ പരിചയപ്പെടുത്തുക",
+        malDescription = "7-10 ദിവസത്തിനുള്ളിൽ പഴയ ഭക്ഷണത്തിൽ പുതിയത് കൂട്ടിച്ചേർത്ത് മാറ്റുക."
     ),
 
     // Exercise
     CareTip(
         title = "Daily walks for dogs",
         description = "Most dogs need 30–60 minutes of exercise daily. Break it into two walks and vary the route for mental stimulation.",
-        category = TipCategory.Exercise
+        category = TipCategory.Exercise,
+        malTitle = "നായ്ക്കൾക്ക് ദിവസേന നടത്തം നൽകുക",
+        malDescription = "മിക്ക നായ്ക്കൾക്കും 30-60 മിനിറ്റ് വ്യായാമം ആവശ്യമാണ്. രണ്ട് തവണയായി നടത്തുക."
     ),
     CareTip(
         title = "Interactive play for cats",
         description = "Use wand toys or laser pointers for 15–20 minutes a day. Always end laser play by catching a physical toy to avoid frustration.",
-        category = TipCategory.Exercise
+        category = TipCategory.Exercise,
+        malTitle = "പൂച്ചകൾക്ക് കളിവഴി നൽകുക",
+        malDescription = "ദിവസേന 15-20 മിനിറ്റ് കളിക്കുക. ലേസർ കളിക്ക് ശേഷം ഒരു കളിപ്പാട്ട് പിടിക്കുക."
     ),
     CareTip(
         title = "Puzzle feeders for enrichment",
@@ -114,12 +128,16 @@ private val careTips: List<CareTip> = listOf(
     CareTip(
         title = "Brush according to coat type",
         description = "Short coats need weekly brushing; long or double coats need daily brushing to prevent matting and reduce shedding.",
-        category = TipCategory.Grooming
+        category = TipCategory.Grooming,
+        malTitle = "രോമത്തിനനുസരിച്ച് ചീകുക",
+        malDescription = "ചെറിയ രോമമുള്ളവയ്ക്ക് ആഴ്ചയിൽ ഒരിക്കൽ; നീളമുള്ളതിന് ദിവസേന ചീകേണ്ടതുണ്ട്."
     ),
     CareTip(
         title = "Trim nails every 2–4 weeks",
         description = "Overgrown nails cause pain and alter gait. If you hear clicking on hard floors, it's time for a trim.",
-        category = TipCategory.Grooming
+        category = TipCategory.Grooming,
+        malTitle = "നഖം 2-4 ആഴ്ചയിൽ മുറിക്കുക",
+        malDescription = "നീളമുള്ള നഖം വേദനയും നടുന്നതിൽ ബുദ്ധിമുട്ടും ഉണ്ടാക്കും. തറയിൽ ശബ്ദം കേൾക്കുമ്പോൾ മുറിക്കുക."
     ),
     CareTip(
         title = "Bathe only when needed",
@@ -136,12 +154,16 @@ private val careTips: List<CareTip> = listOf(
     CareTip(
         title = "Schedule annual vet check-ups",
         description = "Yearly exams catch problems early. Senior pets (7+ years) benefit from twice-yearly visits with blood work.",
-        category = TipCategory.Health
+        category = TipCategory.Health,
+        malTitle = "വർഷത്തിൽ ഒരിക്കൽ വെറ്ററിനറി പരിശോധന",
+        malDescription = "വർഷത്തിലൊരിക്കൽ പരിശോധന രോഗങ്ങൾ നേരത്തെ കണ്ടുപിടിക്കാൻ സഹായിക്കും. 7 വർഷത്തിൽ മുകളിൽ പ്രായമുള്ളവയ്ക്ക് അർദ്ധവാർഷിക പരിശോധന വേണം."
     ),
     CareTip(
         title = "Stay current on vaccinations",
         description = "Core vaccines protect against deadly diseases. Follow your vet's schedule and keep a record of booster dates.",
-        category = TipCategory.Health
+        category = TipCategory.Health,
+        malTitle = "വാക്സിൻ കൃത്യമായി നൽകുക",
+        malDescription = "പ്രധാന വാക്സിനുകൾ മാരകമായ രോഗങ്ങളിൽ നിന്ന് സംരക്ഷിക്കുന്നു. വെറ്ററിനറിയൻ്റെ ഷെഡ്യൂൾ പാലിക്കുക."
     ),
     CareTip(
         title = "Use year-round parasite prevention",
@@ -153,7 +175,9 @@ private val careTips: List<CareTip> = listOf(
     CareTip(
         title = "Use positive reinforcement",
         description = "Reward desired behaviour with treats, praise, or play. Avoid punishment — it damages trust and increases anxiety.",
-        category = TipCategory.Training
+        category = TipCategory.Training,
+        malTitle = "പോസിറ്റീവ് റൈൻഫോഴ്സ്മെൻ്റ് ഉപയോഗിക്കുക",
+        malDescription = "നല്ല പെരുമാറ്റത്തിന് സമ്മാനം നൽകുക. ശിക്ഷിക്കരുത് — അത് വിശ്വാസം നശിപ്പിക്കും."
     ),
     CareTip(
         title = "Keep sessions short",
@@ -170,12 +194,16 @@ private val careTips: List<CareTip> = listOf(
     CareTip(
         title = "Read body language",
         description = "A wagging tail doesn't always mean happy. Learn your pet's stress signals — lip licking, yawning, flattened ears — to respond early.",
-        category = TipCategory.Behavior
+        category = TipCategory.Behavior,
+        malTitle = "ശരീരഭാഷ മനസ്സിലാക്കുക",
+        malDescription = "വാൽ കുലുക്കുന്നത് എപ്പോഴും സന്തോഷം അല്ല. നിങ്ങളുടെ വളർത്തുമൃഗത്തിൻ്റെ സമ്മർദ്ദ സൂചനകൾ അറിയുക."
     ),
     CareTip(
         title = "Provide a safe retreat",
         description = "Every pet needs a quiet space to decompress. Crate-trained dogs and cats with high hiding spots feel more secure.",
-        category = TipCategory.Behavior
+        category = TipCategory.Behavior,
+        malTitle = "സുരക്ഷിതമായ സ്ഥലം നൽകുക",
+        malDescription = "ഓരോ വളർത്തുമൃഗത്തിനും വിശ്രമിക്കാൻ ശാന്തമായ ഒരിടം ആവശ്യമാണ്."
     ),
     CareTip(
         title = "Address changes promptly",
@@ -188,6 +216,7 @@ private val careTips: List<CareTip> = listOf(
 @Composable
 fun PetCareTipsScreen() {
     var selectedCategory by remember { mutableStateOf<TipCategory?>(null) }
+    var isMalayalam by remember { mutableStateOf(false) }
 
     val filteredTips = remember(selectedCategory) {
         if (selectedCategory == null) careTips
@@ -201,10 +230,22 @@ fun PetCareTipsScreen() {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Pet Care Tips",
+                            text = if (isMalayalam) "പെറ്റ് കെയർ ടിപ്പ്സ്" else "Pet Care Tips",
                             color = DarkText,
                             fontWeight = FontWeight.Bold
                         )
+                    },
+                    actions = {
+                        FilterChip(
+                            selected = isMalayalam,
+                            onClick = { isMalayalam = !isMalayalam },
+                            label = { Text(if (isMalayalam) "EN" else "ML", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFF6A4C93),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = CreamBg
@@ -233,7 +274,7 @@ fun PetCareTipsScreen() {
                 ) {
                     item { Spacer(modifier = Modifier.height(4.dp)) }
                     items(filteredTips) { tip ->
-                        CareTipCard(tip = tip)
+                        CareTipCard(tip = tip, isMalayalam = isMalayalam)
                     }
                     item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
@@ -277,7 +318,7 @@ private fun CategoryFilterRow(
 }
 
 @Composable
-private fun CareTipCard(tip: CareTip) {
+private fun CareTipCard(tip: CareTip, isMalayalam: Boolean = false) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -312,14 +353,14 @@ private fun CareTipCard(tip: CareTip) {
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = tip.title,
+                    text = if (isMalayalam && tip.malTitle.isNotBlank()) tip.malTitle else tip.title,
                     color = DarkText,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = tip.description,
+                    text = if (isMalayalam && tip.malDescription.isNotBlank()) tip.malDescription else tip.description,
                     color = DarkText.copy(alpha = 0.75f),
                     fontSize = 14.sp,
                     lineHeight = 20.sp
@@ -328,4 +369,5 @@ private fun CareTipCard(tip: CareTip) {
         }
     }
 }
+
 
