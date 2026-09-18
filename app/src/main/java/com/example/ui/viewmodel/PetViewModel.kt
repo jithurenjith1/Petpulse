@@ -324,7 +324,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         listingType: String,
         priceInr: Double,
         description: String,
-        phone: String
+        phone: String,
+        photos: List<String> = emptyList()
     ) {
         submitOwnerMarketPetListing(
             name = name,
@@ -337,7 +338,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             listingType = listingType,
             priceInr = priceInr,
             description = description,
-            phone = phone
+            phone = phone,
+            photos = photos
         )
     }
 
@@ -556,7 +558,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         listingType: String,
         priceInr: Double,
         description: String,
-        phone: String
+        phone: String,
+        photos: List<String> = emptyList()
     ) {
         val newMarketPet = MarketPet(
             id = "pet_owner_${System.currentTimeMillis()}",
@@ -576,7 +579,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             sellerName = _customerProfile.value.name,
             sellerPhone = phone.ifBlank { _customerProfile.value.phone },
             isVerifiedBreeder = false,
-            description = description.ifBlank { "Loving and healthy pet looking for a wonderful home." }
+            description = description.ifBlank { "Loving and healthy pet looking for a wonderful home." },
+            photoUris = photos
         )
         _marketPetsList.value = listOf(newMarketPet) + _marketPetsList.value
     }

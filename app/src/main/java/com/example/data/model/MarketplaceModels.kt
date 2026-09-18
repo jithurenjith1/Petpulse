@@ -37,7 +37,7 @@ data class MarketPet(
     val isVerifiedBreeder: Boolean = true,
     val description: String,
     val temperament: String = "Playful & Healthy",
-    val imageUrl: String = ""
+    val photoUris: List<String> = emptyList() // multiple photos per listing
 )
 
 data class MarketProduct(

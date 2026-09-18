@@ -1,6 +1,8 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -600,22 +602,26 @@ fun MarketPetCard(
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (pet.isImportedExotic) Color(0xFFF3E5F5) else BluePrimary.copy(alpha = 0.12f)
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (pet.isImportedExotic) Color(0xFFF3E5F5) else BluePrimary.copy(alpha = 0.12f)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    if (pet.photoUris.isNotEmpty()) {
+                        AsyncImage(
+                            model = pet.photoUris.first(),
+                            contentDescription = pet.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
                         Text(
                             text = when (pet.species.lowercase()) {
                                 "dog" -> "🐶"
@@ -628,39 +634,39 @@ fun MarketPetCard(
                             fontSize = 24.sp
                         )
                     }
-
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = pet.name,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = if (pet.listingType == "Adoption") Color(0xFFE8F5E9) else BluePrimary.copy(alpha = 0.12f)
-                            ) {
-                                Text(
-                                    text = pet.listingType,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (pet.listingType == "Adoption") Color(0xFF2E7D32) else BluePrimary,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
-
-                        Text(
-                            text = "${pet.breed} • ${pet.age} • ${pet.gender}",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
                 }
 
-                Column(horizontalAlignment = Alignment.End) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = pet.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = if (pet.listingType == "Adoption") Color(0xFFE8F5E9) else BluePrimary.copy(alpha = 0.12f)
+                        ) {
+                            Text(
+                                text = pet.listingType,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (pet.listingType == "Adoption") Color(0xFF2E7D32) else BluePrimary,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = "${pet.breed} • ${pet.age} • ${pet.gender}",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     if (pet.listingType == "Adoption") {
                         Text(
                             text = "FREE",
@@ -674,20 +680,40 @@ fun MarketPetCard(
                             color = Color(0xFF2E7D32)
                         )
                     } else {
-                        Text(
-                            text = "₹${pet.priceInr.toInt()}",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 18.sp,
-                            color = BluePrimaryDark
-                        )
-                        if (pet.originalPriceInr != null && pet.originalPriceInr > pet.priceInr) {
+                        Row(verticalAlignment = Alignment.Bottom) {
                             Text(
-                                text = "₹${pet.originalPriceInr.toInt()}",
-                                fontSize = 11.sp,
-                                textDecoration = TextDecoration.LineThrough,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = "₹${pet.priceInr.toInt()}",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp,
+                                color = BluePrimaryDark
                             )
+                            if (pet.originalPriceInr != null && pet.originalPriceInr > pet.priceInr) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "₹${pet.originalPriceInr.toInt()}",
+                                    fontSize = 11.sp,
+                                    textDecoration = TextDecoration.LineThrough,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
+                    }
+                }
+            }
+
+            // Extra photos strip (2nd onwards) — replaces single emoji avatar only
+            if (pet.photoUris.size > 1) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    items(pet.photoUris.drop(1)) { uri ->
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(88.dp, 66.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                        )
                     }
                 }
             }

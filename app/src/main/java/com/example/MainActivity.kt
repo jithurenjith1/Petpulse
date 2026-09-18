@@ -478,7 +478,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     if (showListPetModal) {
         ListPetFormModal(
             onDismiss = { showListPetModal = false },
-            onSubmit = { name, species, breed, age, gender, city, isExotic, listingType, price, desc, phone ->
+            onSubmit = { name, species, breed, age, gender, city, isExotic, listingType, price, desc, phone, photos ->
                 viewModel.listPetForSaleOrAdoption(
                     name = name,
                     species = species,
@@ -490,7 +490,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                     listingType = listingType,
                     priceInr = price,
                     description = desc,
-                    phone = phone
+                    phone = phone,
+                    photos = photos
                 )
 
                 coroutineScope.launch {

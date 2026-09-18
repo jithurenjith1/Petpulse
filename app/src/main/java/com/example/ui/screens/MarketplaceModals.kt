@@ -1,5 +1,9 @@
 package com.example.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -26,7 +30,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
 import com.example.data.model.*
 import com.example.ui.theme.*
 
@@ -971,7 +977,7 @@ fun OrderCardWithTimeline(
 @Composable
 fun ListPetFormModal(
     onDismiss: () -> Unit,
-    onSubmit: (name: String, species: String, breed: String, age: String, gender: String, city: String, isExotic: Boolean, listingType: String, price: Double, desc: String, phone: String) -> Unit
+    onSubmit: (name: String, species: String, breed: String, age: String, gender: String, city: String, isExotic: Boolean, listingType: String, price: Double, desc: String, phone: String, photos: List<String>) -> Unit
 ) {
     var petName by remember { mutableStateOf("") }
     var species by remember { mutableStateOf("Dog") }
@@ -984,6 +990,10 @@ fun ListPetFormModal(
     var priceText by remember { mutableStateOf("15000") }
     var description by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("+91 98470 00000") }
+    var photoUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5)
+    ) { uris -> photoUris = uris }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -1039,6 +1049,42 @@ fun ListPetFormModal(
                                 Text("Check for Macaw, Husky, Iguana, Persian, etc.", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Switch(checked = isExotic, onCheckedChange = { isExotic = it })
+                        }
+                    }
+                }
+
+                // Pet Photos (multiple upload for better sales listings)
+                item {
+                    Text("Pet Photos (up to 5 — tap a photo to remove):", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    OutlinedButton(
+                        onClick = {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(if (photoUris.isEmpty()) "Add Photos" else "${photoUris.size}/5 selected")
+                    }
+                    if (photoUris.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(photoUris.size) { idx ->
+                                AsyncImage(
+                                    model = photoUris[idx],
+                                    contentDescription = "Pet photo ${idx + 1}",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable {
+                                            photoUris = photoUris.filterIndexed { i, _ -> i != idx }
+                                        }
+                                )
+                            }
                         }
                     }
                 }
@@ -1166,7 +1212,7 @@ fun ListPetFormModal(
                     Button(
                         onClick = {
                             val priceVal = priceText.toDoubleOrNull() ?: 0.0
-                            onSubmit(petName, species, breed, age, gender, city, isExotic, listingType, priceVal, description, phone)
+                            onSubmit(petName, species, breed, age, gender, city, isExotic, listingType, priceVal, description, phone, photoUris.map { it.toString() })
                             onDismiss()
                         },
                         modifier = Modifier
