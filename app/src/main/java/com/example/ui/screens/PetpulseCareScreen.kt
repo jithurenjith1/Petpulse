@@ -77,8 +77,8 @@ private val Plans = listOf(
     PetpulsePlan(
         name = "Basic",
         tagline = "Free",
-        monthlyPriceLabel = "Rs.0/mo",
-        yearlyPriceLabel = "Rs.0/mo",
+        monthlyPriceLabel = "₹0/mo",
+        yearlyPriceLabel = "₹0/mo",
         features = listOf(
             "Unlimited AI symptom triage",
             "1 vet consultation/month",
@@ -89,8 +89,8 @@ private val Plans = listOf(
     PetpulsePlan(
         name = "Care",
         tagline = "Most Popular",
-        monthlyPriceLabel = "Rs.299/mo",
-        yearlyPriceLabel = "Rs.2,999/yr",
+        monthlyPriceLabel = "₹299/mo",
+        yearlyPriceLabel = "₹2,999/yr",
         features = listOf(
             "Everything in Basic",
             "Unlimited AI triage with photo analysis",
@@ -104,8 +104,8 @@ private val Plans = listOf(
     PetpulsePlan(
         name = "Premium",
         tagline = "Complete coverage",
-        monthlyPriceLabel = "Rs.499/mo",
-        yearlyPriceLabel = "Rs.4,999/yr",
+        monthlyPriceLabel = "₹499/mo",
+        yearlyPriceLabel = "₹4,999/yr",
         features = listOf(
             "Everything in Care",
             "4 vet consultations/month",

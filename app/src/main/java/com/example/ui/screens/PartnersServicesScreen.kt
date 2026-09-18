@@ -162,7 +162,7 @@ fun PartnersServicesScreen(
                             color = Color(0xFF8A6D1C)
                         )
                         Text(
-                            "Appear at the top of grooming, boarding & vet searches. Plans from Rs.999/month.",
+                            "Appear at the top of grooming, boarding & vet searches. Plans from ₹999/month.",
                             fontSize = 11.sp,
                             color = Color(0xFF7A6A45)
                         )
@@ -1236,20 +1236,20 @@ fun FeaturedPlansDialog(
     var selectedPlan by remember { mutableStateOf(1) }
 
     val plans = listOf(
-        Triple("Basic", "Rs.999/month", listOf(
+        Triple("Basic", "₹999/month", listOf(
             "Top placement in 1 category",
             "Verified badge included",
             "7-day visibility analytics",
             "Standard listing support"
         )),
-        Triple("Standard", "Rs.2,499/month", listOf(
+        Triple("Standard", "₹2,499/month", listOf(
             "Top placement in 3 categories",
             "Gold Featured ribbon",
             "30-day analytics dashboard",
             "Priority support",
             "2x profile views (avg)"
         )),
-        Triple("Premium", "Rs.4,999/month", listOf(
+        Triple("Premium", "₹4,999/month", listOf(
             "#1 placement in all categories",
             "Homepage banner spotlight",
             "Unlimited analytics + export",

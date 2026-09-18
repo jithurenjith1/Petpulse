@@ -457,7 +457,7 @@ private fun VetCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Rs.${vet.priceRupees}/consult",
+                    text = "₹${vet.priceRupees}/consult",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = Gold

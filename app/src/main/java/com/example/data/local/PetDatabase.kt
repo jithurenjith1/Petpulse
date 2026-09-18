@@ -165,7 +165,7 @@ abstract class PetDatabase : RoomDatabase() {
                     breed = "Golden Retriever",
                     lastSeenLocation = "Maple Creek Park (Near North Gate)",
                     distanceKm = 1.8,
-                    rewardAmount = "$300",
+                    rewardAmount = "₹25,500",
                     contactHelpline = "+1 (800) 555-PET-SOS",
                     reportedTime = "35 mins ago",
                     isResolved = false,
@@ -181,7 +181,7 @@ abstract class PetDatabase : RoomDatabase() {
                     breed = "Siamese Mix",
                     lastSeenLocation = "Greenwood Boulevard, Block C",
                     distanceKm = 3.2,
-                    rewardAmount = "$150",
+                    rewardAmount = "₹12,750",
                     contactHelpline = "+1 (800) 555-PET-SOS",
                     reportedTime = "2 hours ago",
                     isResolved = false,
@@ -217,7 +217,7 @@ abstract class PetDatabase : RoomDatabase() {
                     description = "Certified pedigree, litter-trained, playful demeanor with complete health certificate.",
                     contactNumber = "+1 (555) 890-1234",
                     listingType = "Sale",
-                    priceEstimate = "$450 (Contact Partner Breeder)",
+                    priceEstimate = "₹38,250 (Contact Partner Breeder)",
                     postedBy = "Blue Ribbon Felines"
                 )
             )

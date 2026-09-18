@@ -51,41 +51,41 @@ class PetRepository(private val petDao: PetDao) {
 
     fun getFoodForSpecies(speciesId: String): List<FoodItem> = when (speciesId) {
         "dogs" -> listOf(
-            FoodItem("Premium High-Protein Dry Kibble", "Dry Food", "Real salmon & sweet potato formula with glucosamine for joint health.", "2 cups / day", "$45.99 / 15 lb"),
-            FoodItem("Slow-Cooked Turkey & Veggie Wet Food", "Wet Food", "Grain-free savory wet stew packed with hydration and vitamins.", "1 can / day", "$28.50 / 12 pack"),
-            FoodItem("Crunchy Dental Peanut Butter Treats", "Treats", "Enzymatic teeth-cleaning chews with organic peanut butter.", "2 treats / day", "$12.99 / bag"),
-            FoodItem("Organic Freeze-Dried Beef Liver Bites", "Treats", "Single-ingredient high-value training treat for command focus.", "3-4 pieces / session", "$16.50 / jar")
+            FoodItem("Premium High-Protein Dry Kibble", "Dry Food", "Real salmon & sweet potato formula with glucosamine for joint health.", "2 cups / day", "₹3,909 / 7 kg"),
+            FoodItem("Slow-Cooked Turkey & Veggie Wet Food", "Wet Food", "Grain-free savory wet stew packed with hydration and vitamins.", "1 can / day", "₹2,419 / 12 pack"),
+            FoodItem("Crunchy Dental Peanut Butter Treats", "Treats", "Enzymatic teeth-cleaning chews with organic peanut butter.", "2 treats / day", "₹1,099 / bag"),
+            FoodItem("Organic Freeze-Dried Beef Liver Bites", "Treats", "Single-ingredient high-value training treat for command focus.", "3-4 pieces / session", "₹1,399 / jar")
         )
         "cats" -> listOf(
-            FoodItem("Ocean Whitefish & Tuna Grain-Free Kibble", "Dry Food", "Rich in Omega-3 fatty acids for a shiny coat and urinary tract support.", "0.5 cup / day", "$38.00 / 10 lb"),
-            FoodItem("Tender Chicken in Savory Broth Paté", "Wet Food", "High moisture wet food to prevent kidney dehydration.", "2 pouches / day", "$24.00 / 24 pack"),
-            FoodItem("Catnip Infused Crispy Dental Bites", "Treats", "Irresistible crunchy bites with real catnip and tartar control.", "5-6 bites / day", "$8.99 / pack"),
-            FoodItem("Creamy Lickable Purée Squeeze Tubes", "Treats", "Interactive hand-feeding treat for bonding and medication masking.", "1 tube / day", "$11.50 / 8 pack")
+            FoodItem("Ocean Whitefish & Tuna Grain-Free Kibble", "Dry Food", "Rich in Omega-3 fatty acids for a shiny coat and urinary tract support.", "0.5 cup / day", "₹3,229 / 4.5 kg"),
+            FoodItem("Tender Chicken in Savory Broth Paté", "Wet Food", "High moisture wet food to prevent kidney dehydration.", "2 pouches / day", "₹2,039 / 24 pack"),
+            FoodItem("Catnip Infused Crispy Dental Bites", "Treats", "Irresistible crunchy bites with real catnip and tartar control.", "5-6 bites / day", "₹759 / pack"),
+            FoodItem("Creamy Lickable Purée Squeeze Tubes", "Treats", "Interactive hand-feeding treat for bonding and medication masking.", "1 tube / day", "₹979 / 8 pack")
         )
         "birds" -> listOf(
-            FoodItem("Fortified Seed & Nut Medley", "Dry Food", "Pellet-seed blend with sunflower seeds, millet, and added calcium.", "2 tbsp / day", "$18.99 / 5 lb"),
-            FoodItem("Fresh Sprout & Veggie Mash Purée", "Wet Food", "Fresh organic broccoli, corn, and sprouted grains mash.", "1 tbsp / morning", "$14.00 / pack"),
-            FoodItem("Honey & Fruit Seed Bell Treat", "Treats", "Hanging bell treat that encourages natural foraging instincts.", "1 bell / week", "$7.50 / 2 pack")
+            FoodItem("Fortified Seed & Nut Medley", "Dry Food", "Pellet-seed blend with sunflower seeds, millet, and added calcium.", "2 tbsp / day", "₹1,609 / 2.3 kg"),
+            FoodItem("Fresh Sprout & Veggie Mash Purée", "Wet Food", "Fresh organic broccoli, corn, and sprouted grains mash.", "1 tbsp / morning", "₹1,189 / pack"),
+            FoodItem("Honey & Fruit Seed Bell Treat", "Treats", "Hanging bell treat that encourages natural foraging instincts.", "1 bell / week", "₹639 / 2 pack")
         )
         "fishes" -> listOf(
-            FoodItem("Tropical Micro-Flakes Color Enhancer", "Dry Food", "Spirulina and krill flakes that bring out vibrant scales.", "Pinch 2x / day", "$9.99 / container"),
-            FoodItem("Freeze-Dried Bloodworms Gel Feed", "Wet Food", "High-protein aquatic delicacy suitable for bettas, tetras & cichlids.", "Small portion 3x / week", "$13.50 / pack"),
-            FoodItem("Bottom Feeder Sinking Algae Wafers", "Treats", "Nutrient-dense discs for plecos, corydoras, and shrimp.", "1 wafer / evening", "$8.20 / pack")
+            FoodItem("Tropical Micro-Flakes Color Enhancer", "Dry Food", "Spirulina and krill flakes that bring out vibrant scales.", "Pinch 2x / day", "₹849 / container"),
+            FoodItem("Freeze-Dried Bloodworms Gel Feed", "Wet Food", "High-protein aquatic delicacy suitable for bettas, tetras & cichlids.", "Small portion 3x / week", "₹1,149 / pack"),
+            FoodItem("Bottom Feeder Sinking Algae Wafers", "Treats", "Nutrient-dense discs for plecos, corydoras, and shrimp.", "1 wafer / evening", "₹699 / pack")
         )
         "rabbit" -> listOf(
-            FoodItem("First-Cut Timothy Hay Premium Bale", "Dry Food", "Essential long-strand fiber promoting gut motility and dental wear.", "Unlimited daily", "$22.00 / 9 lb"),
-            FoodItem("Herbaceous Botanical Wet Greens Bowl", "Wet Food", "Fresh cilantro, romaine lettuce, and dandelion leafy greens.", "1 cup / day", "$9.50 / fresh pack"),
-            FoodItem("Dried Meadow Flower & Apple Crisp Rings", "Treats", "Natural dried apple rings dusted with marigold petals.", "1 ring / alternate days", "$6.99 / bag")
+            FoodItem("First-Cut Timothy Hay Premium Bale", "Dry Food", "Essential long-strand fiber promoting gut motility and dental wear.", "Unlimited daily", "₹1,869 / 4 kg"),
+            FoodItem("Herbaceous Botanical Wet Greens Bowl", "Wet Food", "Fresh cilantro, romaine lettuce, and dandelion leafy greens.", "1 cup / day", "₹809 / fresh pack"),
+            FoodItem("Dried Meadow Flower & Apple Crisp Rings", "Treats", "Natural dried apple rings dusted with marigold petals.", "1 ring / alternate days", "₹589 / bag")
         )
         "hamster" -> listOf(
-            FoodItem("Gourmet Whole-Grain Muesli & Seed Bowl", "Dry Food", "Barley, pumpkin seeds, oats, and mealworms for omnivorous foraging.", "1 tbsp / day", "$11.99 / 2 lb"),
-            FoodItem("Mashed Carrot & Pea Wet Porridge", "Wet Food", "Soft vitamin-enriched vegetable purée for gentle digestion.", "Half tsp / 2 days", "$5.50 / jar"),
-            FoodItem("Crunchy Yogurt Drops & Nut Clusters", "Treats", "Delicious sweet berry and probiotic yogurt drop treats.", "1 drop / day", "$4.99 / pack")
+            FoodItem("Gourmet Whole-Grain Muesli & Seed Bowl", "Dry Food", "Barley, pumpkin seeds, oats, and mealworms for omnivorous foraging.", "1 tbsp / day", "₹1,019 / 0.9 kg"),
+            FoodItem("Mashed Carrot & Pea Wet Porridge", "Wet Food", "Soft vitamin-enriched vegetable purée for gentle digestion.", "Half tsp / 2 days", "₹469 / jar"),
+            FoodItem("Crunchy Yogurt Drops & Nut Clusters", "Treats", "Delicious sweet berry and probiotic yogurt drop treats.", "1 drop / day", "₹419 / pack")
         )
         else -> listOf(
-            FoodItem("Omnivore Reptile & Gecko Powder Feed", "Dry Food", "Complete calcium-fortified meal replacement formula.", "1 scoop / day", "$19.99 / jar"),
-            FoodItem("Canned Crickets in Vitamin Nectar Jelly", "Wet Food", "Pre-cooked safe feeder insects packed with digestible protein.", "2-3 crickets / meal", "$15.00 / 3 pack"),
-            FoodItem("Papaya & Mango Fruit Purée Jelly Pots", "Treats", "Sugar-glider & exotic pet natural fruit treat cups.", "1 pot / 3 days", "$10.50 / 6 pack")
+            FoodItem("Omnivore Reptile & Gecko Powder Feed", "Dry Food", "Complete calcium-fortified meal replacement formula.", "1 scoop / day", "₹1,699 / jar"),
+            FoodItem("Canned Crickets in Vitamin Nectar Jelly", "Wet Food", "Pre-cooked safe feeder insects packed with digestible protein.", "2-3 crickets / meal", "₹1,279 / 3 pack"),
+            FoodItem("Papaya & Mango Fruit Purée Jelly Pots", "Treats", "Sugar-glider & exotic pet natural fruit treat cups.", "1 pot / 3 days", "₹889 / 6 pack")
         )
     }
 
@@ -94,50 +94,50 @@ class PetRepository(private val petDao: PetDao) {
             FoodItem("", "", "", "", "") // placeholder to distinguish
         ).let {
             listOf(
-                AccessoryItem("Weatherproof Blue Raincoat & Hoodie", "Clothing", "Reflective safety stripes with waterproof breathable fabric.", "$24.99", "Ripstop Nylon"),
-                AccessoryItem("Indestructible Natural Rubber Chew Ball", "Toys", "Textured teeth-cleaning ball with treat dispensing slot.", "$14.50", "BPA-Free Rubber"),
-                AccessoryItem("Smart LED Safety Collar & Leash Set", "Wearables", "USB rechargeable glow collar with 3 flash modes.", "$19.99", "Braided Nylon"),
-                AccessoryItem("Orthopedic Memory Foam Pet Bed", "Other", "Soothing joint support bed with removable washable cover.", "$58.00", "Memory Foam & Sherpa")
+                AccessoryItem("Weatherproof Blue Raincoat & Hoodie", "Clothing", "Reflective safety stripes with waterproof breathable fabric.", "₹2,119", "Ripstop Nylon"),
+                AccessoryItem("Indestructible Natural Rubber Chew Ball", "Toys", "Textured teeth-cleaning ball with treat dispensing slot.", "₹1,229", "BPA-Free Rubber"),
+                AccessoryItem("Smart LED Safety Collar & Leash Set", "Wearables", "USB rechargeable glow collar with 3 flash modes.", "₹1,699", "Braided Nylon"),
+                AccessoryItem("Orthopedic Memory Foam Pet Bed", "Other", "Soothing joint support bed with removable washable cover.", "₹4,929", "Memory Foam & Sherpa")
             )
         }
         "cats" -> listOf(
-            AccessoryItem("Warm Knitted Fleece Sweater", "Clothing", "Cozy winter pullover with stretchy ribbed collar.", "$16.99", "Soft Acrylic Knit"),
-            AccessoryItem("3-Tier Sisal Cat Scratching Tree & Hammock", "Toys", "Sturdy tower with dangling teaser balls and plush perch.", "$49.99", "Natural Sisal Rope"),
-            AccessoryItem("Breakaway Velvet Collar with Blue Bell", "Wearables", "Quick-release safety buckle designed specifically for cats.", "$9.99", "Plush Velvet"),
-            AccessoryItem("Ultra-Quiet Automatic Water Fountain Filter", "Other", "2.5L circulating filtered waterer to promote kidney health.", "$29.50", "Stainless Steel")
+            AccessoryItem("Warm Knitted Fleece Sweater", "Clothing", "Cozy winter pullover with stretchy ribbed collar.", "₹1,439", "Soft Acrylic Knit"),
+            AccessoryItem("3-Tier Sisal Cat Scratching Tree & Hammock", "Toys", "Sturdy tower with dangling teaser balls and plush perch.", "₹4,249", "Natural Sisal Rope"),
+            AccessoryItem("Breakaway Velvet Collar with Blue Bell", "Wearables", "Quick-release safety buckle designed specifically for cats.", "₹849", "Plush Velvet"),
+            AccessoryItem("Ultra-Quiet Automatic Water Fountain Filter", "Other", "2.5L circulating filtered waterer to promote kidney health.", "₹2,509", "Stainless Steel")
         )
         "birds" -> listOf(
-            AccessoryItem("Natural Wooden Ladder & Spiral Rope Perch", "Toys", "Cotton spiral rope swing with colorful chewable wooden blocks.", "$15.99", "Non-toxic Pine & Cotton"),
-            AccessoryItem("Breathable Flight Harness with Leash", "Wearables", "Lightweight ergonomic flight suit for safe outdoor adventures.", "$18.50", "Elastic Fabric"),
-            AccessoryItem("Bird Bath Shower with Mirror Bracket", "Other", "Clip-on clear bath tub for splash and feather conditioning.", "$12.00", "BPA-free Acrylic")
+            AccessoryItem("Natural Wooden Ladder & Spiral Rope Perch", "Toys", "Cotton spiral rope swing with colorful chewable wooden blocks.", "₹1,359", "Non-toxic Pine & Cotton"),
+            AccessoryItem("Breathable Flight Harness with Leash", "Wearables", "Lightweight ergonomic flight suit for safe outdoor adventures.", "₹1,569", "Elastic Fabric"),
+            AccessoryItem("Bird Bath Shower with Mirror Bracket", "Other", "Clip-on clear bath tub for splash and feather conditioning.", "₹1,019", "BPA-free Acrylic")
         )
         "fishes" -> listOf(
-            AccessoryItem("Glowing Coral Reef Aquarium Ornament", "Toys", "Fluorescent non-toxic cave ornament for fish exploration.", "$14.99", "Aquatic Safe Resin"),
-            AccessoryItem("Submersible RGB Multi-Color Aquarium Light", "Wearables", "Programmable sunrise/sunset LED bar with remote control.", "$26.00", "IP68 Waterproof Aluminum"),
-            AccessoryItem("Magnetic Glass Cleaner with Algae Scraper", "Other", "Dual-sided floating magnetic glass wiper for effortless crystal views.", "$11.50", "High-strength Magnet")
+            AccessoryItem("Glowing Coral Reef Aquarium Ornament", "Toys", "Fluorescent non-toxic cave ornament for fish exploration.", "₹1,269", "Aquatic Safe Resin"),
+            AccessoryItem("Submersible RGB Multi-Color Aquarium Light", "Wearables", "Programmable sunrise/sunset LED bar with remote control.", "₹2,209", "IP68 Waterproof Aluminum"),
+            AccessoryItem("Magnetic Glass Cleaner with Algae Scraper", "Other", "Dual-sided floating magnetic glass wiper for effortless crystal views.", "₹979", "High-strength Magnet")
         )
         "rabbit" -> listOf(
-            AccessoryItem("Apple Wood Chew Sticks & Loofah Carrot", "Toys", "Natural dental grinding sticks that protect furniture.", "$8.99", "Natural Apple Orchard Wood"),
-            AccessoryItem("Padded Escape-Proof Mesh Harness", "Wearables", "Comfortable soft vest harness for backyard hops.", "$14.50", "Breathable Mesh"),
-            AccessoryItem("Spacious Corner Litter Box with Hay Feeder", "Other", "2-in-1 hay rack and deep grid litter pan.", "$22.00", "Sturdy Polymer")
+            AccessoryItem("Apple Wood Chew Sticks & Loofah Carrot", "Toys", "Natural dental grinding sticks that protect furniture.", "₹759", "Natural Apple Orchard Wood"),
+            AccessoryItem("Padded Escape-Proof Mesh Harness", "Wearables", "Comfortable soft vest harness for backyard hops.", "₹1,229", "Breathable Mesh"),
+            AccessoryItem("Spacious Corner Litter Box with Hay Feeder", "Other", "2-in-1 hay rack and deep grid litter pan.", "₹1,869", "Sturdy Polymer")
         )
         "hamster" -> listOf(
-            AccessoryItem("Silent Spinner Exercise Wheel (8.5 inch)", "Toys", "Dual ball-bearing ultra-quiet running wheel.", "$16.99", "Smooth ABS Plastic"),
-            AccessoryItem("Natural Wooden Maze Castle with Burrow Tunnel", "Other", "Multi-chamber hideout that mimics natural underground burrows.", "$21.50", "Unfinished Birch Wood"),
-            AccessoryItem("Ceramic Cooling Hideout House", "Other", "Heat-relief ceramic igloo for hot summer days.", "$12.00", "Glazed Ceramic")
+            AccessoryItem("Silent Spinner Exercise Wheel (8.5 inch)", "Toys", "Dual ball-bearing ultra-quiet running wheel.", "₹1,439", "Smooth ABS Plastic"),
+            AccessoryItem("Natural Wooden Maze Castle with Burrow Tunnel", "Other", "Multi-chamber hideout that mimics natural underground burrows.", "₹1,829", "Unfinished Birch Wood"),
+            AccessoryItem("Ceramic Cooling Hideout House", "Other", "Heat-relief ceramic igloo for hot summer days.", "₹1,019", "Glazed Ceramic")
         )
         else -> listOf(
-            AccessoryItem("Digital Humidity & Thermal Hygrometer Sensor", "Wearables", "High precision dual-probe sensor for optimal vivarium climate.", "$17.99", "Digital Probe"),
-            AccessoryItem("Bendable Jungle Vine & Reptile Hammock", "Toys", "Flexible textured climbing vine with heavy-duty suction cups.", "$15.50", "Natural Texture Poly"),
-            AccessoryItem("Ceramic Infrared Heat Emitter Lamp (75W)", "Other", "24-hour heat source that produces zero light disruption.", "$19.00", "Ceramic Core")
+            AccessoryItem("Digital Humidity & Thermal Hygrometer Sensor", "Wearables", "High precision dual-probe sensor for optimal vivarium climate.", "₹1,529", "Digital Probe"),
+            AccessoryItem("Bendable Jungle Vine & Reptile Hammock", "Toys", "Flexible textured climbing vine with heavy-duty suction cups.", "₹1,319", "Natural Texture Poly"),
+            AccessoryItem("Ceramic Infrared Heat Emitter Lamp (75W)", "Other", "24-hour heat source that produces zero light disruption.", "₹1,619", "Ceramic Core")
         )
     }
 
     fun getHealthCareForSpecies(speciesId: String): List<HealthCareItem> = listOf(
-        HealthCareItem("Professional Coat De-Shedding & Bath", "Grooming", "Full deep cleansing bath, blow dry, nail clipping, and ear cleaning.", "Every 4-6 Weeks", "$35 - $65"),
-        HealthCareItem("Core Immunity Vaccinations", "Vaccination", "Rabies, viral booster shots, and preventative immunization schedule.", "Annual / Multi-Year", "$25 - $50"),
-        HealthCareItem("Routine Wellness & Dental Checkup", "Checkups", "Comprehensive physical examination, vitals, coat, and tartar inspection.", "Bi-Annual", "$40 - $75"),
-        HealthCareItem("Tick, Flea & Parasite Prevention", "Treatments", "Topical or chewable broad-spectrum protection against parasites.", "Monthly Routine", "$15 - $30")
+        HealthCareItem("Professional Coat De-Shedding & Bath", "Grooming", "Full deep cleansing bath, blow dry, nail clipping, and ear cleaning.", "Every 4-6 Weeks", "₹3,000 - ₹5,550"),
+        HealthCareItem("Core Immunity Vaccinations", "Vaccination", "Rabies, viral booster shots, and preventative immunization schedule.", "Annual / Multi-Year", "₹2,150 - ₹4,250"),
+        HealthCareItem("Routine Wellness & Dental Checkup", "Checkups", "Comprehensive physical examination, vitals, coat, and tartar inspection.", "Bi-Annual", "₹3,400 - ₹6,400"),
+        HealthCareItem("Tick, Flea & Parasite Prevention", "Treatments", "Topical or chewable broad-spectrum protection against parasites.", "Monthly Routine", "₹1,300 - ₹2,550")
     )
 
     fun getTrainingGuidesForSpecies(speciesId: String): List<TrainingGuide> = when (speciesId) {
@@ -231,7 +231,7 @@ class PetRepository(private val petDao: PetDao) {
             rating = 4.9,
             reviewCount = 384,
             packages = listOf("Full Hydro-Bath & Blowout", "Breed-Specific Styling & Trim", "Pawdicure & Balm Treatment", "Organic Herbal Flea Rinse"),
-            startingPrice = "$35.00",
+            startingPrice = "₹2,979",
             phone = "+1 (555) 924-JANE",
             isFeaturedPartner = true
         ),
@@ -243,7 +243,7 @@ class PetRepository(private val petDao: PetDao) {
             rating = 4.8,
             reviewCount = 210,
             packages = listOf("Doorstep Full Spa", "De-matting & Ear Cleaning", "Teeth Brushing & Breath Freshener"),
-            startingPrice = "$49.00",
+            startingPrice = "₹4,169",
             phone = "+1 (555) 432-PAWS",
             isFeaturedPartner = true
         )
@@ -255,7 +255,7 @@ class PetRepository(private val petDao: PetDao) {
             planType = "Monthly",
             comboContents = "15kg High-Protein Kibble + 12 Cans Gourmet Wet Gravy + 2 Dental Chews Packs + 1 Squeaky Toy",
             brandsIncluded = "Royal Canin, Farmina N&D, Pedigree Pro",
-            monthlyEstimate = "$59.99 / month",
+            monthlyEstimate = "₹5,100 / month",
             savingsTag = "Save 25% vs Retail"
         ),
         FoodSubscription(
@@ -263,7 +263,7 @@ class PetRepository(private val petDao: PetDao) {
             planType = "Yearly",
             comboContents = "Monthly auto-shipped custom food box + Free Birthday Gift Crate + Free Grooming Studio Vouchers",
             brandsIncluded = "Acana, Orijen, Purina Pro, Whiskas Gourmet",
-            monthlyEstimate = "$590.00 / year ($49/mo)",
+            monthlyEstimate = "₹50,150 / year (₹4,150/mo)",
             savingsTag = "Best Value • Free GPS Tag"
         ),
         FoodSubscription(
@@ -271,7 +271,7 @@ class PetRepository(private val petDao: PetDao) {
             planType = "Monthly",
             comboContents = "6kg Fish & Poultry Dry Food + 24 Pouches Broth + Lickable Treats + Feather Wand Toy",
             brandsIncluded = "Taste of the Wild, Sheba, Felix",
-            monthlyEstimate = "$42.50 / month",
+            monthlyEstimate = "₹3,609 / month",
             savingsTag = "Save 20% Monthly"
         )
     )
@@ -283,7 +283,7 @@ class PetRepository(private val petDao: PetDao) {
             tagline = "Certified 24-Hour In-Home Pet Sitter with Fenced Yard & 24/7 Web-Cam Access",
             experience = "6+ Years Experience • 450+ Happy Dogs Hosted",
             rating = 4.98,
-            priceEstimate = "$45 / 24 Hours",
+            priceEstimate = "₹3,850 / 24 Hours",
             features = listOf("24/7 Live Stream Camera for Owners", "3 Daily Walks & Social Playtime", "Administers Oral Medications", "Daily Photo/Video Updates"),
             verified = true
         ),
@@ -293,7 +293,7 @@ class PetRepository(private val petDao: PetDao) {
             tagline = "Spacious Outdoor Playgrounds & Socialization Agility Yard (8 AM - 7 PM)",
             experience = "Licensed Facility • Vet on Call",
             rating = 4.85,
-            priceEstimate = "$28 / Day",
+            priceEstimate = "₹2,400 / Day",
             features = listOf("Agility Grass Park", "Puppy Splash Pool", "Separated Small & Large Dog Zones", "Nap Cabin with AC"),
             verified = true
         ),
@@ -303,7 +303,7 @@ class PetRepository(private val petDao: PetDao) {
             tagline = "Quiet, sound-proof climate-controlled suites for anxious & calm pets (7 PM - 9 AM)",
             experience = "Veterinary Nurse on Duty",
             rating = 4.9,
-            priceEstimate = "$32 / Night",
+            priceEstimate = "₹2,700 / Night",
             features = listOf("Calming Lavender Aromatherapy", "Individual Orthopedic Mattresses", "Evening Bedtime Cuddle Routine"),
             verified = true
         ),
@@ -313,7 +313,7 @@ class PetRepository(private val petDao: PetDao) {
             tagline = "Scheduled Drop-In Doorstep Visits strictly according to your pet's dietary schedule",
             experience = "Insured & Background Verified Staff",
             rating = 4.92,
-            priceEstimate = "$15 / Visit",
+            priceEstimate = "₹1,300 / Visit",
             features = listOf("Exact Time Feeding & Fresh Water", "Litter Box / Yard Clean", "5-Min Quick Play & Snuggle", "GPS Check-in Proof"),
             verified = true
         )
@@ -334,7 +334,7 @@ class PetRepository(private val petDao: PetDao) {
             date = "Oct 12, 2026 • 9:00 AM",
             location = "Riverfront Stadium & Exhibition Grounds",
             entryStatus = "Open for Registrations",
-            prizePool = "$2,500 Trophy & Pet Care Hampers"
+            prizePool = "₹2,12,500 Trophy & Pet Care Hampers"
         ),
         PetEventItem(
             title = "Mega Pet Adoption & Rescue Fair",
@@ -350,7 +350,7 @@ class PetRepository(private val petDao: PetDao) {
             date = "Nov 22, 2026 • 2:00 PM",
             location = "Civic Auditorium Hall B",
             entryStatus = "Limited Slots (50 Entries)",
-            prizePool = "$1,000 + Golden Ribbon"
+            prizePool = "₹85,000 + Golden Ribbon"
         )
     )
 }

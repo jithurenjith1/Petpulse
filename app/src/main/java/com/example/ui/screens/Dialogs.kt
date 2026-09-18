@@ -368,7 +368,7 @@ fun LostPetSosDialog(
     var species by remember { mutableStateOf("Dog") }
     var breed by remember { mutableStateOf("Indie") }
     var location by remember { mutableStateOf("City Central Park, North Gate") }
-    var reward by remember { mutableStateOf("$250") }
+    var reward by remember { mutableStateOf("₹21,250") }
     var phone by remember { mutableStateOf("+1 (800) 555-PET-SOS") }
     var description by remember { mutableStateOf("Wearing a blue collar with Jane tag. Responds to whistle and friendly.") }
 
@@ -545,7 +545,7 @@ fun AddPetListingDialog(
     var age by remember { mutableStateOf("4 Months") }
     var location by remember { mutableStateOf("Metro Rescue Hub") }
     var listingType by remember { mutableStateOf("Adoption") }
-    var price by remember { mutableStateOf("$0") }
+    var price by remember { mutableStateOf("₹0") }
     var description by remember { mutableStateOf("Loving, playful, vaccinated, looking for a caring home.") }
     var phone by remember { mutableStateOf("+1 (555) 789-0123") }
 

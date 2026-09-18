@@ -59,7 +59,7 @@ data class LostPetAlert(
     val breed: String,
     val lastSeenLocation: String,
     val distanceKm: Double,
-    val rewardAmount: String = "$250",
+    val rewardAmount: String = "₹21,250",
     val contactHelpline: String = "+1 (800) 555-PET-SOS",
     val reportedTime: String = "20 mins ago",
     val isResolved: Boolean = false,
