@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,10 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.os.LocaleListCompat
+import com.example.R
 import com.example.data.model.CustomerProfile
 import com.example.data.model.UserPet
 import com.example.ui.theme.BluePrimary
@@ -32,6 +36,19 @@ fun CustomerLoginDialog(
     var email by remember { mutableStateOf(currentCustomer.email) }
     var phone by remember { mutableStateOf(currentCustomer.phone) }
 
+    val currentLangTag = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    val langSelected = when {
+        currentLangTag.startsWith("ml") -> "ml"
+        currentLangTag.startsWith("en") -> "en"
+        else -> "system"
+    }
+    fun applyLang(tag: String) {
+        AppCompatDelegate.setApplicationLocales(
+            if (tag == "system") LocaleListCompat.getEmptyLocaleList()
+            else LocaleListCompat.forLanguageTags(tag)
+        )
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(20.dp),
@@ -45,6 +62,7 @@ fun CustomerLoginDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -107,6 +125,36 @@ fun CustomerLoginDialog(
                         .fillMaxWidth()
                         .testTag("login_phone_input")
                 )
+
+                Divider()
+
+                // App Language
+                Text(
+                    text = stringResource(R.string.settings_app_language),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = BluePrimaryDark
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = langSelected == "system",
+                        onClick = { applyLang("system") },
+                        label = { Text(stringResource(R.string.lang_system_default), fontSize = 11.sp) }
+                    )
+                    FilterChip(
+                        selected = langSelected == "en",
+                        onClick = { applyLang("en") },
+                        label = { Text("English", fontSize = 11.sp) }
+                    )
+                    FilterChip(
+                        selected = langSelected == "ml",
+                        onClick = { applyLang("ml") },
+                        label = { Text("മലയാളം", fontSize = 11.sp) }
+                    )
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
