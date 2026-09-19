@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -101,7 +104,7 @@ fun HealthRecordsHubScreen(
             Spacer(Modifier.height(20.dp))
 
             // Header
-            Text("Health Records", color = GoldAccent, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.records_health_records), color = GoldAccent, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
             Text("$petName — complete medical timeline", color = mutedColor, fontSize = 13.sp)
             Spacer(Modifier.height(16.dp))
@@ -130,7 +133,7 @@ fun HealthRecordsHubScreen(
                 ) {
                     Icon(Icons.Filled.Scale, contentDescription = null, tint = PurplePrimary, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Add Weight", fontSize = 11.sp, maxLines = 1)
+                    Text(stringResource(R.string.records_add_weight), fontSize = 11.sp, maxLines = 1)
                 }
                 OutlinedButton(
                     onClick = { showAddDeworming = true },
@@ -140,7 +143,7 @@ fun HealthRecordsHubScreen(
                 ) {
                     Icon(Icons.Filled.Medication, contentDescription = null, tint = GreenOk, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Deworming", fontSize = 11.sp, maxLines = 1)
+                    Text(stringResource(R.string.records_deworming), fontSize = 11.sp, maxLines = 1)
                 }
                 OutlinedButton(
                     onClick = { showShare = true },
@@ -148,13 +151,13 @@ fun HealthRecordsHubScreen(
                     shape = RoundedCornerShape(10.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GoldAccent)
                 ) {
-                    Text("Share", fontSize = 11.sp, color = GoldAccent, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.records_share), fontSize = 11.sp, color = GoldAccent, fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(Modifier.height(20.dp))
 
             // Timeline
-            Text("Medical Timeline", color = textColor, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.records_medical_timeline), color = textColor, fontSize = 17.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(10.dp))
 
             timeline.forEach { entry ->
@@ -176,14 +179,14 @@ fun HealthRecordsHubScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Allergies & Conditions", color = textColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.records_allergies_conditions), color = textColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                         IconButton(onClick = { showAddAllergy = true }, modifier = Modifier.size(28.dp)) {
                             Icon(Icons.Filled.Add, contentDescription = "Add Allergy", tint = GoldAccent, modifier = Modifier.size(20.dp))
                         }
                     }
                     Spacer(Modifier.height(6.dp))
                     if (allergies.isEmpty()) {
-                        Text("None recorded", color = mutedColor, fontSize = 12.sp)
+                        Text(stringResource(R.string.records_none_recorded), color = mutedColor, fontSize = 12.sp)
                     } else {
                         allergies.forEach { allergy ->
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -328,20 +331,20 @@ private fun AddWeightDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Weight Entry") },
+        title = { Text(stringResource(R.string.records_add_weight_entry)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = weight,
                     onValueChange = { weight = it },
-                    label = { Text("Weight (kg)") },
+                    label = { Text(stringResource(R.string.records_weight_kg)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = date,
                     onValueChange = { date = it },
-                    label = { Text("Date") },
+                    label = { Text(stringResource(R.string.records_date)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -351,10 +354,10 @@ private fun AddWeightDialog(
             Button(
                 onClick = { if (weight.isNotBlank()) onSave(weight.trim(), date.ifBlank { "Today" }) },
                 colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)
-            ) { Text("Save") }
+            ) { Text(stringResource(R.string.records_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.records_cancel)) }
         }
     )
 }
@@ -371,27 +374,27 @@ private fun AddDewormingDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Deworming Record") },
+        title = { Text(stringResource(R.string.records_add_deworming_record)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = medicine,
                     onValueChange = { medicine = it },
-                    label = { Text("Medicine Name") },
+                    label = { Text(stringResource(R.string.records_medicine_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = date,
                     onValueChange = { date = it },
-                    label = { Text("Date Given") },
+                    label = { Text(stringResource(R.string.records_date_given)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = nextDue,
                     onValueChange = { nextDue = it },
-                    label = { Text("Next Due Date") },
+                    label = { Text(stringResource(R.string.records_next_due_date)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -405,10 +408,10 @@ private fun AddDewormingDialog(
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = GreenOk)
-            ) { Text("Save") }
+            ) { Text(stringResource(R.string.records_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.records_cancel)) }
         }
     )
 }
@@ -447,10 +450,10 @@ private fun ShareRecordsDialog(
             Button(
                 onClick = onDismiss,
                 colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)
-            ) { Text("Copy Link") }
+            ) { Text(stringResource(R.string.records_copy_link)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Close") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.records_close)) }
         }
     )
 }
@@ -465,12 +468,12 @@ private fun AddAllergyDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Allergy / Condition") },
+        title = { Text(stringResource(R.string.records_add_allergy_condition)) },
         text = {
             OutlinedTextField(
                 value = allergy,
                 onValueChange = { allergy = it },
-                label = { Text("Allergy or condition") },
+                label = { Text(stringResource(R.string.records_allergy_or_condition)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -479,10 +482,10 @@ private fun AddAllergyDialog(
             Button(
                 onClick = { if (allergy.isNotBlank()) onSave(allergy.trim()) },
                 colors = ButtonDefaults.buttonColors(containerColor = GoldAccent)
-            ) { Text("Add", color = Color.Black) }
+            ) { Text(stringResource(R.string.records_add), color = Color.Black) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.records_cancel)) }
         }
     )
 }

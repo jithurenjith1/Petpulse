@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -77,13 +80,13 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
             Text(text = "Petpulse", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkText)
             Text(text = if (isLoginMode) "Welcome back!" else "Create your account", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
             Spacer(modifier = Modifier.height(32.dp))
-            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = CoralPrimary) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.login_email)) }, leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = CoralPrimary) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password") }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = CoralPrimary) }, trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = "Toggle password", tint = Color.Gray) } }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.login_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = CoralPrimary) }, trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = "Toggle password", tint = Color.Gray) } }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
             AnimatedVisibility(visible = !isLoginMode, enter = fadeIn(), exit = fadeOut()) {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
-                    OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = { Text("Confirm Password") }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = CoralPrimary) }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = { Text(stringResource(R.string.login_confirm_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = CoralPrimary) }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -101,7 +104,7 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE0D5CC))
-                Text(text = "or", color = Color.Gray, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp))
+                Text(text = stringResource(R.string.login_or), color = Color.Gray, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp))
                 HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE0D5CC))
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -109,7 +112,7 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
                 val intent = authViewModel.getGoogleSignInIntent(context)
                 if (intent != null) { googleLauncher.launch(intent) }
             }, enabled = !authState.isLoading, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White), border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0D5CC)), modifier = Modifier.fillMaxWidth().height(52.dp)) {
-                Text(text = "Continue with Google", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = DarkText)
+                Text(text = stringResource(R.string.login_continue_with_google), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = DarkText)
             }
             Spacer(modifier = Modifier.weight(1f))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {

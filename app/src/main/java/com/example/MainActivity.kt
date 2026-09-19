@@ -1,5 +1,8 @@
 package com.example
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
@@ -255,12 +258,12 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             Tab(
                                 selected = marketSubTab == 0,
                                 onClick = { marketSubTab = 0 },
-                                text = { Text("Shop", fontSize = 13.sp, fontWeight = if (marketSubTab == 0) FontWeight.Bold else FontWeight.Normal) }
+                                text = { Text(stringResource(R.string.main_shop), fontSize = 13.sp, fontWeight = if (marketSubTab == 0) FontWeight.Bold else FontWeight.Normal) }
                             )
                             Tab(
                                 selected = marketSubTab == 1,
                                 onClick = { marketSubTab = 1 },
-                                text = { Text("Guides", fontSize = 13.sp, fontWeight = if (marketSubTab == 1) FontWeight.Bold else FontWeight.Normal) }
+                                text = { Text(stringResource(R.string.main_guides), fontSize = 13.sp, fontWeight = if (marketSubTab == 1) FontWeight.Bold else FontWeight.Normal) }
                             )
                         }
                         if (marketSubTab == 0) {

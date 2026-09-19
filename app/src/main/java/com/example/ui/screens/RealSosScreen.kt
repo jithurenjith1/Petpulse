@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -169,7 +172,7 @@ fun RealSosScreen(petName: String = "My Pet") {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(48.dp))
-                        Text("Waiting for location...", color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
+                        Text(stringResource(R.string.sos_waiting_for_location), color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
             }
@@ -183,7 +186,7 @@ fun RealSosScreen(petName: String = "My Pet") {
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Current Location", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DarkText)
+                    Text(stringResource(R.string.sos_current_location), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DarkText)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Lat: ${String.format("%.6f", currentLat)}", fontSize = 12.sp, color = Color.Gray)
                     Text("Lon: ${String.format("%.6f", currentLon)}", fontSize = 12.sp, color = Color.Gray)
@@ -248,7 +251,7 @@ fun RealSosScreen(petName: String = "My Pet") {
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("SHARE SOS", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.sos_share_sos), fontWeight = FontWeight.Bold)
                 }
             }
         }

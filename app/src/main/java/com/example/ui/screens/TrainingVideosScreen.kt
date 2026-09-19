@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -110,7 +113,7 @@ fun TrainingVideosScreen() {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Training Videos",
+                            text = stringResource(R.string.training_training_videos),
                             color = DarkText,
                             fontWeight = FontWeight.Bold
                         )

@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -118,7 +121,7 @@ private fun AddPetChip(onClick: () -> Unit) {
                 modifier = Modifier.size(18.dp)
             )
             Text(
-                text = "Add Pet",
+                text = stringResource(R.string.switcher_add_pet),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = TealAccent
@@ -152,7 +155,7 @@ fun AddPetDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Add New Pet", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = DarkText)
+                Text(stringResource(R.string.switcher_add_new_pet), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = DarkText)
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Gray)
                 }
@@ -165,14 +168,14 @@ fun AddPetDialog(
             ) {
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
-                    label = { Text("Pet Name *") },
+                    label = { Text(stringResource(R.string.switcher_pet_name)) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC)),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text("Species", fontSize = 13.sp, color = Color.Gray)
+                Text(stringResource(R.string.switcher_species), fontSize = 13.sp, color = Color.Gray)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(speciesOptions) { s ->
                         FilterChip(
@@ -189,14 +192,14 @@ fun AddPetDialog(
 
                 OutlinedTextField(
                     value = breed, onValueChange = { breed = it },
-                    label = { Text("Breed") },
+                    label = { Text(stringResource(R.string.switcher_breed)) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC)),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text("Gender", fontSize = 13.sp, color = Color.Gray)
+                Text(stringResource(R.string.switcher_gender), fontSize = 13.sp, color = Color.Gray)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     genderOptions.forEach { g ->
                         FilterChip(
@@ -217,7 +220,7 @@ fun AddPetDialog(
                 ) {
                     OutlinedTextField(
                         value = ageYears, onValueChange = { ageYears = it },
-                        label = { Text("Years") },
+                        label = { Text(stringResource(R.string.switcher_years)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp),
@@ -226,7 +229,7 @@ fun AddPetDialog(
                     )
                     OutlinedTextField(
                         value = ageMonths, onValueChange = { ageMonths = it },
-                        label = { Text("Months") },
+                        label = { Text(stringResource(R.string.switcher_months)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp),
@@ -254,7 +257,7 @@ fun AddPetDialog(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
             ) {
-                Text("Add Pet", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.switcher_add_pet), fontWeight = FontWeight.SemiBold)
             }
         }
     )

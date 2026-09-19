@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -111,7 +114,7 @@ fun PetCommunityScreen() {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Pet Community",
+                            text = stringResource(R.string.community_pet_community),
                             color = DarkText,
                             fontWeight = FontWeight.Bold
                         )
@@ -279,7 +282,7 @@ private fun NewPostDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "New Post",
+                text = stringResource(R.string.community_new_post),
                 color = DarkText,
                 fontWeight = FontWeight.Bold
             )
@@ -289,7 +292,7 @@ private fun NewPostDialog(
                 OutlinedTextField(
                     value = petName,
                     onValueChange = { petName = it },
-                    label = { Text("Pet name") },
+                    label = { Text(stringResource(R.string.community_pet_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -297,7 +300,7 @@ private fun NewPostDialog(
                 OutlinedTextField(
                     value = message,
                     onValueChange = { message = it },
-                    label = { Text("What's on your mind?") },
+                    label = { Text(stringResource(R.string.community_what_s_on_your_mind)) },
                     minLines = 3,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -316,12 +319,12 @@ private fun NewPostDialog(
                 enabled = message.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
             ) {
-                Text("Post", color = Color.White)
+                Text(stringResource(R.string.community_post), color = Color.White)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TealAccent)
+                Text(stringResource(R.string.community_cancel), color = TealAccent)
             }
         }
     )

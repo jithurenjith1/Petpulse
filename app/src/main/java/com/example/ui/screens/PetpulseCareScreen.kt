@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -194,14 +197,14 @@ fun PetpulseCareScreen(
 
             // ----- Header -------------------------------------------------
             Text(
-                text = "Petpulse Care",
+                text = stringResource(R.string.care_petpulse_care),
                 color = palette.textPrimary,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Healthcare subscription for your pets",
+                text = stringResource(R.string.care_healthcare_subscription_for_your_pets),
                 color = palette.textSecondary,
                 fontSize = 15.sp
             )
@@ -222,7 +225,7 @@ fun PetpulseCareScreen(
                 if (billingPeriod == BillingPeriod.YEARLY) {
                     Spacer(Modifier.width(12.dp))
                     Text(
-                        text = "Save 2 months",
+                        text = stringResource(R.string.care_save_2_months),
                         color = palette.gold,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
@@ -449,7 +452,7 @@ private fun PlanCard(
         // ----- "Most Popular" badge floating over the Care card -----------
         if (plan.isMostPopular) {
             Text(
-                text = "MOST POPULAR",
+                text = stringResource(R.string.care_most_popular),
                 color = palette.onGold,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
@@ -526,7 +529,7 @@ private fun WhatsIncludedSection(palette: PetpulsePalette) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "What's included",
+                    text = stringResource(R.string.care_what_s_included),
                     color = palette.textPrimary,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,

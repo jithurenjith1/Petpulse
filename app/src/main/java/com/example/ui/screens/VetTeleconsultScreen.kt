@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -268,7 +271,7 @@ fun VetTeleconsultScreen(
             confirmedMessage?.let { message ->
                 AlertDialog(
                     onDismissRequest = { confirmedMessage = null },
-                    title = { Text("Consultation Booked", fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(R.string.vet_consultation_booked), fontWeight = FontWeight.Bold) },
                     text = { Text(message) },
                     confirmButton = {
                         Button(
@@ -277,7 +280,7 @@ fun VetTeleconsultScreen(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             )
-                        ) { Text("Got it") }
+                        ) { Text(stringResource(R.string.vet_got_it)) }
                     }
                 )
             }
@@ -310,7 +313,7 @@ private fun HeaderSection() {
         }
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Vet Teleconsultation",
+            text = stringResource(R.string.vet_vet_teleconsultation),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -318,7 +321,7 @@ private fun HeaderSection() {
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "Connect with verified vets from home",
+            text = stringResource(R.string.vet_connect_with_verified_vets_from_home),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -471,7 +474,7 @@ private fun VetCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = "Book Consultation",
+                        text = stringResource(R.string.vet_book_consultation),
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -532,7 +535,7 @@ private fun BookingDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Book Consultation",
+                text = stringResource(R.string.vet_book_consultation),
                 fontWeight = FontWeight.Bold
             )
         },
@@ -547,7 +550,7 @@ private fun BookingDialog(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Choose a slot",
+                    text = stringResource(R.string.vet_choose_a_slot),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -578,10 +581,10 @@ private fun BookingDialog(
                         petName = it
                         petNameError = it.isBlank()
                     },
-                    label = { Text("Pet name") },
+                    label = { Text(stringResource(R.string.vet_pet_name)) },
                     isError = petNameError,
                     supportingText = {
-                        if (petNameError) Text("Enter your pet's name")
+                        if (petNameError) Text(stringResource(R.string.vet_enter_your_pet_s_name))
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -592,7 +595,7 @@ private fun BookingDialog(
                 OutlinedTextField(
                     value = symptoms,
                     onValueChange = { symptoms = it },
-                    label = { Text("Brief symptom description") },
+                    label = { Text(stringResource(R.string.vet_brief_symptom_description)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 96.dp)
@@ -612,10 +615,10 @@ private fun BookingDialog(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
-            ) { Text("Confirm Booking") }
+            ) { Text(stringResource(R.string.vet_confirm_booking)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.vet_cancel)) }
         }
     )
 }

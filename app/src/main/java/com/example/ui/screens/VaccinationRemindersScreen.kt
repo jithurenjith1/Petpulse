@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -114,7 +117,7 @@ fun VaccinationRemindersScreen() {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Vaccination Reminders",
+                        text = stringResource(R.string.vaxrem_vaccination_reminders),
                         color = DarkText,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -279,7 +282,7 @@ private fun AddReminderDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Add Vaccination Reminder",
+                    text = stringResource(R.string.vaxrem_add_vaccination_reminder),
                     color = DarkText,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -302,7 +305,7 @@ private fun AddReminderDialog(
                 OutlinedTextField(
                     value = vaccineName,
                     onValueChange = { vaccineName = it },
-                    label = { Text("Vaccine name") },
+                    label = { Text(stringResource(R.string.vaxrem_vaccine_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -314,7 +317,7 @@ private fun AddReminderDialog(
                 OutlinedTextField(
                     value = date,
                     onValueChange = { date = it },
-                    label = { Text("Due date (dd/MM/yyyy)") },
+                    label = { Text(stringResource(R.string.vaxrem_due_date_dd_mm_yyyy)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -326,7 +329,7 @@ private fun AddReminderDialog(
                 OutlinedTextField(
                     value = veterinarian,
                     onValueChange = { veterinarian = it },
-                    label = { Text("Veterinarian") },
+                    label = { Text(stringResource(R.string.vaxrem_veterinarian)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -350,12 +353,12 @@ private fun AddReminderDialog(
                 ),
                 enabled = vaccineName.isNotBlank()
             ) {
-                Text("Add Reminder")
+                Text(stringResource(R.string.vaxrem_add_reminder))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = DarkText.copy(alpha = 0.7f))
+                Text(stringResource(R.string.vaxrem_cancel), color = DarkText.copy(alpha = 0.7f))
             }
         }
     )

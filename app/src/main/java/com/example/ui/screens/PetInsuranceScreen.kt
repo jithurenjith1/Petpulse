@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -115,7 +118,7 @@ fun PetInsuranceScreen() {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Pet Insurance",
+                        text = stringResource(R.string.insurance_pet_insurance),
                         color = DarkText,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -233,7 +236,7 @@ private fun InsurancePlanCard(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "/month",
+                    text = stringResource(R.string.insurance_month),
                     color = DarkText.copy(alpha = 0.6f),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 4.dp)

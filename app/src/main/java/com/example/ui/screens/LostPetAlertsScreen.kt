@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -145,7 +148,7 @@ fun LostPetAlertsScreen() {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Lost Pet Alerts",
+                            text = stringResource(R.string.lostpet_lost_pet_alerts),
                             color = DarkText,
                             fontWeight = FontWeight.Bold
                         )
@@ -179,7 +182,7 @@ fun LostPetAlertsScreen() {
                     is LostPetUiState.Success -> {
                         if (state.alerts.isEmpty()) {
                             Text(
-                                text = "No lost pet alerts right now. 🐾",
+                                text = stringResource(R.string.lostpet_no_lost_pet_alerts_right_now),
                                 color = DarkText.copy(alpha = 0.6f),
                                 modifier = Modifier.align(Alignment.Center)
                             )
@@ -220,7 +223,7 @@ private fun LostPetAlertCard(alert: LostPetAlertItem) {
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = "SOS",
+                        text = stringResource(R.string.lostpet_sos),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp

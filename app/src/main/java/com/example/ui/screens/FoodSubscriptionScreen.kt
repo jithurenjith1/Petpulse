@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -113,7 +116,7 @@ fun FoodSubscriptionScreen() {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Food Subscriptions",
+                        text = stringResource(R.string.foodsub_food_subscriptions),
                         color = DarkText,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -191,7 +194,7 @@ private fun FoodPlanCard(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "/mo",
+                            text = stringResource(R.string.foodsub_mo),
                             color = DarkText.copy(alpha = 0.6f),
                             fontSize = 14.sp,
                             modifier = Modifier.padding(bottom = 4.dp)

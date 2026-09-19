@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -61,7 +64,7 @@ fun ExplorePetsScreen(
                     .padding(horizontal = 16.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "Pet Species & Care Encyclopedia",
+                    text = stringResource(R.string.explore_pet_species_care_encyclopedia),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = BluePrimaryDark
@@ -348,7 +351,7 @@ fun FoodItemCard(item: FoodItem, onAddToList: () -> Unit) {
                 ) {
                     Icon(Icons.Default.AddShoppingCart, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add to Diet", fontSize = 11.sp)
+                    Text(stringResource(R.string.explore_add_to_diet), fontSize = 11.sp)
                 }
             }
         }
@@ -410,7 +413,7 @@ fun AccessoryItemCard(item: AccessoryItem, onBuy: () -> Unit) {
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                     modifier = Modifier.height(32.dp)
                 ) {
-                    Text("Details & Order", fontSize = 11.sp)
+                    Text(stringResource(R.string.explore_details_order), fontSize = 11.sp)
                 }
             }
         }
@@ -470,7 +473,7 @@ fun HealthCareItemCard(item: HealthCareItem, onBook: () -> Unit) {
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                     modifier = Modifier.height(32.dp)
                 ) {
-                    Text("Book Care", fontSize = 11.sp)
+                    Text(stringResource(R.string.explore_book_care), fontSize = 11.sp)
                 }
             }
         }
@@ -519,7 +522,7 @@ fun TrainingGuideCard(guide: TrainingGuide) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Step-by-Step Routine:", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Text(stringResource(R.string.explore_step_by_step_routine), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     guide.steps.forEachIndexed { index, step ->
                         Text("${index + 1}. $step", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
                     }

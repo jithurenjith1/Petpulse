@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,13 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.os.LocaleListCompat
-import com.example.R
 import com.example.data.model.CustomerProfile
 import com.example.data.model.UserPet
 import com.example.ui.theme.BluePrimary
@@ -84,7 +85,7 @@ fun CustomerLoginDialog(
                             color = BluePrimaryDark
                         )
                         Text(
-                            text = "Access your pet's records & partner bookings",
+                            text = stringResource(R.string.dialogs_access_your_pet_s_records_partner_bookings),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -96,7 +97,7 @@ fun CustomerLoginDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Customer / Guardian Name") },
+                    label = { Text(stringResource(R.string.dialogs_customer_guardian_name)) },
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier
@@ -107,7 +108,7 @@ fun CustomerLoginDialog(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email Address") },
+                    label = { Text(stringResource(R.string.dialogs_email_address)) },
                     leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier
@@ -118,7 +119,7 @@ fun CustomerLoginDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Mobile Number") },
+                    label = { Text(stringResource(R.string.dialogs_mobile_number)) },
                     leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier
@@ -168,12 +169,12 @@ fun CustomerLoginDialog(
                                 onDismiss()
                             }
                         ) {
-                            Text("Log Out", color = Color(0xFFD32F2F))
+                            Text(stringResource(R.string.dialogs_log_out), color = Color(0xFFD32F2F))
                         }
                     }
 
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.dialogs_cancel))
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -186,7 +187,7 @@ fun CustomerLoginDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
                         modifier = Modifier.testTag("login_submit_button")
                     ) {
-                        Text("Save & Enter")
+                        Text(stringResource(R.string.dialogs_save_enter))
                     }
                 }
             }
@@ -252,7 +253,7 @@ fun EditPetProfileDialog(
                     )
                     Column {
                         Text(
-                            text = "Edit Pet Profile",
+                            text = stringResource(R.string.dialogs_edit_pet_profile),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = BluePrimaryDark
@@ -270,7 +271,7 @@ fun EditPetProfileDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Pet Name (Default: Jane)") },
+                    label = { Text(stringResource(R.string.dialogs_pet_name_default_jane)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("edit_pet_name")
                 )
@@ -282,14 +283,14 @@ fun EditPetProfileDialog(
                     OutlinedTextField(
                         value = breed,
                         onValueChange = { breed = it },
-                        label = { Text("Breed (e.g. Indie)") },
+                        label = { Text(stringResource(R.string.dialogs_breed_e_g_indie)) },
                         modifier = Modifier.weight(1f).testTag("edit_pet_breed")
                     )
 
                     OutlinedTextField(
                         value = gender,
                         onValueChange = { gender = it },
-                        label = { Text("Gender (Female/Male)") },
+                        label = { Text(stringResource(R.string.dialogs_gender_female_male)) },
                         modifier = Modifier.weight(1f).testTag("edit_pet_gender")
                     )
                 }
@@ -301,19 +302,19 @@ fun EditPetProfileDialog(
                     OutlinedTextField(
                         value = ageYears,
                         onValueChange = { ageYears = it },
-                        label = { Text("Age (Years)") },
+                        label = { Text(stringResource(R.string.dialogs_age_years)) },
                         modifier = Modifier.weight(1f).testTag("edit_pet_age_years")
                     )
                     OutlinedTextField(
                         value = ageMonths,
                         onValueChange = { ageMonths = it },
-                        label = { Text("Age (Months)") },
+                        label = { Text(stringResource(R.string.dialogs_age_months)) },
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = weightKg,
                         onValueChange = { weightKg = it },
-                        label = { Text("Weight (kg)") },
+                        label = { Text(stringResource(R.string.dialogs_weight_kg)) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -321,19 +322,19 @@ fun EditPetProfileDialog(
                 OutlinedTextField(
                     value = favoriteFoods,
                     onValueChange = { favoriteFoods = it },
-                    label = { Text("Food Pet Likes (Comma Separated)") },
+                    label = { Text(stringResource(R.string.dialogs_food_pet_likes_comma_separated)) },
                     modifier = Modifier.fillMaxWidth().testTag("edit_pet_foods")
                 )
 
                 OutlinedTextField(
                     value = favoritePlays,
                     onValueChange = { favoritePlays = it },
-                    label = { Text("Plays & Toys Pet Likes") },
+                    label = { Text(stringResource(R.string.dialogs_plays_toys_pet_likes)) },
                     modifier = Modifier.fillMaxWidth().testTag("edit_pet_plays")
                 )
 
                 Text(
-                    text = "Training Level Completed",
+                    text = stringResource(R.string.dialogs_training_level_completed),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -363,7 +364,7 @@ fun EditPetProfileDialog(
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("Care Notes & Temperament") },
+                    label = { Text(stringResource(R.string.dialogs_care_notes_temperament)) },
                     maxLines = 3,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -373,7 +374,7 @@ fun EditPetProfileDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.dialogs_cancel))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -390,7 +391,7 @@ fun EditPetProfileDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
                         modifier = Modifier.testTag("save_pet_details_button")
                     ) {
-                        Text("Save Changes")
+                        Text(stringResource(R.string.dialogs_save_changes))
                     }
                 }
             }
@@ -449,7 +450,7 @@ fun LostPetSosDialog(
                     )
                     Column {
                         Text(
-                            text = "Find My Pet — 5km Broadcast",
+                            text = stringResource(R.string.dialogs_find_my_pet_5km_broadcast),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFD32F2F)
@@ -467,7 +468,7 @@ fun LostPetSosDialog(
                 OutlinedTextField(
                     value = petName,
                     onValueChange = { petName = it },
-                    label = { Text("Lost Pet Name") },
+                    label = { Text(stringResource(R.string.dialogs_lost_pet_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("sos_pet_name")
                 )
@@ -479,13 +480,13 @@ fun LostPetSosDialog(
                     OutlinedTextField(
                         value = species,
                         onValueChange = { species = it },
-                        label = { Text("Species") },
+                        label = { Text(stringResource(R.string.dialogs_species)) },
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = breed,
                         onValueChange = { breed = it },
-                        label = { Text("Breed") },
+                        label = { Text(stringResource(R.string.dialogs_breed)) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -493,7 +494,7 @@ fun LostPetSosDialog(
                 OutlinedTextField(
                     value = location,
                     onValueChange = { location = it },
-                    label = { Text("Last Seen Location / Cross Streets") },
+                    label = { Text(stringResource(R.string.dialogs_last_seen_location_cross_streets)) },
                     leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth().testTag("sos_location")
                 )
@@ -505,13 +506,13 @@ fun LostPetSosDialog(
                     OutlinedTextField(
                         value = reward,
                         onValueChange = { reward = it },
-                        label = { Text("Reward Amount") },
+                        label = { Text(stringResource(R.string.dialogs_reward_amount)) },
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        label = { Text("Emergency Contact") },
+                        label = { Text(stringResource(R.string.dialogs_emergency_contact)) },
                         modifier = Modifier.weight(1.3f)
                     )
                 }
@@ -519,7 +520,7 @@ fun LostPetSosDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description & Distinguishing Features") },
+                    label = { Text(stringResource(R.string.dialogs_description_distinguishing_features)) },
                     maxLines = 3,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -553,7 +554,7 @@ fun LostPetSosDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.dialogs_cancel))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -564,7 +565,7 @@ fun LostPetSosDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
                         modifier = Modifier.testTag("broadcast_sos_submit_button")
                     ) {
-                        Text("Send 5km Broadcast")
+                        Text(stringResource(R.string.dialogs_send_5km_broadcast))
                     }
                 }
             }
@@ -615,7 +616,7 @@ fun AddPetListingDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
-                    text = "Post Pet for Adoption or Sale",
+                    text = stringResource(R.string.dialogs_post_pet_for_adoption_or_sale),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = BluePrimaryDark
@@ -628,13 +629,13 @@ fun AddPetListingDialog(
                     FilterChip(
                         selected = listingType == "Adoption",
                         onClick = { listingType = "Adoption" },
-                        label = { Text("Adoption (Free/Rescue)") },
+                        label = { Text(stringResource(R.string.dialogs_adoption_free_rescue)) },
                         modifier = Modifier.weight(1f)
                     )
                     FilterChip(
                         selected = listingType == "Sale",
                         onClick = { listingType = "Sale" },
-                        label = { Text("Pet for Sale") },
+                        label = { Text(stringResource(R.string.dialogs_pet_for_sale)) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -642,7 +643,7 @@ fun AddPetListingDialog(
                 OutlinedTextField(
                     value = petName,
                     onValueChange = { petName = it },
-                    label = { Text("Pet Name") },
+                    label = { Text(stringResource(R.string.dialogs_pet_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("listing_pet_name")
                 )
@@ -654,13 +655,13 @@ fun AddPetListingDialog(
                     OutlinedTextField(
                         value = species,
                         onValueChange = { species = it },
-                        label = { Text("Species (Dog/Cat/etc)") },
+                        label = { Text(stringResource(R.string.dialogs_species_dog_cat_etc)) },
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = breed,
                         onValueChange = { breed = it },
-                        label = { Text("Breed") },
+                        label = { Text(stringResource(R.string.dialogs_breed)) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -672,7 +673,7 @@ fun AddPetListingDialog(
                     OutlinedTextField(
                         value = age,
                         onValueChange = { age = it },
-                        label = { Text("Age") },
+                        label = { Text(stringResource(R.string.dialogs_age)) },
                         modifier = Modifier.weight(1f)
                     )
                     if (listingType == "Sale") {
@@ -688,7 +689,7 @@ fun AddPetListingDialog(
                 OutlinedTextField(
                     value = location,
                     onValueChange = { location = it },
-                    label = { Text("Location (with/without login)") },
+                    label = { Text(stringResource(R.string.dialogs_location_with_without_login)) },
                     leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -696,14 +697,14 @@ fun AddPetListingDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Contact Phone / Helpline") },
+                    label = { Text(stringResource(R.string.dialogs_contact_phone_helpline)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description & Medical Status") },
+                    label = { Text(stringResource(R.string.dialogs_description_medical_status)) },
                     maxLines = 2,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -712,7 +713,7 @@ fun AddPetListingDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) { Text("Cancel") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialogs_cancel)) }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
@@ -724,7 +725,7 @@ fun AddPetListingDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
                         modifier = Modifier.testTag("submit_pet_listing_btn")
                     ) {
-                        Text("Publish Listing")
+                        Text(stringResource(R.string.dialogs_publish_listing))
                     }
                 }
             }

@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -188,9 +191,9 @@ fun MapScreen() {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (isLoading) {
                             CircularProgressIndicator(color = CoralPrimary)
-                            Text("Getting location...", modifier = Modifier.padding(top = 12.dp), color = Color.Gray)
+                            Text(stringResource(R.string.map_getting_location), modifier = Modifier.padding(top = 12.dp), color = Color.Gray)
                         } else {
-                            Text("Location permission needed", color = Color.Gray)
+                            Text(stringResource(R.string.map_location_permission_needed), color = Color.Gray)
                             Spacer(modifier = Modifier.height(12.dp))
                             Button(
                                 onClick = {
@@ -200,7 +203,7 @@ fun MapScreen() {
                                     ))
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
-                            ) { Text("Grant Location") }
+                            ) { Text(stringResource(R.string.map_grant_location)) }
                         }
                     }
                 }

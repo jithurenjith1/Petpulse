@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -101,7 +104,7 @@ fun SlideOutCartModal(
                             tint = BluePrimary
                         )
                         Text(
-                            text = "Kerala Delivery Cart",
+                            text = stringResource(R.string.modals_kerala_delivery_cart),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -111,7 +114,7 @@ fun SlideOutCartModal(
                     Row {
                         if (cartItems.isNotEmpty()) {
                             TextButton(onClick = onClearCart) {
-                                Text("Clear", color = Color(0xFFD32F2F), fontSize = 12.sp)
+                                Text(stringResource(R.string.modals_clear), color = Color(0xFFD32F2F), fontSize = 12.sp)
                             }
                         }
                         IconButton(onClick = onDismiss) {
@@ -140,7 +143,7 @@ fun SlideOutCartModal(
                                 modifier = Modifier.size(56.dp)
                             )
                             Text(
-                                text = "Your Cart is Empty",
+                                text = stringResource(R.string.modals_your_cart_is_empty),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -204,12 +207,12 @@ fun SlideOutCartModal(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Column {
                                     Text(
-                                        text = "2-Hour Express Delivery",
+                                        text = stringResource(R.string.modals_s2_hour_express_delivery),
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "Direct hub courier in Kochi / TVM (+₹50)",
+                                        text = stringResource(R.string.modals_direct_hub_courier_in_kochi_tvm_50),
                                         fontSize = 10.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -261,7 +264,7 @@ fun SlideOutCartModal(
                                         )
                                         if (item.prescriptionRequired) {
                                             Text(
-                                                text = "Rx Required",
+                                                text = stringResource(R.string.modals_rx_required),
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = Color(0xFFC62828)
@@ -319,7 +322,7 @@ fun SlideOutCartModal(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Items Subtotal", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.modals_items_subtotal), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("₹${subtotal.toInt()}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                             Row(
@@ -338,22 +341,22 @@ fun SlideOutCartModal(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Kerala Biodegradable Packaging", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.modals_kerala_biodegradable_packaging), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("₹${ecoFee.toInt()}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Jane & Pals Escrow Protection", fontSize = 12.sp, color = Color(0xFF00796B), fontWeight = FontWeight.Bold)
-                                Text("FREE", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00796B))
+                                Text(stringResource(R.string.modals_jane_pals_escrow_protection), fontSize = 12.sp, color = Color(0xFF00796B), fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.modals_free), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00796B))
                             }
                             Divider(modifier = Modifier.padding(vertical = 4.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Total Amount", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
+                                Text(stringResource(R.string.modals_total_amount), fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
                                 Text("₹${total.toInt()}", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimaryDark)
                             }
                         }
@@ -453,7 +456,7 @@ fun SecureEscrowCheckoutModal(
                                 modifier = Modifier.size(24.dp)
                             )
                             Text(
-                                text = "Secure Escrow Checkout",
+                                text = stringResource(R.string.modals_secure_escrow_checkout),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -480,7 +483,7 @@ fun SecureEscrowCheckoutModal(
                             Text("🛡️", fontSize = 24.sp)
                             Column {
                                 Text(
-                                    text = "Jane & Pals Kerala Escrow Protection",
+                                    text = stringResource(R.string.modals_jane_pals_kerala_escrow_protection),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF004D40)
@@ -498,7 +501,7 @@ fun SecureEscrowCheckoutModal(
                 // Delivery Destination
                 item {
                     Text(
-                        text = "1. Kerala Delivery Address",
+                        text = stringResource(R.string.modals_s1_kerala_delivery_address),
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -527,7 +530,7 @@ fun SecureEscrowCheckoutModal(
                     OutlinedTextField(
                         value = customerName,
                         onValueChange = { customerName = it },
-                        label = { Text("Customer Name") },
+                        label = { Text(stringResource(R.string.modals_customer_name)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -537,7 +540,7 @@ fun SecureEscrowCheckoutModal(
                     OutlinedTextField(
                         value = customerPhone,
                         onValueChange = { customerPhone = it },
-                        label = { Text("Contact Phone (+91)") },
+                        label = { Text(stringResource(R.string.modals_contact_phone_91)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -547,7 +550,7 @@ fun SecureEscrowCheckoutModal(
                     OutlinedTextField(
                         value = streetAddress,
                         onValueChange = { streetAddress = it },
-                        label = { Text("House / Flat No., Street, Landmark") },
+                        label = { Text(stringResource(R.string.modals_house_flat_no_street_landmark)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         minLines = 2
@@ -565,7 +568,7 @@ fun SecureEscrowCheckoutModal(
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
-                                    text = "📋 Veterinary Prescription Required",
+                                    text = stringResource(R.string.modals_veterinary_prescription_required),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFFC62828)
@@ -598,7 +601,7 @@ fun SecureEscrowCheckoutModal(
                 // Payment Method Selector
                 item {
                     Text(
-                        text = "2. Escrow Payment Method",
+                        text = stringResource(R.string.modals_s2_escrow_payment_method),
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -667,7 +670,7 @@ fun SecureEscrowCheckoutModal(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("Total Escrow Amount", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.modals_total_escrow_amount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("₹${total.toInt()}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimaryDark)
                             }
 
@@ -680,7 +683,7 @@ fun SecureEscrowCheckoutModal(
                             ) {
                                 Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Lock & Place Order", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text(stringResource(R.string.modals_lock_place_order), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
                     }
@@ -729,7 +732,7 @@ fun OrderTimelineTrackingModal(
                             tint = BluePrimary
                         )
                         Text(
-                            text = "Kerala Orders & Live Timeline",
+                            text = stringResource(R.string.modals_kerala_orders_live_timeline),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -844,7 +847,7 @@ fun OrderCardWithTimeline(
                     ) {
                         Icon(Icons.Default.Key, contentDescription = null, tint = Color(0xFFF57F17), modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Doorstep Escrow OTP:",
+                            text = stringResource(R.string.modals_doorstep_escrow_otp),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFF57F17)
@@ -894,14 +897,14 @@ fun OrderCardWithTimeline(
                 ) {
                     Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Call Rider", fontSize = 11.sp)
+                    Text(stringResource(R.string.modals_call_rider), fontSize = 11.sp)
                 }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = "Live Order Timeline:",
+                text = stringResource(R.string.modals_live_order_timeline),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -964,7 +967,7 @@ fun OrderCardWithTimeline(
 
             // Items summary
             Text(
-                text = "Items: " + order.items.joinToString { "${it.title} x${it.quantity}" },
+                text = stringResource(R.string.modals_items) + order.items.joinToString { "${it.title} x${it.quantity}" },
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2
@@ -1020,7 +1023,7 @@ fun ListPetFormModal(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "List a Pet for Sale / Adoption",
+                            text = stringResource(R.string.modals_list_a_pet_for_sale_adoption),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -1045,8 +1048,8 @@ fun ListPetFormModal(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("Imported / Exotic Pet?", fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                Text("Check for Macaw, Husky, Iguana, Persian, etc.", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.modals_imported_exotic_pet), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Text(stringResource(R.string.modals_check_for_macaw_husky_iguana_persian_etc), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Switch(checked = isExotic, onCheckedChange = { isExotic = it })
                         }
@@ -1055,7 +1058,7 @@ fun ListPetFormModal(
 
                 // Pet Photos (multiple upload for better sales listings)
                 item {
-                    Text("Pet Photos (up to 5 — tap a photo to remove):", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_pet_photos_up_to_5_tap_a_photo_to_remove), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedButton(
                         onClick = {
@@ -1093,14 +1096,14 @@ fun ListPetFormModal(
                     OutlinedTextField(
                         value = petName,
                         onValueChange = { petName = it },
-                        label = { Text("Pet Name") },
+                        label = { Text(stringResource(R.string.modals_pet_name)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
                 }
 
                 item {
-                    Text("Species:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_species), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     val speciesOptions = listOf("Dog", "Cat", "Bird", "Reptile", "Rabbit")
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         items(speciesOptions) { sp ->
@@ -1117,7 +1120,7 @@ fun ListPetFormModal(
                     OutlinedTextField(
                         value = breed,
                         onValueChange = { breed = it },
-                        label = { Text("Breed (e.g. Siberian Husky, Indie, Persian)") },
+                        label = { Text(stringResource(R.string.modals_breed_e_g_siberian_husky_indie_persian)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -1131,14 +1134,14 @@ fun ListPetFormModal(
                         OutlinedTextField(
                             value = age,
                             onValueChange = { age = it },
-                            label = { Text("Age") },
+                            label = { Text(stringResource(R.string.modals_age)) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp)
                         )
                         OutlinedTextField(
                             value = gender,
                             onValueChange = { gender = it },
-                            label = { Text("Gender") },
+                            label = { Text(stringResource(R.string.modals_gender)) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp)
                         )
@@ -1146,7 +1149,7 @@ fun ListPetFormModal(
                 }
 
                 item {
-                    Text("Kerala City:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_kerala_city), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     val cities = listOf("Kochi", "Trivandrum", "Kozhikode", "Thrissur")
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         items(cities) { c ->
@@ -1160,17 +1163,17 @@ fun ListPetFormModal(
                 }
 
                 item {
-                    Text("Listing Type:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_listing_type), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         FilterChip(
                             selected = listingType == "Sale",
                             onClick = { listingType = "Sale" },
-                            label = { Text("Sale (INR ₹)", fontSize = 12.sp) }
+                            label = { Text(stringResource(R.string.modals_sale_inr), fontSize = 12.sp) }
                         )
                         FilterChip(
                             selected = listingType == "Adoption",
                             onClick = { listingType = "Adoption" },
-                            label = { Text("Free for Adoption", fontSize = 12.sp) }
+                            label = { Text(stringResource(R.string.modals_free_for_adoption), fontSize = 12.sp) }
                         )
                     }
                 }
@@ -1180,7 +1183,7 @@ fun ListPetFormModal(
                         OutlinedTextField(
                             value = priceText,
                             onValueChange = { priceText = it },
-                            label = { Text("Price in INR (₹)") },
+                            label = { Text(stringResource(R.string.modals_price_in_inr)) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp)
                         )
@@ -1191,7 +1194,7 @@ fun ListPetFormModal(
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        label = { Text("Contact Phone (+91)") },
+                        label = { Text(stringResource(R.string.modals_contact_phone_91)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -1201,7 +1204,7 @@ fun ListPetFormModal(
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        label = { Text("Pet Description & Temperament") },
+                        label = { Text(stringResource(R.string.modals_pet_description_temperament)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         minLines = 3
@@ -1223,7 +1226,7 @@ fun ListPetFormModal(
                     ) {
                         Icon(Icons.Default.Publish, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Post Pet Listing with Escrow Protection", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(stringResource(R.string.modals_post_pet_listing_with_escrow_protection), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             }
@@ -1279,7 +1282,7 @@ fun RegisterVetFormModal(
                         ) {
                             Icon(Icons.Default.MedicalInformation, contentDescription = null, tint = Color(0xFF00796B))
                             Text(
-                                text = "Kerala Vet Doctor Registration",
+                                text = stringResource(R.string.modals_kerala_vet_doctor_registration),
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -1294,7 +1297,7 @@ fun RegisterVetFormModal(
                     OutlinedTextField(
                         value = doctorName,
                         onValueChange = { doctorName = it },
-                        label = { Text("Doctor Full Name (e.g. Dr. Anoop Kumar)") },
+                        label = { Text(stringResource(R.string.modals_doctor_full_name_e_g_dr_anoop_kumar)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -1304,7 +1307,7 @@ fun RegisterVetFormModal(
                     OutlinedTextField(
                         value = ksvcNumber,
                         onValueChange = { ksvcNumber = it },
-                        label = { Text("Kerala State Vet Council (KSVC) Reg Number") },
+                        label = { Text(stringResource(R.string.modals_kerala_state_vet_council_ksvc_reg_number)) },
                         placeholder = { Text("e.g. KSVC/2019/4821") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
@@ -1319,14 +1322,14 @@ fun RegisterVetFormModal(
                         OutlinedTextField(
                             value = degrees,
                             onValueChange = { degrees = it },
-                            label = { Text("Qualifications") },
+                            label = { Text(stringResource(R.string.modals_qualifications)) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp)
                         )
                         OutlinedTextField(
                             value = experienceText,
                             onValueChange = { experienceText = it },
-                            label = { Text("Exp (Years)") },
+                            label = { Text(stringResource(R.string.modals_exp_years)) },
                             modifier = Modifier.weight(0.7f),
                             shape = RoundedCornerShape(10.dp)
                         )
@@ -1347,14 +1350,14 @@ fun RegisterVetFormModal(
                     OutlinedTextField(
                         value = clinicName,
                         onValueChange = { clinicName = it },
-                        label = { Text("Hospital / Clinic Name") },
+                        label = { Text(stringResource(R.string.modals_hospital_clinic_name)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
                 }
 
                 item {
-                    Text("City / District in Kerala:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_city_district_in_kerala), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     val cities = listOf("Kochi", "Trivandrum", "Kozhikode", "Thrissur")
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         items(cities) { c ->
@@ -1371,7 +1374,7 @@ fun RegisterVetFormModal(
                     OutlinedTextField(
                         value = address,
                         onValueChange = { address = it },
-                        label = { Text("Clinic Address & Landmark") },
+                        label = { Text(stringResource(R.string.modals_clinic_address_landmark)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -1385,14 +1388,14 @@ fun RegisterVetFormModal(
                         OutlinedTextField(
                             value = videoFeeText,
                             onValueChange = { videoFeeText = it },
-                            label = { Text("Video Fee (₹)") },
+                            label = { Text(stringResource(R.string.modals_video_fee)) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp)
                         )
                         OutlinedTextField(
                             value = inPersonFeeText,
                             onValueChange = { inPersonFeeText = it },
-                            label = { Text("Clinic Fee (₹)") },
+                            label = { Text(stringResource(R.string.modals_clinic_fee)) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp)
                         )
@@ -1403,7 +1406,7 @@ fun RegisterVetFormModal(
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        label = { Text("Official Phone / WhatsApp (+91)") },
+                        label = { Text(stringResource(R.string.modals_official_phone_whatsapp_91)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -1426,7 +1429,7 @@ fun RegisterVetFormModal(
                     ) {
                         Icon(Icons.Default.VerifiedUser, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Register & Verify KSVC Profile", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(stringResource(R.string.modals_register_verify_ksvc_profile), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             }
@@ -1476,7 +1479,7 @@ fun DoctorBookingModal(
                     ) {
                         Column {
                             Text(
-                                text = "Book Doctor Appointment",
+                                text = stringResource(R.string.modals_book_doctor_appointment),
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -1495,7 +1498,7 @@ fun DoctorBookingModal(
 
                 // Mode Selector
                 item {
-                    Text("1. Choose Consultation Mode:", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_s1_choose_consultation_mode), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1512,7 +1515,7 @@ fun DoctorBookingModal(
                         ) {
                             Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.Videocam, contentDescription = null, tint = BluePrimary)
-                                Text("Video Consult", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.modals_video_consult), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 Text("₹${doctor.videoConsultFeeInr.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimaryDark)
                             }
                         }
@@ -1529,7 +1532,7 @@ fun DoctorBookingModal(
                         ) {
                             Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.LocalHospital, contentDescription = null, tint = Color(0xFF00796B))
-                                Text("In-Clinic Visit", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.modals_in_clinic_visit), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 Text("₹${doctor.inPersonConsultFeeInr.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF00796B))
                             }
                         }
@@ -1538,7 +1541,7 @@ fun DoctorBookingModal(
 
                 // Date Picker
                 item {
-                    Text("2. Select Date:", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_s2_select_date), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     val dates = listOf("Today", "Tomorrow", "In 2 Days", "Saturday")
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         items(dates) { d ->
@@ -1553,7 +1556,7 @@ fun DoctorBookingModal(
 
                 // Slot Picker
                 item {
-                    Text("3. Available Time Slot:", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.modals_s3_available_time_slot), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     val slots = listOf("10:00 AM - 10:30 AM", "10:30 AM - 11:00 AM", "03:00 PM - 03:30 PM", "04:30 PM - 05:00 PM", "06:00 PM - 06:30 PM")
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         slots.forEach { slot ->
@@ -1585,7 +1588,7 @@ fun DoctorBookingModal(
                     OutlinedTextField(
                         value = petName,
                         onValueChange = { petName = it },
-                        label = { Text("Pet Name") },
+                        label = { Text(stringResource(R.string.modals_pet_name)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -1595,7 +1598,7 @@ fun DoctorBookingModal(
                     OutlinedTextField(
                         value = problemNotes,
                         onValueChange = { problemNotes = it },
-                        label = { Text("Symptoms / Reason for Consultation") },
+                        label = { Text(stringResource(R.string.modals_symptoms_reason_for_consultation)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         minLines = 2

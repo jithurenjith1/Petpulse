@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -252,7 +255,7 @@ fun AiSymptomCheckerScreen(
         ) {
             // ---- Header ----
             Text(
-                text = "AI Symptom Checker",
+                text = stringResource(R.string.triage_ai_symptom_checker),
                 color = Gold,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
@@ -267,7 +270,7 @@ fun AiSymptomCheckerScreen(
 
             // ---- Species selector ----
             Text(
-                text = "Select species",
+                text = stringResource(R.string.triage_select_species),
                 color = OnDark,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
@@ -299,7 +302,7 @@ fun AiSymptomCheckerScreen(
 
             // ---- Symptom grid ----
             Text(
-                text = "Tap all symptoms that apply",
+                text = stringResource(R.string.triage_tap_all_symptoms_that_apply),
                 color = OnDark,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
@@ -370,7 +373,7 @@ fun AiSymptomCheckerScreen(
                 )
             ) {
                 Text(
-                    text = "Analyze",
+                    text = stringResource(R.string.triage_analyze),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -473,7 +476,7 @@ private fun TriageResultCard(
                     )
                 ) {
                     Text(
-                        text = "Book Vet Consultation",
+                        text = stringResource(R.string.triage_book_vet_consultation),
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )

@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -20,12 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.R
 import com.example.data.model.CustomerProfile
 import com.example.data.model.UserPet
 import com.example.data.model.VaccinationRecord
@@ -184,7 +185,7 @@ fun ProfileSettingsScreen(
                             color = AccentGreen.copy(alpha = 0.15f)
                         ) {
                             Text(
-                                text = "EXCELLENT",
+                                text = stringResource(R.string.profile_excellent),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = AccentGreen,
@@ -207,10 +208,10 @@ fun ProfileSettingsScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Health Index", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.profile_health_index), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimary)
-                                Text("Vitals Optimal", fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.profile_vitals_optimal), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
                             }
                         }
 
@@ -221,10 +222,10 @@ fun ProfileSettingsScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Vaccinations", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.profile_vaccinations), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text("${vaccinations.count { it.status == "Completed" }}/${vaccinations.size}", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = AccentGreen)
-                                Text("Up to date", fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.profile_up_to_date), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
                             }
                         }
 
@@ -235,10 +236,10 @@ fun ProfileSettingsScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Est. Monthly", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.profile_est_monthly), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text("₹5,800", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFFE65100))
-                                Text("Food & Care", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.profile_food_care), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -251,11 +252,11 @@ fun ProfileSettingsScreen(
                     ) {
                         Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Weekly Exercise & Walks:", fontSize = 11.sp)
-                                Text("14 Walks Completed (18.2 km)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                                Text(stringResource(R.string.profile_weekly_exercise_walks), fontSize = 11.sp)
+                                Text(stringResource(R.string.profile_s14_walks_completed_18_2_km), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Microchip Tag Status:", fontSize = 11.sp)
+                                Text(stringResource(R.string.profile_microchip_tag_status), fontSize = 11.sp)
                                 Text("Active (${pet.microchipNumber})", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AccentGreen)
                             }
                         }
@@ -284,7 +285,7 @@ fun ProfileSettingsScreen(
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(Icons.Default.Settings, contentDescription = null, tint = BluePrimary)
                             Text(
-                                text = "Settings: Default Pet Configuration",
+                                text = stringResource(R.string.profile_settings_default_pet_configuration),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = BluePrimaryDark
@@ -301,7 +302,7 @@ fun ProfileSettingsScreen(
                     OutlinedTextField(
                         value = petNameInput,
                         onValueChange = { petNameInput = it },
-                        label = { Text("Pet Name (Default: Jane)") },
+                        label = { Text(stringResource(R.string.profile_pet_name_default_jane)) },
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -315,19 +316,19 @@ fun ProfileSettingsScreen(
                         OutlinedTextField(
                             value = petBreedInput,
                             onValueChange = { petBreedInput = it },
-                            label = { Text("Breed (Default: Indie)") },
+                            label = { Text(stringResource(R.string.profile_breed_default_indie)) },
                             modifier = Modifier.weight(1f).testTag("settings_breed_field")
                         )
                         OutlinedTextField(
                             value = petGenderInput,
                             onValueChange = { petGenderInput = it },
-                            label = { Text("Gender (Female)") },
+                            label = { Text(stringResource(R.string.profile_gender_female)) },
                             modifier = Modifier.weight(1f)
                         )
                         OutlinedTextField(
                             value = petAgeInput,
                             onValueChange = { petAgeInput = it },
-                            label = { Text("Age (Years)") },
+                            label = { Text(stringResource(R.string.profile_age_years)) },
                             modifier = Modifier.weight(0.8f)
                         )
                     }
@@ -337,7 +338,7 @@ fun ProfileSettingsScreen(
                         horizontalArrangement = Arrangement.End
                     ) {
                         FilledTonalButton(onClick = onEditPetClick) {
-                            Text("Full Edit Form", fontSize = 12.sp)
+                            Text(stringResource(R.string.profile_full_edit_form), fontSize = 12.sp)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
@@ -349,7 +350,7 @@ fun ProfileSettingsScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
                             modifier = Modifier.testTag("save_settings_rename_button")
                         ) {
-                            Text("Save Pet Name", fontSize = 12.sp)
+                            Text(stringResource(R.string.profile_save_pet_name), fontSize = 12.sp)
                         }
                     }
                 }
@@ -368,7 +369,7 @@ fun ProfileSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
-                        text = "Safety & Notification Preferences",
+                        text = stringResource(R.string.profile_safety_notification_preferences),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = BluePrimaryDark
@@ -383,7 +384,7 @@ fun ProfileSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("5km Radius Lost Pet Alerts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.profile_s5km_radius_lost_pet_alerts), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             Text("Receive emergency notifications when a pet is lost nearby", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(
@@ -401,7 +402,7 @@ fun ProfileSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Vaccination & Medication Due Reminders", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.profile_vaccination_medication_due_reminders), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             Text("Automatic calendar reminders 7 days before due date", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(
