@@ -11,6 +11,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,7 +45,7 @@ fun PetAppBottomBar(
             },
             label = {
                 Text(
-                    text = "My Pet",
+                    text = stringResource(R.string.nav_my_pet),
                     fontSize = 11.sp,
                     fontWeight = if (currentTab == MainNavTab.MY_PETS) FontWeight.Bold else FontWeight.Normal
                 )
@@ -69,7 +71,7 @@ fun PetAppBottomBar(
             },
             label = {
                 Text(
-                    text = "Market",
+                    text = stringResource(R.string.nav_market),
                     fontSize = 11.sp,
                     fontWeight = if (currentTab == MainNavTab.MARKETPLACE) FontWeight.Bold else FontWeight.Normal
                 )
@@ -95,7 +97,7 @@ fun PetAppBottomBar(
             },
             label = {
                 Text(
-                    text = "Services",
+                    text = stringResource(R.string.nav_services),
                     fontSize = 11.sp,
                     fontWeight = if (currentTab == MainNavTab.PARTNERS_SERVICES) FontWeight.Bold else FontWeight.Normal
                 )

@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Petpulse</string>
+
+    <!-- Main navigation -->
+    <string name="nav_my_pet">My Pet</string>
+    <string name="nav_market">Market</string>
+    <string name="nav_services">Services</string>
+
+    <!-- Top bar -->
+    <string name="top_bar_guardian">Guardian: %1$s</string>
+    <string name="top_bar_sign_in">Tap to Sign In</string>
+
+    <!-- Language settings -->
+    <string name="settings_app_language">App Language</string>
+    <string name="lang_system_default">System default</string>
 </resources>

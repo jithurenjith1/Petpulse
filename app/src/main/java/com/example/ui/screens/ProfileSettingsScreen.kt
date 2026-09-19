@@ -1,6 +1,8 @@
 package com.example.ui.screens
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -18,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,6 +56,39 @@ fun ProfileSettingsScreen(
             .testTag("profile_settings_screen"),
         contentPadding = PaddingValues(bottom = 90.dp, top = 8.dp)
     ) {
+        // 0. App Language
+        item {
+            val currentTag = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+            val selected = when {
+                currentTag.startsWith("ml") -> "ml"
+                currentTag.startsWith("en") -> "en"
+                else -> "system"
+            }
+            fun applyLocale(tag: String) {
+                AppCompatDelegate.setApplicationLocales(
+                    if (tag == "system") LocaleListCompat.getEmptyLocaleList()
+                    else LocaleListCompat.forLanguageTags(tag)
+                )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.settings_app_language),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                    LanguageOptionRow(stringResource(R.string.lang_system_default), selected == "system") { applyLocale("system") }
+                    LanguageOptionRow("English", selected == "en") { applyLocale("en") }
+                    LanguageOptionRow("മലയാളം", selected == "ml") { applyLocale("ml") }
+                }
+            }
+        }
+
         // 1. Customer Profile Banner
         item {
             Card(
@@ -376,5 +413,20 @@ fun ProfileSettingsScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LanguageOptionRow(label: String, isSelected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = isSelected, onClick = onClick)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(label, fontSize = 14.sp)
     }
 }

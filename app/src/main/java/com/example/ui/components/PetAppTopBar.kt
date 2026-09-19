@@ -14,6 +14,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -98,7 +100,7 @@ fun PetAppTopBar(
 
                         }
                         Text(
-                            text = if (customer.isLoggedIn) "Guardian: ${customer.name}" else "Tap to Sign In",
+                            text = if (customer.isLoggedIn) stringResource(R.string.top_bar_guardian, customer.name) else stringResource(R.string.top_bar_sign_in),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

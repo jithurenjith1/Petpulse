@@ -1,7 +1,7 @@
 package com.example
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -43,7 +43,7 @@ import com.example.ui.theme.MyApplicationTheme
 import com.example.ui.viewmodel.*
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val viewModel: PetViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()

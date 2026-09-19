@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Petpulse</string>
+
+    <!-- Main navigation -->
+    <string name="nav_my_pet">എന്റെ വളർത്തുമൃഗം</string>
+    <string name="nav_market">മാർക്കറ്റ്</string>
+    <string name="nav_services">സേവനങ്ങൾ</string>
+
+    <!-- Top bar -->
+    <string name="top_bar_guardian">ഗാർഡിയൻ: %1$s</string>
+    <string name="top_bar_sign_in">സൈൻ ഇൻ ചെയ്യാൻ ടാപ്പ് ചെയ്യുക</string>
+
+    <!-- Language settings -->
+    <string name="settings_app_language">ആപ്പ് ഭാഷ</string>
+    <string name="lang_system_default">സിസ്റ്റം ഡിഫോൾ്ട്ട്</string>
+</resources>
