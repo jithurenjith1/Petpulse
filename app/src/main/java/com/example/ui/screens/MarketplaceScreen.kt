@@ -1,5 +1,9 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
+
 import androidx.compose.animation.*
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
@@ -176,7 +180,7 @@ fun MarketplaceScreen(
                                 )
                                 Column {
                                     Text(
-                                        text = "Kerala State Animal Pharmacy Guidelines",
+                                        text = stringResource(R.string.market_kerala_state_animal_pharmacy_guidelines),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 13.sp,
                                         color = Color(0xFFE65100)
@@ -295,7 +299,7 @@ fun KeralaHeroLocationBar(
 
                     Column {
                         Text(
-                            text = "Kerala Pet Care & Vet Hub",
+                            text = stringResource(R.string.market_kerala_pet_care_vet_hub),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = BluePrimary
@@ -361,7 +365,7 @@ fun KeralaHeroLocationBar(
 
             // Kerala City selection chips
             Text(
-                text = "Select Delivery & Service Region:",
+                text = stringResource(R.string.market_select_delivery_service_region),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -433,7 +437,7 @@ fun MarketplaceQuickActionRow(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = "List a Pet (Owner)",
+                text = stringResource(R.string.market_list_a_pet_owner),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -528,7 +532,7 @@ fun PetListingsHeader(
                     )
                     Column {
                         Text(
-                            text = "Imported & Exotic Pets Filter",
+                            text = stringResource(R.string.market_imported_exotic_pets_filter),
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
                             color = if (isExoticsOnly) Color(0xFF512DA8) else MaterialTheme.colorScheme.onSurface
@@ -669,13 +673,13 @@ fun MarketPetCard(
 
                     if (pet.listingType == "Adoption") {
                         Text(
-                            text = "FREE",
+                            text = stringResource(R.string.market_free),
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 18.sp,
                             color = Color(0xFF2E7D32)
                         )
                         Text(
-                            text = "Adoption in Kerala",
+                            text = stringResource(R.string.market_adoption_in_kerala),
                             fontSize = 10.sp,
                             color = Color(0xFF2E7D32)
                         )
@@ -758,7 +762,7 @@ fun MarketPetCard(
                     color = Color(0xFFFFF8E1)
                 ) {
                     Text(
-                        text = "🛡️ Escrow Protected",
+                        text = stringResource(R.string.market_escrow_protected),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFF57F17),
@@ -908,7 +912,7 @@ fun MarketProductCard(
                     color = Color(0xFFFFEBEE)
                 ) {
                     Text(
-                        text = "⚠️ Prescription Required (Attach at Checkout)",
+                        text = stringResource(R.string.market_prescription_required_attach_at_checkout),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFC62828),
@@ -935,7 +939,7 @@ fun MarketProductCard(
                         modifier = Modifier.size(14.dp)
                     )
                     Text(
-                        text = "2-4 Hr Delivery in Kerala",
+                        text = stringResource(R.string.market_s2_4_hr_delivery_in_kerala),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF2E7D32)
@@ -955,7 +959,7 @@ fun MarketProductCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Add to Cart",
+                        text = stringResource(R.string.market_add_to_cart),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -1058,7 +1062,7 @@ fun GroomingServiceCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Cities: Kochi, TVM, Kozhikode, Thrissur",
+                    text = stringResource(R.string.market_cities_kochi_tvm_kozhikode_thrissur),
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1069,7 +1073,7 @@ fun GroomingServiceCard(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B))
                 ) {
                     Text(
-                        text = "Book Doorstep Van",
+                        text = stringResource(R.string.market_book_doorstep_van),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -1202,7 +1206,7 @@ fun VerifiedDoctorCard(
                     colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                 ) {
                     Text(
-                        text = "Book Slot",
+                        text = stringResource(R.string.market_book_slot),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )

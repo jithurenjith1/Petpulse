@@ -1,5 +1,9 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.R
 import com.example.data.model.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.PartnerSubTab
@@ -91,7 +94,7 @@ fun PartnersServicesScreen(
                         ) {
                             Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = AccentAmber)
                             Text(
-                                text = "Verified Business & Care Network",
+                                text = stringResource(R.string.partners_verified_business_care_network),
                                 color = Color.White,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
@@ -114,18 +117,18 @@ fun PartnersServicesScreen(
                     ) {
                         Icon(Icons.Default.Handshake, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Join as Business Partner", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.partners_join_as_business_partner), color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     DropdownMenu(
                         expanded = showPartnerCategoryMenu,
                         onDismissRequest = { showPartnerCategoryMenu = false }
                     ) {
-                        DropdownMenuItem(text = { Text("Food & Accessories") }, onClick = { partnerCategoryToJoin = "Food & Accessories"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
-                        DropdownMenuItem(text = { Text("Pet Trainers") }, onClick = { partnerCategoryToJoin = "Pet Trainers"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
-                        DropdownMenuItem(text = { Text("Veterinary Doctors & Clinics") }, onClick = { partnerCategoryToJoin = "Veterinary Doctors & Clinics"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
-                        DropdownMenuItem(text = { Text("Boarding") }, onClick = { partnerCategoryToJoin = "Boarding"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
-                        DropdownMenuItem(text = { Text("Sales") }, onClick = { partnerCategoryToJoin = "Sales"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.partners_food_accessories)) }, onClick = { partnerCategoryToJoin = "Food & Accessories"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.partners_pet_trainers)) }, onClick = { partnerCategoryToJoin = "Pet Trainers"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.partners_veterinary_doctors_clinics)) }, onClick = { partnerCategoryToJoin = "Veterinary Doctors & Clinics"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.partners_boarding)) }, onClick = { partnerCategoryToJoin = "Boarding"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.partners_sales)) }, onClick = { partnerCategoryToJoin = "Sales"; showPartnerCategoryMenu = false; showBusinessPartnerDialog = true })
                     }
                 }
             }
@@ -156,7 +159,7 @@ fun PartnersServicesScreen(
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Get Featured — Top Placement",
+                            stringResource(R.string.partners_get_featured_top_placement),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = Color(0xFF8A6D1C)
@@ -177,7 +180,7 @@ fun PartnersServicesScreen(
                             contentColor = Color.Black
                         )
                     ) {
-                        Text("Promote", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.partners_promote), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -241,7 +244,7 @@ fun PartnersServicesScreen(
                             .padding(horizontal = 16.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Nearby Partner Grooming Salons",
+                            text = stringResource(R.string.partners_nearby_partner_grooming_salons),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = BluePrimaryDark
@@ -284,7 +287,7 @@ fun PartnersServicesScreen(
                             .padding(horizontal = 16.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Pet Food Combos & Accessories Subscriptions",
+                            text = stringResource(R.string.partners_pet_food_combos_accessories_subscriptions),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = BluePrimaryDark
@@ -315,7 +318,7 @@ fun PartnersServicesScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Pet Boarding & Sitter Network",
+                            text = stringResource(R.string.partners_pet_boarding_sitter_network),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = BluePrimaryDark
@@ -375,7 +378,7 @@ fun PartnersServicesScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Adoption & Pet Listings",
+                                text = stringResource(R.string.partners_adoption_pet_listings),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = BluePrimaryDark
@@ -396,7 +399,7 @@ fun PartnersServicesScreen(
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Post Pet", fontSize = 12.sp)
+                            Text(stringResource(R.string.partners_post_pet), fontSize = 12.sp)
                         }
                     }
                 }
@@ -483,7 +486,7 @@ fun GroomingCenterCard(
                             .padding(8.dp)
                     ) {
                         Text(
-                            text = "Featured Partner",
+                            text = stringResource(R.string.partners_featured_partner),
                             color = Color.White,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
@@ -512,7 +515,7 @@ fun GroomingCenterCard(
                                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
                                     Icon(Icons.Default.CheckCircle, contentDescription = "Verified", tint = Color(0xFF4CAF50), modifier = Modifier.size(12.dp))
-                                    Text("Verified", fontSize = 9.sp, color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.partners_verified), fontSize = 9.sp, color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -537,7 +540,7 @@ fun GroomingCenterCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Popular Packages:", fontWeight = FontWeight.SemiBold, fontSize = 11.sp)
+                    Text(stringResource(R.string.partners_popular_packages), fontWeight = FontWeight.SemiBold, fontSize = 11.sp)
                     center.packages.forEach { pkg ->
                         Text("• $pkg", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface)
                     }
@@ -550,7 +553,7 @@ fun GroomingCenterCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Starting from", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.partners_starting_from), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(center.startingPrice, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = BluePrimary)
                 }
 
@@ -563,7 +566,7 @@ fun GroomingCenterCard(
                     ) {
                         Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Call", fontSize = 11.sp)
+                        Text(stringResource(R.string.partners_call), fontSize = 11.sp)
                     }
 
                     Button(
@@ -573,7 +576,7 @@ fun GroomingCenterCard(
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                         modifier = Modifier.height(34.dp)
                     ) {
-                        Text("Book Spa Slot", fontSize = 11.sp)
+                        Text(stringResource(R.string.partners_book_spa_slot), fontSize = 11.sp)
                     }
                 }
             }
@@ -649,7 +652,7 @@ fun SubscriptionCard(
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                     modifier = Modifier.height(34.dp)
                 ) {
-                    Text("Select Subscription", fontSize = 11.sp)
+                    Text(stringResource(R.string.partners_select_subscription), fontSize = 11.sp)
                 }
             }
         }
@@ -734,7 +737,7 @@ fun BoardingSitterCard(
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                     modifier = Modifier.height(34.dp)
                 ) {
-                    Text("Book Care", fontSize = 11.sp)
+                    Text(stringResource(R.string.partners_book_care), fontSize = 11.sp)
                 }
             }
         }
@@ -769,7 +772,7 @@ fun FindMyPetSection(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Default.NotificationImportant, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(26.dp))
-                        Text("Find My Pet — 5km SOS Network", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFB71C1C))
+                        Text(stringResource(R.string.partners_find_my_pet_5km_sos_network), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFB71C1C))
                     }
                 }
 
@@ -788,7 +791,7 @@ fun FindMyPetSection(
                     ) {
                         Icon(Icons.Default.Emergency, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Broadcast 5km SOS", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.partners_broadcast_5km_sos), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     OutlinedButton(
@@ -798,7 +801,7 @@ fun FindMyPetSection(
                     ) {
                         Icon(Icons.Default.SupportAgent, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Helpline", fontSize = 12.sp)
+                        Text(stringResource(R.string.partners_helpline), fontSize = 12.sp)
                     }
                 }
             }
@@ -823,7 +826,7 @@ fun FindMyPetSection(
                             color = BluePrimary.copy(alpha = 0.15f)
                         ) {
                             Text(
-                                text = "HARDWARE SPONSOR COMING SOON",
+                                text = stringResource(R.string.partners_hardware_sponsor_coming_soon),
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = BluePrimary,
@@ -831,7 +834,7 @@ fun FindMyPetSection(
                             )
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text("Smart Collar GPS Tracker (Prototype)", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                        Text(stringResource(R.string.partners_smart_collar_gps_tracker_prototype), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
                     }
                 }
 
@@ -861,9 +864,9 @@ fun FindMyPetSection(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Price: TBA (Sponsored Partner)", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                    Text(stringResource(R.string.partners_price_tba_sponsored_partner), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                     FilledTonalButton(onClick = {}, shape = RoundedCornerShape(10.dp), modifier = Modifier.height(32.dp)) {
-                        Text("Notify on Launch", fontSize = 11.sp)
+                        Text(stringResource(R.string.partners_notify_on_launch), fontSize = 11.sp)
                     }
                 }
             }
@@ -907,7 +910,7 @@ fun FindMyPetSection(
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                             modifier = Modifier.height(30.dp)
                         ) {
-                            Text("I Saw This Pet", fontSize = 11.sp)
+                            Text(stringResource(R.string.partners_i_saw_this_pet), fontSize = 11.sp)
                         }
                     }
                 }
@@ -970,7 +973,7 @@ fun PetListingCard(
                 ) {
                     Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Contact Guardian", fontSize = 11.sp)
+                    Text(stringResource(R.string.partners_contact_guardian), fontSize = 11.sp)
                 }
             }
         }
@@ -1004,7 +1007,7 @@ fun PetNewsAndEventsSection(
                     color = BluePrimary.copy(alpha = 0.12f)
                 ) {
                     Text(
-                        text = "📰 FEATURED PET STORY",
+                        text = stringResource(R.string.partners_featured_pet_story),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = BluePrimary,
@@ -1031,7 +1034,7 @@ fun PetNewsAndEventsSection(
             ) {
                 Icon(Icons.Default.SportsScore, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(32.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Trainer On-Demand (Partnership)", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
+                    Text(stringResource(R.string.partners_trainer_on_demand_partnership), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
                     Text("Request an accredited certified trainer for home obedience & behavior sessions.", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Button(
@@ -1041,14 +1044,14 @@ fun PetNewsAndEventsSection(
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                     modifier = Modifier.height(34.dp)
                 ) {
-                    Text("Book Trainer", fontSize = 11.sp)
+                    Text(stringResource(R.string.partners_book_trainer), fontSize = 11.sp)
                 }
             }
         }
 
         // Upcoming Pet Competitions & Events Calendar
         Text(
-            text = "🏆 Upcoming Competitions & Events Calendar",
+            text = stringResource(R.string.partners_upcoming_competitions_events_calendar),
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             color = BluePrimaryDark
@@ -1082,7 +1085,7 @@ fun PetNewsAndEventsSection(
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                             modifier = Modifier.height(30.dp)
                         ) {
-                            Text("Add to Calendar", fontSize = 10.sp)
+                            Text(stringResource(R.string.partners_add_to_calendar), fontSize = 10.sp)
                         }
                     }
                 }
@@ -1121,7 +1124,7 @@ fun PartnerJoinCalloutCard(
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                 modifier = Modifier.height(32.dp)
             ) {
-                Text("Apply", fontSize = 11.sp)
+                Text(stringResource(R.string.partners_apply), fontSize = 11.sp)
             }
         }
     }
@@ -1164,28 +1167,28 @@ fun BusinessPartnerJoinDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Business / Store Name *") },
+                    label = { Text(stringResource(R.string.partners_business_store_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email Address") },
+                    label = { Text(stringResource(R.string.partners_email_address)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Phone Number *") },
+                    label = { Text(stringResource(R.string.partners_phone_number)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = city,
                     onValueChange = { city = it },
-                    label = { Text("City / Location *") },
+                    label = { Text(stringResource(R.string.partners_city_location)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -1199,7 +1202,7 @@ fun BusinessPartnerJoinDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Brief description of your services") },
+                    label = { Text(stringResource(R.string.partners_brief_description_of_your_services)) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2
                 )
@@ -1214,11 +1217,11 @@ fun BusinessPartnerJoinDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Submit Application")
+                Text(stringResource(R.string.partners_submit_application))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.partners_cancel)) }
         }
     )
 }
@@ -1261,7 +1264,7 @@ fun FeaturedPlansDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Get Featured") },
+        title = { Text(stringResource(R.string.partners_get_featured)) },
         text = {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
@@ -1309,7 +1312,7 @@ fun FeaturedPlansDialog(
                                             color = Color(0xFFC9A227)
                                         ) {
                                             Text(
-                                                "Popular",
+                                                stringResource(R.string.partners_popular),
                                                 color = Color.Black,
                                                 fontSize = 9.sp,
                                                 fontWeight = FontWeight.Bold,
@@ -1355,7 +1358,7 @@ fun FeaturedPlansDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.partners_cancel)) }
         }
     )
 }

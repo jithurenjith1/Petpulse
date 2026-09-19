@@ -1,5 +1,9 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,7 +37,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import coil.compose.rememberAsyncImagePainter
-import com.example.R
 import com.example.data.model.CustomerProfile
 import com.example.data.model.MedicalReport
 import com.example.data.model.UserPet
@@ -207,7 +210,7 @@ fun MyPetsScreen(
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Edit / Rename Pet", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.mypets_edit_rename_pet), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                             OutlinedButton(
                                 onClick = { showDeleteDialog = true },
@@ -223,7 +226,7 @@ fun MyPetsScreen(
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Remove", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFFC9A227))
+                                Text(stringResource(R.string.mypets_remove), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFFC9A227))
                             }
                             }
                         }
@@ -345,10 +348,10 @@ fun MyPetsScreen(
                         onDeletePet()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.mypets_delete)) }
             },
             dismissButton = {
-                OutlinedButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                OutlinedButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.mypets_cancel)) }
             }
         )
     }
@@ -390,10 +393,10 @@ fun MyPetsScreen(
             onDismissRequest = { showCertificateUploadToast = false },
             confirmButton = {
                 TextButton(onClick = { showCertificateUploadToast = false }) {
-                    Text("OK")
+                    Text(stringResource(R.string.mypets_ok))
                 }
             },
-            title = { Text("Upload Pet Certificate") },
+            title = { Text(stringResource(R.string.mypets_upload_pet_certificate)) },
             text = { Text("Certificate document / photo uploaded successfully! Encrypted and verified by Kennel Registry Council.") },
             icon = { Icon(Icons.Default.CloudUpload, contentDescription = null, tint = BluePrimary) }
         )
@@ -437,7 +440,7 @@ fun CertificateSubmenuSection(
                         modifier = Modifier.size(28.dp)
                     )
                     Text(
-                        text = "Official Canine Health & Birth Certificate",
+                        text = stringResource(R.string.mypets_official_canine_health_birth_certificate),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = BluePrimaryDark
@@ -475,28 +478,28 @@ fun CertificateSubmenuSection(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Certificate Reg ID:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_certificate_reg_id), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(pet.certificateNumber, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Registered Name:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_registered_name), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("${pet.name} (${pet.breed})", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Issuing Authority:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_issuing_authority), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(pet.certificateIssuedBy, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.End)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Issue Date:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_issue_date), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(pet.certificateDate, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
@@ -516,7 +519,7 @@ fun CertificateSubmenuSection(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Upload Document / Photo of Certificate")
+                Text(stringResource(R.string.mypets_upload_document_photo_of_certificate))
             }
         }
     }
@@ -588,7 +591,7 @@ fun VaccinationMedicalSubmenuSection(
                         )
                         TextButton(onClick = onAddVaccineClick) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Text("Add Vaccine", fontSize = 12.sp)
+                            Text(stringResource(R.string.mypets_add_vaccine), fontSize = 12.sp)
                         }
                     }
 
@@ -655,14 +658,14 @@ fun VaccinationMedicalSubmenuSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Veterinary Medical Reports",
+                            text = stringResource(R.string.mypets_veterinary_medical_reports),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = BluePrimaryDark
                         )
                         TextButton(onClick = onAddMedicalClick) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Text("Add Report", fontSize = 12.sp)
+                            Text(stringResource(R.string.mypets_add_report), fontSize = 12.sp)
                         }
                     }
 
@@ -746,14 +749,14 @@ fun FoodAndPlaysSubmenuSection(
                 TextButton(onClick = onAddPreferenceClick) {
                     Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Edit Likes", fontSize = 12.sp)
+                    Text(stringResource(R.string.mypets_edit_likes), fontSize = 12.sp)
                 }
             }
 
             // Food Likes Section
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("🍲 Favorite Meals & Treats", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(stringResource(R.string.mypets_favorite_meals_treats), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -781,7 +784,7 @@ fun FoodAndPlaysSubmenuSection(
             // Plays & Toys Likes Section
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("🎾 Favorite Toys & Play Activities", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(stringResource(R.string.mypets_favorite_toys_play_activities), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -835,7 +838,7 @@ fun TrainingSubmenuSection(
             ) {
                 Column {
                     Text(
-                        text = "Training Level & Milestones",
+                        text = stringResource(R.string.mypets_training_level_milestones),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = BluePrimaryDark
@@ -849,7 +852,7 @@ fun TrainingSubmenuSection(
                 }
 
                 FilledTonalButton(onClick = onEditTraining, shape = RoundedCornerShape(10.dp)) {
-                    Text("Update Status", fontSize = 12.sp)
+                    Text(stringResource(R.string.mypets_update_status), fontSize = 12.sp)
                 }
             }
 
@@ -924,44 +927,44 @@ fun AddVaccinationRecordDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Vaccination Record") },
+        title = { Text(stringResource(R.string.mypets_add_vaccination_record)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = vaccineName,
                     onValueChange = { vaccineName = it },
-                    label = { Text("Vaccine Name") },
+                    label = { Text(stringResource(R.string.mypets_vaccine_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = dateGiven,
                     onValueChange = { dateGiven = it },
-                    label = { Text("Date Administered") },
+                    label = { Text(stringResource(R.string.mypets_date_administered)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = nextDueDate,
                     onValueChange = { nextDueDate = it },
-                    label = { Text("Next Due Date") },
+                    label = { Text(stringResource(R.string.mypets_next_due_date)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = doctor,
                     onValueChange = { doctor = it },
-                    label = { Text("Veterinarian / Clinic") },
+                    label = { Text(stringResource(R.string.mypets_veterinarian_clinic)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(
                         selected = status == "Completed",
                         onClick = { status = "Completed" },
-                        label = { Text("Completed") }
+                        label = { Text(stringResource(R.string.mypets_completed)) }
                     )
                     FilterChip(
                         selected = status == "Upcoming",
                         onClick = { status = "Upcoming" },
-                        label = { Text("Upcoming") }
+                        label = { Text(stringResource(R.string.mypets_upcoming)) }
                     )
                 }
             }
@@ -971,11 +974,11 @@ fun AddVaccinationRecordDialog(
                 onClick = { onSave(vaccineName, dateGiven, nextDueDate, status, doctor) },
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Save")
+                Text(stringResource(R.string.mypets_save))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.mypets_cancel)) }
         }
     )
 }
@@ -993,31 +996,31 @@ fun AddMedicalReportDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Medical Report") },
+        title = { Text(stringResource(R.string.mypets_add_medical_report)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Report Title") },
+                    label = { Text(stringResource(R.string.mypets_report_title)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = clinic,
                     onValueChange = { clinic = it },
-                    label = { Text("Clinic Name") },
+                    label = { Text(stringResource(R.string.mypets_clinic_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = diagnosis,
                     onValueChange = { diagnosis = it },
-                    label = { Text("Diagnosis / Findings") },
+                    label = { Text(stringResource(R.string.mypets_diagnosis_findings)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = prescription,
                     onValueChange = { prescription = it },
-                    label = { Text("Prescription & Care Advice") },
+                    label = { Text(stringResource(R.string.mypets_prescription_care_advice)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -1027,11 +1030,11 @@ fun AddMedicalReportDialog(
                 onClick = { onSave(title, clinic, diagnosis, prescription) },
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Save Report")
+                Text(stringResource(R.string.mypets_save_report))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.mypets_cancel)) }
         }
     )
 }
@@ -1049,19 +1052,19 @@ fun AddPreferenceItemDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Food & Plays Jane Likes") },
+        title = { Text(stringResource(R.string.mypets_food_plays_jane_likes)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = foods,
                     onValueChange = { foods = it },
-                    label = { Text("Favorite Food (Comma-separated)") },
+                    label = { Text(stringResource(R.string.mypets_favorite_food_comma_separated)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = plays,
                     onValueChange = { plays = it },
-                    label = { Text("Favorite Plays & Toys (Comma-separated)") },
+                    label = { Text(stringResource(R.string.mypets_favorite_plays_toys_comma_separated)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -1071,11 +1074,11 @@ fun AddPreferenceItemDialog(
                 onClick = { onSave(foods, plays) },
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Save")
+                Text(stringResource(R.string.mypets_save))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.mypets_cancel)) }
         }
     )
 }
@@ -1113,44 +1116,44 @@ fun HealthAndSettingsSection(
                     Text(text = "${pet.name}'s Health & Care Statistics", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
                 }
                 Surface(shape = RoundedCornerShape(8.dp), color = AccentGreen.copy(alpha = 0.15f)) {
-                    Text(text = "EXCELLENT", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AccentGreen, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                    Text(text = stringResource(R.string.mypets_excellent), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AccentGreen, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
                 }
             }
             Divider()
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF0F7FF), modifier = Modifier.weight(1f)) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Health Index", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_health_index), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
                         Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimary)
-                        Text("Vitals Optimal", fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.mypets_vitals_optimal), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF1F8E9), modifier = Modifier.weight(1f)) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Vaccinations", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_vaccinations), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
                         Text("${vaccinations.count { it.status == "Completed" }}/${vaccinations.size}", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = AccentGreen)
-                        Text("Up to date", fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.mypets_up_to_date), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFFFF8E1), modifier = Modifier.weight(1f)) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Est. Monthly", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_est_monthly), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
                         Text("₹5,800", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFFE65100))
-                        Text("Food & Care", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mypets_food_care), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
             Surface(shape = RoundedCornerShape(10.dp), color = Color(0xFFF9FBFE), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Weekly Exercise & Walks:", fontSize = 11.sp)
-                        Text("14 Walks Completed (18.2 km)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                        Text(stringResource(R.string.mypets_weekly_exercise_walks), fontSize = 11.sp)
+                        Text(stringResource(R.string.mypets_s14_walks_completed_18_2_km), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Microchip Tag Status:", fontSize = 11.sp)
+                        Text(stringResource(R.string.mypets_microchip_tag_status), fontSize = 11.sp)
                         Text("Active (${pet.microchipNumber})", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AccentGreen)
                     }
                 }
@@ -1167,17 +1170,17 @@ fun HealthAndSettingsSection(
         Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Default.Settings, contentDescription = null, tint = BluePrimary)
-                Text(text = "Settings: Default Pet Configuration", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
+                Text(text = stringResource(R.string.mypets_settings_default_pet_configuration), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
             }
             Text(text = "Customize the pet name and details for this account:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            OutlinedTextField(value = petNameInput, onValueChange = { petNameInput = it }, label = { Text("Pet Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = petNameInput, onValueChange = { petNameInput = it }, label = { Text(stringResource(R.string.mypets_pet_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = petBreedInput, onValueChange = { petBreedInput = it }, label = { Text("Breed") }, modifier = Modifier.weight(1f))
-                OutlinedTextField(value = petGenderInput, onValueChange = { petGenderInput = it }, label = { Text("Gender") }, modifier = Modifier.weight(1f))
-                OutlinedTextField(value = petAgeInput, onValueChange = { petAgeInput = it }, label = { Text("Age") }, modifier = Modifier.weight(0.8f))
+                OutlinedTextField(value = petBreedInput, onValueChange = { petBreedInput = it }, label = { Text(stringResource(R.string.mypets_breed)) }, modifier = Modifier.weight(1f))
+                OutlinedTextField(value = petGenderInput, onValueChange = { petGenderInput = it }, label = { Text(stringResource(R.string.mypets_gender)) }, modifier = Modifier.weight(1f))
+                OutlinedTextField(value = petAgeInput, onValueChange = { petAgeInput = it }, label = { Text(stringResource(R.string.mypets_age)) }, modifier = Modifier.weight(0.8f))
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                FilledTonalButton(onClick = onEditPetClick) { Text("Full Edit Form", fontSize = 12.sp) }
+                FilledTonalButton(onClick = onEditPetClick) { Text(stringResource(R.string.mypets_full_edit_form), fontSize = 12.sp) }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = {
@@ -1186,7 +1189,7 @@ fun HealthAndSettingsSection(
                         onShowMessage("Pet renamed to '$petNameInput' and settings saved!")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
-                ) { Text("Save Pet Name", fontSize = 12.sp) }
+                ) { Text(stringResource(R.string.mypets_save_pet_name), fontSize = 12.sp) }
             }
         }
     }
@@ -1198,12 +1201,12 @@ fun HealthAndSettingsSection(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(text = "Safety & Notification Preferences", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
+            Text(text = stringResource(R.string.mypets_safety_notification_preferences), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
             var notifyLostPets by remember { mutableStateOf(true) }
             var notifyVaccines by remember { mutableStateOf(true) }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("5km Radius Lost Pet Alerts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.mypets_s5km_radius_lost_pet_alerts), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     Text("Receive emergency notifications when a pet is lost nearby", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Switch(checked = notifyLostPets, onCheckedChange = { notifyLostPets = it }, colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary))
@@ -1211,7 +1214,7 @@ fun HealthAndSettingsSection(
             Divider()
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Vaccination & Medication Due Reminders", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.mypets_vaccination_medication_due_reminders), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     Text("Automatic calendar reminders 7 days before due date", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Switch(checked = notifyVaccines, onCheckedChange = { notifyVaccines = it }, colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary))
