@@ -1,7 +1,7 @@
-package com.example.ui.screens
+package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -307,6 +307,13 @@ fun AiSymptomCheckerScreen(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
             )
+
+            Text(
+                text = stringResource(R.string.triage_disclaimer),
+                color = OnDark.copy(alpha = 0.7f),
+                fontSize = 11.sp
+            )
+            Spacer(Modifier.height(6.dp))
             Spacer(Modifier.height(8.dp))
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),

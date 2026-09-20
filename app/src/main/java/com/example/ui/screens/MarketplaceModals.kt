@@ -1,7 +1,7 @@
-package com.example.ui.screens
+package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,8 +36,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
-import com.example.data.model.*
-import com.example.ui.theme.*
+import com.petpulse.app.data.model.*
+import com.petpulse.app.ui.theme.*
 
 // ================= 1. SLIDE-OUT CART MODAL / SHEET =================
 @OptIn(ExperimentalMaterial3Api::class)
@@ -348,7 +348,7 @@ fun SlideOutCartModal(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(stringResource(R.string.modals_jane_pals_escrow_protection), fontSize = 12.sp, color = Color(0xFF00796B), fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.modals_petpulse_escrow_protection), fontSize = 12.sp, color = Color(0xFF00796B), fontWeight = FontWeight.Bold)
                                 Text(stringResource(R.string.modals_free), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00796B))
                             }
                             Divider(modifier = Modifier.padding(vertical = 4.dp))
@@ -483,7 +483,7 @@ fun SecureEscrowCheckoutModal(
                             Text("🛡️", fontSize = 24.sp)
                             Column {
                                 Text(
-                                    text = stringResource(R.string.modals_jane_pals_kerala_escrow_protection),
+                                    text = stringResource(R.string.modals_petpulse_kerala_escrow_protection),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF004D40)

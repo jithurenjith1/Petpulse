@@ -1,13 +1,13 @@
-package com.example.ui.viewmodel
+package com.petpulse.app.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.data.local.PetDatabase
-import com.example.data.model.*
-import com.example.data.repository.MarketplaceRepository
-import com.example.data.repository.PetRepository
-import com.example.data.repository.FirestorePetRepository
+import com.petpulse.app.data.local.PetDatabase
+import com.petpulse.app.data.model.*
+import com.petpulse.app.data.repository.MarketplaceRepository
+import com.petpulse.app.data.repository.PetRepository
+import com.petpulse.app.data.repository.FirestorePetRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first

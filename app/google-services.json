@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:218116951607:android:932fc0521834a6f4d439b2",
         "android_client_info": {
-          "package_name": "com.aistudio.petcompanion.jane"
+          "package_name": "com.petpulse.app"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "218116951607-hig9t4mrn11ugcpdlq993mrbntfm4krk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.aistudio.petcompanion.jane",
+            "package_name": "com.petpulse.app",
             "certificate_hash": "a1cb8c675ff6192a7bc67b03adae3e8a0725d54b"
           }
         },
@@ -25,7 +25,7 @@
           "client_id": "218116951607-q2u1ub9l01m6q6i2bnabesib59iifh9a.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.aistudio.petcompanion.jane",
+            "package_name": "com.petpulse.app",
             "certificate_hash": "cbc4cf6ede9169f86276d4770f1e668b1a8329bc"
           }
         },

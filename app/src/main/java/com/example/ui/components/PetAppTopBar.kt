@@ -1,7 +1,7 @@
-package com.example.ui.components
+package com.petpulse.app.ui.components
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,11 +20,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.model.CustomerProfile
-import com.example.data.model.UserPet
-import com.example.ui.theme.BluePrimary
-import com.example.ui.theme.BluePrimaryDark
-import com.example.ui.theme.BlueSecondary
+import com.petpulse.app.data.model.CustomerProfile
+import com.petpulse.app.data.model.UserPet
+import com.petpulse.app.ui.theme.BluePrimary
+import com.petpulse.app.ui.theme.BluePrimaryDark
+import com.petpulse.app.ui.theme.BlueSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

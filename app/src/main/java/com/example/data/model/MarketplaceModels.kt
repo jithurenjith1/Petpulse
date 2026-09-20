@@ -1,4 +1,4 @@
-package com.example.data.model
+package com.petpulse.app.data.model
 
 data class KeralaCity(
     val id: String,

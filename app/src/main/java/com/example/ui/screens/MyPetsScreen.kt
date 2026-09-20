@@ -1,7 +1,7 @@
-package com.example.ui.screens
+package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 
 import androidx.compose.animation.AnimatedVisibility
@@ -37,11 +37,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import coil.compose.rememberAsyncImagePainter
-import com.example.data.model.CustomerProfile
-import com.example.data.model.MedicalReport
-import com.example.data.model.UserPet
-import com.example.data.model.VaccinationRecord
-import com.example.ui.theme.*
+import com.petpulse.app.data.model.CustomerProfile
+import com.petpulse.app.data.model.MedicalReport
+import com.petpulse.app.data.model.UserPet
+import com.petpulse.app.data.model.VaccinationRecord
+import com.petpulse.app.ui.theme.*
 
 enum class PetDetailSubmenu {
     CERTIFICATE,

@@ -1,7 +1,7 @@
-package com.example.ui.screens
+package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,9 +24,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.model.*
-import com.example.ui.theme.*
-import com.example.ui.viewmodel.ExploreSubTab
+import com.petpulse.app.data.model.*
+import com.petpulse.app.ui.theme.*
+import com.petpulse.app.ui.viewmodel.ExploreSubTab
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

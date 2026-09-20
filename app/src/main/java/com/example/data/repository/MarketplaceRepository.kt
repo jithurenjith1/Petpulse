@@ -1,6 +1,6 @@
-package com.example.data.repository
+package com.petpulse.app.data.repository
 
-import com.example.data.model.*
+import com.petpulse.app.data.model.*
 
 class MarketplaceRepository {
 

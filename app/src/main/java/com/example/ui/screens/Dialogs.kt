@@ -1,7 +1,7 @@
-package com.example.ui.screens
+package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
@@ -21,10 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.os.LocaleListCompat
-import com.example.data.model.CustomerProfile
-import com.example.data.model.UserPet
-import com.example.ui.theme.BluePrimary
-import com.example.ui.theme.BluePrimaryDark
+import com.petpulse.app.data.model.CustomerProfile
+import com.petpulse.app.data.model.UserPet
+import com.petpulse.app.ui.theme.BluePrimary
+import com.petpulse.app.ui.theme.BluePrimaryDark
 
 @Composable
 fun CustomerLoginDialog(
@@ -416,9 +416,9 @@ fun LostPetSosDialog(
     var petName by remember { mutableStateOf(defaultPetName) }
     var species by remember { mutableStateOf("Dog") }
     var breed by remember { mutableStateOf("Indie") }
-    var location by remember { mutableStateOf("City Central Park, North Gate") }
+    var location by remember { mutableStateOf("Marine Drive, Kochi") }
     var reward by remember { mutableStateOf("₹21,250") }
-    var phone by remember { mutableStateOf("+1 (800) 555-PET-SOS") }
+    var phone by remember { mutableStateOf("+91 98470 11223") }
     var description by remember { mutableStateOf("Wearing a blue collar with Jane tag. Responds to whistle and friendly.") }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -592,11 +592,11 @@ fun AddPetListingDialog(
     var species by remember { mutableStateOf("Dog") }
     var breed by remember { mutableStateOf("Indie Pup") }
     var age by remember { mutableStateOf("4 Months") }
-    var location by remember { mutableStateOf("Metro Rescue Hub") }
+    var location by remember { mutableStateOf("Marine Drive, Kochi") }
     var listingType by remember { mutableStateOf("Adoption") }
     var price by remember { mutableStateOf("₹0") }
     var description by remember { mutableStateOf("Loving, playful, vaccinated, looking for a caring home.") }
-    var phone by remember { mutableStateOf("+1 (555) 789-0123") }
+    var phone by remember { mutableStateOf("+91 98470 12345") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(

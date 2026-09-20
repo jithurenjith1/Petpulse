@@ -244,8 +244,8 @@
     <string name="modals_in_clinic_visit">In-Clinic Visit</string>
     <string name="modals_items_subtotal">Items Subtotal</string>
     <string name="modals_items">Items: </string>
-    <string name="modals_jane_pals_escrow_protection">Jane &amp; Pals Escrow Protection</string>
-    <string name="modals_jane_pals_kerala_escrow_protection">Jane &amp; Pals Kerala Escrow Protection</string>
+    <string name="modals_petpulse_escrow_protection">Petpulse Escrow Protection</string>
+    <string name="modals_petpulse_kerala_escrow_protection">Petpulse Kerala Escrow Protection</string>
     <string name="modals_kerala_biodegradable_packaging">Kerala Biodegradable Packaging</string>
     <string name="modals_kerala_city">Kerala City:</string>
     <string name="modals_kerala_delivery_cart">Kerala Delivery Cart</string>
@@ -339,4 +339,5 @@
     <string name="vet_got_it">Got it</string>
     <string name="vet_pet_name">Pet name</string>
     <string name="vet_vet_teleconsultation">Vet Teleconsultation</string>
+    <string name="triage_disclaimer">Guidance only — not a veterinary diagnosis. Always consult a registered vet.</string>
 </resources>

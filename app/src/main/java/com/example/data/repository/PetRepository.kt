@@ -1,7 +1,7 @@
-package com.example.data.repository
+package com.petpulse.app.data.repository
 
-import com.example.data.local.PetDao
-import com.example.data.model.*
+import com.petpulse.app.data.local.PetDao
+import com.petpulse.app.data.model.*
 import kotlinx.coroutines.flow.Flow
 
 class PetRepository(private val petDao: PetDao) {
@@ -232,7 +232,7 @@ class PetRepository(private val petDao: PetDao) {
             reviewCount = 384,
             packages = listOf("Full Hydro-Bath & Blowout", "Breed-Specific Styling & Trim", "Pawdicure & Balm Treatment", "Organic Herbal Flea Rinse"),
             startingPrice = "₹2,979",
-            phone = "+1 (555) 924-JANE",
+            phone = "+91 98470 12345",
             isFeaturedPartner = true
         ),
         GroomingCenter(
@@ -244,7 +244,7 @@ class PetRepository(private val petDao: PetDao) {
             reviewCount = 210,
             packages = listOf("Doorstep Full Spa", "De-matting & Ear Cleaning", "Teeth Brushing & Breath Freshener"),
             startingPrice = "₹4,169",
-            phone = "+1 (555) 432-PAWS",
+            phone = "+91 98470 12345",
             isFeaturedPartner = true
         )
     )

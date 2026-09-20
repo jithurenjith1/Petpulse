@@ -1,4 +1,4 @@
-package com.example.ui.viewmodel
+package com.petpulse.app.ui.viewmodel
 
 import android.content.Context
 import android.content.Intent

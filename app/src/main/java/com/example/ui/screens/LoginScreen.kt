@@ -1,7 +1,7 @@
-package com.example.ui.screens
+package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.viewmodel.AuthViewModel
+import com.petpulse.app.ui.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 private val CoralPrimary = Color(0xFFE07856)

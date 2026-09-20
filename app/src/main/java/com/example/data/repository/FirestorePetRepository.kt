@@ -1,11 +1,11 @@
-package com.example.data.repository
+package com.petpulse.app.data.repository
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.data.model.UserPet
-import com.example.data.model.VaccinationRecord
-import com.example.data.model.MedicalReport
+import com.petpulse.app.data.model.UserPet
+import com.petpulse.app.data.model.VaccinationRecord
+import com.petpulse.app.data.model.MedicalReport
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

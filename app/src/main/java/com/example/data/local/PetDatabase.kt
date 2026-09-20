@@ -1,15 +1,15 @@
-package com.example.data.local
+package com.petpulse.app.data.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.data.model.LostPetAlert
-import com.example.data.model.MedicalReport
-import com.example.data.model.PetListing
-import com.example.data.model.UserPet
-import com.example.data.model.VaccinationRecord
+import com.petpulse.app.data.model.LostPetAlert
+import com.petpulse.app.data.model.MedicalReport
+import com.petpulse.app.data.model.PetListing
+import com.petpulse.app.data.model.UserPet
+import com.petpulse.app.data.model.VaccinationRecord
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -166,7 +166,7 @@ abstract class PetDatabase : RoomDatabase() {
                     lastSeenLocation = "Maple Creek Park (Near North Gate)",
                     distanceKm = 1.8,
                     rewardAmount = "₹25,500",
-                    contactHelpline = "+1 (800) 555-PET-SOS",
+                    contactHelpline = "+91 98 555-PET-SOS",
                     reportedTime = "35 mins ago",
                     isResolved = false,
                     description = "Wearing a blue reflective collar with bell. Very friendly, responds to whistle.",
@@ -182,7 +182,7 @@ abstract class PetDatabase : RoomDatabase() {
                     lastSeenLocation = "Greenwood Boulevard, Block C",
                     distanceKm = 3.2,
                     rewardAmount = "₹12,750",
-                    contactHelpline = "+1 (800) 555-PET-SOS",
+                    contactHelpline = "+91 98 555-PET-SOS",
                     reportedTime = "2 hours ago",
                     isResolved = false,
                     description = "Cream color coat with dark ears and blue eyes. Slightly timid.",
@@ -200,7 +200,7 @@ abstract class PetDatabase : RoomDatabase() {
                     age = "3 Months",
                     location = "City Rescue Shelter (2.5 km away)",
                     description = "Two loving rescued Indie siblings, vaccinated, dewormed, looking for warm forever home.",
-                    contactNumber = "+1 (555) 789-0123",
+                    contactNumber = "+91 98470 12345",
                     listingType = "Adoption",
                     priceEstimate = "Free (Adoption Fee Waived)",
                     postedBy = "Hope Paws Rescue"
@@ -215,7 +215,7 @@ abstract class PetDatabase : RoomDatabase() {
                     age = "5 Months",
                     location = "Westfield Pet Hub",
                     description = "Certified pedigree, litter-trained, playful demeanor with complete health certificate.",
-                    contactNumber = "+1 (555) 890-1234",
+                    contactNumber = "+91 98470 12345",
                     listingType = "Sale",
                     priceEstimate = "₹38,250 (Contact Partner Breeder)",
                     postedBy = "Blue Ribbon Felines"
@@ -230,7 +230,7 @@ abstract class PetDatabase : RoomDatabase() {
                     age = "8 Months",
                     location = "Eastside Aviary Community",
                     description = "Hand-tamed cheerful pair of budgies, includes spacious flight cage & toys.",
-                    contactNumber = "+1 (555) 345-6789",
+                    contactNumber = "+91 98470 12345",
                     listingType = "Adoption",
                     priceEstimate = "Free for Pet Lovers",
                     postedBy = "Urban Wings Sanctuary"

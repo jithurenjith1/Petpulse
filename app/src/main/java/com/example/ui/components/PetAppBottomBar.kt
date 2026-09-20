@@ -1,7 +1,7 @@
-package com.example.ui.components
+package com.petpulse.app.ui.components
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
@@ -17,8 +17,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.BluePrimary
-import com.example.ui.viewmodel.MainNavTab
+import com.petpulse.app.ui.theme.BluePrimary
+import com.petpulse.app.ui.viewmodel.MainNavTab
 
 @Composable
 fun PetAppBottomBar(

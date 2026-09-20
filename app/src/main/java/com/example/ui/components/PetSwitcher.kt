@@ -1,7 +1,7 @@
-package com.example.ui.components
+package com.petpulse.app.ui.components
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,7 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.model.UserPet
+import com.petpulse.app.data.model.UserPet
 
 private val CoralPrimary = Color(0xFFE07856)
 private val CoralLight = Color(0xFFF4A88C)

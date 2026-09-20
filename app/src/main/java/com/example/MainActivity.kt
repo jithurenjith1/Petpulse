@@ -1,7 +1,7 @@
-package com.example
+package com.petpulse.app
 
 import androidx.compose.ui.res.stringResource
-import com.example.R
+import com.petpulse.app.R
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -23,27 +23,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.data.model.GroomingServiceItem
-import com.example.data.model.MarketPet
-import com.example.data.model.MarketProduct
-import com.example.data.model.VerifiedDoctor
-import com.example.ui.components.PetAppBottomBar
-import com.example.ui.screens.MapScreen
-import com.example.ui.screens.RealSosScreen
-import com.example.ui.screens.PetInsuranceScreen
-import com.example.ui.screens.PetCommunityScreen
-import com.example.ui.screens.LostPetAlertsScreen
-import com.example.ui.screens.PetCareTipsScreen
-import com.example.ui.screens.AiSymptomCheckerScreen
-import com.example.ui.screens.VetTeleconsultScreen
-import com.example.ui.screens.PetpulseCareScreen
-import com.example.ui.screens.HealthRecordsHubScreen
-import com.example.ui.components.PetSwitcher
-import com.example.ui.components.AddPetDialog
-import com.example.ui.components.PetAppTopBar
-import com.example.ui.screens.*
-import com.example.ui.theme.MyApplicationTheme
-import com.example.ui.viewmodel.*
+import com.petpulse.app.data.model.GroomingServiceItem
+import com.petpulse.app.data.model.MarketPet
+import com.petpulse.app.data.model.MarketProduct
+import com.petpulse.app.data.model.VerifiedDoctor
+import com.petpulse.app.ui.components.PetAppBottomBar
+import com.petpulse.app.ui.screens.MapScreen
+import com.petpulse.app.ui.screens.RealSosScreen
+import com.petpulse.app.ui.screens.PetInsuranceScreen
+import com.petpulse.app.ui.screens.PetCommunityScreen
+import com.petpulse.app.ui.screens.LostPetAlertsScreen
+import com.petpulse.app.ui.screens.PetCareTipsScreen
+import com.petpulse.app.ui.screens.AiSymptomCheckerScreen
+import com.petpulse.app.ui.screens.VetTeleconsultScreen
+import com.petpulse.app.ui.screens.PetpulseCareScreen
+import com.petpulse.app.ui.screens.HealthRecordsHubScreen
+import com.petpulse.app.ui.components.PetSwitcher
+import com.petpulse.app.ui.components.AddPetDialog
+import com.petpulse.app.ui.components.PetAppTopBar
+import com.petpulse.app.ui.screens.*
+import com.petpulse.app.ui.theme.MyApplicationTheme
+import com.petpulse.app.ui.viewmodel.*
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -395,7 +395,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             },
             onLogout = {
                 authViewModel!!.signOut()
-                viewModel.updateCustomerProfile("Guest Customer", "guest@janeandpals.com", "+1 (555) 000-0000")
+                viewModel.updateCustomerProfile("Guest Customer", "guest@petpulse.app", "+91 98470 00000")
                 coroutineScope.launch { snackbarHostState.showSnackbar("Signed out successfully.") }
             }
         )

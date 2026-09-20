@@ -1,15 +1,15 @@
-package com.example.data.local
+package com.petpulse.app.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.data.model.LostPetAlert
-import com.example.data.model.MedicalReport
-import com.example.data.model.PetListing
-import com.example.data.model.UserPet
-import com.example.data.model.VaccinationRecord
+import com.petpulse.app.data.model.LostPetAlert
+import com.petpulse.app.data.model.MedicalReport
+import com.petpulse.app.data.model.PetListing
+import com.petpulse.app.data.model.UserPet
+import com.petpulse.app.data.model.VaccinationRecord
 import kotlinx.coroutines.flow.Flow
 
 @Dao

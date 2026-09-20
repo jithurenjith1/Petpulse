@@ -244,8 +244,8 @@
     <string name="modals_in_clinic_visit">ക്ലിനിക്കിലെ സന്ദർശനം</string>
     <string name="modals_items_subtotal">ഐറ്റംസ് സബ്‌ടോട്ടൽ</string>
     <string name="modals_items">ഇനങ്ങൾ: </string>
-    <string name="modals_jane_pals_escrow_protection">ജെയ്ൻ &amp; പാൽസ് എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
-    <string name="modals_jane_pals_kerala_escrow_protection">ജെയ്ൻ &amp; പാൽസ് കേരള എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
+    <string name="modals_petpulse_escrow_protection">പെറ്റ്പൾസ് എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
+    <string name="modals_petpulse_kerala_escrow_protection">പെറ്റ്പൾസ് കേരള എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
     <string name="modals_kerala_biodegradable_packaging">കേരള ബയോഡീഗ്രേഡബിൾ പാക്കേജിംഗ്</string>
     <string name="modals_kerala_city">കേരള സിറ്റി:</string>
     <string name="modals_kerala_delivery_cart">കേരള ഡെലിവറി കാർട്ട്</string>
@@ -339,4 +339,5 @@
     <string name="vet_got_it">മനസ്സിലായി</string>
     <string name="vet_pet_name">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
     <string name="vet_vet_teleconsultation">വെറ്റ് ടെലി കൺസൾട്ടേഷൻ</string>
+    <string name="triage_disclaimer">മാർഗ്ഗനിർദേശം മാത്രം — ഇത് വെറ്ററിനറി രോഗനിർണയമല്ല. എപ്പോഴും രേജിസ്റ്റർ ചെയ്ത വെറ്ററിനറി ഡോക്ടറെയെ കാണുക.</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.data.model
+package com.petpulse.app.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -60,7 +60,7 @@ data class LostPetAlert(
     val lastSeenLocation: String,
     val distanceKm: Double,
     val rewardAmount: String = "₹21,250",
-    val contactHelpline: String = "+1 (800) 555-PET-SOS",
+    val contactHelpline: String = "+91 98 555-PET-SOS",
     val reportedTime: String = "20 mins ago",
     val isResolved: Boolean = false,
     val description: String,
@@ -83,10 +83,10 @@ data class PetListing(
 )
 
 data class CustomerProfile(
-    val name: String = "Alex Morgan",
-    val email: String = "alex.morgan@example.com",
-    val phone: String = "+1 (555) 019-2834",
-    val location: String = "Downtown Metro, Sector 4",
+    val name: String = "Renjith Kumar",
+    val email: String = "renjith@petpulse.app",
+    val phone: String = "+91 98470 00000",
+    val location: String = "Marine Drive, Kochi",
     val isLoggedIn: Boolean = true,
     val memberSince: String = "2024"
 )
