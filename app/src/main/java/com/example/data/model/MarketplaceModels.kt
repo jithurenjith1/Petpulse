@@ -157,3 +157,55 @@ data class DoctorBooking(
     val status: String = "Confirmed",
     val meetingLinkOrAddress: String = "https://meet.google.com/jp-vet-kerala"
 )
+
+
+// ---------- Owner-managed shop (Firestore-backed) ----------
+
+data class ShopProduct(
+    val id: String,
+    val name: String,
+    val listType: String, // "Food", "Medicine", "Grooming"
+    val category: String = "General",
+    val priceInr: Double,
+    val description: String = ""
+)
+
+fun ShopProduct.toMarketProduct() = MarketProduct(
+    id = id,
+    name = name,
+    brand = "Petpulse",
+    category = category.ifBlank { "General" },
+    isMedicine = listType == "Medicine",
+    packSize = "1 Unit",
+    priceInr = priceInr,
+    originalPriceInr = priceInr,
+    description = description
+)
+
+data class Dealer(
+    val id: String,
+    val name: String,
+    val phone: String,
+    val city: String = "Kochi"
+)
+
+data class OrderItemSnap(
+    val name: String,
+    val priceInr: Double,
+    val quantity: Int
+)
+
+data class AdminOrder(
+    val id: String,
+    val orderNumber: String,
+    val customerName: String,
+    val customerPhone: String,
+    val address: String,
+    val city: String,
+    val items: List<OrderItemSnap>,
+    val totalInr: Double,
+    val status: String = "NEW",
+    val dealerName: String = "",
+    val dealerPhone: String = "",
+    val createdAt: Long = 0L
+)

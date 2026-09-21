@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import android.net.Uri
 import com.petpulse.app.R
 import com.petpulse.app.data.repository.FirestoreMarketplaceRepository
+import com.petpulse.app.data.repository.FirestoreCommerceRepository
 
 enum class MainNavTab {
     MY_PETS,
@@ -45,6 +46,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val marketplaceRepo: MarketplaceRepository = MarketplaceRepository()
     private val firestoreRepo: FirestorePetRepository = FirestorePetRepository()
     private val firestoreMarketRepo = FirestoreMarketplaceRepository(application)
+    private val commerceRepo = FirestoreCommerceRepository()
 
     init {
         val db = PetDatabase.getInstance(application)
@@ -119,6 +121,24 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _marketPostEvent = MutableStateFlow<Int?>(null)
     val marketPostEvent: StateFlow<Int?> = _marketPostEvent.asStateFlow()
     fun onMarketPostEventShown() { _marketPostEvent.value = null }
+
+    // One-shot feedback for orders and admin actions (R.string id or null)
+    private val _commerceEvent = MutableStateFlow<Int?>(null)
+    val commerceEvent: StateFlow<Int?> = _commerceEvent.asStateFlow()
+    fun onCommerceEventShown() { _commerceEvent.value = null }
+
+    // Admin gate + admin data (non-admins simply see empty lists)
+    val isAdmin: StateFlow<Boolean> = commerceRepo.observeIsAdmin()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val adminOrders: StateFlow<List<AdminOrder>> = commerceRepo.observeOrders()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val adminDealers: StateFlow<List<Dealer>> = commerceRepo.observeDealers()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val shopProducts: StateFlow<List<ShopProduct>> = commerceRepo.observeProducts()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val marketPets: StateFlow<List<MarketPet>> = combine(
         _marketPetsList,
         _selectedKeralaCity,
@@ -137,13 +157,28 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val keralaCities: StateFlow<List<KeralaCity>> = flowOf(marketplaceRepo.getKeralaCities())
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getKeralaCities())
 
-    val marketFoods: StateFlow<List<MarketProduct>> = flowOf(marketplaceRepo.getMarketFoods())
+    val marketFoods: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
+        .map { remote -> remote.filter { it.listType == "Food" }.map { it.toMarketProduct() } + marketplaceRepo.getMarketFoods() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getMarketFoods())
 
-    val marketMedicines: StateFlow<List<MarketProduct>> = flowOf(marketplaceRepo.getMarketMedicines())
+    val marketMedicines: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
+        .map { remote -> remote.filter { it.listType == "Medicine" }.map { it.toMarketProduct() } + marketplaceRepo.getMarketMedicines() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getMarketMedicines())
 
-    val groomingServices: StateFlow<List<GroomingServiceItem>> = flowOf(marketplaceRepo.getGroomingServices())
+    val groomingServices: StateFlow<List<GroomingServiceItem>> = commerceRepo.observeProducts()
+        .map { remote ->
+            remote.filter { it.listType == "Grooming" }.map {
+                GroomingServiceItem(
+                    id = it.id,
+                    title = it.name,
+                    subTitle = it.description.take(60),
+                    priceInr = it.priceInr,
+                    originalPriceInr = it.priceInr,
+                    perks = emptyList(),
+                    description = it.description
+                )
+            } + marketplaceRepo.getGroomingServices()
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getGroomingServices())
 
     private val _verifiedDoctorsList = MutableStateFlow<List<VerifiedDoctor>>(marketplaceRepo.getVerifiedDoctors())
@@ -532,7 +567,64 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         val updatedOrders = listOf(newOrder) + _activeOrders.value
         _activeOrders.value = updatedOrders
         clearCart()
+
+        // Also save the REAL order to Firestore so the owner sees it in Admin
+        viewModelScope.launch {
+            val result = commerceRepo.placeOrder(
+                orderNumber = newOrder.orderId,
+                items = items.map { OrderItemSnap(it.title, it.priceInr, it.quantity) },
+                totalInr = total,
+                customerName = newOrder.customerName,
+                customerPhone = newOrder.customerPhone,
+                address = newOrder.deliveryAddress,
+                city = newOrder.deliveryCity
+            )
+            _commerceEvent.value = when {
+                result.exceptionOrNull()?.message == "NOT_SIGNED_IN" -> R.string.order_sign_in_to_place
+                result.isSuccess -> R.string.order_placed_msg
+                else -> R.string.order_failed_msg
+            }
+        }
         return newOrder
+    }
+
+    // ---------- Admin operations (Firestore rules enforce owner-only) ----------
+    fun adminAssignDealer(orderId: String, dealer: Dealer) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.assignDealer(orderId, dealer).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminUpdateOrderStatus(orderId: String, status: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.updateOrderStatus(orderId, status).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminAddProduct(name: String, listType: String, category: String, priceInr: Double, description: String) {
+        viewModelScope.launch {
+            val p = ShopProduct(id = "", name = name, listType = listType, category = category, priceInr = priceInr, description = description)
+            _commerceEvent.value = if (commerceRepo.addProduct(p).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminDeleteProduct(productId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteProduct(productId).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminAddDealer(name: String, phone: String, city: String) {
+        viewModelScope.launch {
+            val d = Dealer(id = "", name = name, phone = phone, city = city)
+            _commerceEvent.value = if (commerceRepo.addDealer(d).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminDeleteDealer(dealerId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteDealer(dealerId).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
     }
 
     // Doctor Consultation Booking

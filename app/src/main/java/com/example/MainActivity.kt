@@ -47,6 +47,7 @@ import com.petpulse.app.ui.viewmodel.*
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import com.petpulse.app.ui.screens.AdminScreen
 
 class MainActivity : AppCompatActivity() {
 
@@ -78,6 +79,10 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val activePetId by viewModel.activePetId.collectAsStateWithLifecycle()
     val activePet by viewModel.activePet.collectAsStateWithLifecycle()
     val customer by viewModel.customerProfile.collectAsStateWithLifecycle()
+    val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
+    val adminOrders by viewModel.adminOrders.collectAsStateWithLifecycle()
+    val adminDealers by viewModel.adminDealers.collectAsStateWithLifecycle()
+    val shopProducts by viewModel.shopProducts.collectAsStateWithLifecycle()
     val vaccinations by viewModel.vaccinations.collectAsStateWithLifecycle()
     val medicalReports by viewModel.medicalReports.collectAsStateWithLifecycle()
 
@@ -141,6 +146,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 
     // Marketplace Modal controllers
     var showCartModal by remember { mutableStateOf(false) }
+    var showAdminScreen by remember { mutableStateOf(false) }
     var showEscrowCheckoutModal by remember { mutableStateOf(false) }
     var showOrderTrackingModal by remember { mutableStateOf(false) }
     var showListPetModal by remember { mutableStateOf(false) }
@@ -391,6 +397,11 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         CustomerLoginDialog(
             currentCustomer = customer,
             onDismiss = { showLoginDialog = false },
+            isAdmin = isAdmin,
+            onOpenAdmin = {
+                showLoginDialog = false
+                showAdminScreen = true
+            },
             onLogin = { name, email, phone ->
                 viewModel.updateCustomerProfile(name, email, phone)
                 coroutineScope.launch { snackbarHostState.showSnackbar("Welcome back, $name!") }
@@ -480,12 +491,35 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 
+    if (showAdminScreen) {
+        AdminScreen(
+            orders = adminOrders,
+            dealers = adminDealers,
+            products = shopProducts,
+            onAssignDealer = { id, dealer -> viewModel.adminAssignDealer(id, dealer) },
+            onUpdateStatus = { id, status -> viewModel.adminUpdateOrderStatus(id, status) },
+            onAddProduct = { n, lt, c, p, d -> viewModel.adminAddProduct(n, lt, c, p, d) },
+            onDeleteProduct = { id -> viewModel.adminDeleteProduct(id) },
+            onAddDealer = { n, ph, c -> viewModel.adminAddDealer(n, ph, c) },
+            onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },
+            onDismiss = { showAdminScreen = false }
+        )
+    }
+
     val marketCtx = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.marketPostEvent.collect { ev ->
             if (ev != null) {
                 snackbarHostState.showSnackbar(marketCtx.getString(ev))
                 viewModel.onMarketPostEventShown()
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.commerceEvent.collect { ev ->
+            if (ev != null) {
+                snackbarHostState.showSnackbar(marketCtx.getString(ev))
+                viewModel.onCommerceEventShown()
             }
         }
     }

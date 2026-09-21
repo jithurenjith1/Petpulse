@@ -31,7 +31,9 @@ fun CustomerLoginDialog(
     currentCustomer: CustomerProfile,
     onDismiss: () -> Unit,
     onLogin: (name: String, email: String, phone: String) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    isAdmin: Boolean = false,
+    onOpenAdmin: () -> Unit = {}
 ) {
     var name by remember { mutableStateOf(currentCustomer.name) }
     var email by remember { mutableStateOf(currentCustomer.email) }
@@ -155,6 +157,16 @@ fun CustomerLoginDialog(
                         onClick = { applyLang("ml") },
                         label = { Text("മലയാളം", fontSize = 11.sp) }
                     )
+                }
+
+                if (isAdmin) {
+                    Button(
+                        onClick = onOpenAdmin,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.admin_open), fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(Modifier.height(8.dp))
                 }
 
                 Row(

@@ -57,51 +57,55 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
         awaitClose { subscription.remove() }
     }
 
-    private fun toMarketPet(doc: DocumentSnapshot): MarketPet? = try {
-        val photoData = (doc.get("photoData") as? List<*>)?.filterIsInstance<String>().orEmpty()
-        MarketPet(
-            id = doc.id,
-            name = doc.getString("name") ?: return null,
-            species = doc.getString("species") ?: "Dog",
-            breed = doc.getString("breed") ?: "",
-            age = doc.getString("age") ?: "",
-            gender = doc.getString("gender") ?: "Male",
-            city = doc.getString("city") ?: "Kochi",
-            isImportedExotic = doc.getBoolean("isImportedExotic") ?: false,
-            importCountry = doc.getString("importCountry"),
-            listingType = doc.getString("listingType") ?: "Sale",
-            priceInr = doc.getDouble("priceInr") ?: 0.0,
-            originalPriceInr = doc.getDouble("originalPriceInr"),
-            isVaccinated = doc.getBoolean("isVaccinated") ?: true,
-            isMicrochipped = doc.getBoolean("isMicrochipped") ?: true,
-            certificationDetails = doc.getString("certificationDetails") ?: "",
-            sellerName = doc.getString("sellerName") ?: "",
-            sellerPhone = doc.getString("sellerPhone") ?: "",
-            isVerifiedBreeder = doc.getBoolean("isVerifiedBreeder") ?: false,
-            description = doc.getString("description") ?: "",
-            temperament = doc.getString("temperament") ?: "",
-            photoUris = photoData.mapIndexed { i, b64 -> photoFileFor(doc.id, i, b64) }
-                .filter { it.isNotBlank() },
-            ownerId = doc.getString("ownerId") ?: "",
-            createdAt = doc.getLong("createdAt") ?: 0L
-        )
-    } catch (e: Exception) {
-        Log.e("FsMarketRepo", "Skipping malformed listing ${doc.id}", e)
-        null
+    private fun toMarketPet(doc: DocumentSnapshot): MarketPet? {
+        return try {
+            val photoData = (doc.get("photoData") as? List<*>)?.filterIsInstance<String>().orEmpty()
+            MarketPet(
+                id = doc.id,
+                name = doc.getString("name") ?: return null,
+                species = doc.getString("species") ?: "Dog",
+                breed = doc.getString("breed") ?: "",
+                age = doc.getString("age") ?: "",
+                gender = doc.getString("gender") ?: "Male",
+                city = doc.getString("city") ?: "Kochi",
+                isImportedExotic = doc.getBoolean("isImportedExotic") ?: false,
+                importCountry = doc.getString("importCountry"),
+                listingType = doc.getString("listingType") ?: "Sale",
+                priceInr = doc.getDouble("priceInr") ?: 0.0,
+                originalPriceInr = doc.getDouble("originalPriceInr"),
+                isVaccinated = doc.getBoolean("isVaccinated") ?: true,
+                isMicrochipped = doc.getBoolean("isMicrochipped") ?: true,
+                certificationDetails = doc.getString("certificationDetails") ?: "",
+                sellerName = doc.getString("sellerName") ?: "",
+                sellerPhone = doc.getString("sellerPhone") ?: "",
+                isVerifiedBreeder = doc.getBoolean("isVerifiedBreeder") ?: false,
+                description = doc.getString("description") ?: "",
+                temperament = doc.getString("temperament") ?: "",
+                photoUris = photoData.mapIndexed { i, b64 -> photoFileFor(doc.id, i, b64) }
+                    .filter { it.isNotBlank() },
+                ownerId = doc.getString("ownerId") ?: "",
+                createdAt = doc.getLong("createdAt") ?: 0L
+            )
+        } catch (e: Exception) {
+            Log.e("FsMarketRepo", "Skipping malformed listing ${doc.id}", e)
+            null
+        }
     }
 
     /** Decodes a base64 photo into a cache file and returns its path for Coil. */
-    private fun photoFileFor(docId: String, index: Int, base64Data: String): String = try {
-        val dir = File(appContext.cacheDir, "market_photos").apply { mkdirs() }
-        val f = File(dir, "${docId}_$index.jpg")
-        if (!f.exists()) {
-            val bytes = Base64.decode(base64Data, Base64.NO_WRAP)
-            f.writeBytes(bytes)
+    private fun photoFileFor(docId: String, index: Int, base64Data: String): String {
+        return try {
+            val dir = File(appContext.cacheDir, "market_photos").apply { mkdirs() }
+            val f = File(dir, "${docId}_$index.jpg")
+            if (!f.exists()) {
+                val bytes = Base64.decode(base64Data, Base64.NO_WRAP)
+                f.writeBytes(bytes)
+            }
+            f.absolutePath
+        } catch (e: Exception) {
+            Log.e("FsMarketRepo", "photo decode failed for $docId/$index", e)
+            ""
         }
-        f.absolutePath
-    } catch (e: Exception) {
-        Log.e("FsMarketRepo", "photo decode failed for $docId/$index", e)
-        ""
     }
 
     // ---------- write ----------
@@ -110,79 +114,83 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
      * Compresses the photos, stores them inside the listing document, and saves it.
      * Fails with NOT_SIGNED_IN when the user is not authenticated.
      */
-    suspend fun postListing(pet: MarketPet, photoUris: List<Uri>): Result<String> = try {
-        val uid = auth.currentUser?.uid
-            ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+    suspend fun postListing(pet: MarketPet, photoUris: List<Uri>): Result<String> {
+        return try {
+            val uid = auth.currentUser?.uid
+                ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
 
-        val photos = photoUris.take(MAX_PHOTOS).mapNotNull { compressToBase64(it) }
-        val docRef = db.collection("market_listings").document()
+            val photos = photoUris.take(MAX_PHOTOS).mapNotNull { compressToBase64(it) }
+            val docRef = db.collection("market_listings").document()
 
-        docRef.set(
-            mapOf(
-                "name" to pet.name,
-                "species" to pet.species,
-                "breed" to pet.breed,
-                "age" to pet.age,
-                "gender" to pet.gender,
-                "city" to pet.city,
-                "isImportedExotic" to pet.isImportedExotic,
-                "importCountry" to pet.importCountry,
-                "listingType" to pet.listingType,
-                "priceInr" to pet.priceInr,
-                "originalPriceInr" to pet.originalPriceInr,
-                "isVaccinated" to pet.isVaccinated,
-                "isMicrochipped" to pet.isMicrochipped,
-                "certificationDetails" to pet.certificationDetails,
-                "sellerName" to pet.sellerName,
-                "sellerPhone" to pet.sellerPhone,
-                "isVerifiedBreeder" to pet.isVerifiedBreeder,
-                "description" to pet.description,
-                "temperament" to pet.temperament,
-                "photoData" to photos,
-                "ownerId" to uid,
-                "createdAt" to System.currentTimeMillis()
-            )
-        ).await()
-        Result.success(docRef.id)
-    } catch (e: Exception) {
-        Log.e("FsMarketRepo", "postListing failed", e)
-        Result.failure(e)
+            docRef.set(
+                mapOf(
+                    "name" to pet.name,
+                    "species" to pet.species,
+                    "breed" to pet.breed,
+                    "age" to pet.age,
+                    "gender" to pet.gender,
+                    "city" to pet.city,
+                    "isImportedExotic" to pet.isImportedExotic,
+                    "importCountry" to pet.importCountry,
+                    "listingType" to pet.listingType,
+                    "priceInr" to pet.priceInr,
+                    "originalPriceInr" to pet.originalPriceInr,
+                    "isVaccinated" to pet.isVaccinated,
+                    "isMicrochipped" to pet.isMicrochipped,
+                    "certificationDetails" to pet.certificationDetails,
+                    "sellerName" to pet.sellerName,
+                    "sellerPhone" to pet.sellerPhone,
+                    "isVerifiedBreeder" to pet.isVerifiedBreeder,
+                    "description" to pet.description,
+                    "temperament" to pet.temperament,
+                    "photoData" to photos,
+                    "ownerId" to uid,
+                    "createdAt" to System.currentTimeMillis()
+                )
+            ).await()
+            Result.success(docRef.id)
+        } catch (e: Exception) {
+            Log.e("FsMarketRepo", "postListing failed", e)
+            Result.failure(e)
+        }
     }
 
     /** Downscale + JPEG-compress a picked photo, return base64 (or null). */
-    private fun compressToBase64(uri: Uri): String? = try {
-        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        appContext.contentResolver.openInputStream(uri)?.use {
-            BitmapFactory.decodeStream(it, null, bounds)
-        }
-        var sample = 1
-        while (maxOf(bounds.outWidth, bounds.outHeight) / sample > MAX_DIM * 2) sample *= 2
-        val opts = BitmapFactory.Options().apply { inSampleSize = sample }
-        val decoded = appContext.contentResolver.openInputStream(uri)?.use {
-            BitmapFactory.decodeStream(it, null, opts)
-        } ?: return null
+    private fun compressToBase64(uri: Uri): String? {
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, bounds)
+            }
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > MAX_DIM * 2) sample *= 2
+            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+            val decoded = appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, opts)
+            } ?: return null
 
-        val scale = minOf(1f, MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
-        val bmp = if (scale < 1f) {
-            Bitmap.createScaledBitmap(
-                decoded,
-                (decoded.width * scale).toInt().coerceAtLeast(1),
-                (decoded.height * scale).toInt().coerceAtLeast(1),
-                true
-            )
-        } else decoded
+            val scale = minOf(1f, MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
+            val bmp = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    decoded,
+                    (decoded.width * scale).toInt().coerceAtLeast(1),
+                    (decoded.height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else decoded
 
-        val out = ByteArrayOutputStream()
-        var quality = 78
-        bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
-        while (out.size() > PHOTO_BUDGET_BYTES && quality > 30) {
-            quality -= 16
-            out.reset()
+            val out = ByteArrayOutputStream()
+            var quality = 78
             bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            while (out.size() > PHOTO_BUDGET_BYTES && quality > 30) {
+                quality -= 16
+                out.reset()
+                bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            }
+            Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+        } catch (e: Exception) {
+            Log.e("FsMarketRepo", "photo compress failed", e)
+            null
         }
-        Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
-    } catch (e: Exception) {
-        Log.e("FsMarketRepo", "photo compress failed", e)
-        null
     }
 }
