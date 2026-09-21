@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import android.net.Uri
+import com.petpulse.app.R
+import com.petpulse.app.data.repository.FirestoreMarketplaceRepository
 
 enum class MainNavTab {
     MY_PETS,
@@ -41,10 +44,18 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PetRepository
     private val marketplaceRepo: MarketplaceRepository = MarketplaceRepository()
     private val firestoreRepo: FirestorePetRepository = FirestorePetRepository()
+    private val firestoreMarketRepo = FirestoreMarketplaceRepository(application)
 
     init {
         val db = PetDatabase.getInstance(application)
         repository = PetRepository(db.petDao())
+
+        // Live marketplace: every user sees the same Firestore-backed listings.
+        viewModelScope.launch {
+            firestoreMarketRepo.observeMarketPets().collect { remote ->
+                _marketPetsList.value = remote
+            }
+        }
     }
 
     // Navigation and UI state
@@ -102,7 +113,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _doctorBookings = MutableStateFlow<List<DoctorBooking>>(marketplaceRepo.getInitialDoctorBookings())
     val doctorBookings: StateFlow<List<DoctorBooking>> = _doctorBookings.asStateFlow()
 
-    private val _marketPetsList = MutableStateFlow<List<MarketPet>>(marketplaceRepo.getMarketPets())
+    private val _marketPetsList = MutableStateFlow<List<MarketPet>>(emptyList())
+
+    // One-shot feedback after posting a listing (R.string id or null)
+    private val _marketPostEvent = MutableStateFlow<Int?>(null)
+    val marketPostEvent: StateFlow<Int?> = _marketPostEvent.asStateFlow()
+    fun onMarketPostEventShown() { _marketPostEvent.value = null }
     val marketPets: StateFlow<List<MarketPet>> = combine(
         _marketPetsList,
         _selectedKeralaCity,
@@ -582,7 +598,15 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             description = description.ifBlank { "Loving and healthy pet looking for a wonderful home." },
             photoUris = photos
         )
-        _marketPetsList.value = listOf(newMarketPet) + _marketPetsList.value
+        viewModelScope.launch {
+            val photoUriList = photos.mapNotNull { runCatching { Uri.parse(it) }.getOrNull() }
+            val result = firestoreMarketRepo.postListing(newMarketPet, photoUriList)
+            _marketPostEvent.value = when {
+                result.exceptionOrNull()?.message == "NOT_SIGNED_IN" -> R.string.market_sign_in_to_post
+                result.isSuccess -> R.string.market_post_success
+                else -> R.string.market_post_failed
+            }
+        }
     }
 
     // Vet Registration

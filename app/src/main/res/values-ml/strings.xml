@@ -340,4 +340,12 @@
     <string name="vet_pet_name">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
     <string name="vet_vet_teleconsultation">വെറ്റ് ടെലി കൺസൾട്ടേഷൻ</string>
     <string name="triage_disclaimer">മാർഗ്ഗനിർദേശം മാത്രം — ഇത് വെറ്ററിനറി രോഗനിർണയമല്ല. എപ്പോഴും രേജിസ്റ്റർ ചെയ്ത വെറ്ററിനറി ഡോക്ടറെയെ കാണുക.</string>
+    <string name="market_empty_no_listings">ഇതുവരെ ലിസ്റ്റിംഗുകളൊന്നുമില്ല — പോസ്റ്റ് ചെയ്യുന്ന ആദ്യത്തെ ആളാകൂ!</string>
+    <string name="market_empty_filtered">%1$s-ൽ നിലവിലെ ഫിൽറ്ററുകൾക്ക് അനുയോജ്യമായ ലിസ്റ്റിംഗുകളൊന്നും കണ്ടെത്തിയില്ല.</string>
+    <string name="market_empty_action_post">ഒരു ലിസ്റ്റിംഗ് പോസ്റ്റ് ചെയ്യുക</string>
+    <string name="market_empty_action_clear">എക്സോട്ടിക് / സ്പീഷീസ് ഫിൽറ്റർ ക്ലിയർ ചെയ്യുക</string>
+    <string name="market_post_uploading">ലിസ്റ്റിംഗ് സമർപ്പിച്ചു — ഇപ്പോൾ അപ്‌ലോഡ് ചെയ്യുന്നു…</string>
+    <string name="market_post_success">നിങ്ങളുടെ ലിസ്റ്റിംഗ് ഇപ്പോൾ മാർക്കറ്റ്‌പ്ലേസിൽ ലൈവ് ആണ്!</string>
+    <string name="market_post_failed">ലിസ്റ്റിംഗ് പോസ്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല — നിങ്ങളുടെ കണക്ഷൻ പരിശോധിക്കുക.</string>
+    <string name="market_sign_in_to_post">ഒരു ലിസ്റ്റിംഗ് പോസ്റ്റ് ചെയ്യാൻ ദയവായി സൈൻ ഇൻ ചെയ്യുക.</string>
 </resources>

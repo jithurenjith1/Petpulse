@@ -995,7 +995,7 @@ fun ListPetFormModal(
     var phone by remember { mutableStateOf("+91 98470 00000") }
     var photoUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5)
+        ActivityResultContracts.PickMultipleVisualMedia(maxItems = 3)
     ) { uris -> photoUris = uris }
 
     Dialog(
@@ -1070,7 +1070,7 @@ fun ListPetFormModal(
                     ) {
                         Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (photoUris.isEmpty()) "Add Photos" else "${photoUris.size}/5 selected")
+                        Text(if (photoUris.isEmpty()) "Add Photos" else "${photoUris.size}/3 selected")
                     }
                     if (photoUris.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))

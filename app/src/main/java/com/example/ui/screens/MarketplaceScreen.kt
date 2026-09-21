@@ -110,14 +110,22 @@ fun MarketplaceScreen(
 
                 if (pets.isEmpty()) {
                     item {
-                        EmptyMarketState(
-                            message = "No pet listings found matching current filters in $selectedCity.",
-                            actionLabel = "Clear Exotic / Species Filter",
-                            onAction = {
-                                onToggleExotics(false)
-                                onSelectSpeciesFilter("All")
-                            }
-                        )
+                        if (!isExoticsOnly && speciesFilter == "All") {
+                            EmptyMarketState(
+                                message = stringResource(R.string.market_empty_no_listings),
+                                actionLabel = stringResource(R.string.market_empty_action_post),
+                                onAction = onOpenListPetModal
+                            )
+                        } else {
+                            EmptyMarketState(
+                                message = stringResource(R.string.market_empty_filtered, selectedCity),
+                                actionLabel = stringResource(R.string.market_empty_action_clear),
+                                onAction = {
+                                    onToggleExotics(false)
+                                    onSelectSpeciesFilter("All")
+                                }
+                            )
+                        }
                     }
                 } else {
                     items(pets, key = { it.id }) { pet ->

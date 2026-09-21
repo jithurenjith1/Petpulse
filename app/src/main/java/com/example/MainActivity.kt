@@ -45,6 +45,8 @@ import com.petpulse.app.ui.screens.*
 import com.petpulse.app.ui.theme.MyApplicationTheme
 import com.petpulse.app.ui.viewmodel.*
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -478,7 +480,18 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         )
     }
 
+    val marketCtx = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.marketPostEvent.collect { ev ->
+            if (ev != null) {
+                snackbarHostState.showSnackbar(marketCtx.getString(ev))
+                viewModel.onMarketPostEventShown()
+            }
+        }
+    }
+
     if (showListPetModal) {
+        val uploadingMsg = stringResource(R.string.market_post_uploading)
         ListPetFormModal(
             onDismiss = { showListPetModal = false },
             onSubmit = { name, species, breed, age, gender, city, isExotic, listingType, price, desc, phone, photos ->
@@ -498,7 +511,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 )
 
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar("🐾 Listing for $name submitted with Escrow Protection in $city!")
+                    snackbarHostState.showSnackbar(uploadingMsg)
                 }
             }
         )

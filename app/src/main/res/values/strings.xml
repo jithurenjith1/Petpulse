@@ -340,4 +340,12 @@
     <string name="vet_pet_name">Pet name</string>
     <string name="vet_vet_teleconsultation">Vet Teleconsultation</string>
     <string name="triage_disclaimer">Guidance only — not a veterinary diagnosis. Always consult a registered vet.</string>
+    <string name="market_empty_no_listings">No listings yet — be the first to post!</string>
+    <string name="market_empty_filtered">No listings found matching current filters in %1$s.</string>
+    <string name="market_empty_action_post">Post a Listing</string>
+    <string name="market_empty_action_clear">Clear Exotic / Species Filter</string>
+    <string name="market_post_uploading">Listing submitted — uploading now…</string>
+    <string name="market_post_success">Your listing is now live in the marketplace!</string>
+    <string name="market_post_failed">Couldn\'t post listing — check your connection.</string>
+    <string name="market_sign_in_to_post">Please sign in to post a listing.</string>
 </resources>
