@@ -95,7 +95,7 @@ fun AdminScreen(
                             }) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Text(dealer.name, fontWeight = FontWeight.SemiBold)
-                                    Text("${'$'}{dealer.phone} - ${'$'}{dealer.city}", fontSize = 12.sp, color = Color.Gray)
+                                    Text("${dealer.phone} - ${dealer.city}", fontSize = 12.sp, color = Color.Gray)
                                 }
                             }
                         }
@@ -150,18 +150,18 @@ private fun AdminOrderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("#${'$'}{order.orderNumber}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("#${order.orderNumber}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text(statusLabel, color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
-            Text("${'$'}{order.customerName} - ${'$'}{order.customerPhone}", fontSize = 13.sp)
-            Text("${'$'}{order.address}, ${'$'}{order.city}", fontSize = 12.sp, color = Color.Gray)
+            Text("${order.customerName} - ${order.customerPhone}", fontSize = 13.sp)
+            Text("${order.address}, ${order.city}", fontSize = 12.sp, color = Color.Gray)
             Text(
-                "${'$'}{order.items.sumOf { it.quantity }} ${'$'}{stringResource(R.string.admin_items)} - ₹ ${'$'}{order.totalInr.toInt()}",
+                "${order.items.sumOf { it.quantity }} ${stringResource(R.string.admin_items)} - ₹ ${order.totalInr.toInt()}",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
             )
             if (order.dealerName.isNotBlank()) {
-                Text("${'$'}{order.dealerName} (${'$'}{order.dealerPhone})", fontSize = 12.sp, color = Color(0xFF1976D2))
+                Text("${order.dealerName} (${order.dealerPhone})", fontSize = 12.sp, color = Color(0xFF1976D2))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (order.status == "NEW") {
@@ -270,7 +270,7 @@ private fun ProductsAdminTab(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(p.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                            Text("${'$'}{p.listType} - ₹ ${'$'}{p.priceInr.toInt()}", fontSize = 12.sp, color = Color.Gray)
+                            Text("${p.listType} - ₹ ${p.priceInr.toInt()}", fontSize = 12.sp, color = Color.Gray)
                         }
                         TextButton(onClick = { onDelete(p.id) }) {
                             Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
@@ -348,7 +348,7 @@ private fun DealersAdminTab(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(d.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                            Text("${'$'}{d.phone} - ${'$'}{d.city}", fontSize = 12.sp, color = Color.Gray)
+                            Text("${d.phone} - ${d.city}", fontSize = 12.sp, color = Color.Gray)
                         }
                         TextButton(onClick = { onDelete(d.id) }) {
                             Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
