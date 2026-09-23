@@ -832,7 +832,7 @@ fun OrderCardWithTimeline(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
-                border = BorderStroke(1.dp, Color(0xFFFFE082))
+                border = BorderStroke(1.dp, Color(0xFFF0D9A8))
             ) {
                 Row(
                     modifier = Modifier

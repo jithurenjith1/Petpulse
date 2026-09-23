@@ -49,10 +49,10 @@ import org.json.JSONObject
 import java.net.URL
 import java.net.URLEncoder
 
-private val CoralPrimary = Color(0xFFE07856)
-private val CreamBg = Color(0xFFFFF8F3)
-private val TealAccent = Color(0xFF2A9D8F)
-private val DarkText = Color(0xFF2D2A26)
+private val CoralPrimary = Color(0xFFBC5233)
+private val CreamBg = Color(0xFFFBF6F0)
+private val TealAccent = Color(0xFF1D7A6E)
+private val DarkText = Color(0xFF272220)
 
 data class PetServicePlace(
     val name: String,

@@ -44,10 +44,10 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 
-private val CoralPrimary = Color(0xFFE07856)
-private val CreamBg = Color(0xFFFFF8F3)
-private val SosRed = Color(0xFFE63946)
-private val DarkText = Color(0xFF2D2A26)
+private val CoralPrimary = Color(0xFFBC5233)
+private val CreamBg = Color(0xFFFBF6F0)
+private val SosRed = Color(0xFFD62828)
+private val DarkText = Color(0xFF272220)
 
 @Composable
 fun RealSosScreen(petName: String = "My Pet") {
@@ -258,7 +258,7 @@ fun RealSosScreen(petName: String = "My Pet") {
     }
 }
 
-private val TealAccent = Color(0xFF2A9D8F)
+private val TealAccent = Color(0xFF1D7A6E)
 
 private fun startTracking(
     client: FusedLocationProviderClient,

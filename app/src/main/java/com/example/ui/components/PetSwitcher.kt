@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.petpulse.app.data.model.UserPet
 
-private val CoralPrimary = Color(0xFFE07856)
-private val CoralLight = Color(0xFFF4A88C)
-private val CreamBg = Color(0xFFFFF8F3)
-private val TealAccent = Color(0xFF2A9D8F)
-private val DarkText = Color(0xFF2D2A26)
+private val CoralPrimary = Color(0xFFBC5233)
+private val CoralLight = Color(0xFFF6DFD4)
+private val CreamBg = Color(0xFFFBF6F0)
+private val TealAccent = Color(0xFF1D7A6E)
+private val DarkText = Color(0xFF272220)
 
 @Composable
 fun PetSwitcher(

@@ -49,11 +49,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Petpulse brand colors
-private val CoralPrimary = Color(0xFFE07856)
-private val CoralLight = Color(0xFFF4A88C)
-private val CreamBg = Color(0xFFFFF8F3)
-private val TealAccent = Color(0xFF2A9D8F)
-private val DarkText = Color(0xFF2D2A26)
+private val CoralPrimary = Color(0xFFBC5233)
+private val CoralLight = Color(0xFFF6DFD4)
+private val CreamBg = Color(0xFFFBF6F0)
+private val TealAccent = Color(0xFF1D7A6E)
+private val DarkText = Color(0xFF272220)
 
 enum class TipCategory(val label: String, val icon: ImageVector) {
     Nutrition("Nutrition", Icons.Default.HealthAndSafety),
@@ -241,7 +241,7 @@ fun PetCareTipsScreen() {
                             onClick = { isMalayalam = !isMalayalam },
                             label = { Text(if (isMalayalam) "EN" else "ML", fontSize = 11.sp) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF6A4C93),
+                                selectedContainerColor = Color(0xFFBC5233),
                                 selectedLabelColor = Color.White
                             )
                         )

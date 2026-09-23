@@ -61,15 +61,15 @@ import androidx.compose.ui.unit.sp
 // ---------------------------------------------------------------------------
 // Theme palette
 // ---------------------------------------------------------------------------
-private val Purple = Color(0xFF6A4C93)
-private val PurpleDark = Color(0xFF4A3470)
-private val PurpleLight = Color(0xFF8E72B8)
-private val Gold = Color(0xFFC9A227)
-private val GoldDark = Color(0xFFA8861A)
+private val Purple = Color(0xFFBC5233)
+private val PurpleDark = Color(0xFF9C4227)
+private val PurpleLight = Color(0xFFD97F5C)
+private val Gold = Color(0xFFA87A1F)
+private val GoldDark = Color(0xFFA87A1F)
 private val OnlineGreen = Color(0xFF2E7D32)
-private val ScheduledGrey = Color(0xFF757575)
-private val SurfaceLight = Color(0xFFFAF7FF)
-private val SurfaceDark = Color(0xFF1B1622)
+private val ScheduledGrey = Color(0xFF5C554F)
+private val SurfaceLight = Color(0xFFFFFFFF)
+private val SurfaceDark = Color(0xFF221C15)
 
 private val LightColors = lightColorScheme(
     primary = Purple,

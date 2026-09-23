@@ -142,7 +142,7 @@ fun PartnersServicesScreen(
                     .padding(horizontal = 16.dp, vertical = 4.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFAF6E8)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC9A227))
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA87A1F))
             ) {
                 Row(
                     modifier = Modifier
@@ -154,7 +154,7 @@ fun PartnersServicesScreen(
                     Icon(
                         Icons.Default.TrendingUp,
                         contentDescription = null,
-                        tint = Color(0xFFC9A227),
+                        tint = Color(0xFFA87A1F),
                         modifier = Modifier.size(30.dp)
                     )
                     Column(modifier = Modifier.weight(1f)) {
@@ -176,7 +176,7 @@ fun PartnersServicesScreen(
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         modifier = Modifier.height(32.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = Color(0xFFC9A227),
+                            containerColor = Color(0xFFA87A1F),
                             contentColor = Color.Black
                         )
                     ) {
@@ -1287,7 +1287,7 @@ fun FeaturedPlansDialog(
                         ),
                         border = androidx.compose.foundation.BorderStroke(
                             width = if (isSelected) 2.dp else 1.dp,
-                            color = if (isSelected) Color(0xFFC9A227) else MaterialTheme.colorScheme.outline
+                            color = if (isSelected) Color(0xFFA87A1F) else MaterialTheme.colorScheme.outline
                         )
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
@@ -1300,7 +1300,7 @@ fun FeaturedPlansDialog(
                                     Icon(
                                         Icons.Default.TrendingUp,
                                         contentDescription = null,
-                                        tint = Color(0xFFC9A227),
+                                        tint = Color(0xFFA87A1F),
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -1309,7 +1309,7 @@ fun FeaturedPlansDialog(
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Surface(
                                             shape = RoundedCornerShape(6.dp),
-                                            color = Color(0xFFC9A227)
+                                            color = Color(0xFFA87A1F)
                                         ) {
                                             Text(
                                                 stringResource(R.string.partners_popular),
@@ -1352,7 +1352,7 @@ fun FeaturedPlansDialog(
         confirmButton = {
             Button(
                 onClick = { onSubscribe(plans[selectedPlan].first) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC9A227))
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA87A1F))
             ) {
                 Text("Request: ${plans[selectedPlan].first}", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }

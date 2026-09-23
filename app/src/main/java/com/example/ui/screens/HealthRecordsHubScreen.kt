@@ -29,13 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Theme colors
-private val PurplePrimary = Color(0xFF6A4C93)
-private val GoldAccent = Color(0xFFC9A227)
+private val PurplePrimary = Color(0xFFBC5233)
+private val GoldAccent = Color(0xFFA87A1F)
 private val GreenOk = Color(0xFF4CAF50)
-private val RedAlert = Color(0xFFE63946)
-private val DarkBg = Color(0xFF121016)
-private val DarkSurface = Color(0xFF1E1B24)
-private val LightBg = Color(0xFFFDFCFF)
+private val RedAlert = Color(0xFFD62828)
+private val DarkBg = Color(0xFF1C1712)
+private val DarkSurface = Color(0xFF272019)
+private val LightBg = Color(0xFFFBF6F0)
 private val LightSurface = Color(0xFFFFFFFF)
 
 // Timeline entry types
@@ -70,8 +70,8 @@ fun HealthRecordsHubScreen(
     var isDark by remember { mutableStateOf(true) }
     val bgColor = if (isDark) DarkBg else LightBg
     val surfaceColor = if (isDark) DarkSurface else LightSurface
-    val textColor = if (isDark) Color(0xFFF3EEF7) else Color(0xFF1A1A1A)
-    val mutedColor = if (isDark) Color(0xFFB8B0C6) else Color(0xFF666666)
+    val textColor = if (isDark) Color(0xFFF5EFE7) else Color(0xFF1A1A1A)
+    val mutedColor = if (isDark) Color(0xFFB5AAA0) else Color(0xFF666666)
 
     // Demo timeline data (in-memory)
     val timeline = remember {

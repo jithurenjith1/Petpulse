@@ -61,13 +61,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // ---- Theme colors ----
-private val Purple = Color(0xFF6A4C93)
-private val Gold = Color(0xFFC9A227)
-private val DarkBackground = Color(0xFF121016)
-private val DarkSurface = Color(0xFF1E1B24)
-private val DarkSurfaceVariant = Color(0xFF272330)
-private val OnDark = Color(0xFFF3EEF7)
-private val OnDarkMuted = Color(0xFFB8B0C6)
+private val Purple = Color(0xFFBC5233)
+private val Gold = Color(0xFFA87A1F)
+private val DarkBackground = Color(0xFF1C1712)
+private val DarkSurface = Color(0xFF272019)
+private val DarkSurfaceVariant = Color(0xFF3A2F26)
+private val OnDark = Color(0xFFF5EFE7)
+private val OnDarkMuted = Color(0xFFB5AAA0)
 
 // ---- Triage levels ----
 enum class TriageLevel {

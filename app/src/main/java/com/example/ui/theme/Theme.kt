@@ -11,43 +11,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PurplePrimaryDarkTheme,
-    onPrimary = Color(0xFF1A0F2E),
-    primaryContainer = PurplePrimaryDark,
-    onPrimaryContainer = Color(0xFFE0D0F0),
-    secondary = PurpleSecondaryDarkTheme,
-    onSecondary = Color(0xFF3A2E00),
-    secondaryContainer = Color(0xFF524500),
-    onSecondaryContainer = Color(0xFFF5E5A0),
-    tertiary = PurpleTertiaryDarkTheme,
-    background = PurpleBackgroundDark,
-    onBackground = TextPrimaryDark,
-    surface = PurpleSurfaceDark,
-    onSurface = TextPrimaryDark,
-    surfaceVariant = PurpleSurfaceVariantDark,
-    onSurfaceVariant = TextSecondaryDark,
-    error = AccentRed,
-    onError = Color.White,
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = PurplePrimary,
+// One consistent Petpulse look, day and night:
+// warm cream background, coral primary, teal secondary, near-black text.
+// (Same scheme is used whether the system is in light or dark mode, so the
+// app always looks coherent. A true auto-dark variant can come later.)
+private val PetpulseColorScheme = lightColorScheme(
+    primary = CoralPrimary,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFE0D0F0),
-    onPrimaryContainer = Color(0xFF1A0F2E),
-    secondary = PurpleSecondary,
+    primaryContainer = CoralLight,
+    onPrimaryContainer = CoralDark,
+    secondary = TealAccent,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFF5E5A0),
-    onSecondaryContainer = Color(0xFF3A2E00),
-    tertiary = PurpleTertiary,
-    background = PurpleBackgroundLight,
-    onBackground = TextPrimaryLight,
-    surface = PurpleSurfaceLight,
-    onSurface = TextPrimaryLight,
-    surfaceVariant = PurpleSurfaceVariantLight,
-    onSurfaceVariant = TextSecondaryLight,
-    error = AccentRed,
+    secondaryContainer = TealLight,
+    onSecondaryContainer = TealDeep,
+    tertiary = AmberGold,
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFF3E7CC),
+    onTertiaryContainer = Color(0xFF4A3710),
+    background = CreamBg,
+    onBackground = DarkText,
+    surface = SurfaceWhite,
+    onSurface = DarkText,
+    surfaceVariant = Color(0xFFECE4DB),
+    onSurfaceVariant = TextGray,
+    outline = BorderColor,
+    error = SosRed,
     onError = Color.White,
 )
 
@@ -62,8 +50,7 @@ fun MyApplicationTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else -> PetpulseColorScheme
     }
 
     MaterialTheme(
@@ -72,4 +59,3 @@ fun MyApplicationTheme(
         content = content
     )
 }
-

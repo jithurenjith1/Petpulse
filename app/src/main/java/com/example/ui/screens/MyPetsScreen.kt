@@ -217,16 +217,16 @@ fun MyPetsScreen(
                                 modifier = Modifier.height(34.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                                 shape = RoundedCornerShape(10.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC9A227))
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA87A1F))
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
                                     contentDescription = "Delete Pet",
-                                    tint = Color(0xFFC9A227),
+                                    tint = Color(0xFFA87A1F),
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(stringResource(R.string.mypets_remove), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFFC9A227))
+                                Text(stringResource(R.string.mypets_remove), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFFA87A1F))
                             }
                             }
                         }
@@ -347,7 +347,7 @@ fun MyPetsScreen(
                         showDeleteDialog = false
                         onDeletePet()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE63946))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD62828))
                 ) { Text(stringResource(R.string.mypets_delete)) }
             },
             dismissButton = {

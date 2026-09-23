@@ -58,16 +58,16 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 // ---- App palette ----
-private val CoralPrimary = Color(0xFFE07856)
-private val CoralLight = Color(0xFFF4A88C)
-private val CreamBg = Color(0xFFFFF8F3)
-private val TealAccent = Color(0xFF2A9D8F)
-private val DarkText = Color(0xFF2D2A26)
+private val CoralPrimary = Color(0xFFBC5233)
+private val CoralLight = Color(0xFFF6DFD4)
+private val CreamBg = Color(0xFFFBF6F0)
+private val TealAccent = Color(0xFF1D7A6E)
+private val DarkText = Color(0xFF272220)
 
 // Status accent colors
-private val OverdueRed = Color(0xFFD7263D)
-private val UpcomingOrange = Color(0xFFE07856)
-private val CompletedGreen = Color(0xFF2A9D8F)
+private val OverdueRed = Color(0xFFD62828)
+private val UpcomingOrange = Color(0xFFBC5233)
+private val CompletedGreen = Color(0xFF1D7A6E)
 
 // ---- Model ----
 enum class VaccineStatus { Upcoming, Overdue, Completed }

@@ -57,10 +57,10 @@ import androidx.compose.ui.unit.sp
 // Material3, pure Compose, no backend.
 // ---------------------------------------------------------------------------
 
-private val Purple = Color(0xFF6A4C93)
-private val PurpleDark = Color(0xFF8367B0)
-private val Gold = Color(0xFFC9A227)
-private val GoldDark = Color(0xFFD9B43C)
+private val Purple = Color(0xFFBC5233)
+private val PurpleDark = Color(0xFFD97F5C)
+private val Gold = Color(0xFFA87A1F)
+private val GoldDark = Color(0xFFA87A1F)
 
 private enum class BillingPeriod(val label: String) {
     MONTHLY("Monthly"),
