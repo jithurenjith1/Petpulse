@@ -13,7 +13,9 @@ enum class MarketplaceCategory {
     FOOD,
     MEDICINES,
     GROOMING_SERVICES,
-    VET_CONSULTATIONS
+    VET_CONSULTATIONS,
+    ACCESSORIES,
+    TRAINING
 }
 
 data class MarketPet(

@@ -60,6 +60,11 @@ fun MarketplaceScreen(
     onBookDoctor: (VerifiedDoctor) -> Unit,
     onBookGrooming: (GroomingServiceItem) -> Unit,
     onPetSelected: (MarketPet) -> Unit,
+    guideFoods: List<FoodItem> = emptyList(),
+    accessories: List<AccessoryItem> = emptyList(),
+    healthCareItems: List<HealthCareItem> = emptyList(),
+    trainingGuides: List<TrainingGuide> = emptyList(),
+    onGuideItemAction: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -152,6 +157,11 @@ fun MarketplaceScreen(
                         onAddToCart = { onAddToCart(food) }
                     )
                 }
+
+                // Guide food items — combined into the same Food section
+                items(guideFoods, key = { "g_" + it.name }) { item ->
+                    FoodItemCard(item = item, onAddToList = { onGuideItemAction("Added " + item.name + " to cart/diet plan") })
+                }
             }
 
             MarketplaceCategory.MEDICINES -> {
@@ -232,8 +242,8 @@ fun MarketplaceScreen(
             MarketplaceCategory.VET_CONSULTATIONS -> {
                 item {
                     MarketSectionHeader(
-                        title = "Verified Kerala Doctors & Tele-Consults",
-                        subtitle = "Kerala Veterinary Council (KSVC) certified vets for instant Video & Clinic consultations",
+                        title = "Consult Doctor & Healthcare",
+                        subtitle = "KSVC certified vets for tele-consults + vaccinations, checkups & treatments",
                         icon = Icons.Default.LocalHospital
                     )
                 }
@@ -243,6 +253,39 @@ fun MarketplaceScreen(
                         doctor = doctor,
                         onBook = { onBookDoctor(doctor) }
                     )
+                }
+
+                // Healthcare services — combined into the same section
+                items(healthCareItems, key = { "h_" + it.title }) { item ->
+                    HealthCareItemCard(item = item, onBook = { onGuideItemAction("Booking appointment for " + item.title) })
+                }
+            }
+
+            MarketplaceCategory.ACCESSORIES -> {
+                item {
+                    MarketSectionHeader(
+                        title = "Pet Accessories",
+                        subtitle = "Clothing, toys, wearables & more for your pet",
+                        icon = Icons.Default.ShoppingCart
+                    )
+                }
+
+                items(accessories, key = { "a_" + it.name }) { item ->
+                    AccessoryItemCard(item = item, onBuy = { onGuideItemAction("Selected " + item.name + " (" + item.estimatedPrice + ")") })
+                }
+            }
+
+            MarketplaceCategory.TRAINING -> {
+                item {
+                    MarketSectionHeader(
+                        title = "Training Guides",
+                        subtitle = "Basic to advanced training programs for your pet",
+                        icon = Icons.Default.School
+                    )
+                }
+
+                items(trainingGuides, key = { "t_" + it.title }) { guide ->
+                    TrainingGuideCard(guide = guide)
                 }
             }
         }
@@ -463,7 +506,9 @@ fun MarketplaceCategorySelector(
         MarketplaceCategory.FOOD to ("Food" to Icons.Default.Restaurant),
         MarketplaceCategory.MEDICINES to ("Medicines" to Icons.Default.MedicalServices),
         MarketplaceCategory.GROOMING_SERVICES to ("Grooming" to Icons.Default.ContentCut),
-        MarketplaceCategory.VET_CONSULTATIONS to ("Consult Doctor" to Icons.Default.LocalHospital)
+        MarketplaceCategory.VET_CONSULTATIONS to ("Doctor & Health" to Icons.Default.LocalHospital),
+        MarketplaceCategory.ACCESSORIES to ("Accessories" to Icons.Default.ShoppingCart),
+        MarketplaceCategory.TRAINING to ("Training" to Icons.Default.School)
     )
 
     ScrollableTabRow(

@@ -141,7 +141,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showVetScreen by remember { mutableStateOf(false) }
     var showSubscriptionScreen by remember { mutableStateOf(false) }
     var showHealthRecordsScreen by remember { mutableStateOf(false) }
-    var marketSubTab by remember { mutableStateOf(0) } // 0=Shop, 1=Guides
+    var exploreSubTabUnused by remember { mutableStateOf(0) } // sub-tabs removed
     var showAddPetDialog by remember { mutableStateOf(false) }
 
     // Marketplace Modal controllers
@@ -257,26 +257,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 }
 
                 MainNavTab.MARKETPLACE -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        // Sub-tabs: Shop | Guides
-                        TabRow(
-                            selectedTabIndex = marketSubTab,
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = Color(0xFFBC5233),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Tab(
-                                selected = marketSubTab == 0,
-                                onClick = { marketSubTab = 0 },
-                                text = { Text(stringResource(R.string.main_shop), fontSize = 13.sp, fontWeight = if (marketSubTab == 0) FontWeight.Bold else FontWeight.Normal) }
-                            )
-                            Tab(
-                                selected = marketSubTab == 1,
-                                onClick = { marketSubTab = 1 },
-                                text = { Text(stringResource(R.string.main_guides), fontSize = 13.sp, fontWeight = if (marketSubTab == 1) FontWeight.Bold else FontWeight.Normal) }
-                            )
-                        }
-                        if (marketSubTab == 0) {
                     MarketplaceScreen(
                         selectedCity = selectedKeralaCity,
                         onSelectCity = { viewModel.selectKeralaCity(it) },
@@ -314,29 +294,15 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Escrow reservation requested for ${pet.name} (${pet.breed}) in ${pet.city}!")
                             }
-                        }
-                    )
-                        } else {
-                    ExplorePetsScreen(
-                        speciesList = speciesList,
-                        selectedSpecies = selectedSpecies,
-                        onSelectSpecies = { viewModel.selectSpecies(it) },
-                        currentSubTab = exploreSubTab,
-                        onSelectSubTab = { viewModel.setExploreSubTab(it) },
-                        foodCategory = foodCategory,
-                        onSelectFoodCategory = { viewModel.setFoodCategory(it) },
-                        accessoryCategory = accessoryCategory,
-                        onSelectAccessoryCategory = { viewModel.setAccessoryCategory(it) },
-                        foodItems = foodItems,
-                        accessoryItems = accessoryItems,
+                        },
+                        guideFoods = foodItems,
+                        accessories = accessoryItems,
                         healthCareItems = healthCareItems,
                         trainingGuides = trainingGuides,
-                        onItemAction = { msg ->
+                        onGuideItemAction = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
                     )
-                        }
-                    }
                 }
 
                 MainNavTab.EXPLORE_PETS -> {
