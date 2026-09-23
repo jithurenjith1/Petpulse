@@ -192,7 +192,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 onPetSelected = { viewModel.switchPet(it) },
                 onAddPetClick = { showAddPetDialog = true }
             )
-            // Feature buttons grid
+            // Feature buttons grid — shown ONLY in My Pet section
+            if (currentTab == MainNavTab.MY_PETS) {
             androidx.compose.foundation.lazy.LazyRow(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -205,6 +206,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                 item { FeatureButton("Vet Online", Color(0xFFA87A1F)) { showVetScreen = true } }
                 item { FeatureButton("Care Plan", Color(0xFFBC5233)) { showSubscriptionScreen = true } }
                 item { FeatureButton("Records", Color(0xFFBC5233)) { showHealthRecordsScreen = true } }
+            }
             }
 
         Crossfade(
