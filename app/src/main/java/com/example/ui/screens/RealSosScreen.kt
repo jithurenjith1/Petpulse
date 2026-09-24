@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Notifications
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,7 +52,12 @@ private val SosRed = Color(0xFFD62828)
 private val DarkText = Color(0xFF272220)
 
 @Composable
-fun RealSosScreen(petName: String = "My Pet") {
+fun RealSosScreen(
+    petName: String = "My Pet",
+    species: String = "",
+    breed: String = "",
+    ownerPhone: String = ""
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -60,6 +67,8 @@ fun RealSosScreen(petName: String = "My Pet") {
     var isTracking by remember { mutableStateOf(false) }
     var locationHistory by remember { mutableStateOf<List<GeoPoint>>(emptyList()) }
     var mapView by remember { mutableStateOf<MapView?>(null) }
+    var alertSending by remember { mutableStateOf(false) }
+    var alertSent by remember { mutableStateOf(false) }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -198,6 +207,48 @@ fun RealSosScreen(petName: String = "My Pet") {
                     )
                 }
             }
+        }
+
+        // Community SOS alert — posts to Firestore lost_pet_alerts so ALL app users see it live
+        if (hasLocation && !alertSent) {
+            Button(
+                onClick = {
+                    if (!alertSending) {
+                        alertSending = true
+                        scope.launch {
+                            alertSent = postSosAlert(
+                                petName = petName,
+                                species = species,
+                                breed = breed,
+                                contactPhone = ownerPhone,
+                                locationLink = "https://maps.google.com/?q=$currentLat,$currentLon"
+                            )
+                            alertSending = false
+                        }
+                    }
+                },
+                enabled = !alertSending,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = SosRed)
+            ) {
+                Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    if (alertSending) "SENDING ALERT..." else "SEND ALERT TO ALL APP USERS",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+        }
+        if (alertSent) {
+            Text(
+                "\u2713 Alert sent! All app users can see it in Community > Lost Pet Alerts (live).",
+                color = TealAccent,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
         }
 
         // Buttons

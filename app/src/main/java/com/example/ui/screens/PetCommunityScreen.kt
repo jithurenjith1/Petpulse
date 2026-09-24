@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -62,6 +63,7 @@ private val CoralLight = Color(0xFFF6DFD4)
 private val CreamBg = Color(0xFFFBF6F0)
 private val TealAccent = Color(0xFF1D7A6E)
 private val DarkText = Color(0xFF272220)
+private val SosRed = Color(0xFFD62828)
 
 /**
  * A single post in the pet community feed.
@@ -77,7 +79,7 @@ data class CommunityPost(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetCommunityScreen() {
+fun PetCommunityScreen(onOpenLostPetAlerts: () -> Unit = {}) {
     // In-memory store seeded with 3 sample posts.
     val posts = remember {
         mutableStateListOf(
@@ -143,6 +145,28 @@ fun PetCommunityScreen() {
             ) {
                 item {
                     Spacer(modifier = Modifier.height(4.dp))
+                }
+                item {
+                    // Live lost-pet SOS alerts feed entry
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable { onOpenLostPetAlerts() },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = SosRed),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("LOST PET ALERTS", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text("Lost pets near you — help owners find them (live)", color = Color.White.copy(alpha = 0.9f), fontSize = 12.sp)
+                            }
+                            Text("VIEW >", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
                 }
                 items(posts) { post ->
                     PostCard(

@@ -351,7 +351,12 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 
     if (showSosScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
-            RealSosScreen(petName = activePet.name)
+            RealSosScreen(
+                petName = activePet.name,
+                species = activePet.species,
+                breed = activePet.breed,
+                ownerPhone = customer.phone
+            )
             FloatingActionButton(
                 onClick = { showSosScreen = false },
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
@@ -540,7 +545,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     }
     if (showCommunityScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
-            PetCommunityScreen()
+            PetCommunityScreen(onOpenLostPetAlerts = { showLostPetAlertsScreen = true })
             FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFBC5233)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
