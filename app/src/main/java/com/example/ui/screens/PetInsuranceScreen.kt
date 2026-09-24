@@ -3,6 +3,11 @@ package com.petpulse.app.ui.screens
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -107,9 +112,29 @@ private val insurancePlans = listOf(
 
 private fun formatRupee(amount: Int): String = "₹" + "%,d".format(amount)
 
+// ---- Insurance contact (owner follows up on WhatsApp) ----
+private const val INSURANCE_WHATSAPP_NUMBER = "919626632311"
+
+private fun openInsuranceWhatsApp(context: Context, planName: String?) {
+    val message = if (planName.isNullOrEmpty()) {
+        "Hi! I'd like to know more about pet insurance on Petpulse. Please share the details."
+    } else {
+        "Hi! I'm interested in the \"$planName\" pet insurance plan on Petpulse. Please share the details and next steps."
+    }
+    val uri = "https://wa.me/$INSURANCE_WHATSAPP_NUMBER?text=${Uri.encode(message)}"
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+    } catch (e: Exception) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$INSURANCE_WHATSAPP_NUMBER")))
+        } catch (_: Exception) { }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PetInsuranceScreen() {
+    val context = LocalContext.current
     var selectedPlanId by remember { mutableStateOf(2) } // Standard selected by default
 
     Scaffold(
@@ -139,8 +164,47 @@ fun PetInsuranceScreen() {
                 InsurancePlanCard(
                     plan = plan,
                     isSelected = plan.id == selectedPlanId,
-                    onGetInsured = { selectedPlanId = plan.id }
+                    onGetInsured = {
+                        selectedPlanId = plan.id
+                        openInsuranceWhatsApp(context, plan.name)
+                    }
                 )
+            }
+            item {
+                // Contact card — owner follows up on WhatsApp and helps complete the policy
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = TealAccent)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Need help choosing a plan?",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "Our team will contact you and help you get the right insurance from our partner insurers.",
+                            color = Color.White.copy(alpha = 0.9f),
+                            fontSize = 13.sp
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Button(
+                            onClick = { openInsuranceWhatsApp(context, null) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = TealAccent
+                            )
+                        ) {
+                            Text("Chat on WhatsApp", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(24.dp))
             }
         }
     }
@@ -278,7 +342,7 @@ private fun InsurancePlanCard(
                 )
             ) {
                 Text(
-                    text = if (isSelected) "Insured" else "Get Insured",
+                    text = if (isSelected) "Enquired ✓" else "Enquire on WhatsApp",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 15.sp,
                     modifier = Modifier.padding(vertical = 4.dp)
