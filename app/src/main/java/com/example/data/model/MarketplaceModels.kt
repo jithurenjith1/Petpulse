@@ -211,3 +211,26 @@ data class AdminOrder(
     val dealerPhone: String = "",
     val createdAt: Long = 0L
 )
+
+/**
+ * Service booking (doctor consultation or trainer on-demand request).
+ * Stored in the Firestore "bookings" collection — same pattern as orders.
+ */
+data class ServiceBooking(
+    val id: String,
+    val type: String,            // "DOCTOR" | "TRAINER"
+    val ownerId: String,
+    val customerName: String,
+    val customerPhone: String,
+    val petName: String,
+    val providerName: String,   // doctor name for doctor bookings ("" for trainer)
+    val serviceInfo: String,    // "Video Consultation" / "In-Person Clinic Visit" / "Home Training Visit"
+    val dateLabel: String,      // "Today" / "Tomorrow" / ...
+    val slot: String,           // "10:30 AM - 11:00 AM"
+    val notes: String,          // symptoms or training need
+    val feeInr: Double,
+    val status: String = "NEW", // NEW | CONFIRMED | COMPLETED | CANCELLED
+    val assignedName: String = "",
+    val assignedPhone: String = "",
+    val createdAt: Long = 0L
+)

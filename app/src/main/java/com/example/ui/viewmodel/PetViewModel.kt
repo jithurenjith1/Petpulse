@@ -138,6 +138,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val myOrders: StateFlow<List<AdminOrder>> = commerceRepo.observeMyOrders()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    // Live service bookings (doctor consults + trainer requests) — admin & customer
+    val adminBookings: StateFlow<List<ServiceBooking>> = commerceRepo.observeBookings()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val myBookings: StateFlow<List<ServiceBooking>> = commerceRepo.observeMyBookings()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     val adminDealers: StateFlow<List<Dealer>> = commerceRepo.observeDealers()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -617,6 +624,74 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun adminUpdateOrderStatus(orderId: String, status: String) {
         viewModelScope.launch {
             _commerceEvent.value = if (commerceRepo.updateOrderStatus(orderId, status).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    // ---------- Service bookings (doctor + trainer) ----------
+
+    /** Customer confirms a doctor consultation → real Firestore booking. */
+    fun placeDoctorBooking(
+        doctor: VerifiedDoctor,
+        consultType: String,
+        petName: String,
+        customerPhone: String,
+        date: String,
+        slot: String,
+        notes: String
+    ) {
+        val fee = if (consultType.contains("Video")) doctor.videoConsultFeeInr else doctor.inPersonConsultFeeInr
+        val booking = ServiceBooking(
+            id = "",
+            type = "DOCTOR",
+            ownerId = "",
+            customerName = _customerProfile.value.name,
+            customerPhone = customerPhone.ifBlank { _customerProfile.value.phone },
+            petName = petName,
+            providerName = doctor.name,
+            serviceInfo = consultType,
+            dateLabel = date,
+            slot = slot,
+            notes = notes,
+            feeInr = fee,
+            createdAt = System.currentTimeMillis()
+        )
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Customer requests a trainer on-demand → real Firestore booking. */
+    fun placeTrainerBooking(petName: String, customerPhone: String, trainingNeed: String) {
+        val booking = ServiceBooking(
+            id = "",
+            type = "TRAINER",
+            ownerId = "",
+            customerName = _customerProfile.value.name,
+            customerPhone = customerPhone.ifBlank { _customerProfile.value.phone },
+            petName = petName,
+            providerName = "",
+            serviceInfo = "Home Training Visit",
+            dateLabel = "",
+            slot = "",
+            notes = trainingNeed,
+            feeInr = 0.0,
+            createdAt = System.currentTimeMillis()
+        )
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Admin assigns a doctor/trainer to a booking → status CONFIRMED. */
+    fun adminAssignBooking(bookingId: String, name: String, phone: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.assignBooking(bookingId, name, phone).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminUpdateBookingStatus(bookingId: String, status: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.updateBookingStatus(bookingId, status).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
     }
 

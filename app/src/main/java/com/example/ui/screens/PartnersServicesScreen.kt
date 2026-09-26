@@ -413,13 +413,12 @@ fun PartnersServicesScreen(
             }
 
             PartnerSubTab.NEWS_AND_EVENTS -> {
-                // Section 6: Pet News, Competitions & Trainers on Demand
+                // Section 6: Pet News & Competitions (Trainer On-Demand moved to Market → Training)
                 item {
                     PetNewsAndEventsSection(
                         news = petNews,
                         events = events,
-                        onRegisterEvent = { event -> onActionNotification("Registered for ${event.title}") },
-                        onRequestTrainer = { onActionNotification("Trainer On-Demand requested. A certified trainer will call you!") }
+                        onRegisterEvent = { event -> onActionNotification("Registered for ${event.title}") }
                     )
                 }
             }
@@ -985,8 +984,7 @@ fun PetListingCard(
 fun PetNewsAndEventsSection(
     news: PetNewsItem,
     events: List<PetEventItem>,
-    onRegisterEvent: (PetEventItem) -> Unit,
-    onRequestTrainer: () -> Unit
+    onRegisterEvent: (PetEventItem) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -1017,35 +1015,6 @@ fun PetNewsAndEventsSection(
                 Text(news.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
                 Text("By ${news.source} • ${news.timeAgo}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(news.fullContent, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
-            }
-        }
-
-        // Trainer on Demand Partner Request Card
-        Card(
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF4FAFE)),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.2f)),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(Icons.Default.SportsScore, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(32.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.partners_trainer_on_demand_partnership), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
-                    Text("Request an accredited certified trainer for home obedience & behavior sessions.", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Button(
-                    onClick = onRequestTrainer,
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                    modifier = Modifier.height(34.dp)
-                ) {
-                    Text(stringResource(R.string.partners_book_trainer), fontSize = 11.sp)
-                }
             }
         }
 

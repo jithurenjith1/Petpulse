@@ -84,6 +84,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val adminOrders by viewModel.adminOrders.collectAsStateWithLifecycle()
     val adminDealers by viewModel.adminDealers.collectAsStateWithLifecycle()
     val shopProducts by viewModel.shopProducts.collectAsStateWithLifecycle()
+    val adminBookings by viewModel.adminBookings.collectAsStateWithLifecycle()
+    val myBookings by viewModel.myBookings.collectAsStateWithLifecycle()
     val vaccinations by viewModel.vaccinations.collectAsStateWithLifecycle()
     val medicalReports by viewModel.medicalReports.collectAsStateWithLifecycle()
 
@@ -154,6 +156,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showMyOrdersScreen by remember { mutableStateOf(false) }
     var showListPetModal by remember { mutableStateOf(false) }
     var selectedDoctorForBooking by remember { mutableStateOf<VerifiedDoctor?>(null) }
+    var showTrainerRequestModal by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier
@@ -288,6 +291,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         onBookDoctor = { doctor ->
                             selectedDoctorForBooking = doctor
                         },
+                        onRequestTrainer = { showTrainerRequestModal = true },
                         onBookGrooming = { service ->
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Booking van for ${service.title} in $selectedKeralaCity. Our grooming van will arrive at your scheduled slot.")
@@ -470,6 +474,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     if (showMyOrdersScreen) {
         MyOrdersScreen(
             orders = myOrders,
+            bookings = myBookings,
             onBuyAgain = { order ->
                 viewModel.reorderFromOrder(order)
                 showMyOrdersScreen = false
@@ -484,12 +489,15 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             orders = adminOrders,
             dealers = adminDealers,
             products = shopProducts,
+            bookings = adminBookings,
             onAssignDealer = { id, dealer -> viewModel.adminAssignDealer(id, dealer) },
             onUpdateStatus = { id, status -> viewModel.adminUpdateOrderStatus(id, status) },
             onAddProduct = { n, lt, c, p, d -> viewModel.adminAddProduct(n, lt, c, p, d) },
             onDeleteProduct = { id -> viewModel.adminDeleteProduct(id) },
             onAddDealer = { n, ph, c -> viewModel.adminAddDealer(n, ph, c) },
             onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },
+            onAssignBooking = { id, name, phone -> viewModel.adminAssignBooking(id, name, phone) },
+            onUpdateBookingStatus = { id, status -> viewModel.adminUpdateBookingStatus(id, status) },
             onDismiss = { showAdminScreen = false }
         )
     }
@@ -616,11 +624,26 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
         DoctorBookingModal(
             doctor = doctor,
             defaultPetName = activePet.name,
+            defaultPhone = customer.phone,
             onDismiss = { selectedDoctorForBooking = null },
-            onConfirm = { consultType, petName, date, slot ->
-                val booking = viewModel.bookDoctorConsultation(doctor, consultType, petName, date, slot)
+            onConfirm = { consultType, petName, phone, date, slot, notes ->
+                viewModel.placeDoctorBooking(doctor, consultType, petName, phone, date, slot, notes)
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar("📅 $consultType booked with ${doctor.name} for $petName on $date at $slot!")
+                    snackbarHostState.showSnackbar("📅 Booking requested! We will call $phone to confirm your ${doctor.name} appointment for $petName.")
+                }
+            }
+        )
+    }
+
+    if (showTrainerRequestModal) {
+        TrainerRequestModal(
+            defaultPetName = activePet.name,
+            defaultPhone = customer.phone,
+            onDismiss = { showTrainerRequestModal = false },
+            onConfirm = { petName, phone, trainingNeed ->
+                viewModel.placeTrainerBooking(petName, phone, trainingNeed)
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("🎓 Trainer requested! Our team will call you to confirm the schedule.")
                 }
             }
         )

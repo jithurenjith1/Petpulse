@@ -8,6 +8,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.OrderItemSnap
+import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -265,6 +266,122 @@ class FirestoreCommerceRepository {
 
     suspend fun updateOrderStatus(orderId: String, status: String): Result<Unit> = try {
         db.collection("orders").document(orderId).update("status", status).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    // ---------- bookings (doctor consults + trainer on-demand) ----------
+
+    /** Live stream of ALL bookings (admin panel). */
+    fun observeBookings(): Flow<List<ServiceBooking>> = callbackFlow {
+        val sub = db.collection("bookings").addSnapshotListener { snap, err ->
+            if (err != null) {
+                Log.e("FsCommerce", "bookings listen failed", err)
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(
+                snap?.documents
+                    ?.mapNotNull { it.toServiceBooking() }
+                    ?.sortedByDescending { it.createdAt }
+                    ?: emptyList()
+            )
+        }
+        awaitClose { sub.remove() }
+    }
+
+    /** Live bookings of the signed-in customer only (My Bookings tab). */
+    fun observeMyBookings(): Flow<List<ServiceBooking>> = callbackFlow {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            trySend(emptyList())
+            awaitClose { }
+            return@callbackFlow
+        }
+        val sub = db.collection("bookings").whereEqualTo("ownerId", uid)
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    Log.e("FsCommerce", "my bookings listen failed", err)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                trySend(
+                    snap?.documents
+                        ?.mapNotNull { it.toServiceBooking() }
+                        ?.sortedByDescending { it.createdAt }
+                        ?: emptyList()
+                )
+            }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toServiceBooking(): ServiceBooking? = try {
+        ServiceBooking(
+            id = id,
+            type = getString("type") ?: "DOCTOR",
+            ownerId = getString("ownerId") ?: "",
+            customerName = getString("customerName") ?: "",
+            customerPhone = getString("customerPhone") ?: "",
+            petName = getString("petName") ?: "",
+            providerName = getString("providerName") ?: "",
+            serviceInfo = getString("serviceInfo") ?: "",
+            dateLabel = getString("dateLabel") ?: "",
+            slot = getString("slot") ?: "",
+            notes = getString("notes") ?: "",
+            feeInr = getDouble("feeInr") ?: 0.0,
+            status = getString("status") ?: "NEW",
+            assignedName = getString("assignedName") ?: "",
+            assignedPhone = getString("assignedPhone") ?: "",
+            createdAt = getLong("createdAt") ?: 0L
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed booking ${id}", e)
+        null
+    }
+
+    suspend fun placeBooking(booking: ServiceBooking): Result<String> {
+        return try {
+            auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            val docRef = db.collection("bookings").document()
+            docRef.set(
+                mapOf(
+                    "type" to booking.type,
+                    "ownerId" to (auth.currentUser?.uid ?: ""),
+                    "customerName" to booking.customerName,
+                    "customerPhone" to booking.customerPhone,
+                    "petName" to booking.petName,
+                    "providerName" to booking.providerName,
+                    "serviceInfo" to booking.serviceInfo,
+                    "dateLabel" to booking.dateLabel,
+                    "slot" to booking.slot,
+                    "notes" to booking.notes,
+                    "feeInr" to booking.feeInr,
+                    "status" to "NEW",
+                    "assignedName" to "",
+                    "assignedPhone" to "",
+                    "createdAt" to System.currentTimeMillis()
+                )
+            ).await()
+            Result.success(docRef.id)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "placeBooking failed", e)
+            Result.failure(e)
+        }
+    }
+
+    /** Admin assigns a doctor/trainer → booking becomes CONFIRMED with contact details. */
+    suspend fun assignBooking(bookingId: String, name: String, phone: String): Result<Unit> = try {
+        db.collection("bookings").document(bookingId).update(
+            mapOf("status" to "CONFIRMED", "assignedName" to name, "assignedPhone" to phone)
+        ).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    suspend fun updateBookingStatus(bookingId: String, status: String): Result<Unit> = try {
+        db.collection("bookings").document(bookingId).update("status", status).await()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)

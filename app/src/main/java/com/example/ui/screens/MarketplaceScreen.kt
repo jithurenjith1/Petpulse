@@ -1,5 +1,7 @@
 package com.petpulse.app.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -59,6 +62,7 @@ fun MarketplaceScreen(
     onAddToCart: (MarketProduct) -> Unit,
     onBookDoctor: (VerifiedDoctor) -> Unit,
     onBookGrooming: (GroomingServiceItem) -> Unit,
+    onRequestTrainer: () -> Unit = {},
     onPetSelected: (MarketPet) -> Unit,
     guideFoods: List<FoodItem> = emptyList(),
     accessories: List<AccessoryItem> = emptyList(),
@@ -287,7 +291,82 @@ fun MarketplaceScreen(
                 items(trainingGuides, key = { "t_" + it.title }) { guide ->
                     TrainingGuideCard(guide = guide)
                 }
+
+                item {
+                    TrainerOnDemandCard(onRequestTrainer = onRequestTrainer)
+                }
             }
+        }
+    }
+}
+
+/** WhatsApp contact for the Petpulse trainer desk. */
+private const val TRAINER_WHATSAPP_NUMBER = "919526632311"
+
+/**
+ * Trainer On-Demand card in Market → Training:
+ * "Request Trainer" creates a real Firestore booking (goes to the admin panel),
+ * and the WhatsApp button chats directly with the trainer desk.
+ */
+@Composable
+fun TrainerOnDemandCard(onRequestTrainer: () -> Unit) {
+    val context = LocalContext.current
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = TealLight),
+        border = BorderStroke(1.dp, TealAccent.copy(alpha = 0.3f)),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Icon(Icons.Default.SportsScore, contentDescription = null, tint = TealAccent, modifier = Modifier.size(30.dp))
+                Column {
+                    Text("Trainer On-Demand", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = DarkText)
+                    Text("Certified trainer for home obedience & behavior sessions", fontSize = 11.sp, color = TextGray)
+                }
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = onRequestTrainer,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    modifier = Modifier.weight(1f).height(38.dp)
+                ) {
+                    Icon(Icons.Default.FitnessCenter, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+                    Spacer(Modifier.width(5.dp))
+                    Text("Request Trainer", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+                Button(
+                    onClick = {
+                        val message = "Hi Petpulse! I would like to know more about your home pet training sessions."
+                        try {
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://wa.me/$TRAINER_WHATSAPP_NUMBER?text=${Uri.encode(message)}")
+                                )
+                            )
+                        } catch (_: Exception) { }
+                    },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = TealAccent),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    modifier = Modifier.weight(1f).height(38.dp)
+                ) {
+                    Icon(Icons.Default.Chat, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+                    Spacer(Modifier.width(5.dp))
+                    Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+            }
+
+            Text(
+                "Request a trainer and our team will call you to confirm the schedule.",
+                fontSize = 10.sp,
+                color = TextGray
+            )
         }
     }
 }

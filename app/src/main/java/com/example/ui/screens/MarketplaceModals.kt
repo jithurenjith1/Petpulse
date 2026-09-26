@@ -1442,11 +1442,13 @@ fun RegisterVetFormModal(
 fun DoctorBookingModal(
     doctor: VerifiedDoctor,
     defaultPetName: String,
+    defaultPhone: String,
     onDismiss: () -> Unit,
-    onConfirm: (consultType: String, petName: String, date: String, slot: String) -> Unit
+    onConfirm: (consultType: String, petName: String, phone: String, date: String, slot: String, notes: String) -> Unit
 ) {
     var consultType by remember { mutableStateOf("Video Consultation") }
     var petName by remember { mutableStateOf(defaultPetName) }
+    var customerPhone by remember { mutableStateOf(defaultPhone) }
     var selectedDate by remember { mutableStateOf("Tomorrow") }
     var selectedSlot by remember { mutableStateOf("10:30 AM - 11:00 AM") }
     var problemNotes by remember { mutableStateOf("") }
@@ -1583,12 +1585,23 @@ fun DoctorBookingModal(
                     }
                 }
 
-                // Pet Name & Problem
+                // Pet Name, Phone & Problem
                 item {
                     OutlinedTextField(
                         value = petName,
                         onValueChange = { petName = it },
                         label = { Text(stringResource(R.string.modals_pet_name)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    OutlinedTextField(
+                        value = customerPhone,
+                        onValueChange = { customerPhone = it },
+                        label = { Text("Your Phone Number") },
+                        placeholder = { Text("10-digit mobile number") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -1609,7 +1622,7 @@ fun DoctorBookingModal(
                 item {
                     Button(
                         onClick = {
-                            onConfirm(consultType, petName, selectedDate, selectedSlot)
+                            onConfirm(consultType, petName, customerPhone, selectedDate, selectedSlot, problemNotes)
                             onDismiss()
                         },
                         modifier = Modifier
@@ -1623,6 +1636,103 @@ fun DoctorBookingModal(
                         Text("Confirm Booking (₹${fee.toInt()})", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Trainer On-Demand request dialog — creates a real Firestore booking
+ * that appears in the admin panel, plus the admin can call the customer.
+ */
+@Composable
+fun TrainerRequestModal(
+    defaultPetName: String,
+    defaultPhone: String,
+    onDismiss: () -> Unit,
+    onConfirm: (petName: String, phone: String, trainingNeed: String) -> Unit
+) {
+    var petName by remember { mutableStateOf(defaultPetName) }
+    var customerPhone by remember { mutableStateOf(defaultPhone) }
+    var trainingNeed by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text("Request a Trainer", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text("Certified trainer for home obedience & behavior sessions", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = "Close")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                OutlinedTextField(
+                    value = petName,
+                    onValueChange = { petName = it },
+                    label = { Text("Pet Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = customerPhone,
+                    onValueChange = { customerPhone = it },
+                    label = { Text("Your Phone Number") },
+                    placeholder = { Text("10-digit mobile number") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = trainingNeed,
+                    onValueChange = { trainingNeed = it },
+                    label = { Text("Training Needed (optional)") },
+                    placeholder = { Text("e.g. Basic obedience, potty training, barking control") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    minLines = 2
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        onConfirm(petName, customerPhone, trainingNeed)
+                        onDismiss()
+                    },
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(Icons.Default.CheckCircle, contentDescription = null)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Request Trainer", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    "Our team will call you to confirm the trainer and schedule.",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
         }
     }
