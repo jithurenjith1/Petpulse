@@ -27,6 +27,21 @@ data class UserPet(
     val notes: String = "Very energetic, friendly with children, loves morning park walks."
 )
 
+/**
+ * A REAL certificate uploaded by the pet owner (photos + details),
+ * stored in Firestore under users/{uid}/pets/{petDoc}/certificates.
+ */
+data class PetCertificate(
+    val id: Long = 0L,
+    val petId: Long = 1L,
+    val title: String,              // "Kennel Club Registration", "Vaccination Certificate"...
+    val registrationId: String = "",
+    val issuedBy: String = "",
+    val issueDate: String = "",
+    val photoPaths: List<String> = emptyList(), // local cache files of the stored photos
+    val createdAt: Long = 0L
+)
+
 @Entity(tableName = "vaccination_records")
 data class VaccinationRecord(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,

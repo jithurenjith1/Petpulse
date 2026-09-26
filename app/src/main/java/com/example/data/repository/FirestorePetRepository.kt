@@ -1,18 +1,26 @@
 package com.petpulse.app.data.repository
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.petpulse.app.data.model.UserPet
 import com.petpulse.app.data.model.VaccinationRecord
 import com.petpulse.app.data.model.MedicalReport
+import com.petpulse.app.data.model.PetCertificate
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
-class FirestorePetRepository {
+class FirestorePetRepository(private val appContext: Context) {
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -226,6 +234,134 @@ class FirestorePetRepository {
     private suspend fun deleteVaccinationsForPet(petDocId: String) {
         val snapshot = petsRef().document(petDocId).collection("vaccinations").get().await()
         snapshot.documents.forEach { doc -> doc.reference.delete().await() }
+    }
+
+    // ---------- real certificates (photos stored as compressed base64) ----------
+
+    companion object {
+        private const val CERT_MAX_PHOTOS = 3
+        private const val CERT_MAX_DIM = 1400
+        private const val CERT_PHOTO_BUDGET_BYTES = 180_000
+    }
+
+    fun getCertificatesForPet(petId: Long): Flow<List<PetCertificate>> = callbackFlow {
+        val docId = petDocIdMap[petId] ?: run {
+            trySend(emptyList())
+            awaitClose { }
+            return@callbackFlow
+        }
+        val subscription = petsRef().document(docId)
+            .collection("certificates")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestorePetRepo", "Certificate listener error", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                val certs = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        val photoData = (doc.get("photoData") as? List<*>)?.filterIsInstance<String>().orEmpty()
+                        PetCertificate(
+                            id = stableIdOf(doc.id),
+                            petId = petId,
+                            title = doc.getString("title") ?: "Certificate",
+                            registrationId = doc.getString("registrationId") ?: "",
+                            issuedBy = doc.getString("issuedBy") ?: "",
+                            issueDate = doc.getString("issueDate") ?: "",
+                            photoPaths = photoData.mapIndexed { i, b64 ->
+                                certPhotoFileFor(doc.id, i, b64)
+                            }.filter { it.isNotBlank() },
+                            createdAt = doc.getLong("createdAt") ?: 0L
+                        )
+                    } catch (e: Exception) {
+                        Log.e("FirestorePetRepo", "Malformed certificate doc", e)
+                        null
+                    }
+                } ?: emptyList()
+                trySend(certs)
+            }
+        awaitClose { subscription.remove() }
+    }
+
+    suspend fun addCertificate(petId: Long, cert: PetCertificate, photoUris: List<Uri>) {
+        val docId = petDocIdMap[petId] ?: return
+        val photos = photoUris.take(CERT_MAX_PHOTOS).mapNotNull { compressCertToBase64(it) }
+        petsRef().document(docId).collection("certificates").add(
+            mapOf(
+                "title" to cert.title,
+                "registrationId" to cert.registrationId,
+                "issuedBy" to cert.issuedBy,
+                "issueDate" to cert.issueDate,
+                "photoData" to photos,
+                "createdAt" to System.currentTimeMillis()
+            )
+        ).await()
+    }
+
+    suspend fun deleteCertificate(petId: Long, certificateId: Long) {
+        val petDocId = petDocIdMap[petId] ?: return
+        val snapshot = petsRef().document(petDocId).collection("certificates").get().await()
+        for (doc in snapshot.documents) {
+            if (stableIdOf(doc.id) == certificateId) {
+                petsRef().document(petDocId).collection("certificates").document(doc.id).delete().await()
+                break
+            }
+        }
+    }
+
+    /** Decodes a base64 certificate photo into a cache file for Coil. */
+    private fun certPhotoFileFor(docId: String, index: Int, base64Data: String): String {
+        return try {
+            val dir = File(appContext.cacheDir, "cert_photos").apply { mkdirs() }
+            val f = File(dir, "${docId}_$index.jpg")
+            if (!f.exists()) {
+                val bytes = Base64.decode(base64Data, Base64.NO_WRAP)
+                f.writeBytes(bytes)
+            }
+            f.absolutePath
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "cert photo decode failed for $docId/$index", e)
+            ""
+        }
+    }
+
+    /** Downscale + JPEG-compress a certificate photo, return base64 (or null). */
+    private fun compressCertToBase64(uri: Uri): String? {
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, bounds)
+            }
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > CERT_MAX_DIM * 2) sample *= 2
+            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+            val decoded = appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, opts)
+            } ?: return null
+
+            val scale = minOf(1f, CERT_MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
+            val bmp = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    decoded,
+                    (decoded.width * scale).toInt().coerceAtLeast(1),
+                    (decoded.height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else decoded
+
+            val out = ByteArrayOutputStream()
+            var quality = 78
+            bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            while (out.size() > CERT_PHOTO_BUDGET_BYTES && quality > 30) {
+                quality -= 16
+                out.reset()
+                bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            }
+            Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "cert photo compress failed", e)
+            null
+        }
     }
 
     fun getMedicalReportsForPet(petId: Long): Flow<List<MedicalReport>> = callbackFlow {

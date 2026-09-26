@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,13 +33,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.petpulse.app.data.model.CustomerProfile
 import com.petpulse.app.data.model.MedicalReport
+import com.petpulse.app.data.model.PetCertificate
 import com.petpulse.app.data.model.UserPet
 import com.petpulse.app.data.model.VaccinationRecord
 import com.petpulse.app.ui.theme.*
@@ -73,13 +78,17 @@ fun MyPetsScreen(
     onShowMessage: (String) -> Unit,
     onDeletePet: () -> Unit = {},
     onPhotoSelected: (String) -> Unit = {},
+    certificates: List<PetCertificate> = emptyList(),
+    onAddCertificate: (title: String, registrationId: String, issuedBy: String, issueDate: String, photos: List<String>) -> Unit = { _, _, _, _, _ -> },
+    onDeleteCertificate: (PetCertificate) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
     var showAddVaccineDialog by remember { mutableStateOf(false) }
     var showAddMedicalDialog by remember { mutableStateOf(false) }
     var showAddPreferenceDialog by remember { mutableStateOf(false) }
-    var showCertificateUploadToast by remember { mutableStateOf(false) }
+    var showAddCertificateDialog by remember { mutableStateOf(false) }
+    var certificatePhotoViewer by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
@@ -297,7 +306,10 @@ fun MyPetsScreen(
                 item {
                     CertificateSubmenuSection(
                         pet = pet,
-                        onUploadClick = { showCertificateUploadToast = true }
+                        certificates = certificates,
+                        onUploadClick = { showAddCertificateDialog = true },
+                        onDeleteCertificate = onDeleteCertificate,
+                        onPhotoClick = { path -> certificatePhotoViewer = path }
                     )
                 }
             }
@@ -397,17 +409,20 @@ fun MyPetsScreen(
         )
     }
 
-    if (showCertificateUploadToast) {
-        AlertDialog(
-            onDismissRequest = { showCertificateUploadToast = false },
-            confirmButton = {
-                TextButton(onClick = { showCertificateUploadToast = false }) {
-                    Text(stringResource(R.string.mypets_ok))
-                }
-            },
-            title = { Text(stringResource(R.string.mypets_upload_pet_certificate)) },
-            text = { Text("Certificate document / photo uploaded successfully! Encrypted and verified by Kennel Registry Council.") },
-            icon = { Icon(Icons.Default.CloudUpload, contentDescription = null, tint = BluePrimary) }
+    if (showAddCertificateDialog) {
+        AddCertificateDialog(
+            onDismiss = { showAddCertificateDialog = false },
+            onSave = { title, regId, issuedBy, issueDate, photos ->
+                onAddCertificate(title, regId, issuedBy, issueDate, photos)
+                showAddCertificateDialog = false
+            }
+        )
+    }
+
+    certificatePhotoViewer?.let { path ->
+        CertificatePhotoViewer(
+            photoPath = path,
+            onDismiss = { certificatePhotoViewer = null }
         )
     }
 }
@@ -416,52 +431,52 @@ fun MyPetsScreen(
 @Composable
 fun CertificateSubmenuSection(
     pet: UserPet,
-    onUploadClick: () -> Unit
+    certificates: List<PetCertificate>,
+    onUploadClick: () -> Unit,
+    onDeleteCertificate: (PetCertificate) -> Unit,
+    onPhotoClick: (String) -> Unit
 ) {
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .testTag("certificate_section_card"),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(
+        // Section header
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .testTag("certificate_section_card"),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.WorkspacePremium,
-                        contentDescription = "Certificate",
-                        tint = AccentAmber,
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.mypets_official_canine_health_birth_certificate),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = BluePrimaryDark
-                    )
-                }
-
+                Icon(
+                    imageVector = Icons.Default.WorkspacePremium,
+                    contentDescription = "Certificate",
+                    tint = AccentAmber,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Pet Certificates & Documents",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = BluePrimaryDark
+                )
+                Spacer(modifier = Modifier.weight(1f))
                 Surface(
                     shape = RoundedCornerShape(6.dp),
                     color = AccentGreen.copy(alpha = 0.15f)
                 ) {
                     Text(
-                        text = if (pet.hasCertificate) "VERIFIED" else "PENDING",
+                        text = if (certificates.isEmpty()) "NONE" else "${certificates.size} ON FILE",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = AccentGreen,
@@ -469,66 +484,308 @@ fun CertificateSubmenuSection(
                     )
                 }
             }
+        }
 
-            Divider()
-
-            // Certificate Details Frame
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color(0xFFF9FBFE),
-                border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.2f)),
+        if (certificates.isEmpty()) {
+            // Empty state
+            Card(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Icon(
+                        Icons.Default.CloudUpload,
+                        contentDescription = null,
+                        tint = BluePrimary,
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Text(
+                        "No real certificates uploaded yet",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = DarkText
+                    )
+                    Text(
+                        "Upload your pet's real certificate photos \u2014 vaccination certificate, KC registration, adoption papers, microchip record. They are saved to your account and travel with you to any phone.",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            // Real uploaded certificates
+            certificates.forEach { cert ->
+                Card(
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("certificate_card_${cert.id}")
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(stringResource(R.string.mypets_certificate_reg_id), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(pet.certificateNumber, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(stringResource(R.string.mypets_registered_name), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${pet.name} (${pet.breed})", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(stringResource(R.string.mypets_issuing_authority), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(pet.certificateIssuedBy, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.End)
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(stringResource(R.string.mypets_issue_date), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(pet.certificateDate, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.WorkspacePremium,
+                                    contentDescription = null,
+                                    tint = AccentAmber,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Text(
+                                    text = cert.title,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = BluePrimaryDark,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            TextButton(onClick = { onDeleteCertificate(cert) }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete certificate",
+                                    tint = SosRed,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Remove", fontSize = 11.sp, color = SosRed)
+                            }
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFF9FBFE),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.2f)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                if (cert.registrationId.isNotBlank()) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text("Registration ID", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(cert.registrationId, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
+                                    }
+                                }
+                                if (cert.issuedBy.isNotBlank()) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text("Issued By", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(cert.issuedBy, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.End)
+                                    }
+                                }
+                                if (cert.issueDate.isNotBlank()) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text("Issue Date", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(cert.issueDate, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text("Pet", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("${pet.name} (${pet.breed})", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
+
+                        // Certificate photos — tap to view full screen
+                        if (cert.photoPaths.isNotEmpty()) {
+                            Text("Certificate Photos", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(cert.photoPaths) { photoPath ->
+                                    AsyncImage(
+                                        model = photoPath,
+                                        contentDescription = "Certificate photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(110.dp, 82.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable { onPhotoClick(photoPath) }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
+        }
 
-            // Upload or Re-upload Certificate Button
-            OutlinedButton(
-                onClick = onUploadClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("upload_certificate_btn"),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CloudUpload,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
+        // Upload button (always available)
+        OutlinedButton(
+            onClick = onUploadClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("upload_certificate_btn"),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.CloudUpload,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.mypets_upload_document_photo_of_certificate))
+        }
+    }
+}
+
+@Composable
+fun AddCertificateDialog(
+    onDismiss: () -> Unit,
+    onSave: (title: String, registrationId: String, issuedBy: String, issueDate: String, photos: List<String>) -> Unit
+) {
+    var title by remember { mutableStateOf("") }
+    var registrationId by remember { mutableStateOf("") }
+    var issuedBy by remember { mutableStateOf("") }
+    var issueDate by remember { mutableStateOf("") }
+    var photoUris by remember { mutableStateOf<List<android.net.Uri>>(emptyList()) }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(maxItems = 3)
+    ) { uris -> photoUris = uris }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Upload Certificate") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Certificate Title *") },
+                    placeholder = { Text("e.g. Vaccination Certificate") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.mypets_upload_document_photo_of_certificate))
+                OutlinedTextField(
+                    value = registrationId,
+                    onValueChange = { registrationId = it },
+                    label = { Text("Registration ID (optional)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = issuedBy,
+                    onValueChange = { issuedBy = it },
+                    label = { Text("Issued By (optional)") },
+                    placeholder = { Text("e.g. Kennel Club of India") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = issueDate,
+                    onValueChange = { issueDate = it },
+                    label = { Text("Issue Date (optional)") },
+                    placeholder = { Text("e.g. 15 Jan 2025") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Button(
+                    onClick = {
+                        photoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        if (photoUris.isEmpty()) "Pick Certificate Photos (up to 3) *"
+                        else "${photoUris.size} photo(s) selected — tap to change",
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onSave(
+                        title.trim(),
+                        registrationId.trim(),
+                        issuedBy.trim(),
+                        issueDate.trim(),
+                        photoUris.map { it.toString() }
+                    )
+                },
+                enabled = title.isNotBlank() && photoUris.isNotEmpty()
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
+@Composable
+fun CertificatePhotoViewer(
+    photoPath: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.97f)
+                .fillMaxHeight(0.92f),
+            shape = RoundedCornerShape(16.dp),
+            color = Color.Black
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                AsyncImage(
+                    model = photoPath,
+                    contentDescription = "Certificate photo",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = Color.White
+                    )
+                }
             }
         }
     }

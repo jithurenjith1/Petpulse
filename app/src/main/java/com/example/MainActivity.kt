@@ -89,6 +89,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val adminVets by viewModel.partnerVets.collectAsStateWithLifecycle()
     val vaccinations by viewModel.vaccinations.collectAsStateWithLifecycle()
     val medicalReports by viewModel.medicalReports.collectAsStateWithLifecycle()
+    val certificates by viewModel.certificates.collectAsStateWithLifecycle()
 
     val speciesList by viewModel.speciesList.collectAsStateWithLifecycle()
     val selectedSpecies by viewModel.selectedSpecies.collectAsStateWithLifecycle()
@@ -231,6 +232,19 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         vaccinations = vaccinations,
                         medicalReports = medicalReports,
                         healthScore = healthScore,
+                        certificates = certificates,
+                        onAddCertificate = { title, regId, issuedBy, issueDate, photos ->
+                            viewModel.addCertificate(title, regId, issuedBy, issueDate, photos)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("📜 Certificate '$title' uploaded and saved to your account!")
+                            }
+                        },
+                        onDeleteCertificate = { cert ->
+                            viewModel.deleteCertificate(cert)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Certificate '${cert.title}' removed.")
+                            }
+                        },
                         onEditPetClick = { showEditPetDialog = true },
                         onToggleVaccine = { viewModel.toggleVaccinationStatus(it) },
                         onAddVaccine = { name, date, due, status, doc ->

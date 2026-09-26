@@ -44,7 +44,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: PetRepository
     private val marketplaceRepo: MarketplaceRepository = MarketplaceRepository()
-    private val firestoreRepo: FirestorePetRepository = FirestorePetRepository()
+    private val firestoreRepo: FirestorePetRepository = FirestorePetRepository(getApplication())
     private val firestoreMarketRepo = FirestoreMarketplaceRepository(application)
     private val commerceRepo = FirestoreCommerceRepository()
 
@@ -242,6 +242,15 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     val vaccinations: StateFlow<List<VaccinationRecord>> = _activePetId
         .flatMapLatest { petId -> firestoreRepo.getVaccinationsForPet(petId) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    // Real certificates uploaded for the active pet (photos + details)
+    val certificates: StateFlow<List<PetCertificate>> = _activePetId
+        .flatMapLatest { petId -> firestoreRepo.getCertificatesForPet(petId) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -965,6 +974,31 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 batchNumber = "VAX-${(1000..9999).random()}"
             )
             firestoreRepo.addVaccination(activePet.value.id, vax)
+        }
+    }
+
+    fun addCertificate(title: String, registrationId: String, issuedBy: String, issueDate: String, photos: List<String>) {
+        viewModelScope.launch {
+            val cert = PetCertificate(
+                id = 0L,
+                petId = activePet.value.id,
+                title = title,
+                registrationId = registrationId,
+                issuedBy = issuedBy,
+                issueDate = issueDate,
+                createdAt = System.currentTimeMillis()
+            )
+            firestoreRepo.addCertificate(
+                activePet.value.id,
+                cert,
+                photos.mapNotNull { runCatching { Uri.parse(it) }.getOrNull() }
+            )
+        }
+    }
+
+    fun deleteCertificate(cert: PetCertificate) {
+        viewModelScope.launch {
+            firestoreRepo.deleteCertificate(cert.petId, cert.id)
         }
     }
 
