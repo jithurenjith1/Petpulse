@@ -795,6 +795,17 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Current Firebase user id (null when signed out) — used to tag "my listings". */
+    val currentUid: String?
+        get() = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+
+    /** Removes one of MY market listings (Firestore rules enforce ownership). */
+    fun deleteMyListing(pet: MarketPet) {
+        viewModelScope.launch {
+            firestoreMarketRepo.deleteListing(pet.id)
+        }
+    }
+
     // Vet Registration
     fun submitVetRegistration(
         name: String,

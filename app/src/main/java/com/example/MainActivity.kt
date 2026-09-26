@@ -282,6 +282,13 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         onOpenCart = { showCartModal = true },
                         onOpenOrders = { showMyOrdersScreen = true },
                         onOpenListPetModal = { showListPetModal = true },
+                        currentUid = viewModel.currentUid,
+                        onDeleteListing = { pet ->
+                            viewModel.deleteMyListing(pet)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("🗑️ '${pet.name}' listing removed.")
+                            }
+                        },
                         onAddToCart = { product ->
                             viewModel.addProductToCart(product)
                             coroutineScope.launch {

@@ -69,8 +69,12 @@ fun MarketplaceScreen(
     healthCareItems: List<HealthCareItem> = emptyList(),
     trainingGuides: List<TrainingGuide> = emptyList(),
     onGuideItemAction: (String) -> Unit = {},
+    currentUid: String? = null,
+    onDeleteListing: (MarketPet) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var listingToDelete by remember { mutableStateOf<MarketPet?>(null) }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -140,7 +144,9 @@ fun MarketplaceScreen(
                     items(pets, key = { it.id }) { pet ->
                         MarketPetCard(
                             pet = pet,
-                            onClick = { onPetSelected(pet) }
+                            isOwner = currentUid != null && pet.ownerId == currentUid,
+                            onClick = { onPetSelected(pet) },
+                            onDelete = { listingToDelete = pet }
                         )
                     }
                 }
@@ -297,6 +303,26 @@ fun MarketplaceScreen(
                 }
             }
         }
+    }
+
+    listingToDelete?.let { pet ->
+        AlertDialog(
+            onDismissRequest = { listingToDelete = null },
+            title = { Text("Remove Listing") },
+            text = { Text("Remove \"${pet.name}\" from the pet market? This cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDeleteListing(pet)
+                        listingToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD62828))
+                ) { Text("Remove") }
+            },
+            dismissButton = {
+                TextButton(onClick = { listingToDelete = null }) { Text("Cancel") }
+            }
+        )
     }
 }
 
@@ -723,7 +749,9 @@ fun PetListingsHeader(
 @Composable
 fun MarketPetCard(
     pet: MarketPet,
-    onClick: () -> Unit
+    isOwner: Boolean = false,
+    onClick: () -> Unit,
+    onDelete: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -833,6 +861,20 @@ fun MarketPetCard(
                                 )
                             }
                         }
+                    }
+                }
+
+                if (isOwner) {
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(34.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete my listing",
+                            tint = Color(0xFFD62828),
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }

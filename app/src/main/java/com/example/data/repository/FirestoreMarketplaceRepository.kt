@@ -155,6 +155,19 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
         }
     }
 
+    /** Deletes one of MY listings (rules require resource.data.ownerId == auth.uid). */
+    suspend fun deleteListing(listingId: String): Result<Unit> {
+        return try {
+            val uid = auth.currentUser?.uid
+                ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            db.collection("market_listings").document(listingId).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsMarketRepo", "deleteListing failed", e)
+            Result.failure(e)
+        }
+    }
+
     /** Downscale + JPEG-compress a picked photo, return base64 (or null). */
     private fun compressToBase64(uri: Uri): String? {
         return try {
