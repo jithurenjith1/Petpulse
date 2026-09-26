@@ -86,6 +86,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val shopProducts by viewModel.shopProducts.collectAsStateWithLifecycle()
     val adminBookings by viewModel.adminBookings.collectAsStateWithLifecycle()
     val myBookings by viewModel.myBookings.collectAsStateWithLifecycle()
+    val adminVets by viewModel.partnerVets.collectAsStateWithLifecycle()
     val vaccinations by viewModel.vaccinations.collectAsStateWithLifecycle()
     val medicalReports by viewModel.medicalReports.collectAsStateWithLifecycle()
 
@@ -505,6 +506,9 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },
             onAssignBooking = { id, name, phone -> viewModel.adminAssignBooking(id, name, phone) },
             onUpdateBookingStatus = { id, status -> viewModel.adminUpdateBookingStatus(id, status) },
+            vets = adminVets,
+            onAddVet = { n, sp, c, city, ph, vf, inf -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf) },
+            onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
             onDismiss = { showAdminScreen = false }
         )
     }

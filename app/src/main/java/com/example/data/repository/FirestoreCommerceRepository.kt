@@ -10,6 +10,7 @@ import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.OrderItemSnap
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
+import com.petpulse.app.data.model.VerifiedDoctor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -382,6 +383,75 @@ class FirestoreCommerceRepository {
 
     suspend fun updateBookingStatus(bookingId: String, status: String): Result<Unit> = try {
         db.collection("bookings").document(bookingId).update("status", status).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    // ---------- partner vets (admin-managed, public browse) ----------
+
+    /** Live stream of partner vets added by the owner. */
+    fun observeVets(): Flow<List<VerifiedDoctor>> = callbackFlow {
+        val sub = db.collection("vets").addSnapshotListener { snap, err ->
+            if (err != null) {
+                Log.e("FsCommerce", "vets listen failed", err)
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(
+                snap?.documents
+                    ?.mapNotNull { it.toVet() }
+                    ?.sortedByDescending { (it.experienceYears) }
+                    ?: emptyList()
+            )
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toVet(): VerifiedDoctor? = try {
+        VerifiedDoctor(
+            id = id,
+            name = getString("name") ?: return null,
+            degrees = getString("degrees") ?: "BVSc & AH",
+            ksvcRegNumber = getString("ksvcRegNumber") ?: "",
+            specialization = getString("specialization") ?: "Veterinary Physician",
+            experienceYears = (getLong("experienceYears") ?: 5L).toInt(),
+            clinicName = getString("clinicName") ?: "",
+            clinicCity = getString("clinicCity") ?: "Kochi",
+            clinicAddress = getString("clinicAddress") ?: "",
+            videoConsultFeeInr = getDouble("videoConsultFeeInr") ?: 349.0,
+            inPersonConsultFeeInr = getDouble("inPersonConsultFeeInr") ?: 499.0,
+            phone = getString("phone") ?: ""
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed vet ${id}", e)
+        null
+    }
+
+    suspend fun addVet(vet: VerifiedDoctor): Result<Unit> = try {
+        db.collection("vets").document().set(
+            mapOf(
+                "name" to vet.name,
+                "degrees" to vet.degrees,
+                "ksvcRegNumber" to vet.ksvcRegNumber,
+                "specialization" to vet.specialization,
+                "experienceYears" to vet.experienceYears,
+                "clinicName" to vet.clinicName,
+                "clinicCity" to vet.clinicCity,
+                "clinicAddress" to vet.clinicAddress,
+                "videoConsultFeeInr" to vet.videoConsultFeeInr,
+                "inPersonConsultFeeInr" to vet.inPersonConsultFeeInr,
+                "phone" to vet.phone,
+                "createdAt" to System.currentTimeMillis()
+            )
+        ).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    suspend fun deleteVet(vetId: String): Result<Unit> = try {
+        db.collection("vets").document(vetId).delete().await()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)

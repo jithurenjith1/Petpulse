@@ -24,6 +24,7 @@ import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
+import com.petpulse.app.data.model.VerifiedDoctor
 
 private val adminListTypes = listOf("Food", "Medicine", "Grooming")
 
@@ -38,6 +39,7 @@ fun AdminScreen(
     dealers: List<Dealer>,
     products: List<ShopProduct>,
     bookings: List<ServiceBooking> = emptyList(),
+    vets: List<VerifiedDoctor> = emptyList(),
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
     onAddProduct: (String, String, String, Double, String) -> Unit,
@@ -46,6 +48,8 @@ fun AdminScreen(
     onDeleteDealer: (String) -> Unit,
     onAssignBooking: (String, String, String) -> Unit = { _, _, _ -> },
     onUpdateBookingStatus: (String, String) -> Unit = { _, _ -> },
+    onAddVet: (String, String, String, String, String, Double, Double) -> Unit = { _, _, _, _, _, _, _ -> },
+    onDeleteVet: (String) -> Unit = {},
     onDismiss: () -> Unit
 ) {
     var tab by remember { mutableStateOf(0) }
@@ -74,6 +78,7 @@ fun AdminScreen(
                     FilterChip(selected = tab == 1, onClick = { tab = 1 }, label = { Text(stringResource(R.string.admin_tab_products)) })
                     FilterChip(selected = tab == 2, onClick = { tab = 2 }, label = { Text(stringResource(R.string.admin_tab_dealers)) })
                     FilterChip(selected = tab == 3, onClick = { tab = 3 }, label = { Text("Bookings") })
+                    FilterChip(selected = tab == 4, onClick = { tab = 4 }, label = { Text("Vets") })
                 }
                 Spacer(Modifier.height(8.dp))
                 when (tab) {
@@ -84,11 +89,12 @@ fun AdminScreen(
                     )
                     1 -> ProductsAdminTab(products = products, onAdd = onAddProduct, onDelete = onDeleteProduct)
                     2 -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
-                    else -> BookingsAdminTab(
+                    3 -> BookingsAdminTab(
                         bookings = bookings,
                         onAssign = { booking -> assigningBooking = booking },
                         onUpdateStatus = onUpdateBookingStatus
                     )
+                    else -> VetsAdminTab(vets = vets, onAdd = onAddVet, onDelete = onDeleteVet)
                 }
             }
         }
@@ -521,6 +527,133 @@ private fun DealersAdminTab(
                         TextButton(onClick = { onDelete(d.id) }) {
                             Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun VetsAdminTab(
+    vets: List<VerifiedDoctor>,
+    onAdd: (String, String, String, String, String, Double, Double) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var specialization by remember { mutableStateOf("") }
+    var clinicName by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var videoFee by remember { mutableStateOf("") }
+    var inPersonFee by remember { mutableStateOf("") }
+
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item { Text("Add Partner Vet", fontWeight = FontWeight.Bold, fontSize = 14.sp) }
+        item {
+            OutlinedTextField(
+                value = name, onValueChange = { name = it },
+                label = { Text("Vet Name (Dr. added automatically)") },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = specialization, onValueChange = { specialization = it },
+                label = { Text("Specialization (e.g. Canine & Feline Surgeon)") },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = clinicName, onValueChange = { clinicName = it },
+                label = { Text("Clinic Name") },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = city, onValueChange = { city = it },
+                label = { Text("City (Kochi, Thrissur...)") },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = phone, onValueChange = { phone = it },
+                label = { Text("Phone") },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = videoFee, onValueChange = { videoFee = it },
+                    label = { Text("Video Fee ₹") },
+                    modifier = Modifier.weight(1f), singleLine = true
+                )
+                OutlinedTextField(
+                    value = inPersonFee, onValueChange = { inPersonFee = it },
+                    label = { Text("Clinic Fee ₹") },
+                    modifier = Modifier.weight(1f), singleLine = true
+                )
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    if (name.isNotBlank() && phone.isNotBlank()) {
+                        onAdd(
+                            name.trim(),
+                            specialization.trim(),
+                            clinicName.trim(),
+                            city.trim().ifBlank { "Kochi" },
+                            phone.trim(),
+                            videoFee.trim().toDoubleOrNull() ?: 0.0,
+                            inPersonFee.trim().toDoubleOrNull() ?: 0.0
+                        )
+                        name = ""
+                        specialization = ""
+                        clinicName = ""
+                        city = ""
+                        phone = ""
+                        videoFee = ""
+                        inPersonFee = ""
+                    }
+                },
+                enabled = name.isNotBlank() && phone.isNotBlank()
+            ) {
+                Text(stringResource(R.string.admin_add))
+            }
+        }
+        item { Divider() }
+        if (vets.isEmpty()) {
+            item {
+                Text(
+                    "No partner vets yet. Add your clinic partners here — they will show in Market → Healthcare and replace the demo doctors.",
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+        } else {
+            items(vets) { vet ->
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(vet.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            TextButton(onClick = { onDelete(vet.id) }) {
+                                Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
+                            }
+                        }
+                        Text("${vet.specialization} • ${vet.clinicName}, ${vet.clinicCity}", fontSize = 12.sp)
+                        Text(
+                            "Video ₹${vet.videoConsultFeeInr.toInt()} • Clinic ₹${vet.inPersonConsultFeeInr.toInt()} • ${vet.phone}",
+                            fontSize = 12.sp, color = Color.Gray
+                        )
                     }
                 }
             }

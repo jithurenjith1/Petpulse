@@ -193,12 +193,21 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getGroomingServices())
 
     private val _verifiedDoctorsList = MutableStateFlow<List<VerifiedDoctor>>(marketplaceRepo.getVerifiedDoctors())
+
+    /** Real partner vets added by the owner (Firestore "vets" collection). */
+    val partnerVets: StateFlow<List<VerifiedDoctor>> = commerceRepo.observeVets()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    // When partner vets exist they REPLACE the sample demo doctors; otherwise the
+    // demo list is shown so the Healthcare tab is never empty. Fresh in-session vet
+    // registrations are always kept on top.
     val verifiedDoctors: StateFlow<List<VerifiedDoctor>> = combine(
-        _verifiedDoctorsList,
-        _selectedKeralaCity
-    ) { doctors, city ->
-        if (city == "All Kerala") doctors
-        else doctors.filter { it.clinicCity.equals(city, ignoreCase = true) }
+        _verifiedDoctorsList, partnerVets, _selectedKeralaCity
+    ) { local, partners, city ->
+        val base = if (partners.isEmpty()) local
+        else partners + local.filter { it.id.startsWith("vet_reg_") }
+        if (city == "All Kerala") base
+        else base.filter { it.clinicCity.equals(city, ignoreCase = true) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), marketplaceRepo.getVerifiedDoctors())
 
     // Cart calculations
@@ -511,13 +520,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun calculateDeliveryFee(subtotal: Double, city: String, express: Boolean): Double {
         if (subtotal <= 0.0) return 0.0
-        val baseFee = when (city.lowercase()) {
-            "kochi" -> if (subtotal >= 499.0) 0.0 else 35.0
-            "thrissur" -> if (subtotal >= 499.0) 0.0 else 40.0
-            "trivandrum" -> if (subtotal >= 599.0) 0.0 else 45.0
-            "kozhikode" -> if (subtotal >= 599.0) 0.0 else 50.0
-            else -> if (subtotal >= 599.0) 0.0 else 49.0
-        }
+        // v4 model: flat ₹40 delivery under ₹500, FREE at/above ₹500 (all Kerala cities)
+        val baseFee = if (subtotal >= 500.0) 0.0 else 40.0
         return if (express) baseFee + 50.0 else baseFee
     }
 
@@ -532,7 +536,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         val items = _cartItems.value
         val subtotal = items.sumOf { it.priceInr * it.quantity }
         val deliveryFee = calculateDeliveryFee(subtotal, city, _isExpressDelivery.value)
-        val total = subtotal + deliveryFee + 10.0 // 10 eco charge
+        val total = subtotal + deliveryFee
         val randomOtp = (1000..9999).random().toString()
         val orderNum = (10000..99999).random()
 
@@ -541,7 +545,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             items = items,
             subtotalInr = subtotal,
             deliveryFeeInr = deliveryFee,
-            ecoPackagingFeeInr = 10.0,
+            ecoPackagingFeeInr = 0.0,
             totalInr = total,
             deliveryCity = city.ifBlank { "Kochi" },
             deliveryAddress = address.ifBlank { "Doorstep, Kerala" },
@@ -718,6 +722,42 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun adminDeleteDealer(dealerId: String) {
         viewModelScope.launch {
             _commerceEvent.value = if (commerceRepo.deleteDealer(dealerId).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    // ---------- Partner vet management (Admin panel → Vets tab) ----------
+
+    fun adminAddVet(
+        name: String,
+        specialization: String,
+        clinicName: String,
+        city: String,
+        phone: String,
+        videoFee: Double,
+        inPersonFee: Double
+    ) {
+        viewModelScope.launch {
+            val vet = VerifiedDoctor(
+                id = "",
+                name = if (name.startsWith("Dr.")) name else "Dr. $name",
+                degrees = "BVSc & AH",
+                ksvcRegNumber = "",
+                specialization = specialization.ifBlank { "Veterinary Physician" },
+                experienceYears = 5,
+                clinicName = clinicName.ifBlank { "$name Pet Care Clinic" },
+                clinicCity = city.ifBlank { "Kochi" },
+                clinicAddress = "${clinicName.ifBlank { "$name Pet Care Clinic" }}, ${city.ifBlank { "Kochi" }}, Kerala",
+                videoConsultFeeInr = if (videoFee <= 0) 349.0 else videoFee,
+                inPersonConsultFeeInr = if (inPersonFee <= 0) 499.0 else inPersonFee,
+                phone = phone
+            )
+            _commerceEvent.value = if (commerceRepo.addVet(vet).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminDeleteVet(vetId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteVet(vetId).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
     }
 

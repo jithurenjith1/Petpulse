@@ -54,21 +54,11 @@ fun SlideOutCartModal(
     onProceedToEscrowCheckout: () -> Unit
 ) {
     val subtotal = cartItems.sumOf { it.priceInr * it.quantity }
-    val freeThreshold = if (selectedCity.lowercase() in listOf("kochi", "thrissur")) 499.0 else 599.0
-    val deliveryFee = if (subtotal == 0.0) 0.0 else if (subtotal >= freeThreshold) {
-        if (isExpress) 50.0 else 0.0
-    } else {
-        val base = when (selectedCity.lowercase()) {
-            "kochi" -> 35.0
-            "thrissur" -> 40.0
-            "trivandrum" -> 45.0
-            "kozhikode" -> 50.0
-            else -> 45.0
-        }
-        if (isExpress) base + 50.0 else base
-    }
-    val ecoFee = if (cartItems.isNotEmpty()) 10.0 else 0.0
-    val total = subtotal + deliveryFee + ecoFee
+    // v4 model: flat ₹40 delivery under ₹500, FREE at/above ₹500 (all Kerala cities)
+    val freeThreshold = 500.0
+    val baseFee = if (subtotal >= freeThreshold) 0.0 else 40.0
+    val deliveryFee = if (subtotal == 0.0) 0.0 else baseFee + if (isExpress) 50.0 else 0.0
+    val total = subtotal + deliveryFee
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -341,13 +331,6 @@ fun SlideOutCartModal(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(stringResource(R.string.modals_kerala_biodegradable_packaging), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("₹${ecoFee.toInt()}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
                                 Text(stringResource(R.string.modals_petpulse_escrow_protection), fontSize = 12.sp, color = Color(0xFF00796B), fontWeight = FontWeight.Bold)
                                 Text(stringResource(R.string.modals_free), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00796B))
                             }
@@ -406,20 +389,14 @@ fun SecureEscrowCheckoutModal(
 
     val hasMedicinesWithRx = cartItems.any { it.prescriptionRequired }
     val subtotal = cartItems.sumOf { it.priceInr * it.quantity }
-    val freeThreshold = if (deliveryCity.lowercase() in listOf("kochi", "thrissur")) 499.0 else 599.0
+    // v4 model: flat ₹40 delivery under ₹500, FREE at/above ₹500 (all Kerala cities)
+    val freeThreshold = 500.0
     val deliveryFee = if (subtotal >= freeThreshold) {
         if (isExpress) 50.0 else 0.0
     } else {
-        val base = when (deliveryCity.lowercase()) {
-            "kochi" -> 35.0
-            "thrissur" -> 40.0
-            "trivandrum" -> 45.0
-            "kozhikode" -> 50.0
-            else -> 45.0
-        }
-        if (isExpress) base + 50.0 else base
+        if (isExpress) 40.0 + 50.0 else 40.0
     }
-    val total = subtotal + deliveryFee + 10.0
+    val total = subtotal + deliveryFee
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -672,6 +649,11 @@ fun SecureEscrowCheckoutModal(
                             Column {
                                 Text(stringResource(R.string.modals_total_escrow_amount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("₹${total.toInt()}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimaryDark)
+                                Text(
+                                    "Items ₹${subtotal.toInt()} • Delivery: " + if (deliveryFee == 0.0) "FREE" else "₹${deliveryFee.toInt()}",
+                                    fontSize = 11.sp,
+                                    color = if (deliveryFee == 0.0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
 
                             Button(
