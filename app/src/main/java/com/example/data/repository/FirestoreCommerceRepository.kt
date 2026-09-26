@@ -408,24 +408,26 @@ class FirestoreCommerceRepository {
         awaitClose { sub.remove() }
     }
 
-    private fun DocumentSnapshot.toVet(): VerifiedDoctor? = try {
-        VerifiedDoctor(
-            id = id,
-            name = getString("name") ?: return null,
-            degrees = getString("degrees") ?: "BVSc & AH",
-            ksvcRegNumber = getString("ksvcRegNumber") ?: "",
-            specialization = getString("specialization") ?: "Veterinary Physician",
-            experienceYears = (getLong("experienceYears") ?: 5L).toInt(),
-            clinicName = getString("clinicName") ?: "",
-            clinicCity = getString("clinicCity") ?: "Kochi",
-            clinicAddress = getString("clinicAddress") ?: "",
-            videoConsultFeeInr = getDouble("videoConsultFeeInr") ?: 349.0,
-            inPersonConsultFeeInr = getDouble("inPersonConsultFeeInr") ?: 499.0,
-            phone = getString("phone") ?: ""
-        )
-    } catch (e: Exception) {
-        Log.e("FsCommerce", "Skipping malformed vet ${id}", e)
-        null
+    private fun DocumentSnapshot.toVet(): VerifiedDoctor? {
+        return try {
+            VerifiedDoctor(
+                id = id,
+                name = getString("name") ?: return null,
+                degrees = getString("degrees") ?: "BVSc & AH",
+                ksvcRegNumber = getString("ksvcRegNumber") ?: "",
+                specialization = getString("specialization") ?: "Veterinary Physician",
+                experienceYears = (getLong("experienceYears") ?: 5L).toInt(),
+                clinicName = getString("clinicName") ?: "",
+                clinicCity = getString("clinicCity") ?: "Kochi",
+                clinicAddress = getString("clinicAddress") ?: "",
+                videoConsultFeeInr = getDouble("videoConsultFeeInr") ?: 349.0,
+                inPersonConsultFeeInr = getDouble("inPersonConsultFeeInr") ?: 499.0,
+                phone = getString("phone") ?: ""
+            )
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "Skipping malformed vet ${id}", e)
+            null
+        }
     }
 
     suspend fun addVet(vet: VerifiedDoctor): Result<Unit> = try {
