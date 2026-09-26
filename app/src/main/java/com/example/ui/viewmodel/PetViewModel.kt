@@ -134,6 +134,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val adminOrders: StateFlow<List<AdminOrder>> = commerceRepo.observeOrders()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    // Live orders of the signed-in customer (My Orders screen)
+    val myOrders: StateFlow<List<AdminOrder>> = commerceRepo.observeMyOrders()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     val adminDealers: StateFlow<List<Dealer>> = commerceRepo.observeDealers()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -431,6 +435,21 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     ): DoctorBooking = bookDoctorAppointment(doctor, consultType, petName, date, slot)
 
     // Cart Operations
+    /** "Buy Again" — loads a past order's items back into the cart. */
+    fun reorderFromOrder(order: AdminOrder) {
+        val items = order.items.map { snap ->
+            CartItem(
+                id = "cart_reorder_${System.currentTimeMillis()}_${(100..999).random()}",
+                itemId = "reorder_${snap.name.lowercase().replace(" ", "_")}",
+                title = snap.name,
+                subtitle = "",
+                priceInr = snap.priceInr,
+                quantity = snap.quantity
+            )
+        }
+        if (items.isNotEmpty()) _cartItems.value = items
+    }
+
     fun addToCart(
         itemId: String,
         title: String,

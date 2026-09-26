@@ -33,6 +33,7 @@ import com.petpulse.app.ui.screens.RealSosScreen
 import com.petpulse.app.ui.screens.PetInsuranceScreen
 import com.petpulse.app.ui.screens.PetCommunityScreen
 import com.petpulse.app.ui.screens.LostPetAlertsScreen
+import com.petpulse.app.ui.screens.MyOrdersScreen
 import com.petpulse.app.ui.screens.PetCareTipsScreen
 import com.petpulse.app.ui.screens.AiSymptomCheckerScreen
 import com.petpulse.app.ui.screens.VetTeleconsultScreen
@@ -117,6 +118,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
     val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
     val escrowOrders by viewModel.escrowOrders.collectAsStateWithLifecycle()
+    val myOrders by viewModel.myOrders.collectAsStateWithLifecycle()
 
     val filteredMarketPets by viewModel.filteredMarketPets.collectAsStateWithLifecycle()
     val marketFoods by viewModel.marketFoods.collectAsStateWithLifecycle()
@@ -149,6 +151,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showAdminScreen by remember { mutableStateOf(false) }
     var showEscrowCheckoutModal by remember { mutableStateOf(false) }
     var showOrderTrackingModal by remember { mutableStateOf(false) }
+    var showMyOrdersScreen by remember { mutableStateOf(false) }
     var showListPetModal by remember { mutableStateOf(false) }
     var selectedDoctorForBooking by remember { mutableStateOf<VerifiedDoctor?>(null) }
 
@@ -274,7 +277,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         doctors = verifiedDoctors,
                         cartItemCount = cartItemCount,
                         onOpenCart = { showCartModal = true },
-                        onOpenOrders = { showOrderTrackingModal = true },
+                        onOpenOrders = { showMyOrdersScreen = true },
                         onOpenListPetModal = { showListPetModal = true },
                         onAddToCart = { product ->
                             viewModel.addProductToCart(product)
@@ -461,6 +464,18 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             onShowMessage = { msg ->
                 coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
             }
+        )
+    }
+
+    if (showMyOrdersScreen) {
+        MyOrdersScreen(
+            orders = myOrders,
+            onBuyAgain = { order ->
+                viewModel.reorderFromOrder(order)
+                showMyOrdersScreen = false
+                showCartModal = true
+            },
+            onClose = { showMyOrdersScreen = false }
         )
     }
 

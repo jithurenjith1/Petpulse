@@ -166,6 +166,31 @@ class FirestoreCommerceRepository {
         awaitClose { sub.remove() }
     }
 
+    /** Live orders of the signed-in customer only (for the My Orders screen). */
+    fun observeMyOrders(): Flow<List<AdminOrder>> = callbackFlow {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            trySend(emptyList())
+            awaitClose { }
+            return@callbackFlow
+        }
+        val sub = db.collection("orders").whereEqualTo("ownerId", uid)
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    Log.e("FsCommerce", "my orders listen failed", err)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                trySend(
+                    snap?.documents
+                        ?.mapNotNull { it.toAdminOrder() }
+                        ?.sortedByDescending { it.createdAt }
+                        ?: emptyList()
+                )
+            }
+        awaitClose { sub.remove() }
+    }
+
     private fun DocumentSnapshot.toAdminOrder(): AdminOrder? = try {
         val rawItems = (get("items") as? List<*>).orEmpty()
         AdminOrder(
@@ -208,6 +233,7 @@ class FirestoreCommerceRepository {
         val docRef = db.collection("orders").document()
         docRef.set(
             mapOf(
+                "ownerId" to (auth.currentUser?.uid ?: ""),
                 "orderNumber" to orderNumber,
                 "items" to items.map { mapOf("name" to it.name, "price" to it.priceInr, "qty" to it.quantity) },
                 "totalInr" to totalInr,
