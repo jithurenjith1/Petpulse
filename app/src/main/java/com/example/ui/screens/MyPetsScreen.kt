@@ -42,6 +42,10 @@ import com.petpulse.app.data.model.MedicalReport
 import com.petpulse.app.data.model.UserPet
 import com.petpulse.app.data.model.VaccinationRecord
 import com.petpulse.app.ui.theme.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 enum class PetDetailSubmenu {
     CERTIFICATE,
@@ -233,6 +237,11 @@ fun MyPetsScreen(
                     }
                 }
             }
+        }
+
+        // 2.5 Vaccination Reminder Banner — overdue or due within 3 days
+        item {
+            VaccinationReminderBanner(vaccinations = vaccinations)
         }
 
         // 3. Pet Submenu Navigation Chips (Certificate, Vaccination, Food & Plays, Training)
@@ -636,6 +645,18 @@ fun VaccinationMedicalSubmenuSection(
                                             fontSize = 10.sp,
                                             color = BluePrimary
                                         )
+                                        if (targetStatus == "Upcoming") {
+                                            val daysText = vaccineDueDaysText(record)
+                                            if (daysText != null) {
+                                                val overdue = daysText.startsWith("Overdue")
+                                                Text(
+                                                    text = "⚠ $daysText",
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = if (overdue) Color(0xFFD62828) else Color(0xFFA87A1F)
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1218,6 +1239,113 @@ fun HealthAndSettingsSection(
                     Text("Automatic calendar reminders 7 days before due date", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Switch(checked = notifyVaccines, onCheckedChange = { notifyVaccines = it }, colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary))
+            }
+        }
+    }
+}
+
+// ---------------- Vaccination Reminders (overdue / due soon) ----------------
+
+/** Date formats users may have typed into the free-text Next-Due field. */
+private val vaccineDateFormats = listOf(
+    "MMM d, yyyy",   // Aug 25, 2027 style (dialog default)
+    "MMM d yyyy",
+    "d MMMM yyyy",
+    "dd/MM/yyyy",
+    "dd-MM-yyyy",
+    "dd/MM/yy",
+    "yyyy-MM-dd"
+).map { DateTimeFormatter.ofPattern(it, Locale.ENGLISH) }
+
+/** Best-effort parse of a free-text next-due date; null when unreadable. */
+fun parseVaccineDate(raw: String): LocalDate? {
+    val trimmed = raw.trim()
+    if (trimmed.isEmpty()) return null
+    for (fmt in vaccineDateFormats) {
+        try {
+            return LocalDate.parse(trimmed, fmt)
+        } catch (_: Exception) { }
+    }
+    return null
+}
+
+/** Days until the record's next due date (negative = overdue); null when unreadable. */
+fun vaccineDueDays(record: VaccinationRecord): Long? {
+    val due = parseVaccineDate(record.nextDueDate) ?: return null
+    return ChronoUnit.DAYS.between(LocalDate.now(), due)
+}
+
+/** Short text like "Due in 2 days" / "Overdue by 5 days" / "Due today"; null when date unreadable. */
+fun vaccineDueDaysText(record: VaccinationRecord): String? {
+    val days = vaccineDueDays(record) ?: return null
+    return when {
+        days < 0 -> "Overdue by ${-days} day${if (days == -1L) "" else "s"}!"
+        days == 0L -> "Due today!"
+        else -> "Due in $days day${if (days == 1L) "" else "s"}"
+    }
+}
+
+/**
+ * Banner at the top of My Pets: shows the MOST urgent non-completed vaccination
+ * when it is overdue or due within 3 days. Silent otherwise.
+ */
+@Composable
+fun VaccinationReminderBanner(vaccinations: List<VaccinationRecord>) {
+    val mostUrgent = vaccinations
+        .filter { it.status != "Completed" }
+        .mapNotNull { record ->
+            vaccineDueDays(record)?.let { days -> record to days }
+        }
+        .filter { it.second <= 3 } // due within 3 days or overdue
+        .minByOrNull { it.second }
+        ?: return
+
+    val (record, days) = mostUrgent
+    val overdue = days < 0
+    val bg = if (overdue) Color(0xFFF7DCD9) else Color(0xFFF6ECD8)
+    val fg = if (overdue) Color(0xFFD62828) else Color(0xFFA87A1F)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = bg),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                Icons.Default.Notifications,
+                contentDescription = null,
+                tint = fg,
+                modifier = Modifier.size(24.dp)
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = if (overdue) {
+                        "Vaccination overdue!"
+                    } else {
+                        "Vaccination due soon"
+                    },
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = fg
+                )
+                Text(
+                    text = "${record.vaccineName} — " + when {
+                        days < 0 -> "overdue by ${-days} day${if (days == -1L) "" else "s"} (${record.nextDueDate})"
+                        days == 0L -> "due today! (${record.nextDueDate})"
+                        else -> "due in $days day${if (days == 1L) "" else "s"} (${record.nextDueDate})"
+                    },
+                    fontSize = 11.sp,
+                    color = fg
+                )
             }
         }
     }
