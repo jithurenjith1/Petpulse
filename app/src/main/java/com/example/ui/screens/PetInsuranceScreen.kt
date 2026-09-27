@@ -113,7 +113,7 @@ private val insurancePlans = listOf(
 private fun formatRupee(amount: Int): String = "₹" + "%,d".format(amount)
 
 // ---- Insurance contact (owner follows up on WhatsApp) ----
-private const val INSURANCE_WHATSAPP_NUMBER = "919626632311"
+private const val INSURANCE_WHATSAPP_NUMBER = "919526632311"
 
 private fun openInsuranceWhatsApp(context: Context, planName: String?) {
     val message = if (planName.isNullOrEmpty()) {
