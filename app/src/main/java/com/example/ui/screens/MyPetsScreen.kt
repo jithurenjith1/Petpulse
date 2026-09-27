@@ -1372,11 +1372,6 @@ fun HealthAndSettingsSection(
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit
 ) {
-    var petNameInput by remember(pet.name) { mutableStateOf(pet.name) }
-    var petBreedInput by remember(pet.breed) { mutableStateOf(pet.breed) }
-    var petAgeInput by remember(pet.ageYears) { mutableStateOf(pet.ageYears.toString()) }
-    var petGenderInput by remember(pet.gender) { mutableStateOf(pet.gender) }
-
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
         shape = RoundedCornerShape(20.dp),
@@ -1439,38 +1434,6 @@ fun HealthAndSettingsSection(
         }
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Default.Settings, contentDescription = null, tint = BluePrimary)
-                Text(text = stringResource(R.string.mypets_settings_default_pet_configuration), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
-            }
-            Text(text = "Customize the pet name and details for this account:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            OutlinedTextField(value = petNameInput, onValueChange = { petNameInput = it }, label = { Text(stringResource(R.string.mypets_pet_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = petBreedInput, onValueChange = { petBreedInput = it }, label = { Text(stringResource(R.string.mypets_breed)) }, modifier = Modifier.weight(1f))
-                OutlinedTextField(value = petGenderInput, onValueChange = { petGenderInput = it }, label = { Text(stringResource(R.string.mypets_gender)) }, modifier = Modifier.weight(1f))
-                OutlinedTextField(value = petAgeInput, onValueChange = { petAgeInput = it }, label = { Text(stringResource(R.string.mypets_age)) }, modifier = Modifier.weight(0.8f))
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                FilledTonalButton(onClick = onEditPetClick) { Text(stringResource(R.string.mypets_full_edit_form), fontSize = 12.sp) }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        val years = petAgeInput.toIntOrNull() ?: pet.ageYears
-                        onSavePetDirectly(petNameInput, petBreedInput, years, petGenderInput)
-                        onShowMessage("Pet renamed to '$petNameInput' and settings saved!")
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
-                ) { Text(stringResource(R.string.mypets_save_pet_name), fontSize = 12.sp) }
-            }
-        }
-    }
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
