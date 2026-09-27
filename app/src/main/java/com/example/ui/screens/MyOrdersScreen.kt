@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.LocalShipping
@@ -363,7 +364,26 @@ private fun MyBookingCard(
         SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(booking.createdAt))
     } else ""
 
-    val isDoctor = booking.type == "DOCTOR"
+    val typeLabel = when (booking.type) {
+        "DOCTOR" -> "Doctor Consultation"
+        "GROOMING" -> "Grooming Service"
+        else -> "Trainer Visit"
+    }
+    val typeIcon = when (booking.type) {
+        "DOCTOR" -> Icons.Default.MedicalServices
+        "GROOMING" -> Icons.Default.ContentCut
+        else -> Icons.Default.FitnessCenter
+    }
+    val typeTint = when (booking.type) {
+        "DOCTOR" -> CoralPrimary
+        "GROOMING" -> AmberGold
+        else -> TealAccent
+    }
+    val roleLabel = when (booking.type) {
+        "DOCTOR" -> "Doctor"
+        "GROOMING" -> "Groomer"
+        else -> "Trainer"
+    }
 
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -381,15 +401,15 @@ private fun MyBookingCard(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        if (isDoctor) Icons.Default.MedicalServices else Icons.Default.FitnessCenter,
+                        typeIcon,
                         contentDescription = null,
-                        tint = if (isDoctor) CoralPrimary else TealAccent,
+                        tint = typeTint,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
                     Column {
                         Text(
-                            if (isDoctor) "Doctor Consultation" else "Trainer Visit",
+                            typeLabel,
                             color = DarkText, fontWeight = FontWeight.Bold, fontSize = 14.sp
                         )
                         if (dateText.isNotEmpty()) {
@@ -433,13 +453,13 @@ private fun MyBookingCard(
                         .padding(horizontal = 10.dp, vertical = 8.dp)
                 ) {
                     Icon(
-                        if (isDoctor) Icons.Default.MedicalServices else Icons.Default.FitnessCenter,
+                        typeIcon,
                         contentDescription = null, tint = TealAccent, modifier = Modifier.size(16.dp)
                     )
                     Spacer(Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "${if (isDoctor) "Doctor" else "Trainer"}: ${booking.assignedName}",
+                            "$roleLabel: ${booking.assignedName}",
                             color = TealAccent, fontWeight = FontWeight.Bold, fontSize = 12.sp
                         )
                         Text("Confirmed — they will reach you at your schedule", color = TealAccent, fontSize = 11.sp)

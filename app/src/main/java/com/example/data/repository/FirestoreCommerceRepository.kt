@@ -5,7 +5,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.petpulse.app.data.model.AdminOrder
+import com.petpulse.app.data.model.CommunityPost
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.OrderItemSnap
 import com.petpulse.app.data.model.ServiceBooking
@@ -457,5 +459,58 @@ class FirestoreCommerceRepository {
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)
+    }
+
+    // ---------- community posts (Firestore-backed) ----------
+
+    fun observeCommunityPosts(): Flow<List<CommunityPost>> = callbackFlow {
+        val sub = db.collection("community_posts")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .limit(100)
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    Log.e("FsCommerce", "community posts listen failed", err)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                trySend(
+                    snap?.documents?.mapNotNull { it.toCommunityPost() } ?: emptyList()
+                )
+            }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toCommunityPost(): CommunityPost? {
+        return try {
+            CommunityPost(
+                id = id,
+                ownerId = getString("ownerId") ?: "",
+                authorName = getString("authorName") ?: "Pet Lover",
+                petName = getString("petName") ?: "",
+                message = getString("message") ?: return null,
+                createdAt = getLong("createdAt") ?: 0L
+            )
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "Skipping malformed community post", e)
+            null
+        }
+    }
+
+    suspend fun addCommunityPost(authorName: String, petName: String, message: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        db.collection("community_posts").add(
+            mapOf(
+                "ownerId" to uid,
+                "authorName" to authorName,
+                "petName" to petName,
+                "message" to message,
+                "createdAt" to System.currentTimeMillis()
+            )
+        ).await()
+    }
+
+    suspend fun deleteCommunityPost(postId: String) {
+        if (postId.isBlank()) return
+        db.collection("community_posts").document(postId).delete().await()
     }
 }

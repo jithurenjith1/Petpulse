@@ -346,6 +346,7 @@ fun MyPetsScreen(
                         pet = pet,
                         customer = customer,
                         vaccinations = vaccinations,
+                        medicalReports = medicalReports,
                         healthScore = healthScore,
                         onEditPetClick = onEditPetClick,
                         onSavePetDirectly = onSavePetDirectly,
@@ -1367,6 +1368,7 @@ fun HealthAndSettingsSection(
     pet: UserPet,
     customer: CustomerProfile,
     vaccinations: List<VaccinationRecord>,
+    medicalReports: List<MedicalReport>,
     healthScore: Int,
     onEditPetClick: () -> Unit,
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
@@ -1412,18 +1414,18 @@ fun HealthAndSettingsSection(
                 }
                 Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFFFF8E1), modifier = Modifier.weight(1f)) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(stringResource(R.string.mypets_est_monthly), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Medical Reports", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text("₹5,800", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFFE65100))
-                        Text(stringResource(R.string.mypets_food_care), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${medicalReports.size}", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFFE65100))
+                        Text("On file", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
             Surface(shape = RoundedCornerShape(10.dp), color = Color(0xFFF9FBFE), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(stringResource(R.string.mypets_weekly_exercise_walks), fontSize = 11.sp)
-                        Text(stringResource(R.string.mypets_s14_walks_completed_18_2_km), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                        Text("Vaccines Completed", fontSize = 11.sp)
+                        Text("${vaccinations.count { it.status == \"Completed\" }} of ${vaccinations.size}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(stringResource(R.string.mypets_microchip_tag_status), fontSize = 11.sp)
@@ -1435,33 +1437,7 @@ fun HealthAndSettingsSection(
     }
 
 
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(text = stringResource(R.string.mypets_safety_notification_preferences), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
-            var notifyLostPets by remember { mutableStateOf(true) }
-            var notifyVaccines by remember { mutableStateOf(true) }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.mypets_s5km_radius_lost_pet_alerts), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                    Text("Receive emergency notifications when a pet is lost nearby", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Switch(checked = notifyLostPets, onCheckedChange = { notifyLostPets = it }, colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary))
-            }
-            Divider()
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.mypets_vaccination_medication_due_reminders), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                    Text("Automatic calendar reminders 7 days before due date", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Switch(checked = notifyVaccines, onCheckedChange = { notifyVaccines = it }, colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary))
-            }
-        }
-    }
+
 }
 
 // ---------------- Vaccination Reminders (overdue / due soon) ----------------

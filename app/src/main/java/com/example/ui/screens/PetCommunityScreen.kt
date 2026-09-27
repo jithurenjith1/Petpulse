@@ -2,6 +2,7 @@ package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
+import com.petpulse.app.data.model.CommunityPost
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,9 +23,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
@@ -65,48 +65,15 @@ private val TealAccent = Color(0xFF1D7A6E)
 private val DarkText = Color(0xFF272220)
 private val SosRed = Color(0xFFD62828)
 
-/**
- * A single post in the pet community feed.
- */
-data class CommunityPost(
-    val authorName: String,
-    val petName: String,
-    val message: String,
-    val timestamp: String,
-    val likeCount: Int,
-    val liked: Boolean = false
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetCommunityScreen(onOpenLostPetAlerts: () -> Unit = {}) {
-    // In-memory store seeded with 3 sample posts.
-    val posts = remember {
-        mutableStateListOf(
-            CommunityPost(
-                authorName = "Ananya Sharma",
-                petName = "Mango",
-                message = "Mango finally learned to fetch today! So proud of my golden boy. 🐕",
-                timestamp = "2 hours ago",
-                likeCount = 24
-            ),
-            CommunityPost(
-                authorName = "Rohan Mehta",
-                petName = "Whiskers",
-                message = "Whiskers found the warmest spot in the house — right on top of the freshly folded laundry. Classic. 🐱",
-                timestamp = "5 hours ago",
-                likeCount = 41
-            ),
-            CommunityPost(
-                authorName = "Priya Nair",
-                petName = "Biscuit",
-                message = "Morning walk with Biscuit by the lake. The sunrise was as golden as his fur. 🌅",
-                timestamp = "Yesterday",
-                likeCount = 87
-            )
-        )
-    }
-
+fun PetCommunityScreen(
+    posts: List<CommunityPost>,
+    currentUid: String?,
+    onAddPost: (message: String, petName: String) -> Unit,
+    onDeletePost: (CommunityPost) -> Unit,
+    onOpenLostPetAlerts: () -> Unit = {}
+) {
     var showNewPostDialog by remember { mutableStateOf(false) }
 
     MaterialTheme {
@@ -168,21 +135,36 @@ fun PetCommunityScreen(onOpenLostPetAlerts: () -> Unit = {}) {
                         }
                     }
                 }
-                items(posts) { post ->
-                    PostCard(
-                        post = post,
-                        onLikeToggle = { current ->
-                            val index = posts.indexOf(current)
-                            if (index >= 0) {
-                                val updated = current.copy(
-                                    liked = !current.liked,
-                                    likeCount = if (current.liked) current.likeCount - 1
-                                    else current.likeCount + 1
+                if (posts.isEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(28.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(Icons.Default.Pets, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(36.dp))
+                                Text("No community posts yet", color = DarkText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(
+                                    "Be the first to share a story about your pet! Tap the + button below.",
+                                    color = DarkText.copy(alpha = 0.6f), fontSize = 13.sp
                                 )
-                                posts[index] = updated
                             }
                         }
-                    )
+                    }
+                } else {
+                    items(posts) { post ->
+                        PostCard(
+                            post = post,
+                            isOwnPost = post.ownerId == currentUid,
+                            onDelete = { onDeletePost(post) }
+                        )
+                    }
                 }
                 item {
                     Spacer(modifier = Modifier.height(80.dp))
@@ -195,16 +177,7 @@ fun PetCommunityScreen(onOpenLostPetAlerts: () -> Unit = {}) {
         NewPostDialog(
             onDismiss = { showNewPostDialog = false },
             onPost = { message, petName ->
-                posts.add(
-                    0,
-                    CommunityPost(
-                        authorName = "You",
-                        petName = petName,
-                        message = message,
-                        timestamp = "Just now",
-                        likeCount = 0
-                    )
-                )
+                onAddPost(message, petName)
                 showNewPostDialog = false
             }
         )
@@ -214,7 +187,8 @@ fun PetCommunityScreen(onOpenLostPetAlerts: () -> Unit = {}) {
 @Composable
 private fun PostCard(
     post: CommunityPost,
-    onLikeToggle: (CommunityPost) -> Unit
+    isOwnPost: Boolean,
+    onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -250,17 +224,29 @@ private fun PostCard(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 15.sp
                     )
-                    Text(
-                        text = "with ${post.petName}",
-                        color = TealAccent,
-                        fontSize = 13.sp
-                    )
+                    if (post.petName.isNotBlank()) {
+                        Text(
+                            text = "with ${post.petName}",
+                            color = TealAccent,
+                            fontSize = 13.sp
+                        )
+                    }
                 }
                 Text(
-                    text = post.timestamp,
+                    text = timeAgoText(post.createdAt),
                     color = DarkText.copy(alpha = 0.5f),
                     fontSize = 12.sp
                 )
+                if (isOwnPost) {
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete my post",
+                            tint = SosRed,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -269,28 +255,20 @@ private fun PostCard(
                 fontSize = 15.sp,
                 lineHeight = 22.sp
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { onLikeToggle(post) }) {
-                    Icon(
-                        imageVector = if (post.liked) Icons.Default.Favorite
-                        else Icons.Default.FavoriteBorder,
-                        contentDescription = "Like",
-                        tint = if (post.liked) CoralPrimary else DarkText.copy(alpha = 0.4f)
-                    )
-                }
-                Text(
-                    text = "${post.likeCount}",
-                    color = if (post.liked) CoralPrimary else DarkText.copy(alpha = 0.6f),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
-            }
         }
+    }
+}
+
+/** "2 hours ago" style label from a timestamp. */
+private fun timeAgoText(createdAt: Long): String {
+    if (createdAt <= 0L) return "Just now"
+    val mins = (System.currentTimeMillis() - createdAt) / 60_000L
+    return when {
+        mins < 1 -> "Just now"
+        mins < 60 -> "$mins min ago"
+        mins < 60 * 24 -> "${mins / 60} hours ago"
+        mins < 60 * 24 * 7 -> "${mins / (60 * 24)} days ago"
+        else -> "${mins / (60 * 24 * 7)} weeks ago"
     }
 }
 

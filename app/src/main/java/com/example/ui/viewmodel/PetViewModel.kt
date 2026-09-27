@@ -695,6 +695,48 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Customer requests a grooming service → real booking (admin confirms via Bookings tab). */
+    fun placeGroomingBooking(serviceTitle: String, city: String) {
+        val booking = ServiceBooking(
+            id = "",
+            type = "GROOMING",
+            ownerId = "",
+            customerName = _customerProfile.value.name,
+            customerPhone = _customerProfile.value.phone,
+            petName = activePet.value.name,
+            providerName = "",
+            serviceInfo = serviceTitle,
+            dateLabel = "",
+            slot = "",
+            notes = "City: $city",
+            feeInr = 0.0,
+            createdAt = System.currentTimeMillis()
+        )
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    // Community posts (Firestore-backed, real)
+    val communityPosts: StateFlow<List<CommunityPost>> = commerceRepo.observeCommunityPosts()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun addCommunityPost(message: String, petName: String) {
+        viewModelScope.launch {
+            commerceRepo.addCommunityPost(
+                _customerProfile.value.name.ifBlank { "Pet Lover" },
+                petName,
+                message
+            )
+        }
+    }
+
+    fun deleteCommunityPost(post: CommunityPost) {
+        viewModelScope.launch {
+            commerceRepo.deleteCommunityPost(post.id)
+        }
+    }
+
     /** Admin assigns a doctor/trainer to a booking → status CONFIRMED. */
     fun adminAssignBooking(bookingId: String, name: String, phone: String) {
         viewModelScope.launch {

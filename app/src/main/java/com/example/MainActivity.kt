@@ -90,6 +90,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val vaccinations by viewModel.vaccinations.collectAsStateWithLifecycle()
     val medicalReports by viewModel.medicalReports.collectAsStateWithLifecycle()
     val certificates by viewModel.certificates.collectAsStateWithLifecycle()
+    val communityPosts by viewModel.communityPosts.collectAsStateWithLifecycle()
 
     val speciesList by viewModel.speciesList.collectAsStateWithLifecycle()
     val selectedSpecies by viewModel.selectedSpecies.collectAsStateWithLifecycle()
@@ -154,7 +155,6 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     var showCartModal by remember { mutableStateOf(false) }
     var showAdminScreen by remember { mutableStateOf(false) }
     var showEscrowCheckoutModal by remember { mutableStateOf(false) }
-    var showOrderTrackingModal by remember { mutableStateOf(false) }
     var showMyOrdersScreen by remember { mutableStateOf(false) }
     var showListPetModal by remember { mutableStateOf(false) }
     var selectedDoctorForBooking by remember { mutableStateOf<VerifiedDoctor?>(null) }
@@ -315,8 +315,9 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         },
                         onRequestTrainer = { showTrainerRequestModal = true },
                         onBookGrooming = { service ->
+                            viewModel.placeGroomingBooking(service.title, selectedKeralaCity)
                             coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Booking van for ${service.title} in $selectedKeralaCity. Our grooming van will arrive at your scheduled slot.")
+                                snackbarHostState.showSnackbar("✂️ Grooming requested for ${service.title}! Our team will call you to confirm.")
                             }
                         },
                         onPetSelected = { pet ->
@@ -475,20 +476,10 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             onConfirmOrder = { city, address, name, phone, paymentMethod ->
                 val newOrder = viewModel.placeEscrowOrder(city, address, name, phone, paymentMethod)
                 showEscrowCheckoutModal = false
-                showOrderTrackingModal = true
+                showMyOrdersScreen = true
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar("🔒 Order #${newOrder.orderId} Placed in Escrow! Delivery OTP: ${newOrder.deliveryOtp}")
+                    snackbarHostState.showSnackbar("✅ Order #${newOrder.orderId} placed! Live status tracking is in My Orders.")
                 }
-            }
-        )
-    }
-
-    if (showOrderTrackingModal) {
-        OrderTimelineTrackingModal(
-            orders = escrowOrders,
-            onDismiss = { showOrderTrackingModal = false },
-            onShowMessage = { msg ->
-                coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
             }
         )
     }
@@ -593,7 +584,23 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     }
     if (showCommunityScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
-            PetCommunityScreen(onOpenLostPetAlerts = { showLostPetAlertsScreen = true })
+            PetCommunityScreen(
+                posts = communityPosts,
+                currentUid = viewModel.currentUid,
+                onAddPost = { message, petName ->
+                    viewModel.addCommunityPost(message, petName)
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("📝 Post shared with the community!")
+                    }
+                },
+                onDeletePost = { post ->
+                    viewModel.deleteCommunityPost(post)
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("Post deleted.")
+                    }
+                },
+                onOpenLostPetAlerts = { showLostPetAlertsScreen = true }
+            )
             FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFFBC5233)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }

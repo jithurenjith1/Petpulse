@@ -219,7 +219,11 @@ private fun AdminBookingCard(
         "COMPLETED" -> "COMPLETED"
         else -> "CANCELLED"
     }
-    val typeLabel = if (booking.type == "DOCTOR") "\uD83E\uDE7A Doctor" else "\uD83C\uDF93 Trainer"
+    val typeLabel = when (booking.type) {
+        "DOCTOR" -> "\uD83E\uDE7A Doctor"
+        "GROOMING" -> "\u2702\uFE0F Grooming"
+        else -> "\uD83C\uDF93 Trainer"
+    }
 
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {

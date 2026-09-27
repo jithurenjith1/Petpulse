@@ -27,10 +27,15 @@ data class UserPet(
     val notes: String = "Very energetic, friendly with children, loves morning park walks."
 )
 
-/**
- * A REAL certificate uploaded by the pet owner (photos + details),
- * stored in Firestore under users/{uid}/pets/{petDoc}/certificates.
- */
+/** A real community post, stored in Firestore "community_posts". */
+data class CommunityPost(
+    val id: String = "",
+    val ownerId: String = "",
+    val authorName: String = "",
+    val petName: String = "",
+    val message: String = "",
+    val createdAt: Long = 0L
+)
 data class PetCertificate(
     val id: Long = 0L,
     val petId: Long = 1L,
