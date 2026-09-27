@@ -1425,7 +1425,7 @@ fun HealthAndSettingsSection(
                 Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Vaccines Completed", fontSize = 11.sp)
-                        Text("${vaccinations.count { it.status == \"Completed\" }} of ${vaccinations.size}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                        Text("${vaccinations.count { it.status == "Completed" }} of ${vaccinations.size}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(stringResource(R.string.mypets_microchip_tag_status), fontSize = 11.sp)
