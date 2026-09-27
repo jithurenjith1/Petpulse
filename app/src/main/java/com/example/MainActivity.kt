@@ -101,6 +101,12 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val accessoryItems by viewModel.accessoryItems.collectAsStateWithLifecycle()
     val healthCareItems by viewModel.healthCareItems.collectAsStateWithLifecycle()
     val trainingGuides by viewModel.trainingGuides.collectAsStateWithLifecycle()
+    val marketAccessories by viewModel.marketAccessories.collectAsStateWithLifecycle()
+    val marketTrainingGuides by viewModel.marketTrainingGuides.collectAsStateWithLifecycle()
+    val marketFoodSubs by viewModel.marketFoodSubscriptions.collectAsStateWithLifecycle()
+    val marketBoarding by viewModel.marketBoardingSitters.collectAsStateWithLifecycle()
+    val adminListings by viewModel.adminListings.collectAsStateWithLifecycle()
+    val adminLostAlerts by viewModel.adminLostAlerts.collectAsStateWithLifecycle()
 
     val partnerSubTab by viewModel.partnerSubTab.collectAsStateWithLifecycle()
     val boardingType by viewModel.boardingType.collectAsStateWithLifecycle()
@@ -326,9 +332,9 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                             }
                         },
                         guideFoods = foodItems,
-                        accessories = accessoryItems,
+                        accessories = marketAccessories,
                         healthCareItems = healthCareItems,
-                        trainingGuides = trainingGuides,
+                        trainingGuides = marketTrainingGuides,
                         onGuideItemAction = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
@@ -346,8 +352,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         boardingType = boardingType,
                         onSelectBoardingType = { viewModel.setBoardingType(it) },
                         groomingCenters = groomingCenters,
-                        foodSubscriptions = foodSubscriptions,
-                        boardingSitters = boardingSitters,
+                        foodSubscriptions = marketFoodSubs,
+                        boardingSitters = marketBoarding,
                         lostPetAlerts = lostAlerts,
                         petListings = petListings,
                         petNews = petNews,
@@ -512,6 +518,10 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
             onAssignBooking = { id, name, phone -> viewModel.adminAssignBooking(id, name, phone) },
             onUpdateBookingStatus = { id, status -> viewModel.adminUpdateBookingStatus(id, status) },
             vets = adminVets,
+            listings = adminListings,
+            lostAlerts = adminLostAlerts,
+            onDeleteListing = { id -> viewModel.adminDeleteListing(id) },
+            onDeleteLostAlert = { id -> viewModel.adminDeleteLostAlert(id) },
             onAddVet = { n, sp, c, city, ph, vf, inf -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf) },
             onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
             onDismiss = { showAdminScreen = false }

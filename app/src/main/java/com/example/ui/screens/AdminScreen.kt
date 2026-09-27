@@ -2,6 +2,7 @@ package com.petpulse.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,9 +25,11 @@ import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
+import com.petpulse.app.data.model.AdminLostPetAlert
+import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.VerifiedDoctor
 
-private val adminListTypes = listOf("Food", "Medicine", "Grooming")
+private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding")
 
 /**
  * Owner-only panel: Orders -> assign dealer -> mark delivered,
@@ -40,6 +43,10 @@ fun AdminScreen(
     products: List<ShopProduct>,
     bookings: List<ServiceBooking> = emptyList(),
     vets: List<VerifiedDoctor> = emptyList(),
+    listings: List<MarketPet> = emptyList(),
+    lostAlerts: List<AdminLostPetAlert> = emptyList(),
+    onDeleteListing: (String) -> Unit = {},
+    onDeleteLostAlert: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
     onAddProduct: (String, String, String, Double, String) -> Unit,
@@ -52,7 +59,8 @@ fun AdminScreen(
     onDeleteVet: (String) -> Unit = {},
     onDismiss: () -> Unit
 ) {
-    var tab by remember { mutableStateOf(0) }
+    var section by remember { mutableStateOf<String?>(null) }
+    var showBookings by remember { mutableStateOf(false) }
     var assigningOrder by remember { mutableStateOf<AdminOrder?>(null) }
     var assigningBooking by remember { mutableStateOf<ServiceBooking?>(null) }
 
@@ -73,28 +81,60 @@ fun AdminScreen(
                     TextButton(onClick = onDismiss) { Text("X", fontSize = 18.sp, fontWeight = FontWeight.Bold) }
                 }
                 Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = tab == 0, onClick = { tab = 0 }, label = { Text(stringResource(R.string.admin_tab_orders)) })
-                    FilterChip(selected = tab == 1, onClick = { tab = 1 }, label = { Text(stringResource(R.string.admin_tab_products)) })
-                    FilterChip(selected = tab == 2, onClick = { tab = 2 }, label = { Text(stringResource(R.string.admin_tab_dealers)) })
-                    FilterChip(selected = tab == 3, onClick = { tab = 3 }, label = { Text("Bookings") })
-                    FilterChip(selected = tab == 4, onClick = { tab = 4 }, label = { Text("Vets") })
-                }
-                Spacer(Modifier.height(8.dp))
-                when (tab) {
-                    0 -> OrdersAdminTab(
-                        orders = orders,
-                        onAssign = { order -> assigningOrder = order },
-                        onUpdateStatus = onUpdateStatus
-                    )
-                    1 -> ProductsAdminTab(products = products, onAdd = onAddProduct, onDelete = onDeleteProduct)
-                    2 -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
-                    3 -> BookingsAdminTab(
-                        bookings = bookings,
-                        onAssign = { booking -> assigningBooking = booking },
-                        onUpdateStatus = onUpdateBookingStatus
-                    )
-                    else -> VetsAdminTab(vets = vets, onAdd = onAddVet, onDelete = onDeleteVet)
+                if (section == null) {
+                    AdminDashboard(onSelect = { section = it; showBookings = false })
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { section = null; showBookings = false }) {
+                            Text("<", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Text(sectionTitle(section), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    when (section) {
+                        "GROOMING", "DOCTOR", "TRAINING" -> {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(
+                                    selected = !showBookings,
+                                    onClick = { showBookings = false },
+                                    label = { Text(if (section == "DOCTOR") "Vets" else if (section == "GROOMING") "Services" else "Programs", fontSize = 11.sp) }
+                                )
+                                FilterChip(
+                                    selected = showBookings,
+                                    onClick = { showBookings = true },
+                                    label = { Text("Bookings", fontSize = 11.sp) }
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            if (showBookings) {
+                                BookingsAdminTab(
+                                    bookings = bookings,
+                                    onAssign = { booking -> assigningBooking = booking },
+                                    onUpdateStatus = onUpdateBookingStatus,
+                                    typeFilter = bookingTypeFor(section)
+                                )
+                            } else {
+                                when (section) {
+                                    "DOCTOR" -> VetsAdminTab(vets = vets, onAdd = onAddVet, onDelete = onDeleteVet)
+                                    "TRAINING" -> ProductsAdminTab(products = products, listTypeFilter = "Training", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                                    else -> ProductsAdminTab(products = products, listTypeFilter = "Grooming", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                                }
+                            }
+                        }
+                        "ORDERS" -> OrdersAdminTab(
+                            orders = orders,
+                            onAssign = { order -> assigningOrder = order },
+                            onUpdateStatus = onUpdateStatus
+                        )
+                        "FOOD" -> ProductsAdminTab(products = products, listTypeFilter = "Food", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                        "MEDICINE" -> ProductsAdminTab(products = products, listTypeFilter = "Medicine", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                        "ACCESSORIES" -> ProductsAdminTab(products = products, listTypeFilter = "Accessory", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                        "SUBSCRIPTION" -> ProductsAdminTab(products = products, listTypeFilter = "Subscription", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                        "BOARDING" -> ProductsAdminTab(products = products, listTypeFilter = "Boarding", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                        "LISTINGS" -> ListingsAdminTab(listings = listings, onDelete = onDeleteListing)
+                        "ALERTS" -> LostAlertsAdminTab(alerts = lostAlerts, onDelete = onDeleteLostAlert)
+                        else -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
+                    }
                 }
             }
         }
@@ -187,15 +227,162 @@ private fun AssignBookingDialog(
 private fun BookingsAdminTab(
     bookings: List<ServiceBooking>,
     onAssign: (ServiceBooking) -> Unit,
-    onUpdateStatus: (String, String) -> Unit
+    onUpdateStatus: (String, String) -> Unit,
+    typeFilter: String? = null
 ) {
-    if (bookings.isEmpty()) {
-        Text("No bookings yet. Doctor consultations and trainer requests will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+    val shown = if (typeFilter != null) bookings.filter { it.type == typeFilter } else bookings
+    if (shown.isEmpty()) {
+        Text("No bookings yet. New requests will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
         return
     }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(bookings) { booking ->
+        items(shown) { booking ->
             AdminBookingCard(booking = booking, onAssign = onAssign, onUpdateStatus = onUpdateStatus)
+        }
+    }
+}
+
+private fun sectionTitle(key: String?): String = when (key) {
+    "ORDERS" -> "📦 Orders"
+    "FOOD" -> "🍲 Food"
+    "MEDICINE" -> "💊 Medicine"
+    "GROOMING" -> "✂️ Grooming"
+    "DOCTOR" -> "🩺 Doctor & Health"
+    "TRAINING" -> "🎓 Training"
+    "ACCESSORIES" -> "🛍️ Accessories"
+    "SUBSCRIPTION" -> "🔁 Subscriptions"
+    "BOARDING" -> "🏡 Boarding & Sitters"
+    "LISTINGS" -> "🐾 Sale & Adoption"
+    "ALERTS" -> "🚨 Find My Pet"
+    "DEALERS" -> "🚚 Dealers"
+    else -> "Admin"
+}
+
+private fun bookingTypeFor(key: String?): String = when (key) {
+    "DOCTOR" -> "DOCTOR"
+    "TRAINING" -> "TRAINER"
+    else -> "GROOMING"
+}
+
+/** Admin v2 home: one card per managed category. */
+@Composable
+private fun AdminDashboard(onSelect: (String) -> Unit) {
+    val sections = listOf(
+        "ORDERS" to ("Orders" to "COD orders, assign dealers"),
+        "FOOD" to ("Food" to "Pet food catalogue"),
+        "MEDICINE" to ("Medicine" to "Pharmacy catalogue"),
+        "GROOMING" to ("Grooming" to "Services & bookings"),
+        "DOCTOR" to ("Doctor & Health" to "Partner vets & bookings"),
+        "TRAINING" to ("Training" to "Programs & bookings"),
+        "ACCESSORIES" to ("Accessories" to "Toys, clothing & more"),
+        "SUBSCRIPTION" to ("Subscriptions" to "Food plan subscriptions"),
+        "BOARDING" to ("Boarding & Sitters" to "Boarding partners"),
+        "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
+        "ALERTS" to ("Find My Pet" to "Lost pet SOS alerts"),
+        "DEALERS" to ("Dealers" to "Delivery partners")
+    )
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(sections.chunked(2)) { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                row.forEach { (key, label) ->
+                    AdminDashboardCard(
+                        title = label.first,
+                        subtitle = label.second,
+                        modifier = Modifier.weight(1f),
+                        onClick = { onSelect(key) }
+                    )
+                }
+                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+        item { Spacer(Modifier.height(12.dp)) }
+    }
+}
+
+@Composable
+private fun AdminDashboardCard(title: String, subtitle: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            Text(subtitle, fontSize = 10.sp, color = Color.Gray, maxLines = 1)
+        }
+    }
+}
+
+/** All marketplace listings (sale + adoption) with delete for moderation. */
+@Composable
+private fun ListingsAdminTab(listings: List<MarketPet>, onDelete: (String) -> Unit) {
+    if (listings.isEmpty()) {
+        Text("No listings yet. Pets listed for sale or adoption by users will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(listings, key = { it.id }) { pet ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "${if (pet.listingType == "Adoption") "🤝" else "💰"} ${pet.name}",
+                            fontWeight = FontWeight.Bold, fontSize = 14.sp
+                        )
+                        Text(
+                            if (pet.listingType == "Adoption") "Adoption" else "₹ ${pet.priceInr.toInt()}",
+                            color = if (pet.listingType == "Adoption") Color(0xFF1D7A6E) else Color(0xFFBC5233),
+                            fontSize = 12.sp, fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text("${pet.species} • ${pet.breed} • ${pet.age} • ${pet.city}", fontSize = 12.sp, color = Color.Gray)
+                    Text("Seller: ${pet.sellerName} (${pet.sellerPhone})", fontSize = 12.sp, color = Color.Gray)
+                    TextButton(onClick = { onDelete(pet.id) }) {
+                        Text("Delete listing", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** All lost-pet SOS alerts with delete (pet found / spam moderation). */
+@Composable
+private fun LostAlertsAdminTab(alerts: List<AdminLostPetAlert>, onDelete: (String) -> Unit) {
+    if (alerts.isEmpty()) {
+        Text("No lost-pet alerts. SOS alerts posted by users will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(alerts, key = { it.id }) { alert ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🚨 ${alert.petName}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(alert.date, fontSize = 11.sp, color = Color.Gray)
+                    }
+                    Text("${alert.species} • ${alert.breed}", fontSize = 12.sp, color = Color.Gray)
+                    if (alert.location.isNotBlank()) {
+                        Text("Last seen: ${alert.location}", fontSize = 12.sp, color = Color.Gray)
+                    }
+                    if (alert.reward.isNotBlank()) {
+                        Text("Reward: ${alert.reward}", fontSize = 12.sp, color = Color(0xFFA87A1F))
+                    }
+                    Text("Contact: ${alert.contactPhone}", fontSize = 12.sp, color = Color(0xFF1976D2))
+                    TextButton(onClick = { onDelete(alert.id) }) {
+                        Text("Delete alert", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
+            }
         }
     }
 }
@@ -363,11 +550,13 @@ private fun AdminOrderCard(
 @Composable
 private fun ProductsAdminTab(
     products: List<ShopProduct>,
+    listTypeFilter: String? = null,
     onAdd: (String, String, String, Double, String) -> Unit,
     onDelete: (String) -> Unit
 ) {
+    val shown = if (listTypeFilter != null) products.filter { it.listType == listTypeFilter } else products
     var name by remember { mutableStateOf("") }
-    var listType by remember { mutableStateOf("Food") }
+    var listType by remember { mutableStateOf(listTypeFilter ?: "Food") }
     var category by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -401,14 +590,16 @@ private fun ProductsAdminTab(
                 modifier = Modifier.fillMaxWidth(), minLines = 2
             )
         }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                adminListTypes.forEach { lt ->
-                    FilterChip(
-                        selected = listType == lt,
-                        onClick = { listType = lt },
-                        label = { Text(lt, fontSize = 11.sp) }
-                    )
+        if (listTypeFilter == null) {
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    adminListTypes.forEach { lt ->
+                        FilterChip(
+                            selected = listType == lt,
+                            onClick = { listType = lt },
+                            label = { Text(lt, fontSize = 11.sp) }
+                        )
+                    }
                 }
             }
         }
@@ -430,7 +621,7 @@ private fun ProductsAdminTab(
             }
         }
         item { Divider() }
-        if (products.isEmpty()) {
+        if (shown.isEmpty()) {
             item {
                 Text(
                     stringResource(R.string.admin_no_products),
@@ -439,7 +630,7 @@ private fun ProductsAdminTab(
                 )
             }
         } else {
-            items(products) { p ->
+            items(shown) { p ->
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(12.dp),

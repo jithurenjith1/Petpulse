@@ -6,6 +6,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.petpulse.app.data.model.AdminLostPetAlert
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.CommunityPost
 import com.petpulse.app.data.model.Dealer
@@ -512,5 +513,43 @@ class FirestoreCommerceRepository {
     suspend fun deleteCommunityPost(postId: String) {
         if (postId.isBlank()) return
         db.collection("community_posts").document(postId).delete().await()
+    }
+
+    // ---------- admin: lost pet SOS alerts ----------
+
+    fun observeLostPetAlerts(): Flow<List<AdminLostPetAlert>> = callbackFlow {
+        val sub = db.collection("lost_pet_alerts")
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    Log.e("FsCommerce", "lost alerts listen failed", err)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                trySend(
+                    snap?.documents?.mapNotNull { doc ->
+                        try {
+                            AdminLostPetAlert(
+                                id = doc.id,
+                                petName = doc.getString("petName") ?: "",
+                                species = doc.getString("species") ?: "",
+                                breed = doc.getString("breed") ?: "",
+                                location = doc.getString("location") ?: "",
+                                reward = doc.getString("reward") ?: "",
+                                contactPhone = doc.getString("contactPhone") ?: "",
+                                date = doc.getString("date") ?: ""
+                            )
+                        } catch (e: Exception) {
+                            Log.e("FsCommerce", "Skipping malformed lost alert", e)
+                            null
+                        }
+                    } ?: emptyList()
+                )
+            }
+        awaitClose { sub.remove() }
+    }
+
+    suspend fun deleteLostPetAlert(alertId: String) {
+        if (alertId.isBlank()) return
+        db.collection("lost_pet_alerts").document(alertId).delete().await()
     }
 }

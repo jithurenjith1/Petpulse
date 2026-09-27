@@ -18,6 +18,21 @@ enum class MarketplaceCategory {
     TRAINING
 }
 
+/**
+ * A lost-pet SOS alert shown in the admin panel (Firestore "lost_pet_alerts").
+ * Field names match the document keys written by postSosAlert().
+ */
+data class AdminLostPetAlert(
+    val id: String = "",
+    val petName: String = "",
+    val species: String = "",
+    val breed: String = "",
+    val location: String = "",
+    val reward: String = "",
+    val contactPhone: String = "",
+    val date: String = ""
+)
+
 data class MarketPet(
     val id: String,
     val name: String,

@@ -307,6 +307,75 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val boardingSitters: StateFlow<List<BoardingSitter>> = flowOf(repository.getBoardingSitters())
         .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getBoardingSitters())
 
+    // ---------- Admin Panel v2: owner-managed catalogue across categories ----------
+
+    /** ALL marketplace listings (sale + adoption), unfiltered — for the admin panel. */
+    val adminListings: StateFlow<List<MarketPet>> = firestoreMarketRepo.observeMarketPets()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** All lost-pet SOS alerts — for the admin panel. */
+    val adminLostAlerts: StateFlow<List<AdminLostPetAlert>> = commerceRepo.observeLostPetAlerts()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Accessories: owner products first, then species-matched demo items. */
+    val marketAccessories: StateFlow<List<AccessoryItem>> =
+        combine(accessoryItems, commerceRepo.observeProducts()) { demo, remote ->
+            remote.filter { it.listType == "Accessory" }.map { p ->
+                AccessoryItem(
+                    name = p.name,
+                    subType = p.category.ifBlank { "Other" },
+                    description = p.description,
+                    estimatedPrice = "₹ ${p.priceInr.toInt()}",
+                    material = ""
+                )
+            } + demo
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Training programs: owner products first, then species-matched demo guides. */
+    val marketTrainingGuides: StateFlow<List<TrainingGuide>> =
+        combine(trainingGuides, commerceRepo.observeProducts()) { demo, remote ->
+            remote.filter { it.listType == "Training" }.map { p ->
+                TrainingGuide(
+                    title = p.name,
+                    level = p.category.ifBlank { "Basic" },
+                    steps = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
+                    tips = "",
+                    recommendedAge = "All ages"
+                )
+            } + demo
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Food subscriptions: owner plans first, then demo plans. */
+    val marketFoodSubscriptions: StateFlow<List<FoodSubscription>> =
+        combine(foodSubscriptions, commerceRepo.observeProducts()) { demo, remote ->
+            remote.filter { it.listType == "Subscription" }.map { p ->
+                FoodSubscription(
+                    title = p.name,
+                    planType = p.category.ifBlank { "Monthly" },
+                    comboContents = p.description,
+                    brandsIncluded = "Petpulse partners",
+                    monthlyEstimate = "₹ ${p.priceInr.toInt()}/month",
+                    savingsTag = ""
+                )
+            } + demo
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Boarding & sitters: owner partners first, then demo sitters. */
+    val marketBoardingSitters: StateFlow<List<BoardingSitter>> =
+        combine(boardingSitters, commerceRepo.observeProducts()) { demo, remote ->
+            remote.filter { it.listType == "Boarding" }.map { p ->
+                BoardingSitter(
+                    name = p.name,
+                    sitterType = p.category.ifBlank { "Full Day (24hr)" },
+                    tagline = p.description.take(60),
+                    experience = "Verified partner",
+                    rating = 4.5,
+                    priceEstimate = "₹ ${p.priceInr.toInt()}",
+                    features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() }
+                )
+            } + demo
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val petNews: StateFlow<PetNewsItem> = flowOf(repository.getPetNews())
         .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getPetNews())
 
@@ -803,6 +872,20 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 phone = phone
             )
             _commerceEvent.value = if (commerceRepo.addVet(vet).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Admin: remove any marketplace listing (sale/adoption moderation). */
+    fun adminDeleteListing(listingId: String) {
+        viewModelScope.launch {
+            firestoreMarketRepo.deleteListing(listingId)
+        }
+    }
+
+    /** Admin: remove a lost-pet SOS alert (e.g. pet found or spam). */
+    fun adminDeleteLostAlert(alertId: String) {
+        viewModelScope.launch {
+            commerceRepo.deleteLostPetAlert(alertId)
         }
     }
 
