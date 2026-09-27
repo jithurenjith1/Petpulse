@@ -38,6 +38,26 @@ class FirestorePetRepository(private val appContext: Context) {
         return if (h < 0) -h else h
     }
 
+    /**
+     * Resolve the Firestore doc id for a pet's stable id.
+     * If the in-memory map is cold (e.g. app restarted straight into the pet
+     * screen), query the pets collection once and fill the map — so saves and
+     * listeners always work instead of silently doing nothing.
+     */
+    private suspend fun awaitDocIdFor(petId: Long): String? {
+        petDocIdMap[petId]?.let { return it }
+        return try {
+            val snapshot = petsRef().get().await()
+            for (doc in snapshot.documents) {
+                petDocIdMap[stableIdOf(doc.id)] = doc.id
+            }
+            petDocIdMap[petId]
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "Failed to resolve pet doc for id $petId", e)
+            null
+        }
+    }
+
     fun getAllUserPets(): Flow<List<UserPet>> = callbackFlow {
         val subscription = petsRef().addSnapshotListener { snapshot, error ->
             if (error != null) {
@@ -178,7 +198,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     fun getVaccinationsForPet(petId: Long): Flow<List<VaccinationRecord>> = callbackFlow {
-        val docId = petDocIdMap[petId] ?: run {
+        val docId = awaitDocIdFor(petId) ?: run {
             trySend(emptyList())
             awaitClose { }
             return@callbackFlow
@@ -206,7 +226,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     suspend fun addVaccination(petId: Long, record: VaccinationRecord) {
-        val docId = petDocIdMap[petId] ?: return
+        val docId = awaitDocIdFor(petId) ?: return
         val recordMap = mapOf(
             "petId" to petId,
             "vaccineName" to record.vaccineName,
@@ -220,7 +240,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     suspend fun updateVaccinationStatus(petId: Long, recordId: Long, newStatus: String) {
-        val petDocId = petDocIdMap[petId] ?: return
+        val petDocId = awaitDocIdFor(petId) ?: return
         val snapshot = petsRef().document(petDocId).collection("vaccinations").get().await()
         for (doc in snapshot.documents) {
             if (stableIdOf(doc.id) == recordId) {
@@ -245,7 +265,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     fun getCertificatesForPet(petId: Long): Flow<List<PetCertificate>> = callbackFlow {
-        val docId = petDocIdMap[petId] ?: run {
+        val docId = awaitDocIdFor(petId) ?: run {
             trySend(emptyList())
             awaitClose { }
             return@callbackFlow
@@ -284,7 +304,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     suspend fun addCertificate(petId: Long, cert: PetCertificate, photoUris: List<Uri>) {
-        val docId = petDocIdMap[petId] ?: return
+        val docId = awaitDocIdFor(petId) ?: return
         val photos = photoUris.take(CERT_MAX_PHOTOS).mapNotNull { compressCertToBase64(it) }
         petsRef().document(docId).collection("certificates").add(
             mapOf(
@@ -299,7 +319,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     suspend fun deleteCertificate(petId: Long, certificateId: Long) {
-        val petDocId = petDocIdMap[petId] ?: return
+        val petDocId = awaitDocIdFor(petId) ?: return
         val snapshot = petsRef().document(petDocId).collection("certificates").get().await()
         for (doc in snapshot.documents) {
             if (stableIdOf(doc.id) == certificateId) {
@@ -365,7 +385,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     fun getMedicalReportsForPet(petId: Long): Flow<List<MedicalReport>> = callbackFlow {
-        val docId = petDocIdMap[petId] ?: run {
+        val docId = awaitDocIdFor(petId) ?: run {
             trySend(emptyList())
             awaitClose { }
             return@callbackFlow
@@ -393,7 +413,7 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     suspend fun addMedicalReport(petId: Long, report: MedicalReport) {
-        val docId = petDocIdMap[petId] ?: return
+        val docId = awaitDocIdFor(petId) ?: return
         val reportMap = mapOf(
             "petId" to petId,
             "title" to report.title,
