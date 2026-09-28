@@ -453,5 +453,51 @@ class FirestorePetRepository(private val appContext: Context) {
             "notes" to pet.notes
         )
     }
-}
 
+    /**
+     * Account deletion (Google Play requirement): removes ALL user data from
+     * Firestore (pets + subcollections, profile, posts, listings, orders,
+     * bookings) and finally deletes the Firebase Auth account itself.
+     * Returns success when the Firestore data was removed (auth deletion is
+     * best-effort because Firebase may require a recent login).
+     */
+    suspend fun deleteAllUserData(): Result<Unit> {
+        val currentUid = auth.currentUser?.uid
+            ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+        return try {
+            val userRoot = db.collection("users").document(currentUid)
+            // 1. pets + their subcollections
+            val pets = userRoot.collection("pets").get().await()
+            for (petDoc in pets.documents) {
+                for (sub in listOf("vaccinations", "certificates", "medical_reports")) {
+                    val subDocs = petDoc.reference.collection(sub).get().await()
+                    for (d in subDocs.documents) d.reference.delete().await()
+                }
+                petDoc.reference.delete().await()
+            }
+            // 2. user profile document
+            userRoot.delete().await()
+            // 3. own community posts
+            val posts = db.collection("community_posts").whereEqualTo("ownerId", currentUid).get().await()
+            for (d in posts.documents) d.reference.delete().await()
+            // 4. own market listings
+            val listings = db.collection("market_listings").whereEqualTo("ownerId", currentUid).get().await()
+            for (d in listings.documents) d.reference.delete().await()
+            // 5. own orders + bookings
+            val orders = db.collection("orders").whereEqualTo("ownerId", currentUid).get().await()
+            for (d in orders.documents) d.reference.delete().await()
+            val bookings = db.collection("bookings").whereEqualTo("ownerId", currentUid).get().await()
+            for (d in bookings.documents) d.reference.delete().await()
+            // 6. the Firebase Auth account (best-effort)
+            try {
+                auth.currentUser?.delete()?.await()
+            } catch (e: Exception) {
+                Log.e("FirestorePetRepo", "Auth account delete failed (data already removed)", e)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "deleteAllUserData failed", e)
+            Result.failure(e)
+        }
+    }
+}

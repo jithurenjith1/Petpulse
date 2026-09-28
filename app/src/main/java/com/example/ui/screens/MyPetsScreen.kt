@@ -76,6 +76,7 @@ fun MyPetsScreen(
     onLoginClick: () -> Unit,
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
+    onDeleteAccount: () -> Unit = {},
     onDeletePet: () -> Unit = {},
     onPhotoSelected: (String) -> Unit = {},
     certificates: List<PetCertificate> = emptyList(),
@@ -225,6 +226,50 @@ fun MyPetsScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(stringResource(R.string.mypets_edit_rename_pet), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
+                            val shareContext = androidx.compose.ui.platform.LocalContext.current
+                            FilledTonalButton(
+                                onClick = {
+                                    val completed = vaccinations.count { it.status == "Completed" }
+                                    val card = buildString {
+                                        appendLine("PET PROFILE - Petpulse")
+                                        appendLine()
+                                        appendLine("${pet.name} (${pet.species})")
+                                        appendLine("Breed: ${pet.breed}")
+                                        appendLine("${pet.gender}, ${pet.ageYears} years, ${pet.weightKg} kg")
+                                        if (pet.microchipNumber.isNotBlank()) appendLine("Microchip: ${pet.microchipNumber}")
+                                        appendLine("Vaccinations: $completed of ${vaccinations.size} completed")
+                                        appendLine("Medical reports on file: ${medicalReports.size}")
+                                        appendLine("Allergies / notes: ${if (pet.notes.isNotBlank()) pet.notes else "-"}")
+                                        appendLine()
+                                        appendLine("Owner: ${customer.name}")
+                                        if (customer.phone.isNotBlank()) appendLine("Contact: ${customer.phone}")
+                                        appendLine()
+                                        appendLine("- Shared via Petpulse app")
+                                    }
+                                    runCatching {
+                                        shareContext.startActivity(
+                                            android.content.Intent.createChooser(
+                                                android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                                    type = "text/plain"
+                                                    putExtra(android.content.Intent.EXTRA_TEXT, card)
+                                                },
+                                                "Share Pet Profile"
+                                            )
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.height(34.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Share,
+                                    contentDescription = "Share Pet Profile",
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Share Profile", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
                             OutlinedButton(
                                 onClick = { showDeleteDialog = true },
                                 modifier = Modifier.height(34.dp),
@@ -343,6 +388,7 @@ fun MyPetsScreen(
             PetDetailSubmenu.HEALTH_SETTINGS -> {
                 item {
                     HealthAndSettingsSection(
+                        onDeleteAccount = onDeleteAccount,
                         pet = pet,
                         customer = customer,
                         vaccinations = vaccinations,
@@ -1371,6 +1417,7 @@ fun HealthAndSettingsSection(
     medicalReports: List<MedicalReport>,
     healthScore: Int,
     onEditPetClick: () -> Unit,
+    onDeleteAccount: () -> Unit = {},
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit
 ) {
@@ -1432,6 +1479,46 @@ fun HealthAndSettingsSection(
                         Text("Active (${pet.microchipNumber})", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AccentGreen)
                     }
                 }
+            }
+            Divider()
+            // App settings: account deletion (Google Play requirement)
+            var showDeleteAccountDialog by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("Account", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
+                    Text("Signed in as ${customer.email}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                OutlinedButton(
+                    onClick = { showDeleteAccountDialog = true },
+                    modifier = Modifier.height(36.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD32F2F))
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete Account", tint = Color(0xFFD32F2F), modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Delete Account", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
+                }
+            }
+            if (showDeleteAccountDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteAccountDialog = false },
+                    title = { Text("Delete your account?") },
+                    text = { Text("This permanently deletes your account and ALL data: pets, vaccinations, medical records, certificates, listings, orders and bookings. This cannot be undone.") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDeleteAccountDialog = false
+                            onDeleteAccount()
+                        }) { Text("Delete Everything", color = Color(0xFFD32F2F), fontWeight = FontWeight.Bold) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteAccountDialog = false }) { Text("Cancel") }
+                    }
+                )
             }
         }
     }

@@ -266,6 +266,13 @@ fun AiSymptomCheckerScreen(
                 color = OnDarkMuted,
                 fontSize = 14.sp
             )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "This health guide does not diagnose illness and does not replace veterinary care. For emergencies, contact a vet immediately.",
+                color = OnDarkMuted,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold
+            )
             Spacer(Modifier.height(16.dp))
 
             // ---- Species selector ----

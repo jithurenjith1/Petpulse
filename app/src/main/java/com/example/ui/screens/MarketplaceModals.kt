@@ -364,6 +364,45 @@ fun SlideOutCartModal(
                             fontWeight = FontWeight.Bold
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Order via WhatsApp fallback (Kerala users often prefer this)
+                    val waContext = androidx.compose.ui.platform.LocalContext.current
+                    OutlinedButton(
+                        onClick = {
+                            val message = buildString {
+                                appendLine("Hi Petpulse! I would like to order:")
+                                cartItems.forEach {
+                                    appendLine("- ${it.title} x${it.quantity} - ₹${(it.priceInr * it.quantity).toInt()}")
+                                }
+                                appendLine("Order total: ₹${total.toInt()} + delivery")
+                                appendLine("City: $selectedCity")
+                                appendLine("Please confirm my order.")
+                            }
+                            runCatching {
+                                val encoded = java.net.URLEncoder.encode(message, "UTF-8")
+                                waContext.startActivity(
+                                    android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW,
+                                        Uri.parse("https://wa.me/919526632311?text=$encoded")
+                                    )
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1D7A6E))
+                    ) {
+                        Text(
+                            text = "Order via WhatsApp",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1D7A6E)
+                        )
+                    }
                 }
             }
         }

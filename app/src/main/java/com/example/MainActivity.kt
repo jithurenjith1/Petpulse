@@ -272,6 +272,17 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         onShowMessage = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         },
+                        onDeleteAccount = {
+                            viewModel.deleteAccount { success ->
+                                if (success) {
+                                    authViewModel.signOut()
+                                } else {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Account deletion failed. Please try again.")
+                                    }
+                                }
+                            }
+                        },
                         onDeletePet = {
                             viewModel.deleteCurrentPet()
                             coroutineScope.launch { snackbarHostState.showSnackbar("Pet removed") }

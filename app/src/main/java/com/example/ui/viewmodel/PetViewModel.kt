@@ -1224,6 +1224,14 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     // ================= MULTI-PET SUPPORT =================
     
+    /** Account deletion (Google Play requirement): wipes all user data then deletes the account. */
+    fun deleteAccount(onDone: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = firestoreRepo.deleteAllUserData()
+            onDone(result.isSuccess)
+        }
+    }
+
     fun switchPet(petId: Long) {
         _activePetId.value = petId
     }
