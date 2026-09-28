@@ -81,6 +81,7 @@ dependencies {
   // implementation(libs.accompanist.permissions)
   implementation(libs.androidx.activity.compose)
   implementation("androidx.appcompat:appcompat:1.7.0")
+  implementation("androidx.work:work-runtime-ktx:2.10.0")
   // implementation(libs.androidx.camera.camera2)
   // implementation(libs.androidx.camera.core)
   // implementation(libs.androidx.camera.lifecycle)
