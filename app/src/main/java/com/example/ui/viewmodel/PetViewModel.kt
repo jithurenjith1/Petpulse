@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import android.net.Uri
 import com.petpulse.app.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import com.petpulse.app.data.repository.FirestoreMarketplaceRepository
 import com.petpulse.app.data.repository.FirestoreCommerceRepository
 
@@ -264,6 +267,20 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    init {
+        // CRITICAL FIX: on a cold start _activePetId keeps the default 1L, which
+        // never matches a real Firestore pet id — every vaccination / medical /
+        // certificate save then silently no-ops. Watch the pets list and make
+        // sure the active id always points at a real pet.
+        viewModelScope.launch {
+            firestoreRepo.getAllUserPets().collect { pets ->
+                if (pets.isNotEmpty() && pets.none { it.id == _activePetId.value }) {
+                    _activePetId.value = pets.first().id
+                }
+            }
+        }
+    }
 
     val lostPetAlerts: StateFlow<List<LostPetAlert>> = repository.lostPetAlerts
         .stateIn(
@@ -1133,7 +1150,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 petId = activePet.value.id,
                 title = title,
                 clinicName = clinic,
-                date = "Aug 25, 2026",
+                date = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date()),
                 diagnosis = diagnosis,
                 prescription = prescription
             )
