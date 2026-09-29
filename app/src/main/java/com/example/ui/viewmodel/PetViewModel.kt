@@ -1035,7 +1035,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // Business actions for My Pet
     fun renameAndConfigurePet(name: String, breed: String, ageYears: Int, gender: String) {
         viewModelScope.launch {
-            val current = activePet.value
+            val current = currentPetOrNull() ?: return@launch
             val updated = current.copy(
                 name = name.ifBlank { "Jane" },
                 breed = breed.ifBlank { "Indie" },
@@ -1060,7 +1060,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         notes: String
     ) {
         viewModelScope.launch {
-            val current = activePet.value
+            val current = currentPetOrNull() ?: return@launch
             val updated = current.copy(
                 name = name.ifBlank { "Jane" },
                 breed = breed.ifBlank { "Indie" },
@@ -1080,7 +1080,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updatePetFavoriteFoodsAndPlays(foods: String, plays: String) {
         viewModelScope.launch {
-            val current = activePet.value
+            val current = currentPetOrNull() ?: return@launch
             val updated = current.copy(
                 favoriteFoods = foods,
                 favoritePlays = plays
@@ -1091,7 +1091,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updatePetPhoto(photoUri: String) {
         viewModelScope.launch {
-            val current = activePet.value
+            val current = currentPetOrNull() ?: return@launch
             val updated = current.copy(photoUri = photoUri)
             firestoreRepo.savePet(updated)
         }
@@ -1100,14 +1100,15 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleVaccinationStatus(record: VaccinationRecord) {
         viewModelScope.launch {
             val newStatus = if (record.status == "Completed") "Upcoming" else "Completed"
-            firestoreRepo.updateVaccinationStatus(activePet.value.id, record.id, newStatus)
+            firestoreRepo.updateVaccinationStatus(_activePetId.value, record.id, newStatus)
         }
     }
 
     fun addVaccinationRecord(name: String, date: String, nextDue: String, status: String, doctor: String) {
         viewModelScope.launch {
+            val petId = _activePetId.value
             val vax = VaccinationRecord(
-                petId = activePet.value.id,
+                petId = petId,
                 vaccineName = name,
                 dateGiven = date,
                 nextDueDate = nextDue,
@@ -1115,15 +1116,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 veterinarian = doctor,
                 batchNumber = "VAX-${(1000..9999).random()}"
             )
-            firestoreRepo.addVaccination(activePet.value.id, vax)
+            firestoreRepo.addVaccination(petId, vax)
         }
     }
 
     fun addCertificate(title: String, registrationId: String, issuedBy: String, issueDate: String, photos: List<String>) {
         viewModelScope.launch {
+            val petId = _activePetId.value
             val cert = PetCertificate(
                 id = 0L,
-                petId = activePet.value.id,
+                petId = petId,
                 title = title,
                 registrationId = registrationId,
                 issuedBy = issuedBy,
@@ -1131,7 +1133,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 createdAt = System.currentTimeMillis()
             )
             firestoreRepo.addCertificate(
-                activePet.value.id,
+                petId,
                 cert,
                 photos.mapNotNull { runCatching { Uri.parse(it) }.getOrNull() }
             )
@@ -1146,15 +1148,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addMedicalReport(title: String, clinic: String, diagnosis: String, prescription: String) {
         viewModelScope.launch {
+            val petId = _activePetId.value
             val report = MedicalReport(
-                petId = activePet.value.id,
+                petId = petId,
                 title = title,
                 clinicName = clinic,
                 date = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date()),
                 diagnosis = diagnosis,
                 prescription = prescription
             )
-            firestoreRepo.addMedicalReport(activePet.value.id, report)
+            firestoreRepo.addMedicalReport(petId, report)
         }
     }
 
@@ -1224,6 +1227,24 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     // ================= MULTI-PET SUPPORT =================
     
+    /**
+     * Resolve the ACTIVE pet reliably. The selected pet id (_activePetId) is always
+     * correct because the pet tabs set it directly — but the activePet StateFlow
+     * can still hold the DEMO placeholder (UserPet() with id 1L) when its
+     * Firestore lookup has not emitted yet. All saves must go through this so
+     * they never write to the non-existent placeholder pet id.
+     */
+    private suspend fun currentPetOrNull(): UserPet? {
+        val id = _activePetId.value
+        if (activePet.value.id == id) return activePet.value
+        return try {
+            firestoreRepo.getPetById(id).first()
+        } catch (e: Exception) {
+            android.util.Log.e("PetViewModel", "currentPetOrNull failed for id $id", e)
+            null
+        }
+    }
+
     /** Account deletion (Google Play requirement): wipes all user data then deletes the account. */
     fun deleteAccount(onDone: (Boolean) -> Unit) {
         viewModelScope.launch {
@@ -1277,7 +1298,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteCurrentPet() {
         viewModelScope.launch {
             try {
-                val currentId = activePet.value.id
+                val currentId = _activePetId.value
                 firestoreRepo.deletePet(currentId)
             } catch (e: Exception) {
                 android.util.Log.e("PetViewModel", "Error deleting pet", e)
