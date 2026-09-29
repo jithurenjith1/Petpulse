@@ -274,7 +274,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         // certificate save then silently no-ops. Watch the pets list and make
         // sure the active id always points at a real pet.
         viewModelScope.launch {
-            firestoreRepo.getAllUserPets().collect { pets ->
+            // Collect the SHARED allPets StateFlow (same listener that fills
+            // petDocIdMap) - a second getAllUserPets() instance could die
+            // independently and leave the active pet id stuck on the placeholder.
+            allPets.collect { pets ->
                 if (pets.isNotEmpty() && pets.none { it.id == _activePetId.value }) {
                     _activePetId.value = pets.first().id
                 }

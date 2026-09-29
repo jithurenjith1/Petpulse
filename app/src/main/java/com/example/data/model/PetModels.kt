@@ -39,7 +39,7 @@ data class CommunityPost(
 data class PetCertificate(
     val id: Long = 0L,
     val petId: Long = 1L,
-    val title: String,              // "Kennel Club Registration", "Vaccination Certificate"...
+    val title: String = "",          // "Kennel Club Registration", "Vaccination Certificate"...
     val registrationId: String = "",
     val issuedBy: String = "",
     val issueDate: String = "",
@@ -51,10 +51,10 @@ data class PetCertificate(
 data class VaccinationRecord(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val petId: Long = 1L,
-    val vaccineName: String,
-    val dateGiven: String,
-    val nextDueDate: String,
-    val status: String, // "Completed" or "Upcoming"
+    val vaccineName: String = "",
+    val dateGiven: String = "",
+    val nextDueDate: String = "",
+    val status: String = "" // "Completed" or "Upcoming"
     val veterinarian: String = "Dr. Sarah Adams (PetCare Clinic)",
     val batchNumber: String = "VAX-2025-08"
 )
@@ -63,11 +63,11 @@ data class VaccinationRecord(
 data class MedicalReport(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val petId: Long = 1L,
-    val title: String,
-    val clinicName: String,
-    val date: String,
-    val diagnosis: String,
-    val prescription: String,
+    val title: String = "",
+    val clinicName: String = "",
+    val date: String = "",
+    val diagnosis: String = "",
+    val prescription: String = "",
     val followUpDate: String? = null
 )
 

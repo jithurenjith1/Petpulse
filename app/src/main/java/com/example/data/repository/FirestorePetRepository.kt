@@ -13,6 +13,7 @@ import com.petpulse.app.data.model.VaccinationRecord
 import com.petpulse.app.data.model.MedicalReport
 import com.petpulse.app.data.model.PetCertificate
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -198,7 +199,8 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     fun getVaccinationsForPet(petId: Long): Flow<List<VaccinationRecord>> = callbackFlow {
-        val docId = awaitDocIdFor(petId) ?: run {
+        val docId = awaitDocIdForWithRetry(petId)
+        if (docId == null) {
             trySend(emptyList())
             awaitClose { }
             return@callbackFlow
@@ -229,6 +231,19 @@ class FirestorePetRepository(private val appContext: Context) {
      * DIAGNOSTIC VERSION: returns null on success, otherwise a human-readable
      * reason string so the UI can show WHY a vaccination save failed.
      */
+    /**
+     * Retry pet-doc resolution for up to ~6 seconds. A cold id map or a slow
+     * first Firestore query must NOT dead-end a read flow with an empty list.
+     */
+    private suspend fun awaitDocIdForWithRetry(petId: Long): String? {
+        repeat(10) {
+            val id = awaitDocIdFor(petId)
+            if (id != null) return id
+            delay(600)
+        }
+        return null
+    }
+
     suspend fun addVaccination(petId: Long, record: VaccinationRecord): String? {
         val docId = awaitDocIdFor(petId)
             ?: return "DIAG: pet not resolved. petId=$petId knownIds=${petDocIdMap.keys.take(8)}"
@@ -276,7 +291,8 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     fun getCertificatesForPet(petId: Long): Flow<List<PetCertificate>> = callbackFlow {
-        val docId = awaitDocIdFor(petId) ?: run {
+        val docId = awaitDocIdForWithRetry(petId)
+        if (docId == null) {
             trySend(emptyList())
             awaitClose { }
             return@callbackFlow
@@ -396,7 +412,8 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     fun getMedicalReportsForPet(petId: Long): Flow<List<MedicalReport>> = callbackFlow {
-        val docId = awaitDocIdFor(petId) ?: run {
+        val docId = awaitDocIdForWithRetry(petId)
+        if (docId == null) {
             trySend(emptyList())
             awaitClose { }
             return@callbackFlow
