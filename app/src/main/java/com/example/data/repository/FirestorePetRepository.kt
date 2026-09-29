@@ -225,8 +225,13 @@ class FirestorePetRepository(private val appContext: Context) {
         awaitClose { subscription.remove() }
     }
 
-    suspend fun addVaccination(petId: Long, record: VaccinationRecord) {
-        val docId = awaitDocIdFor(petId) ?: return
+    /**
+     * DIAGNOSTIC VERSION: returns null on success, otherwise a human-readable
+     * reason string so the UI can show WHY a vaccination save failed.
+     */
+    suspend fun addVaccination(petId: Long, record: VaccinationRecord): String? {
+        val docId = awaitDocIdFor(petId)
+            ?: return "DIAG: pet not resolved. petId=$petId knownIds=${petDocIdMap.keys.take(8)}"
         val recordMap = mapOf(
             "petId" to petId,
             "vaccineName" to record.vaccineName,
@@ -236,7 +241,13 @@ class FirestorePetRepository(private val appContext: Context) {
             "veterinarian" to record.veterinarian,
             "batchNumber" to record.batchNumber
         )
-        petsRef().document(docId).collection("vaccinations").add(recordMap).await()
+        return try {
+            petsRef().document(docId).collection("vaccinations").add(recordMap).await()
+            null
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "addVaccination write failed", e)
+            "DIAG: write failed - ${e.message}"
+        }
     }
 
     suspend fun updateVaccinationStatus(petId: Long, recordId: Long, newStatus: String) {

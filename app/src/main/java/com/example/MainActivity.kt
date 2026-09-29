@@ -98,6 +98,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val myBookings by viewModel.myBookings.collectAsStateWithLifecycle()
     val adminVets by viewModel.partnerVets.collectAsStateWithLifecycle()
     val vaccinations by viewModel.vaccinations.collectAsStateWithLifecycle()
+
     val medicalReports by viewModel.medicalReports.collectAsStateWithLifecycle()
     val certificates by viewModel.certificates.collectAsStateWithLifecycle()
     val communityPosts by viewModel.communityPosts.collectAsStateWithLifecycle()
@@ -148,6 +149,13 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val verifiedDoctors by viewModel.verifiedDoctors.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val vaxDiag by viewModel.vaxDiag.collectAsStateWithLifecycle()
+    LaunchedEffect(vaxDiag) {
+        if (vaxDiag != null) {
+            snackbarHostState.showSnackbar(vaxDiag ?: "")
+            viewModel.clearVaxDiag()
+        }
+    }
     val coroutineScope = rememberCoroutineScope()
 
     // Dialog state controllers
