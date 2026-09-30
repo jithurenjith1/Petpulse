@@ -22,6 +22,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.petpulse.app.R
 import com.petpulse.app.data.model.AdminOrder
+import com.petpulse.app.data.model.RescueReport
+import com.petpulse.app.data.model.SupportTicket
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct

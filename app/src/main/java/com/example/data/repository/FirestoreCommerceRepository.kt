@@ -583,21 +583,23 @@ class FirestoreCommerceRepository {
         null
     }
 
-    suspend fun submitSupportTicket(t: SupportTicket): Result<Unit> = try {
-        auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
-        db.collection("support_tickets").document().set(
-            mapOf(
-                "category" to t.category,
-                "subject" to t.subject,
-                "details" to t.details,
-                "contact" to t.contact,
-                "createdAt" to System.currentTimeMillis(),
-                "status" to "New"
-            )
-        ).await()
-        Result.success(Unit)
-    } catch (e: Exception) {
-        Result.failure(e)
+    suspend fun submitSupportTicket(t: SupportTicket): Result<Unit> {
+        val user = auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+        return try {
+            db.collection("support_tickets").document().set(
+                mapOf(
+                    "category" to t.category,
+                    "subject" to t.subject,
+                    "details" to t.details,
+                    "contact" to t.contact,
+                    "createdAt" to System.currentTimeMillis(),
+                    "status" to "New"
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     suspend fun deleteSupportTicket(id: String): Result<Unit> = try {
@@ -634,21 +636,23 @@ class FirestoreCommerceRepository {
         null
     }
 
-    suspend fun submitRescueReport(r: RescueReport): Result<Unit> = try {
-        auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
-        db.collection("rescue_reports").document().set(
-            mapOf(
-                "animalType" to r.animalType,
-                "description" to r.description,
-                "location" to r.location,
-                "contact" to r.contact,
-                "createdAt" to System.currentTimeMillis(),
-                "status" to "New"
-            )
-        ).await()
-        Result.success(Unit)
-    } catch (e: Exception) {
-        Result.failure(e)
+    suspend fun submitRescueReport(r: RescueReport): Result<Unit> {
+        val user = auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+        return try {
+            db.collection("rescue_reports").document().set(
+                mapOf(
+                    "animalType" to r.animalType,
+                    "description" to r.description,
+                    "location" to r.location,
+                    "contact" to r.contact,
+                    "createdAt" to System.currentTimeMillis(),
+                    "status" to "New"
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     suspend fun deleteRescueReport(id: String): Result<Unit> = try {

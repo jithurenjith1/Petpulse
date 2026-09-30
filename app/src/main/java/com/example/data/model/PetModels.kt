@@ -54,7 +54,7 @@ data class VaccinationRecord(
     val vaccineName: String = "",
     val dateGiven: String = "",
     val nextDueDate: String = "",
-    val status: String = "" // "Completed" or "Upcoming"
+    val status: String = "", // "Completed" or "Upcoming"
     val veterinarian: String = "Dr. Sarah Adams (PetCare Clinic)",
     val batchNumber: String = "VAX-2025-08"
 )
