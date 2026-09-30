@@ -58,12 +58,15 @@ fun PartnersServicesScreen(
     onActionNotification: (String) -> Unit,
     onSubmitSupportTicket: (String, String, String, String, (Boolean) -> Unit) -> Unit,
     onSubmitRescueReport: (String, String, String, String, (Boolean) -> Unit) -> Unit,
+    onBookSitter: (String, String, String, String, String) -> Unit = { _, _, _, _, _ -> },
+    activePetName: String = "",
     modifier: Modifier = Modifier
 ) {
     var showBusinessPartnerDialog by remember { mutableStateOf(false) }
     var partnerCategoryToJoin by remember { mutableStateOf("Grooming Salon") }
     var showPartnerCategoryMenu by remember { mutableStateOf(false) }
     var showFeaturedPlansDialog by remember { mutableStateOf(false) }
+    var sitterToBook by remember { mutableStateOf<BoardingSitter?>(null) }
 
     LazyColumn(
         modifier = modifier
@@ -355,7 +358,7 @@ fun PartnersServicesScreen(
                 items(filteredSitters) { sitter ->
                     BoardingSitterCard(
                         sitter = sitter,
-                        onBook = { onActionNotification("Booked ${sitter.name} for ${sitter.sitterType}") }
+                        onBook = { sitterToBook = sitter }
                     )
                 }
             }
@@ -462,6 +465,70 @@ fun PartnersServicesScreen(
             }
         )
     }
+
+    sitterToBook?.let { sitter ->
+        SitterBookingDialog(
+            sitter = sitter,
+            petName = activePetName,
+            onConfirm = { date, notes ->
+                onBookSitter(sitter.name, sitter.sitterType, sitter.priceEstimate, date, notes)
+                sitterToBook = null
+            },
+            onDismiss = { sitterToBook = null }
+        )
+    }
+}
+
+@Composable
+private fun SitterBookingDialog(
+    sitter: BoardingSitter,
+    petName: String,
+    onConfirm: (String, String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var date by remember { mutableStateOf("Today") }
+    var notes by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Book " + sitter.name, fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(sitter.sitterType + " \u2022 " + sitter.priceEstimate, fontSize = 13.sp, color = BluePrimary, fontWeight = FontWeight.SemiBold)
+                if (petName.isNotBlank()) {
+                    Text("Pet: " + petName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text("When do you need the sitter?", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("Today", "Tomorrow", "This Weekend").forEach { d ->
+                        FilterChip(
+                            selected = date == d,
+                            onClick = { date = d },
+                            label = { Text(d, fontSize = 10.sp) }
+                        )
+                    }
+                }
+                OutlinedTextField(
+                    value = notes,
+                    onValueChange = { notes = it },
+                    label = { Text("Notes (pet habits, medicines, timing)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2
+                )
+                Text(
+                    "Our team will confirm and connect you with the sitter. Payment after service (COD).",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(date, notes.trim()) }) { Text("Confirm Booking") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }
 
 // ---------------- 1. Grooming Card ----------------

@@ -136,7 +136,31 @@ fun AdminScreen(
                         "MEDICINE" -> ProductsAdminTab(products = products, listTypeFilter = "Medicine", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "ACCESSORIES" -> ProductsAdminTab(products = products, listTypeFilter = "Accessory", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "SUBSCRIPTION" -> ProductsAdminTab(products = products, listTypeFilter = "Subscription", onAdd = onAddProduct, onDelete = onDeleteProduct)
-                        "BOARDING" -> ProductsAdminTab(products = products, listTypeFilter = "Boarding", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                        "BOARDING" -> {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(
+                                    selected = !showBookings,
+                                    onClick = { showBookings = false },
+                                    label = { Text("Sitters", fontSize = 11.sp) }
+                                )
+                                FilterChip(
+                                    selected = showBookings,
+                                    onClick = { showBookings = true },
+                                    label = { Text("Bookings", fontSize = 11.sp) }
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            if (showBookings) {
+                                BookingsAdminTab(
+                                    bookings = bookings,
+                                    onAssign = { booking -> assigningBooking = booking },
+                                    onUpdateStatus = onUpdateBookingStatus,
+                                    typeFilter = "BOARDING"
+                                )
+                            } else {
+                                ProductsAdminTab(products = products, listTypeFilter = "Boarding", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                            }
+                        }
                         "LISTINGS" -> ListingsAdminTab(listings = listings, onDelete = onDeleteListing)
                         "SUPPORT" -> {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -307,6 +331,7 @@ private fun sectionTitle(key: String?): String = when (key) {
 private fun bookingTypeFor(key: String?): String = when (key) {
     "DOCTOR" -> "DOCTOR"
     "TRAINING" -> "TRAINER"
+    "BOARDING" -> "BOARDING"
     else -> "GROOMING"
 }
 
@@ -322,7 +347,7 @@ private fun AdminDashboard(onSelect: (String) -> Unit) {
         "TRAINING" to ("Training" to "Programs & bookings"),
         "ACCESSORIES" to ("Accessories" to "Toys, clothing & more"),
         "SUBSCRIPTION" to ("Subscriptions" to "Food plan subscriptions"),
-        "BOARDING" to ("Boarding & Sitters" to "Boarding partners"),
+        "BOARDING" to ("Boarding & Sitters" to "Sitters + bookings"),
         "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
         "ALERTS" to ("Find My Pet" to "SOS alerts + GPS trackers"),
         "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
@@ -456,6 +481,7 @@ private fun AdminBookingCard(
     val typeLabel = when (booking.type) {
         "DOCTOR" -> "\uD83E\uDE7A Doctor"
         "GROOMING" -> "\u2702\uFE0F Grooming"
+        "BOARDING" -> "\uD83C\uDFE1 Boarding / Sitter"
         else -> "\uD83C\uDF93 Trainer"
     }
 

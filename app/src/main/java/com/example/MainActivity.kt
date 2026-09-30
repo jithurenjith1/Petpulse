@@ -419,6 +419,10 @@ val appCtx = LocalContext.current
                         onSubmitRescueReport = { animal, desc, loc, cont, cb ->
                             viewModel.submitRescueReport(animal, desc, loc, cont, cb)
                         },
+                        onBookSitter = { sitterName, sitterType, priceEstimate, date, notes ->
+                            viewModel.placeSitterBooking(sitterName, sitterType, priceEstimate, activePet.name, date, notes)
+                        },
+                        activePetName = activePet.name,
                         petNews = petNews,
                         events = events,
                         onTriggerSosDialog = { showSosScreen = true },

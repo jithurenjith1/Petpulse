@@ -396,10 +396,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     /** Boarding & sitters: owner partners first, then demo sitters. */
     val marketBoardingSitters: StateFlow<List<BoardingSitter>> =
         combine(boardingSitters, commerceRepo.observeProducts()) { demo, remote ->
+            val knownSitterTypes = listOf("Full Day (24hr)", "Per Day Care", "Pet Night Care", "Feed on Time Only")
             remote.filter { it.listType == "Boarding" }.map { p ->
                 BoardingSitter(
                     name = p.name,
-                    sitterType = p.category.ifBlank { "Full Day (24hr)" },
+                    // Respect the admin's category when it matches a filter tab,
+                    // otherwise default to the first tab so the sitter is never hidden.
+                    sitterType = p.category.trim().takeIf { it in knownSitterTypes } ?: "Full Day (24hr)",
                     tagline = p.description.take(60),
                     experience = "Verified partner",
                     rating = 4.5,
@@ -807,6 +810,34 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
+    }
+
+    /** Customer books a boarding sitter → real booking; admin assigns the sitter and collects the fee. */
+    fun placeSitterBooking(sitterName: String, sitterType: String, priceEstimate: String, petName: String, date: String, notes: String) {
+        val booking = ServiceBooking(
+            id = "",
+            type = "BOARDING",
+            ownerId = "",
+            customerName = _customerProfile.value.name,
+            customerPhone = _customerProfile.value.phone,
+            petName = petName,
+            providerName = sitterName,
+            serviceInfo = sitterType,
+            dateLabel = date,
+            slot = "",
+            notes = notes,
+            feeInr = parseRupees(priceEstimate),
+            createdAt = System.currentTimeMillis()
+        )
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** First number group in a price string like "₹3,850 / 24 Hours" → 3850.0 */
+    private fun parseRupees(text: String): Double {
+        val m = Regex("[0-9][0-9,]*").find(text) ?: return 0.0
+        return m.value.replace(",", "").toDoubleOrNull() ?: 0.0
     }
 
     /** Customer requests a grooming service → real booking (admin confirms via Bookings tab). */
