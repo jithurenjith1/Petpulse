@@ -233,17 +233,56 @@ fun MyPetsScreen(
                             val shareContext = androidx.compose.ui.platform.LocalContext.current
                             FilledTonalButton(
                                 onClick = {
-                                    val completed = vaccinations.count { it.status == "Completed" }
+                                    val completedVax = vaccinations.filter { it.status.equals("Completed", ignoreCase = true) }
+                                    val upcomingVax = vaccinations.filter { !it.status.equals("Completed", ignoreCase = true) }
                                     val card = buildString {
                                         appendLine("PET PROFILE - Petpulse")
+                                        appendLine("================================")
                                         appendLine()
-                                        appendLine("${pet.name} (${pet.species})")
+                                        appendLine("PET DETAILS")
+                                        appendLine("Name: ${pet.name}")
+                                        appendLine("Species: ${pet.species}")
                                         appendLine("Breed: ${pet.breed}")
-                                        appendLine("${pet.gender}, ${pet.ageYears} years, ${pet.weightKg} kg")
+                                        appendLine("Gender: ${pet.gender}")
+                                        appendLine("Age: ${pet.ageYears} years ${pet.ageMonths} months")
+                                        appendLine("Weight: ${pet.weightKg} kg")
                                         if (pet.microchipNumber.isNotBlank()) appendLine("Microchip: ${pet.microchipNumber}")
-                                        appendLine("Vaccinations: $completed of ${vaccinations.size} completed")
-                                        appendLine("Medical reports on file: ${medicalReports.size}")
-                                        appendLine("Allergies / notes: ${if (pet.notes.isNotBlank()) pet.notes else "-"}")
+                                        appendLine()
+
+                                        appendLine("VACCINATIONS (${vaccinations.size})")
+                                        if (vaccinations.isEmpty()) {
+                                            appendLine("- No vaccinations recorded")
+                                        } else {
+                                            if (completedVax.isNotEmpty()) {
+                                                appendLine("Completed:")
+                                                completedVax.forEach { v ->
+                                                    appendLine("  - ${v.vaccineName} (given: ${v.dateGiven})")
+                                                }
+                                            }
+                                            if (upcomingVax.isNotEmpty()) {
+                                                appendLine("Upcoming:")
+                                                upcomingVax.forEach { v ->
+                                                    appendLine("  - ${v.vaccineName} (due: ${v.nextDueDate})")
+                                                }
+                                            }
+                                        }
+                                        appendLine()
+
+                                        appendLine("MEDICAL REPORTS (${medicalReports.size})")
+                                        if (medicalReports.isEmpty()) {
+                                            appendLine("- No medical reports on file")
+                                        } else {
+                                            medicalReports.forEach { r ->
+                                                appendLine("- ${r.title} | ${r.clinicName} | ${r.date}")
+                                                if (r.diagnosis.isNotBlank()) appendLine("    Diagnosis: ${r.diagnosis}")
+                                                if (r.prescription.isNotBlank()) appendLine("    Prescription: ${r.prescription}")
+                                                if (!r.followUpDate.isNullOrBlank()) appendLine("    Follow-up: ${r.followUpDate}")
+                                            }
+                                        }
+                                        appendLine()
+
+                                        appendLine("ALLERGIES / NOTES")
+                                        appendLine(if (pet.notes.isNotBlank()) pet.notes else "- None recorded")
                                         appendLine()
                                         appendLine("Owner: ${customer.name}")
                                         if (customer.phone.isNotBlank()) appendLine("Contact: ${customer.phone}")
