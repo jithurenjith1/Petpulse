@@ -22,6 +22,7 @@ data class UserPet(
     val favoritePlays: String = "Frisbee Fetch, Tug of War, Squeaky Duck Toy, Agility Jump",
     val trainingStatus: String = "Basic Completed (Sit, Stay, Paw, Heel)",
     val trainingLevel: String = "Basic", // Basic, Advanced, In Progress, Blank
+    val trainingMilestones: String = "Sit, Stay (30s), Paw / High Five, Heel Walk, Emergency Recall",
     val avatarRes: String = "img_dog_jane",
     val photoUri: String = "",
     val notes: String = "Very energetic, friendly with children, loves morning park walks."

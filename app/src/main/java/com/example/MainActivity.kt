@@ -129,6 +129,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
 val adminSupportTickets by viewModel.supportTickets.collectAsStateWithLifecycle()
 val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
+val appCtx = LocalContext.current
     val petNews by viewModel.petNews.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle()
     val healthScore by viewModel.healthScore.collectAsStateWithLifecycle()
@@ -286,6 +287,23 @@ val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
                             viewModel.updatePetFavoriteFoodsAndPlays(foods, plays)
                             coroutineScope.launch { snackbarHostState.showSnackbar("Favorite food & plays updated for ${activePet.name}!") }
                         },
+                        onSaveTraining = { level, status, milestones ->
+                            viewModel.updateTraining(level, status, milestones)
+                            coroutineScope.launch { snackbarHostState.showSnackbar("Training updated for ${activePet.name}!") }
+                        },
+                        trainingPrograms = marketTrainingGuides,
+                        onBookTraining = { program ->
+                            val msg = "Hello Petpulse! I want to book training: " + program.title + " (" + program.level + "). Please share details."
+                            runCatching {
+                                val encoded = java.net.URLEncoder.encode(msg, "UTF-8")
+                                appCtx.startActivity(
+                                    android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW,
+                                        android.net.Uri.parse("https://wa.me/919526632311?text=$encoded")
+                                    )
+                                )
+                            }
+                        },
                         onLoginClick = { showLoginDialog = true },
                         onSavePetDirectly = { newName, newBreed, newAge, newGender ->
                             viewModel.renameAndConfigurePet(newName, newBreed, newAge, newGender)
@@ -346,6 +364,12 @@ val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
                             viewModel.addProductToCart(product)
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Added '${product.name}' to Kerala cart!")
+                            }
+                        },
+                        onAddAccessoryToCart = { item ->
+                            viewModel.addAccessoryToCart(item)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Added '" + item.name + "' to cart!")
                             }
                         },
                         onBookDoctor = { doctor ->

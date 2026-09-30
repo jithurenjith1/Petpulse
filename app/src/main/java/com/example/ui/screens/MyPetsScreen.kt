@@ -44,6 +44,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.petpulse.app.data.model.CustomerProfile
 import com.petpulse.app.data.model.MedicalReport
 import com.petpulse.app.data.model.PetCertificate
+import com.petpulse.app.data.model.TrainingGuide
 import com.petpulse.app.data.model.UserPet
 import com.petpulse.app.data.model.VaccinationRecord
 import com.petpulse.app.ui.theme.*
@@ -73,6 +74,9 @@ fun MyPetsScreen(
     onAddVaccine: (name: String, date: String, nextDue: String, status: String, doctor: String) -> Unit,
     onAddMedicalReport: (title: String, clinic: String, diagnosis: String, prescription: String) -> Unit,
     onUpdateFoodPlays: (foods: String, plays: String) -> Unit,
+    onSaveTraining: (level: String, status: String, milestones: String) -> Unit = { _, _, _ -> },
+    trainingPrograms: List<TrainingGuide> = emptyList(),
+    onBookTraining: (TrainingGuide) -> Unit = {},
     onLoginClick: () -> Unit,
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
@@ -381,7 +385,9 @@ fun MyPetsScreen(
                 item {
                     TrainingSubmenuSection(
                         pet = pet,
-                        onEditTraining = onEditPetClick
+                        trainingPrograms = trainingPrograms,
+                        onSaveTraining = onSaveTraining,
+                        onBookTraining = onBookTraining
                     )
                 }
             }
@@ -1139,8 +1145,13 @@ fun FoodAndPlaysSubmenuSection(
 @Composable
 fun TrainingSubmenuSection(
     pet: UserPet,
-    onEditTraining: () -> Unit
+    trainingPrograms: List<TrainingGuide>,
+    onSaveTraining: (String, String, String) -> Unit,
+    onBookTraining: (TrainingGuide) -> Unit
 ) {
+    var showTrainingDialog by remember { mutableStateOf(false) }
+    val allCommands = listOf("Sit", "Stay (30s)", "Paw / High Five", "Heel Walk", "Emergency Recall", "Agility Weave")
+    val mastered = pet.trainingMilestones.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1176,7 +1187,7 @@ fun TrainingSubmenuSection(
                     )
                 }
 
-                FilledTonalButton(onClick = onEditTraining, shape = RoundedCornerShape(10.dp)) {
+                FilledTonalButton(onClick = { showTrainingDialog = true }, shape = RoundedCornerShape(10.dp)) {
                     Text(stringResource(R.string.mypets_update_status), fontSize = 12.sp)
                 }
             }
@@ -1195,21 +1206,14 @@ fun TrainingSubmenuSection(
                         color = BluePrimaryDark
                     )
                     Text(
-                        text = "${pet.name} responds to voice commands and hand markers. Certified gentle companion obedience.",
+                        text = trainingDescription(pet.trainingLevel),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    val commandList = listOf(
-                        "Sit" to true,
-                        "Stay (30s)" to true,
-                        "Paw / High Five" to true,
-                        "Heel Walk" to true,
-                        "Emergency Recall" to true,
-                        "Agility Weave" to (pet.trainingLevel == "Advanced")
-                    )
+                    val commandList = allCommands.map { cmd -> cmd to mastered.contains(cmd) }
 
                     commandList.forEach { (cmd, isMastered) ->
                         Row(
@@ -1234,8 +1238,145 @@ fun TrainingSubmenuSection(
                     }
                 }
             }
+
+            // Recommended training programs (admin-managed, listType = "Training")
+            if (trainingPrograms.isNotEmpty()) {
+                Text(
+                    text = "Recommended Training Programs",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = BluePrimaryDark
+                )
+                trainingPrograms.forEach { program ->
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(program.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = BluePrimary.copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        text = program.level.uppercase(),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = BluePrimary,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                            if (program.steps.isNotEmpty()) {
+                                Text(program.steps.joinToString(" \u2022 "), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            if (program.tips.isNotBlank()) {
+                                Text(program.tips, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Text("Recommended age: ${program.recommendedAge}", fontSize = 11.sp, color = BluePrimary)
+                            FilledTonalButton(
+                                onClick = { onBookTraining(program) },
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("Book / Enquire", fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
+
+    if (showTrainingDialog) {
+        TrainingStatusDialog(
+            currentLevel = pet.trainingLevel,
+            currentMilestones = mastered,
+            allCommands = allCommands,
+            onSave = { level, milestones ->
+                val statusText = level + " \u2022 " + milestones.size + "/" + allCommands.size + " commands mastered"
+                onSaveTraining(level, statusText, milestones.joinToString(", "))
+                showTrainingDialog = false
+            },
+            onDismiss = { showTrainingDialog = false }
+        )
+    }
+}
+
+/** Short description that matches the selected training level. */
+private fun trainingDescription(level: String): String = when (level.trim().lowercase()) {
+    "basic" -> "Responds to core voice commands and hand markers. Gentle companion obedience."
+    "intermediate" -> "Reliable obedience with distractions. Leash manners and supervised recall."
+    "advanced" -> "Off-leash control, agility basics and advanced emergency recall."
+    "in progress" -> "Training in progress. Keep practising daily and update the milestones as your pet improves."
+    else -> "Set your training level and tick the milestones your pet has mastered."
+}
+
+@Composable
+private fun TrainingStatusDialog(
+    currentLevel: String,
+    currentMilestones: Set<String>,
+    allCommands: List<String>,
+    onSave: (String, Set<String>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var level by remember { mutableStateOf(currentLevel.ifBlank { "Basic" }) }
+    val selected = remember { mutableStateListOf<String>().apply { addAll(currentMilestones) } }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Update Training Status", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("Training level", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("Basic", "Intermediate", "Advanced", "In Progress").forEach { lv ->
+                        FilterChip(
+                            selected = level == lv,
+                            onClick = { level = lv },
+                            label = { Text(lv, fontSize = 10.sp) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text("Milestones mastered", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                allCommands.forEach { cmd ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (selected.contains(cmd)) selected.remove(cmd) else selected.add(cmd)
+                            },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selected.contains(cmd),
+                            onCheckedChange = { checked ->
+                                if (checked) {
+                                    if (!selected.contains(cmd)) selected.add(cmd)
+                                } else {
+                                    selected.remove(cmd)
+                                }
+                            }
+                        )
+                        Text(cmd, fontSize = 13.sp)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSave(level, selected.toSet()) }) { Text("Save") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }
 
 // Dialog for adding vaccine

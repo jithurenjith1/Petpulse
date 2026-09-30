@@ -493,6 +493,18 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    /** Add an accessory (toys, wearables, clothing...) to the cart. */
+    fun addAccessoryToCart(item: AccessoryItem) {
+        val price = item.estimatedPrice.filter { ch -> ch.isDigit() || ch == '.' }.toDoubleOrNull() ?: 0.0
+        if (price <= 0.0) return
+        addToCart(
+            itemId = "acc_" + item.name,
+            title = item.name,
+            subtitle = item.subType.ifBlank { "Accessory" },
+            priceInr = price
+        )
+    }
+
     fun updateCartItemQuantity(cartItemId: String, delta: Int) = updateCartQuantity(cartItemId, delta)
 
     fun listPetForSaleOrAdoption(
@@ -1100,6 +1112,19 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             val updated = current.copy(
                 favoriteFoods = foods,
                 favoritePlays = plays
+            )
+            firestoreRepo.savePet(updated)
+        }
+    }
+
+    /** Save the pet's training level, status text and mastered milestones. */
+    fun updateTraining(level: String, status: String, milestones: String) {
+        viewModelScope.launch {
+            val current = currentPetOrNull() ?: return@launch
+            val updated = current.copy(
+                trainingLevel = level,
+                trainingStatus = status,
+                trainingMilestones = milestones
             )
             firestoreRepo.savePet(updated)
         }

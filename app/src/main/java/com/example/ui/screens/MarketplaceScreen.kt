@@ -66,6 +66,7 @@ fun MarketplaceScreen(
     onPetSelected: (MarketPet) -> Unit,
     guideFoods: List<FoodItem> = emptyList(),
     accessories: List<AccessoryItem> = emptyList(),
+    onAddAccessoryToCart: (AccessoryItem) -> Unit = {},
     healthCareItems: List<HealthCareItem> = emptyList(),
     trainingGuides: List<TrainingGuide> = emptyList(),
     onGuideItemAction: (String) -> Unit = {},
@@ -281,7 +282,13 @@ fun MarketplaceScreen(
                 }
 
                 items(accessories, key = { "a_" + it.name }) { item ->
-                    AccessoryItemCard(item = item, onBuy = { onGuideItemAction("Selected " + item.name + " (" + item.estimatedPrice + ")") })
+                    AccessoryItemCard(
+                        item = item,
+                        onBuy = {
+                            onAddAccessoryToCart(item)
+                            onGuideItemAction("Added to cart: " + item.name)
+                        }
+                    )
                 }
             }
 

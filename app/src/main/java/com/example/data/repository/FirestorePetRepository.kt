@@ -476,6 +476,7 @@ class FirestorePetRepository(private val appContext: Context) {
             "favoritePlays" to pet.favoritePlays,
             "trainingStatus" to pet.trainingStatus,
             "trainingLevel" to pet.trainingLevel,
+            "trainingMilestones" to pet.trainingMilestones,
             "avatarRes" to pet.avatarRes,
             "photoUri" to pet.photoUri,
             "notes" to pet.notes
