@@ -372,6 +372,18 @@ val appCtx = LocalContext.current
                                 snackbarHostState.showSnackbar("Added '" + item.name + "' to cart!")
                             }
                         },
+                        onAddFoodItemToCart = { item ->
+                            viewModel.addFoodItemToCart(item)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Added '" + item.name + "' to cart!")
+                            }
+                        },
+                        onBookHealthCare = { item ->
+                            viewModel.placeHealthCareBooking(item)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Booking requested: " + item.title)
+                            }
+                        },
                         onBookDoctor = { doctor ->
                             selectedDoctorForBooking = doctor
                         },
@@ -421,6 +433,9 @@ val appCtx = LocalContext.current
                         },
                         onBookSitter = { sitterName, sitterType, priceEstimate, date, notes ->
                             viewModel.placeSitterBooking(sitterName, sitterType, priceEstimate, activePet.name, date, notes)
+                        },
+                        onSubscribePlan = { title, planType, monthlyEstimate ->
+                            viewModel.placeSubscriptionBooking(title, planType, monthlyEstimate)
                         },
                         activePetName = activePet.name,
                         petNews = petNews,

@@ -59,6 +59,7 @@ fun PartnersServicesScreen(
     onSubmitSupportTicket: (String, String, String, String, (Boolean) -> Unit) -> Unit,
     onSubmitRescueReport: (String, String, String, String, (Boolean) -> Unit) -> Unit,
     onBookSitter: (String, String, String, String, String) -> Unit = { _, _, _, _, _ -> },
+    onSubscribePlan: (String, String, String) -> Unit = { _, _, _ -> },
     activePetName: String = "",
     modifier: Modifier = Modifier
 ) {
@@ -311,7 +312,7 @@ fun PartnersServicesScreen(
                 items(foodSubscriptions) { sub ->
                     SubscriptionCard(
                         subscription = sub,
-                        onSubscribe = { onActionNotification("Selected ${sub.title} (${sub.planType})") }
+                        onSubscribe = { onSubscribePlan(sub.title, sub.planType, sub.monthlyEstimate) }
                     )
                 }
             }

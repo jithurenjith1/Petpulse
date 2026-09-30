@@ -834,6 +834,62 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Customer subscribes to a food/accessory plan → real booking the admin fulfils. */
+    fun placeSubscriptionBooking(planTitle: String, planType: String, monthlyEstimate: String) {
+        val booking = ServiceBooking(
+            id = "",
+            type = "SUBSCRIPTION",
+            ownerId = "",
+            customerName = _customerProfile.value.name,
+            customerPhone = _customerProfile.value.phone,
+            petName = activePet.value.name,
+            providerName = planTitle,
+            serviceInfo = planType,
+            dateLabel = "",
+            slot = "",
+            notes = "",
+            feeInr = parseRupees(monthlyEstimate),
+            createdAt = System.currentTimeMillis()
+        )
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Add a guide food item to the cart. */
+    fun addFoodItemToCart(item: FoodItem) {
+        val price = parseRupees(item.estimatedPrice)
+        if (price <= 0.0) return
+        addToCart(
+            itemId = "food_" + item.name,
+            title = item.name,
+            subtitle = item.subType.ifBlank { "Food" },
+            priceInr = price
+        )
+    }
+
+    /** Customer requests a health care service → real booking (admin confirms + assigns). */
+    fun placeHealthCareBooking(item: HealthCareItem) {
+        val booking = ServiceBooking(
+            id = "",
+            type = "DOCTOR",
+            ownerId = "",
+            customerName = _customerProfile.value.name,
+            customerPhone = _customerProfile.value.phone,
+            petName = activePet.value.name,
+            providerName = "",
+            serviceInfo = item.title + " (" + item.subType + ")",
+            dateLabel = "",
+            slot = "",
+            notes = item.frequencyOrTimeline,
+            feeInr = parseRupees(item.estimatedCost),
+            createdAt = System.currentTimeMillis()
+        )
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
     /** First number group in a price string like "₹3,850 / 24 Hours" → 3850.0 */
     private fun parseRupees(text: String): Double {
         val m = Regex("[0-9][0-9,]*").find(text) ?: return 0.0

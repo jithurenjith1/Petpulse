@@ -67,6 +67,8 @@ fun MarketplaceScreen(
     guideFoods: List<FoodItem> = emptyList(),
     accessories: List<AccessoryItem> = emptyList(),
     onAddAccessoryToCart: (AccessoryItem) -> Unit = {},
+    onAddFoodItemToCart: (FoodItem) -> Unit = {},
+    onBookHealthCare: (HealthCareItem) -> Unit = {},
     healthCareItems: List<HealthCareItem> = emptyList(),
     trainingGuides: List<TrainingGuide> = emptyList(),
     onGuideItemAction: (String) -> Unit = {},
@@ -171,7 +173,13 @@ fun MarketplaceScreen(
 
                 // Guide food items — combined into the same Food section
                 items(guideFoods, key = { "g_" + it.name }) { item ->
-                    FoodItemCard(item = item, onAddToList = { onGuideItemAction("Added " + item.name + " to cart/diet plan") })
+                    FoodItemCard(
+                        item = item,
+                        onAddToList = {
+                            onAddFoodItemToCart(item)
+                            onGuideItemAction("Added " + item.name + " to cart")
+                        }
+                    )
                 }
             }
 
@@ -268,7 +276,13 @@ fun MarketplaceScreen(
 
                 // Healthcare services — combined into the same section
                 items(healthCareItems, key = { "h_" + it.title }) { item ->
-                    HealthCareItemCard(item = item, onBook = { onGuideItemAction("Booking appointment for " + item.title) })
+                    HealthCareItemCard(
+                        item = item,
+                        onBook = {
+                            onBookHealthCare(item)
+                            onGuideItemAction("Booking requested for " + item.title)
+                        }
+                    )
                 }
             }
 

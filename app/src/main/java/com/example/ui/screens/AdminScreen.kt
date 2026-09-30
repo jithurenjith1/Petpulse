@@ -135,7 +135,31 @@ fun AdminScreen(
                         "FOOD" -> ProductsAdminTab(products = products, listTypeFilter = "Food", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "MEDICINE" -> ProductsAdminTab(products = products, listTypeFilter = "Medicine", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "ACCESSORIES" -> ProductsAdminTab(products = products, listTypeFilter = "Accessory", onAdd = onAddProduct, onDelete = onDeleteProduct)
-                        "SUBSCRIPTION" -> ProductsAdminTab(products = products, listTypeFilter = "Subscription", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                        "SUBSCRIPTION" -> {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(
+                                    selected = !showBookings,
+                                    onClick = { showBookings = false },
+                                    label = { Text("Plans", fontSize = 11.sp) }
+                                )
+                                FilterChip(
+                                    selected = showBookings,
+                                    onClick = { showBookings = true },
+                                    label = { Text("Subscriptions", fontSize = 11.sp) }
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            if (showBookings) {
+                                BookingsAdminTab(
+                                    bookings = bookings,
+                                    onAssign = { booking -> assigningBooking = booking },
+                                    onUpdateStatus = onUpdateBookingStatus,
+                                    typeFilter = "SUBSCRIPTION"
+                                )
+                            } else {
+                                ProductsAdminTab(products = products, listTypeFilter = "Subscription", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                            }
+                        }
                         "BOARDING" -> {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 FilterChip(
@@ -482,6 +506,7 @@ private fun AdminBookingCard(
         "DOCTOR" -> "\uD83E\uDE7A Doctor"
         "GROOMING" -> "\u2702\uFE0F Grooming"
         "BOARDING" -> "\uD83C\uDFE1 Boarding / Sitter"
+        "SUBSCRIPTION" -> "\uD83D\uDD01 Subscription"
         else -> "\uD83C\uDF93 Trainer"
     }
 
@@ -944,7 +969,7 @@ private fun SupportTicketsAdminTab(tickets: List<SupportTicket>, onDelete: (Stri
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("${'$'}{t.category}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("${t.category}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Text(formatTimestamp(t.createdAt), fontSize = 11.sp, color = Color.Gray)
                     }
                     Text(t.subject, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
@@ -952,7 +977,7 @@ private fun SupportTicketsAdminTab(tickets: List<SupportTicket>, onDelete: (Stri
                         Text(t.details, fontSize = 12.sp, color = Color.Gray)
                     }
                     if (t.contact.isNotBlank()) {
-                        Text("Contact: ${'$'}{t.contact}", fontSize = 12.sp, color = Color(0xFF1976D2))
+                        Text("Contact: ${t.contact}", fontSize = 12.sp, color = Color(0xFF1976D2))
                     }
                     TextButton(onClick = { onDelete(t.id) }) {
                         Text("Delete ticket", fontSize = 12.sp, color = Color(0xFFD32F2F))
@@ -978,17 +1003,17 @@ private fun RescueReportsAdminTab(reports: List<RescueReport>, onDelete: (String
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("🐕 ${'$'}{r.animalType}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("🐕 ${r.animalType}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Text(formatTimestamp(r.createdAt), fontSize = 11.sp, color = Color.Gray)
                     }
                     if (r.description.isNotBlank()) {
                         Text(r.description, fontSize = 12.sp)
                     }
                     if (r.location.isNotBlank()) {
-                        Text("Location: ${'$'}{r.location}", fontSize = 12.sp, color = Color(0xFFE65100))
+                        Text("Location: ${r.location}", fontSize = 12.sp, color = Color(0xFFE65100))
                     }
                     if (r.contact.isNotBlank()) {
-                        Text("Contact: ${'$'}{r.contact}", fontSize = 12.sp, color = Color(0xFF1976D2))
+                        Text("Contact: ${r.contact}", fontSize = 12.sp, color = Color(0xFF1976D2))
                     }
                     TextButton(onClick = { onDelete(r.id) }) {
                         Text("Delete report", fontSize = 12.sp, color = Color(0xFFD32F2F))
