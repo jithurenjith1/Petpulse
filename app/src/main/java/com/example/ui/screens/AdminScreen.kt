@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -259,6 +260,12 @@ fun AdminScreen(
                     if (dealers.isEmpty()) {
                         Text(stringResource(R.string.admin_no_dealers), fontSize = 13.sp)
                     } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 260.dp)
+                                .verticalScroll(rememberScrollState())
+                        ) {
                         dealers.forEach { dealer ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -293,6 +300,7 @@ fun AdminScreen(
                             }
                             Spacer(Modifier.height(4.dp))
                         }
+                        }
                     }
                 }
             }
@@ -302,6 +310,8 @@ fun AdminScreen(
     assigningBooking?.let { booking ->
         AssignBookingDialog(
             booking = booking,
+            vets = vets,
+            dealers = dealers,
             onDismiss = { assigningBooking = null },
             onAssign = { name, phone ->
                 onAssignBooking(booking.id, name, phone)
@@ -311,22 +321,94 @@ fun AdminScreen(
     }
 }
 
-/** Dialog: admin enters the doctor/trainer name + phone to confirm a booking. */
+/**
+ * Dialog: admin picks the provider (auto-fetched from saved vets / partners, scrollable)
+ * or types the name + phone manually, then confirms the booking.
+ */
 @Composable
 private fun AssignBookingDialog(
     booking: ServiceBooking,
+    vets: List<VerifiedDoctor>,
+    dealers: List<Dealer>,
     onDismiss: () -> Unit,
     onAssign: (String, String) -> Unit
 ) {
     var name by remember { mutableStateOf(booking.providerName) }
     var phone by remember { mutableStateOf("") }
 
+    // Candidates auto-fetched from the saved data for this booking type.
+    val candidates: List<Triple<String, String, String>> = if (booking.type == "DOCTOR") {
+        vets.map { Triple(it.name, it.phone, it.specialization + "  -  " + it.clinicCity) }
+    } else {
+        dealers.map { Triple(it.name, it.phone, it.city) }
+    }
+    val title = when (booking.type) {
+        "DOCTOR" -> "Assign Doctor"
+        "TRAINER" -> "Assign Trainer"
+        "BOARDING" -> "Assign Sitter"
+        "GROOMING" -> "Assign Groomer"
+        "SUBSCRIPTION" -> "Assign Partner"
+        else -> "Assign Provider"
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = RoundedCornerShape(16.dp)) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Assign ${if (booking.type == "DOCTOR") "Doctor" else "Trainer"}", fontWeight = FontWeight.Bold)
-                Text("${booking.customerName} - ${booking.customerPhone}", fontSize = 12.sp, color = Color.Gray)
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .heightIn(max = 460.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(title, fontWeight = FontWeight.Bold)
+                Text(booking.customerName + " - " + booking.customerPhone, fontSize = 12.sp, color = Color.Gray)
+                if (booking.providerName.isNotBlank()) {
+                    Text("Customer requested: " + booking.providerName, fontSize = 12.sp, color = Color(0xFFA87A1F))
+                }
                 Spacer(Modifier.height(10.dp))
+
+                if (candidates.isNotEmpty()) {
+                    Text(
+                        text = if (booking.type == "DOCTOR") "Pick from your saved vets" else "Pick from your saved partners",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 190.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        candidates.forEach { c ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(c.first, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                    Text(c.third, fontSize = 11.sp, color = Color.Gray)
+                                    if (c.second.isNotBlank()) {
+                                        Text(c.second, fontSize = 11.sp, color = Color(0xFF1976D2))
+                                    }
+                                }
+                                TextButton(onClick = { name = c.first; phone = c.second }) {
+                                    Text("Use", fontSize = 12.sp)
+                                }
+                            }
+                            Spacer(Modifier.height(2.dp))
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                } else {
+                    Text(
+                        "No saved providers yet. Add vets/partners in the admin panel, or type the name below.",
+                        fontSize = 11.sp,
+                        color = Color.Gray
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
+
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -340,6 +422,12 @@ private fun AssignBookingDialog(
                     label = { Text("Phone") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "On confirm: booking status becomes CONFIRMED and this name + phone are saved on the booking.",
+                    fontSize = 10.sp,
+                    color = Color.Gray
+                )
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = onDismiss) { Text("Cancel") }
@@ -348,7 +436,7 @@ private fun AssignBookingDialog(
                         onClick = { if (name.isNotBlank()) onAssign(name.trim(), phone.trim()) },
                         enabled = name.isNotBlank()
                     ) {
-                        Text("Confirm Booking", fontSize = 12.sp)
+                        Text("Confirm & Assign", fontSize = 12.sp)
                     }
                 }
             }
