@@ -154,13 +154,6 @@ val appCtx = LocalContext.current
     val verifiedDoctors by viewModel.verifiedDoctors.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val vaxDiag by viewModel.vaxDiag.collectAsStateWithLifecycle()
-    LaunchedEffect(vaxDiag) {
-        if (vaxDiag != null) {
-            snackbarHostState.showSnackbar(vaxDiag ?: "")
-            viewModel.clearVaxDiag()
-        }
-    }
     val coroutineScope = rememberCoroutineScope()
 
     // Dialog state controllers

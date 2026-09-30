@@ -1255,8 +1255,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 veterinarian = doctor,
                 batchNumber = "VAX-${(1000..9999).random()}"
             )
-            val result = firestoreRepo.addVaccination(petId, vax)
-            _vaxDiag.value = result ?: "DIAG: save OK - petId=$petId"
+            firestoreRepo.addVaccination(petId, vax)
         }
     }
 
@@ -1384,12 +1383,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             null
         }
     }
-
-    /** Diagnostic message surface (temporary): shows why a vaccination save failed. */
-    private val _vaxDiag = MutableStateFlow<String?>(null)
-    val vaxDiag: StateFlow<String?> = _vaxDiag.asStateFlow()
-
-    fun clearVaxDiag() { _vaxDiag.value = null }
 
     /** Account deletion (Google Play requirement): wipes all user data then deletes the account. */
     fun deleteAccount(onDone: (Boolean) -> Unit) {
