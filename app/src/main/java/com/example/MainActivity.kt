@@ -127,6 +127,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val lostAlerts by viewModel.lostPetAlerts.collectAsStateWithLifecycle()
     val petListings by viewModel.petListings.collectAsStateWithLifecycle()
 val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
+val adminSupportTickets by viewModel.supportTickets.collectAsStateWithLifecycle()
+val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
     val petNews by viewModel.petNews.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle()
     val healthScore by viewModel.healthScore.collectAsStateWithLifecycle()
@@ -387,6 +389,12 @@ val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
                         lostPetAlerts = lostAlerts,
                         petListings = petListings,
                         gpsTrackers = gpsTrackers,
+                        onSubmitSupportTicket = { cat, subj, det, cont, cb ->
+                            viewModel.submitSupportTicket(cat, subj, det, cont, cb)
+                        },
+                        onSubmitRescueReport = { animal, desc, loc, cont, cb ->
+                            viewModel.submitRescueReport(animal, desc, loc, cont, cb)
+                        },
                         petNews = petNews,
                         events = events,
                         onTriggerSosDialog = { showSosScreen = true },
@@ -555,6 +563,10 @@ val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
             onDeleteLostAlert = { id -> viewModel.adminDeleteLostAlert(id) },
             onAddVet = { n, sp, c, city, ph, vf, inf -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf) },
             onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
+            supportTickets = adminSupportTickets,
+            rescueReports = adminRescueReports,
+            onDeleteSupportTicket = { id -> viewModel.adminDeleteSupportTicket(id) },
+            onDeleteRescueReport = { id -> viewModel.adminDeleteRescueReport(id) },
             onDismiss = { showAdminScreen = false }
         )
     }

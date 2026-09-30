@@ -55,6 +55,8 @@ fun PartnersServicesScreen(
     onAddListingDialog: () -> Unit,
     onPartnerJoinClick: (String) -> Unit,
     onActionNotification: (String) -> Unit,
+    onSubmitSupportTicket: (String, String, String, String, (Boolean) -> Unit) -> Unit,
+    onSubmitRescueReport: (String, String, String, String, (Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showBusinessPartnerDialog by remember { mutableStateOf(false) }
@@ -208,6 +210,7 @@ fun PartnersServicesScreen(
                         PartnerSubTab.FIND_MY_PET -> "🚨 4. Find My Pet / GPS"
                         PartnerSubTab.SALE_AND_ADOPTION -> "🐾 5. Sale & Adoption"
                         PartnerSubTab.NEWS_AND_EVENTS -> "📰 6. News & Events"
+                        PartnerSubTab.SUPPORT -> "🆘 7. Help & Rescue"
                     }
                     Tab(
                         selected = isSelected,
@@ -410,6 +413,17 @@ fun PartnersServicesScreen(
                     PetListingCard(
                         listing = listing,
                         onContact = { onActionNotification("Contacting ${listing.postedBy} at ${listing.contactNumber}") }
+                    )
+                }
+            }
+
+            PartnerSubTab.SUPPORT -> {
+                // Section 7: Help & Support, Rescue, Donate
+                item {
+                    HelpAndRescueSection(
+                        onSubmitSupportTicket = onSubmitSupportTicket,
+                        onSubmitRescueReport = onSubmitRescueReport,
+                        onNotify = onActionNotification
                     )
                 }
             }
@@ -1408,3 +1422,418 @@ fun FeaturedPlansDialog(
     )
 }
 
+// ---------------- 7. Help, Rescue & Donate ----------------
+@Composable
+fun HelpAndRescueSection(
+    onSubmitSupportTicket: (String, String, String, String, (Boolean) -> Unit) -> Unit,
+    onSubmitRescueReport: (String, String, String, String, (Boolean) -> Unit) -> Unit,
+    onNotify: (String) -> Unit
+) {
+    var showSupportForm by remember { mutableStateOf(false) }
+    var showRescueForm by remember { mutableStateOf(false) }
+    val ctx = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        // ---- 1. Help & Support ----
+        Card(
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(26.dp))
+                    Text("Help & Support", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                }
+
+                FaqItem(
+                    "How do I track my COD order?",
+                    "Open My Orders from the Market section. You can also WhatsApp us your order number and we will update you instantly."
+                )
+                FaqItem(
+                    "How do I cancel or change an order?",
+                    "Orders are packed fast. WhatsApp us within 2 hours of ordering and we will cancel or change it free of cost."
+                )
+                FaqItem(
+                    "My vaccination record is not showing",
+                    "Check you are on the right pet tab, then close and reopen the app. If it is still missing, use Report a Problem below."
+                )
+                FaqItem(
+                    "Which areas do you deliver to?",
+                    "We deliver across Kerala through our dealer network. Enter your address at checkout to confirm availability."
+                )
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = {
+                            runCatching {
+                                val encoded = java.net.URLEncoder.encode("Hello Petpulse! I need help with... ", "UTF-8")
+                                ctx.startActivity(
+                                    android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW,
+                                        android.net.Uri.parse("https://wa.me/919526632311?text=$encoded")
+                                    )
+                                )
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f).height(38.dp)
+                    ) {
+                        Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("WhatsApp", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            runCatching {
+                                ctx.startActivity(
+                                    android.content.Intent(
+                                        android.content.Intent.ACTION_SENDTO,
+                                        android.net.Uri.parse("mailto:itspetpulse@gmail.com")
+                                    )
+                                )
+                            }
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f).height(38.dp)
+                    ) {
+                        Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Email", fontSize = 12.sp)
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = { showSupportForm = true },
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth().height(38.dp)
+                ) {
+                    Icon(Icons.Default.ReportProblem, contentDescription = null, tint = Color(0xFFE65100), modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Report a Problem", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        // ---- 2. Rescue Help ----
+        Card(
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFECB3)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.Pets, contentDescription = null, tint = Color(0xFFE65100), modifier = Modifier.size(26.dp))
+                    Text("Rescue Help - Animals in Need", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFBF360C))
+                }
+
+                Text(
+                    "See a stray animal injured, sick, or being mistreated? Send us a report with the location. Our team coordinates with rescue volunteers, NGOs and the authorities to get help to the animal.",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    "If an animal is in immediate danger or a cruelty act is happening now, call Police 112 first, then send us the report.",
+                    fontSize = 11.sp,
+                    color = Color(0xFFBF360C)
+                )
+
+                Button(
+                    onClick = { showRescueForm = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth().height(40.dp)
+                ) {
+                    Icon(Icons.Default.Report, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Report Animal in Need / Cruelty", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Text("Helpline Directory", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BluePrimaryDark)
+                HelplineRow(
+                    label = "Police Emergency (112)",
+                    action = "Call",
+                    onClick = {
+                        runCatching {
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_DIAL,
+                                    android.net.Uri.parse("tel:112")
+                                )
+                            )
+                        }
+                    }
+                )
+                HelplineRow(
+                    label = "Petpulse Rescue Coordination",
+                    action = "WhatsApp",
+                    onClick = {
+                        runCatching {
+                            val encoded = java.net.URLEncoder.encode("Hello Petpulse! I want to report an animal in need. Details: ", "UTF-8")
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://wa.me/919526632311?text=$encoded")
+                                )
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
+        // ---- 3. Donate & Help ----
+        Card(
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC8E6C9)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.Favorite, contentDescription = null, tint = Color(0xFF2E7D32), modifier = Modifier.size(26.dp))
+                    Text("Donate & Help Shelters", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF1B5E20))
+                }
+
+                Text(
+                    "Help Kerala's stray animals and shelters. Donate pet food, blankets, medicines or supplies - our team collects them and delivers to partner shelters and street feed points.",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Button(
+                    onClick = {
+                        runCatching {
+                            val encoded = java.net.URLEncoder.encode("Hello Petpulse! I want to donate food/supplies for shelter animals. Please share what is needed. ", "UTF-8")
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://wa.me/919526632311?text=$encoded")
+                                )
+                            )
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth().height(40.dp)
+                ) {
+                    Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Donate Food & Supplies", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Text(
+                    "Running a shelter or feed point? Partner with us free - WhatsApp us.",
+                    fontSize = 11.sp,
+                    color = Color(0xFF2E7D32)
+                )
+            }
+        }
+    }
+
+    if (showSupportForm) {
+        SupportTicketDialog(
+            onSubmit = onSubmitSupportTicket,
+            onDismiss = { showSupportForm = false },
+            onResult = onNotify
+        )
+    }
+    if (showRescueForm) {
+        RescueReportDialog(
+            onSubmit = onSubmitRescueReport,
+            onDismiss = { showRescueForm = false },
+            onResult = onNotify
+        )
+    }
+}
+
+@Composable
+private fun FaqItem(question: String, answer: String) {
+    var expanded by remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .clickable { expanded = !expanded }
+            .padding(vertical = 4.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(if (expanded) "v " else "> ", fontSize = 11.sp, color = BluePrimary)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(question, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = BluePrimaryDark)
+        }
+        if (expanded) {
+            Text(
+                answer,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 14.dp, top = 2.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun HelplineRow(label: String, action: String, onClick: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(label, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Text("Tap to contact", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            FilledTonalButton(onClick = onClick, shape = RoundedCornerShape(8.dp)) {
+                Text(action, fontSize = 11.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SupportTicketDialog(
+    onSubmit: (String, String, String, String, (Boolean) -> Unit) -> Unit,
+    onDismiss: () -> Unit,
+    onResult: (String) -> Unit
+) {
+    var category by remember { mutableStateOf("Order Issue") }
+    var subject by remember { mutableStateOf("") }
+    var details by remember { mutableStateOf("") }
+    var contact by remember { mutableStateOf("") }
+    var sending by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = { if (!sending) onDismiss() },
+        title = { Text("Report a Problem", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("Order Issue", "App Bug", "Other").forEach { c ->
+                        FilterChip(
+                            selected = category == c,
+                            onClick = { category = c },
+                            label = { Text(c, fontSize = 10.sp) }
+                        )
+                    }
+                }
+                OutlinedTextField(
+                    value = subject, onValueChange = { subject = it },
+                    label = { Text("Subject") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                OutlinedTextField(
+                    value = details, onValueChange = { details = it },
+                    label = { Text("What happened?") },
+                    modifier = Modifier.fillMaxWidth(), minLines = 3
+                )
+                OutlinedTextField(
+                    value = contact, onValueChange = { contact = it },
+                    label = { Text("Your contact number") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = !sending && subject.isNotBlank() && details.isNotBlank(),
+                onClick = {
+                    sending = true
+                    onSubmit(category, subject.trim(), details.trim(), contact.trim()) { ok ->
+                        sending = false
+                        if (ok) {
+                            onResult("Report sent! Our team will contact you soon.")
+                            onDismiss()
+                        } else {
+                            onResult("Could not send. Check internet and try again.")
+                        }
+                    }
+                }
+            ) { Text(if (sending) "Sending..." else "Submit") }
+        },
+        dismissButton = {
+            TextButton(onClick = { if (!sending) onDismiss() }) { Text("Cancel") }
+        }
+    )
+}
+
+@Composable
+private fun RescueReportDialog(
+    onSubmit: (String, String, String, String, (Boolean) -> Unit) -> Unit,
+    onDismiss: () -> Unit,
+    onResult: (String) -> Unit
+) {
+    var animalType by remember { mutableStateOf("Dog") }
+    var description by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
+    var contact by remember { mutableStateOf("") }
+    var sending by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = { if (!sending) onDismiss() },
+        title = { Text("Report Animal in Need", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("Dog", "Cat", "Bird", "Cattle", "Other").forEach { a ->
+                        FilterChip(
+                            selected = animalType == a,
+                            onClick = { animalType = a },
+                            label = { Text(a, fontSize = 10.sp) }
+                        )
+                    }
+                }
+                OutlinedTextField(
+                    value = description, onValueChange = { description = it },
+                    label = { Text("What is happening? (injury, sickness, cruelty...)") },
+                    modifier = Modifier.fillMaxWidth(), minLines = 3
+                )
+                OutlinedTextField(
+                    value = location, onValueChange = { location = it },
+                    label = { Text("Location (area, landmark, city)") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                OutlinedTextField(
+                    value = contact, onValueChange = { contact = it },
+                    label = { Text("Your contact number") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = !sending && description.isNotBlank() && location.isNotBlank(),
+                onClick = {
+                    sending = true
+                    onSubmit(animalType, description.trim(), location.trim(), contact.trim()) { ok ->
+                        sending = false
+                        if (ok) {
+                            onResult("Rescue report sent! Our team will coordinate help.")
+                            onDismiss()
+                        } else {
+                            onResult("Could not send. Check internet and try again.")
+                        }
+                    }
+                }
+            ) { Text(if (sending) "Sending..." else "Send Report") }
+        },
+        dismissButton = {
+            TextButton(onClick = { if (!sending) onDismiss() }) { Text("Cancel") }
+        }
+    )
+}

@@ -249,3 +249,25 @@ data class ServiceBooking(
     val assignedPhone: String = "",
     val createdAt: Long = 0L
 )
+
+// Help & Support ticket submitted by a user (admin reads/resolves in panel).
+data class SupportTicket(
+    val id: String = "",
+    val category: String = "Other",
+    val subject: String = "",
+    val details: String = "",
+    val contact: String = "",
+    val createdAt: Long = 0L,
+    val status: String = "New"
+)
+
+// Animal rescue / cruelty report submitted by a user (admin coordinates rescue).
+data class RescueReport(
+    val id: String = "",
+    val animalType: String = "",
+    val description: String = "",
+    val location: String = "",
+    val contact: String = "",
+    val createdAt: Long = 0L,
+    val status: String = "New"
+)

@@ -9,6 +9,8 @@ import com.google.firebase.firestore.Query
 import com.petpulse.app.data.model.AdminLostPetAlert
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.CommunityPost
+import com.petpulse.app.data.model.RescueReport
+import com.petpulse.app.data.model.SupportTicket
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.OrderItemSnap
 import com.petpulse.app.data.model.ServiceBooking
@@ -551,5 +553,108 @@ class FirestoreCommerceRepository {
     suspend fun deleteLostPetAlert(alertId: String) {
         if (alertId.isBlank()) return
         db.collection("lost_pet_alerts").document(alertId).delete().await()
+    }
+
+    // ---------- support tickets (Help & Support) ----------
+    fun observeSupportTickets(): Flow<List<SupportTicket>> = callbackFlow {
+        val sub = db.collection("support_tickets").addSnapshotListener { snap, err ->
+            if (err != null) {
+                // Non-admin listeners are denied by rules - just show nothing.
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(snap?.documents?.mapNotNull { it.toSupportTicket() } ?: emptyList())
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toSupportTicket(): SupportTicket? = try {
+        SupportTicket(
+            id = id,
+            category = getString("category") ?: "Other",
+            subject = getString("subject") ?: "",
+            details = getString("details") ?: "",
+            contact = getString("contact") ?: "",
+            createdAt = getLong("createdAt") ?: 0L,
+            status = getString("status") ?: "New"
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed support ticket {id}", e)
+        null
+    }
+
+    suspend fun submitSupportTicket(t: SupportTicket): Result<Unit> = try {
+        auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+        db.collection("support_tickets").document().set(
+            mapOf(
+                "category" to t.category,
+                "subject" to t.subject,
+                "details" to t.details,
+                "contact" to t.contact,
+                "createdAt" to System.currentTimeMillis(),
+                "status" to "New"
+            )
+        ).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    suspend fun deleteSupportTicket(id: String): Result<Unit> = try {
+        db.collection("support_tickets").document(id).delete().await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    // ---------- animal rescue reports ----------
+    fun observeRescueReports(): Flow<List<RescueReport>> = callbackFlow {
+        val sub = db.collection("rescue_reports").addSnapshotListener { snap, err ->
+            if (err != null) {
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(snap?.documents?.mapNotNull { it.toRescueReport() } ?: emptyList())
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toRescueReport(): RescueReport? = try {
+        RescueReport(
+            id = id,
+            animalType = getString("animalType") ?: "",
+            description = getString("description") ?: "",
+            location = getString("location") ?: "",
+            contact = getString("contact") ?: "",
+            createdAt = getLong("createdAt") ?: 0L,
+            status = getString("status") ?: "New"
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed rescue report {id}", e)
+        null
+    }
+
+    suspend fun submitRescueReport(r: RescueReport): Result<Unit> = try {
+        auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+        db.collection("rescue_reports").document().set(
+            mapOf(
+                "animalType" to r.animalType,
+                "description" to r.description,
+                "location" to r.location,
+                "contact" to r.contact,
+                "createdAt" to System.currentTimeMillis(),
+                "status" to "New"
+            )
+        ).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    suspend fun deleteRescueReport(id: String): Result<Unit> = try {
+        db.collection("rescue_reports").document(id).delete().await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 }

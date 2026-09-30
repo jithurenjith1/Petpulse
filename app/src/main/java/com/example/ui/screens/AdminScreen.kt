@@ -45,7 +45,11 @@ fun AdminScreen(
     vets: List<VerifiedDoctor> = emptyList(),
     listings: List<MarketPet> = emptyList(),
     lostAlerts: List<AdminLostPetAlert> = emptyList(),
+    supportTickets: List<SupportTicket> = emptyList(),
+    rescueReports: List<RescueReport> = emptyList(),
     onDeleteListing: (String) -> Unit = {},
+    onDeleteSupportTicket: (String) -> Unit = {},
+    onDeleteRescueReport: (String) -> Unit = {},
     onDeleteLostAlert: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
@@ -132,6 +136,26 @@ fun AdminScreen(
                         "SUBSCRIPTION" -> ProductsAdminTab(products = products, listTypeFilter = "Subscription", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "BOARDING" -> ProductsAdminTab(products = products, listTypeFilter = "Boarding", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "LISTINGS" -> ListingsAdminTab(listings = listings, onDelete = onDeleteListing)
+                        "SUPPORT" -> {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(
+                                    selected = !showBookings,
+                                    onClick = { showBookings = false },
+                                    label = { Text("Tickets", fontSize = 11.sp) }
+                                )
+                                FilterChip(
+                                    selected = showBookings,
+                                    onClick = { showBookings = true },
+                                    label = { Text("Rescue Reports", fontSize = 11.sp) }
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            if (showBookings) {
+                                RescueReportsAdminTab(reports = rescueReports, onDelete = onDeleteRescueReport)
+                            } else {
+                                SupportTicketsAdminTab(tickets = supportTickets, onDelete = onDeleteSupportTicket)
+                            }
+                        }
                         "ALERTS" -> {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 FilterChip(
@@ -273,6 +297,7 @@ private fun sectionTitle(key: String?): String = when (key) {
     "BOARDING" -> "🏡 Boarding & Sitters"
     "LISTINGS" -> "🐾 Sale & Adoption"
     "ALERTS" -> "🚨 Find My Pet"
+    "SUPPORT" -> "🆘 Help & Support"
     "DEALERS" -> "🚚 Dealers"
     else -> "Admin"
 }
@@ -298,6 +323,7 @@ private fun AdminDashboard(onSelect: (String) -> Unit) {
         "BOARDING" to ("Boarding & Sitters" to "Boarding partners"),
         "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
         "ALERTS" to ("Find My Pet" to "SOS alerts + GPS trackers"),
+        "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
         "DEALERS" to ("Dealers" to "Delivery partners")
     )
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -873,4 +899,79 @@ private fun VetsAdminTab(
             }
         }
     }
+}
+
+@Composable
+private fun SupportTicketsAdminTab(tickets: List<SupportTicket>, onDelete: (String) -> Unit) {
+    if (tickets.isEmpty()) {
+        Text("No support tickets yet. Problems reported by users will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(tickets, key = { it.id }) { t ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("${'$'}{t.category}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(formatTimestamp(t.createdAt), fontSize = 11.sp, color = Color.Gray)
+                    }
+                    Text(t.subject, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                    if (t.details.isNotBlank()) {
+                        Text(t.details, fontSize = 12.sp, color = Color.Gray)
+                    }
+                    if (t.contact.isNotBlank()) {
+                        Text("Contact: ${'$'}{t.contact}", fontSize = 12.sp, color = Color(0xFF1976D2))
+                    }
+                    TextButton(onClick = { onDelete(t.id) }) {
+                        Text("Delete ticket", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RescueReportsAdminTab(reports: List<RescueReport>, onDelete: (String) -> Unit) {
+    if (reports.isEmpty()) {
+        Text("No rescue reports yet. Animal-in-need reports from users will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(reports, key = { it.id }) { r ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🐕 ${'$'}{r.animalType}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(formatTimestamp(r.createdAt), fontSize = 11.sp, color = Color.Gray)
+                    }
+                    if (r.description.isNotBlank()) {
+                        Text(r.description, fontSize = 12.sp)
+                    }
+                    if (r.location.isNotBlank()) {
+                        Text("Location: ${'$'}{r.location}", fontSize = 12.sp, color = Color(0xFFE65100))
+                    }
+                    if (r.contact.isNotBlank()) {
+                        Text("Contact: ${'$'}{r.contact}", fontSize = 12.sp, color = Color(0xFF1976D2))
+                    }
+                    TextButton(onClick = { onDelete(r.id) }) {
+                        Text("Delete report", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun formatTimestamp(millis: Long): String {
+    if (millis <= 0L) return ""
+    return java.text.SimpleDateFormat("dd MMM, h:mm a", java.util.Locale.getDefault()).format(java.util.Date(millis))
 }

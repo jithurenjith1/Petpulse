@@ -40,7 +40,8 @@ enum class PartnerSubTab {
     PET_BOARDING,
     FIND_MY_PET,
     SALE_AND_ADOPTION,
-    NEWS_AND_EVENTS
+    NEWS_AND_EVENTS,
+    SUPPORT
 }
 
 class PetViewModel(application: Application) : AndroidViewModel(application) {
@@ -157,6 +158,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // GPS tracker collars (admin-managed products with listType = "GPS")
     val gpsTrackers: StateFlow<List<ShopProduct>> = commerceRepo.observeProducts()
         .map { remote -> remote.filter { it.listType == "GPS" } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    // Help & Support tickets and animal rescue reports (admin sees all)
+    val supportTickets: StateFlow<List<SupportTicket>> = commerceRepo.observeSupportTickets()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val rescueReports: StateFlow<List<RescueReport>> = commerceRepo.observeRescueReports()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val marketPets: StateFlow<List<MarketPet>> = combine(
         _marketPetsList,
@@ -1266,6 +1274,32 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             val result = firestoreRepo.deleteAllUserData()
             onDone(result.isSuccess)
         }
+    }
+
+    fun submitSupportTicket(category: String, subject: String, details: String, contact: String, onDone: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = commerceRepo.submitSupportTicket(
+                SupportTicket(category = category, subject = subject, details = details, contact = contact)
+            )
+            onDone(result.isSuccess)
+        }
+    }
+
+    fun submitRescueReport(animalType: String, description: String, location: String, contact: String, onDone: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = commerceRepo.submitRescueReport(
+                RescueReport(animalType = animalType, description = description, location = location, contact = contact)
+            )
+            onDone(result.isSuccess)
+        }
+    }
+
+    fun adminDeleteSupportTicket(id: String) {
+        viewModelScope.launch { commerceRepo.deleteSupportTicket(id) }
+    }
+
+    fun adminDeleteRescueReport(id: String) {
+        viewModelScope.launch { commerceRepo.deleteRescueReport(id) }
     }
 
     fun switchPet(petId: Long) {
