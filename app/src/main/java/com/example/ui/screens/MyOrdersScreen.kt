@@ -341,28 +341,6 @@ private fun MyOrderCard(
                 }
             }
 
-            // Customer confirms the service was received -> booking becomes COMPLETED
-            if (booking.status == "CONFIRMED") {
-                Spacer(Modifier.height(10.dp))
-                Button(
-                    onClick = onConfirmReceived,
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = DeliveredGreen),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(38.dp)
-                ) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Service Received \u2713", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-                Text(
-                    "Tap once the service is done - this marks the booking completed.",
-                    color = TextGray, fontSize = 10.sp,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-
             Spacer(Modifier.height(12.dp))
 
             // Buy Again
@@ -512,6 +490,28 @@ private fun MyBookingCard(
                         }
                     }
                 }
+            }
+
+            // Customer confirms the service was received -> booking becomes COMPLETED
+            if (booking.status == "CONFIRMED") {
+                Spacer(Modifier.height(10.dp))
+                Button(
+                    onClick = onConfirmReceived,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = DeliveredGreen),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(38.dp)
+                ) {
+                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Service Received \u2713", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+                Text(
+                    "Tap once the service is done - this marks the booking completed.",
+                    color = TextGray, fontSize = 10.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
         }
     }
