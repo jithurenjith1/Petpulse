@@ -761,6 +761,29 @@ private fun AdminBookingCard(
                         Text("Cancel", fontSize = 12.sp, color = Color(0xFFD32F2F))
                     }
                 }
+                if (booking.assignedPhone.isNotBlank()) {
+                    TextButton(onClick = {
+                        try {
+                            val msg = "New Petpulse service job\n" +
+                                "Type: " + booking.type + "\n" +
+                                "Customer: " + booking.customerName + " - " + booking.customerPhone + "\n" +
+                                "Pet: " + booking.petName + "\n" +
+                                "Service: " + booking.serviceInfo + "\n" +
+                                (if (booking.dateLabel.isNotBlank()) "Schedule: " + booking.dateLabel + " " + booking.slot + "\n" else "") +
+                                (if (booking.notes.isNotBlank()) "Notes: " + booking.notes + "\n" else "") +
+                                "Fee: Rs " + booking.feeInr.toInt() + " (collect from customer)\n" +
+                                "Please complete the service and reply DONE."
+                            context.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse(whatsappJobUrl(booking.assignedPhone, msg))
+                                )
+                            )
+                        } catch (_: Exception) { }
+                    }) {
+                        Text("Send job to partner", fontSize = 12.sp, color = Color(0xFF25D366))
+                    }
+                }
                 if (booking.customerPhone.isNotBlank()) {
                     TextButton(onClick = {
                         try {
@@ -800,6 +823,7 @@ private fun AdminOrderCard(
     onAssign: (AdminOrder) -> Unit,
     onUpdateStatus: (String, String) -> Unit
 ) {
+    val context = LocalContext.current
     val statusColor = when (order.status) {
         "NEW" -> Color(0xFFF57C00)
         "ASSIGNED" -> Color(0xFF1976D2)
@@ -846,6 +870,26 @@ private fun AdminOrderCard(
                     }
                     TextButton(onClick = { onUpdateStatus(order.id, "CANCELLED") }) {
                         Text(stringResource(R.string.admin_cancel_order), fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
+                if (order.dealerPhone.isNotBlank()) {
+                    TextButton(onClick = {
+                        try {
+                            val msg = "New Petpulse delivery job\n" +
+                                "Order #" + order.orderNumber + "\n" +
+                                "Customer: " + order.customerName + " - " + order.customerPhone + "\n" +
+                                "Address: " + order.address + ", " + order.city + "\n" +
+                                "Items: " + order.items.sumOf { it.quantity } + " - Rs " + order.totalInr.toInt() + " (collect COD)\n" +
+                                "Please deliver and reply DONE."
+                            context.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse(whatsappJobUrl(order.dealerPhone, msg))
+                                )
+                            )
+                        } catch (_: Exception) { }
+                    }) {
+                        Text("Send job to dealer", fontSize = 12.sp, color = Color(0xFF25D366))
                     }
                 }
             }
@@ -1235,4 +1279,11 @@ private fun RescueReportsAdminTab(reports: List<RescueReport>, onDelete: (String
 private fun formatTimestamp(millis: Long): String {
     if (millis <= 0L) return ""
     return java.text.SimpleDateFormat("dd MMM, h:mm a", java.util.Locale.getDefault()).format(java.util.Date(millis))
+}
+
+/** WhatsApp deep link to a dealer/partner phone with a prefilled job message. */
+private fun whatsappJobUrl(phone: String, message: String): String {
+    val digits = phone.filter { it.isDigit() }
+    val encoded = java.net.URLEncoder.encode(message, "UTF-8")
+    return "https://wa.me/" + digits + "?text=" + encoded
 }
