@@ -93,12 +93,12 @@ fun AdminScreen(
                 Spacer(Modifier.height(8.dp))
                 if (section == null) {
                     val pendingCounts = mapOf(
-                        "ORDERS" to orders.count { it.status == "NEW" },
-                        "DOCTOR" to bookings.count { it.type == "DOCTOR" && it.status == "NEW" },
-                        "GROOMING" to bookings.count { it.type == "GROOMING" && it.status == "NEW" },
-                        "TRAINING" to bookings.count { it.type == "TRAINER" && it.status == "NEW" },
-                        "BOARDING" to bookings.count { it.type == "BOARDING" && it.status == "NEW" },
-                        "SUBSCRIPTION" to bookings.count { it.type == "SUBSCRIPTION" && it.status == "NEW" },
+                        "ORDERS" to orders.count { it.status == "NEW" || it.status == "ASSIGNED" },
+                        "DOCTOR" to bookings.count { it.type == "DOCTOR" && (it.status == "NEW" || it.status == "CONFIRMED") },
+                        "GROOMING" to bookings.count { it.type == "GROOMING" && (it.status == "NEW" || it.status == "CONFIRMED") },
+                        "TRAINING" to bookings.count { it.type == "TRAINER" && (it.status == "NEW" || it.status == "CONFIRMED") },
+                        "BOARDING" to bookings.count { it.type == "BOARDING" && (it.status == "NEW" || it.status == "CONFIRMED") },
+                        "SUBSCRIPTION" to bookings.count { it.type == "SUBSCRIPTION" && (it.status == "NEW" || it.status == "CONFIRMED") },
                         "ALERTS" to lostAlerts.size,
                         "SUPPORT" to (supportTickets.size + rescueReports.size),
                         "PARTNERS" to partnerApplications.size,
@@ -518,7 +518,7 @@ private fun AdminDashboard(pendingCounts: Map<String, Int> = emptyMap(), onSelec
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "🔔 " + totalPending + " pending items need your action - tap a card below",
+                        text = "🔔 " + totalPending + " items pending / in progress - tap a card below",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFE65100),

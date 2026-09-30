@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.FitnessCenter
@@ -79,6 +80,7 @@ private val CancelledLight = Color(0xFFF7DCD9)
 fun MyOrdersScreen(
     orders: List<AdminOrder>,
     bookings: List<ServiceBooking> = emptyList(),
+    onConfirmReceived: (String) -> Unit = {},
     onBuyAgain: (AdminOrder) -> Unit,
     onClose: () -> Unit
 ) {
@@ -196,6 +198,7 @@ fun MyOrdersScreen(
                         items(bookings, key = { it.id }) { booking ->
                             MyBookingCard(
                                 booking = booking,
+                                onConfirmReceived = { onConfirmReceived(booking.id) },
                                 onCall = { phone ->
                                     if (phone.isNotBlank()) {
                                         try {
@@ -338,6 +341,28 @@ private fun MyOrderCard(
                 }
             }
 
+            // Customer confirms the service was received -> booking becomes COMPLETED
+            if (booking.status == "CONFIRMED") {
+                Spacer(Modifier.height(10.dp))
+                Button(
+                    onClick = onConfirmReceived,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = DeliveredGreen),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(38.dp)
+                ) {
+                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Service Received \u2713", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+                Text(
+                    "Tap once the service is done - this marks the booking completed.",
+                    color = TextGray, fontSize = 10.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
             Spacer(Modifier.height(12.dp))
 
             // Buy Again
@@ -358,6 +383,7 @@ private fun MyOrderCard(
 @Composable
 private fun MyBookingCard(
     booking: ServiceBooking,
+    onConfirmReceived: () -> Unit,
     onCall: (String) -> Unit
 ) {
     val dateText = if (booking.createdAt > 0) {
@@ -367,21 +393,29 @@ private fun MyBookingCard(
     val typeLabel = when (booking.type) {
         "DOCTOR" -> "Doctor Consultation"
         "GROOMING" -> "Grooming Service"
+        "BOARDING" -> "Boarding / Sitter"
+        "SUBSCRIPTION" -> "Food Subscription"
         else -> "Trainer Visit"
     }
     val typeIcon = when (booking.type) {
         "DOCTOR" -> Icons.Default.MedicalServices
         "GROOMING" -> Icons.Default.ContentCut
+        "BOARDING" -> Icons.Default.EventAvailable
+        "SUBSCRIPTION" -> Icons.Default.ShoppingBag
         else -> Icons.Default.FitnessCenter
     }
     val typeTint = when (booking.type) {
         "DOCTOR" -> CoralPrimary
         "GROOMING" -> AmberGold
+        "BOARDING" -> TealAccent
+        "SUBSCRIPTION" -> CoralPrimary
         else -> TealAccent
     }
     val roleLabel = when (booking.type) {
         "DOCTOR" -> "Doctor"
         "GROOMING" -> "Groomer"
+        "BOARDING" -> "Sitter"
+        "SUBSCRIPTION" -> "Partner"
         else -> "Trainer"
     }
 

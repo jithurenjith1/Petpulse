@@ -949,6 +949,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Customer marks their own booking as received -> COMPLETED (owner is allowed by rules). */
+    fun markBookingReceived(bookingId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.updateBookingStatus(bookingId, "COMPLETED").isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
     fun adminUpdateBookingStatus(bookingId: String, status: String) {
         viewModelScope.launch {
             _commerceEvent.value = if (commerceRepo.updateBookingStatus(bookingId, status).isSuccess) R.string.admin_saved else R.string.admin_failed

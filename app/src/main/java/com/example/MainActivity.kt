@@ -580,6 +580,7 @@ val appCtx = LocalContext.current
         MyOrdersScreen(
             orders = myOrders,
             bookings = myBookings,
+            onConfirmReceived = { id -> viewModel.markBookingReceived(id) },
             onBuyAgain = { order ->
                 viewModel.reorderFromOrder(order)
                 showMyOrdersScreen = false
