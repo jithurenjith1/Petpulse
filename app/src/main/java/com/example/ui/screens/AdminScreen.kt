@@ -132,7 +132,26 @@ fun AdminScreen(
                         "SUBSCRIPTION" -> ProductsAdminTab(products = products, listTypeFilter = "Subscription", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "BOARDING" -> ProductsAdminTab(products = products, listTypeFilter = "Boarding", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "LISTINGS" -> ListingsAdminTab(listings = listings, onDelete = onDeleteListing)
-                        "ALERTS" -> LostAlertsAdminTab(alerts = lostAlerts, onDelete = onDeleteLostAlert)
+                        "ALERTS" -> {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(
+                                    selected = !showBookings,
+                                    onClick = { showBookings = false },
+                                    label = { Text("SOS Alerts", fontSize = 11.sp) }
+                                )
+                                FilterChip(
+                                    selected = showBookings,
+                                    onClick = { showBookings = true },
+                                    label = { Text("GPS Trackers", fontSize = 11.sp) }
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            if (showBookings) {
+                                ProductsAdminTab(products = products, listTypeFilter = "GPS", onAdd = onAddProduct, onDelete = onDeleteProduct)
+                            } else {
+                                LostAlertsAdminTab(alerts = lostAlerts, onDelete = onDeleteLostAlert)
+                            }
+                        }
                         else -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
                     }
                 }
@@ -278,7 +297,7 @@ private fun AdminDashboard(onSelect: (String) -> Unit) {
         "SUBSCRIPTION" to ("Subscriptions" to "Food plan subscriptions"),
         "BOARDING" to ("Boarding & Sitters" to "Boarding partners"),
         "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
-        "ALERTS" to ("Find My Pet" to "Lost pet SOS alerts"),
+        "ALERTS" to ("Find My Pet" to "SOS alerts + GPS trackers"),
         "DEALERS" to ("Dealers" to "Delivery partners")
     )
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {

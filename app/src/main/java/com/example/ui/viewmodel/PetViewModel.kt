@@ -153,6 +153,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     val shopProducts: StateFlow<List<ShopProduct>> = commerceRepo.observeProducts()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    // GPS tracker collars (admin-managed products with listType = "GPS")
+    val gpsTrackers: StateFlow<List<ShopProduct>> = commerceRepo.observeProducts()
+        .map { remote -> remote.filter { it.listType == "GPS" } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val marketPets: StateFlow<List<MarketPet>> = combine(
         _marketPetsList,
         _selectedKeralaCity,

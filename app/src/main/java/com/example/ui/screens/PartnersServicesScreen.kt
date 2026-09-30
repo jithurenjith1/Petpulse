@@ -48,6 +48,7 @@ fun PartnersServicesScreen(
     boardingSitters: List<BoardingSitter>,
     lostPetAlerts: List<LostPetAlert>,
     petListings: List<PetListing>,
+    gpsTrackers: List<ShopProduct>,
     petNews: PetNewsItem,
     events: List<PetEventItem>,
     onTriggerSosDialog: () -> Unit,
@@ -360,6 +361,7 @@ fun PartnersServicesScreen(
                 item {
                     FindMyPetSection(
                         lostAlerts = lostPetAlerts,
+                        gpsTrackers = gpsTrackers,
                         onBroadcastClick = onTriggerSosDialog,
                         onCallHelpline = { onActionNotification("Connecting to 24/7 Pet Helpline +91 98 555-PET-SOS") }
                     )
@@ -747,6 +749,7 @@ fun BoardingSitterCard(
 @Composable
 fun FindMyPetSection(
     lostAlerts: List<LostPetAlert>,
+    gpsTrackers: List<ShopProduct>,
     onBroadcastClick: () -> Unit,
     onCallHelpline: () -> Unit
 ) {
@@ -806,7 +809,79 @@ fun FindMyPetSection(
             }
         }
 
-        // Sponsored Hardware: Pet GPS Tag Showcase (Dummy model without price)
+        // Admin-managed GPS tracker collars (Products collection, listType = "GPS")
+        if (gpsTrackers.isNotEmpty()) {
+            Text(
+                text = "GPS Tracker Collars",
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                color = BluePrimaryDark
+            )
+            gpsTrackers.forEach { tracker ->
+                Card(
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = BluePrimary.copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        text = tracker.category.uppercase(),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = BluePrimary,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(tracker.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                            }
+                            Text("₹ ${tracker.priceInr.toInt()}", fontWeight = FontWeight.ExtraBold, fontSize = 13.sp, color = BluePrimary)
+                        }
+                        if (tracker.description.isNotBlank()) {
+                            Text(tracker.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            val marketCtx = LocalContext.current
+                            FilledTonalButton(
+                                onClick = {
+                                    val message = "Hello Petpulse! I want to order: ${tracker.name} (₹ ${tracker.priceInr.toInt()}). Please share details."
+                                    runCatching {
+                                        val encoded = java.net.URLEncoder.encode(message, "UTF-8")
+                                        marketCtx.startActivity(
+                                            android.content.Intent(
+                                                android.content.Intent.ACTION_VIEW,
+                                                android.net.Uri.parse("https://wa.me/919526632311?text=$encoded")
+                                            )
+                                        )
+                                    }
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("Order via WhatsApp", fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sponsored Hardware: Pet GPS Tag Showcase (shown when admin has not added GPS products yet)
+        if (gpsTrackers.isEmpty()) {
         Card(
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -869,6 +944,7 @@ fun FindMyPetSection(
                     }
                 }
             }
+        }
         }
 
         // Active Nearby Lost Pet Alerts

@@ -126,6 +126,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val boardingSitters by viewModel.boardingSitters.collectAsStateWithLifecycle()
     val lostAlerts by viewModel.lostPetAlerts.collectAsStateWithLifecycle()
     val petListings by viewModel.petListings.collectAsStateWithLifecycle()
+val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
     val petNews by viewModel.petNews.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle()
     val healthScore by viewModel.healthScore.collectAsStateWithLifecycle()
@@ -385,6 +386,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
                         boardingSitters = marketBoarding,
                         lostPetAlerts = lostAlerts,
                         petListings = petListings,
+                        gpsTrackers = gpsTrackers,
                         petNews = petNews,
                         events = events,
                         onTriggerSosDialog = { showSosScreen = true },
