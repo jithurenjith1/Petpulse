@@ -25,7 +25,9 @@ android {
 
   signingConfigs {
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+      // CI writes the keystore to app/petpulse-upload.jks; local devs can
+      // override with the KEYSTORE_PATH env var.
+      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "petpulse-upload.jks"
       storeFile = file(keystorePath)
       storePassword = System.getenv("STORE_PASSWORD")
       keyAlias = "upload"

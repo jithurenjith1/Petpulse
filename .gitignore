@@ -16,3 +16,7 @@
 local.properties
 .env
 debug.keystore
+
+# signing keys - never commit
+petpulse-upload.jks
+my-upload-key.jks
