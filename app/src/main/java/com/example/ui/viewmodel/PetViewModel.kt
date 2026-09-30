@@ -112,11 +112,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _isExpressDelivery = MutableStateFlow(false)
     val isExpressDelivery: StateFlow<Boolean> = _isExpressDelivery.asStateFlow()
 
-    private val _activeOrders = MutableStateFlow<List<EscrowOrder>>(marketplaceRepo.getInitialEscrowOrders())
+    private val _activeOrders = MutableStateFlow<List<EscrowOrder>>(emptyList())
     val activeOrders: StateFlow<List<EscrowOrder>> = _activeOrders.asStateFlow()
     val escrowOrders: StateFlow<List<EscrowOrder>> = _activeOrders.asStateFlow()
 
-    private val _doctorBookings = MutableStateFlow<List<DoctorBooking>>(marketplaceRepo.getInitialDoctorBookings())
+    private val _doctorBookings = MutableStateFlow<List<DoctorBooking>>(emptyList())
     val doctorBookings: StateFlow<List<DoctorBooking>> = _doctorBookings.asStateFlow()
 
     private val _marketPetsList = MutableStateFlow<List<MarketPet>>(emptyList())
@@ -182,19 +182,19 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             val matchesSpecies = if (speciesFilter == "All") true else pet.species.equals(speciesFilter, ignoreCase = true)
             matchesCity && matchesExotic && matchesSpecies
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), marketplaceRepo.getMarketPets())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val filteredMarketPets: StateFlow<List<MarketPet>> = marketPets
 
     val keralaCities: StateFlow<List<KeralaCity>> = flowOf(marketplaceRepo.getKeralaCities())
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getKeralaCities())
 
     val marketFoods: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
-        .map { remote -> remote.filter { it.listType == "Food" }.map { it.toMarketProduct() } + marketplaceRepo.getMarketFoods() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getMarketFoods())
+        .map { remote -> remote.filter { it.listType == "Food" }.map { it.toMarketProduct() } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val marketMedicines: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
-        .map { remote -> remote.filter { it.listType == "Medicine" }.map { it.toMarketProduct() } + marketplaceRepo.getMarketMedicines() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getMarketMedicines())
+        .map { remote -> remote.filter { it.listType == "Medicine" }.map { it.toMarketProduct() } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val groomingServices: StateFlow<List<GroomingServiceItem>> = commerceRepo.observeProducts()
         .map { remote ->
@@ -208,11 +208,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     perks = emptyList(),
                     description = it.description
                 )
-            } + marketplaceRepo.getGroomingServices()
+            }
         }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getGroomingServices())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val _verifiedDoctorsList = MutableStateFlow<List<VerifiedDoctor>>(marketplaceRepo.getVerifiedDoctors())
+    private val _verifiedDoctorsList = MutableStateFlow<List<VerifiedDoctor>>(emptyList())
 
     /** Real partner vets added by the owner (Firestore "vets" collection). */
     val partnerVets: StateFlow<List<VerifiedDoctor>> = commerceRepo.observeVets()
@@ -228,7 +228,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         else partners + local.filter { it.id.startsWith("vet_reg_") }
         if (city == "All Kerala") base
         else base.filter { it.clinicCity.equals(city, ignoreCase = true) }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), marketplaceRepo.getVerifiedDoctors())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Cart calculations
     val cartSubtotal: StateFlow<Double> = _cartItems.map { items ->
@@ -319,30 +319,42 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val speciesList: StateFlow<List<SpeciesCategory>> = flowOf(repository.getSpeciesCategories())
         .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getSpeciesCategories())
 
-    val foodItems: StateFlow<List<FoodItem>> = _selectedSpecies.map { speciesId ->
-        repository.getFoodForSpecies(speciesId)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), repository.getFoodForSpecies("dogs"))
+    val foodItems: StateFlow<List<FoodItem>> = flowOf(emptyList<FoodItem>())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val accessoryItems: StateFlow<List<AccessoryItem>> = _selectedSpecies.map { speciesId ->
-        repository.getAccessoriesForSpecies(speciesId)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), repository.getAccessoriesForSpecies("dogs"))
+    val accessoryItems: StateFlow<List<AccessoryItem>> = flowOf(emptyList<AccessoryItem>())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val healthCareItems: StateFlow<List<HealthCareItem>> = _selectedSpecies.map { speciesId ->
-        repository.getHealthCareForSpecies(speciesId)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), repository.getHealthCareForSpecies("dogs"))
+    val healthCareItems: StateFlow<List<HealthCareItem>> = flowOf(emptyList<HealthCareItem>())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val trainingGuides: StateFlow<List<TrainingGuide>> = _selectedSpecies.map { speciesId ->
-        repository.getTrainingGuidesForSpecies(speciesId)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), repository.getTrainingGuidesForSpecies("dogs"))
+    val trainingGuides: StateFlow<List<TrainingGuide>> = flowOf(emptyList<TrainingGuide>())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val groomingCenters: StateFlow<List<GroomingCenter>> = flowOf(repository.getFeaturedGroomingCenters())
-        .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getFeaturedGroomingCenters())
+    /** Grooming salons: owner-added partners only (Products with listType "Grooming"). */
+    val groomingCenters: StateFlow<List<GroomingCenter>> = commerceRepo.observeProducts()
+        .map { remote ->
+            remote.filter { it.listType == "Grooming" }.map { p ->
+                GroomingCenter(
+                    name = p.name,
+                    tagLine = p.description.take(60),
+                    address = p.category.ifBlank { "Kerala" },
+                    distance = "",
+                    rating = 4.5,
+                    reviewCount = 0,
+                    packages = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
+                    startingPrice = "₹ ${p.priceInr.toInt()}",
+                    phone = ""
+                )
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val foodSubscriptions: StateFlow<List<FoodSubscription>> = flowOf(repository.getFoodSubscriptionPlans())
-        .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getFoodSubscriptionPlans())
+    val foodSubscriptions: StateFlow<List<FoodSubscription>> = flowOf(emptyList<FoodSubscription>())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val boardingSitters: StateFlow<List<BoardingSitter>> = flowOf(repository.getBoardingSitters())
-        .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getBoardingSitters())
+    val boardingSitters: StateFlow<List<BoardingSitter>> = flowOf(emptyList<BoardingSitter>())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // ---------- Admin Panel v2: owner-managed catalogue across categories ----------
 
@@ -354,9 +366,9 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val adminLostAlerts: StateFlow<List<AdminLostPetAlert>> = commerceRepo.observeLostPetAlerts()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    /** Accessories: owner products first, then species-matched demo items. */
+    /** Accessories: owner-added products only. */
     val marketAccessories: StateFlow<List<AccessoryItem>> =
-        combine(accessoryItems, commerceRepo.observeProducts()) { demo, remote ->
+        commerceRepo.observeProducts().map { remote ->
             remote.filter { it.listType == "Accessory" }.map { p ->
                 AccessoryItem(
                     name = p.name,
@@ -365,12 +377,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     estimatedPrice = "₹ ${p.priceInr.toInt()}",
                     material = ""
                 )
-            } + demo
+            }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    /** Training programs: owner products first, then species-matched demo guides. */
+    /** Training programs: owner-added programs only. */
     val marketTrainingGuides: StateFlow<List<TrainingGuide>> =
-        combine(trainingGuides, commerceRepo.observeProducts()) { demo, remote ->
+        commerceRepo.observeProducts().map { remote ->
             remote.filter { it.listType == "Training" }.map { p ->
                 TrainingGuide(
                     title = p.name,
@@ -379,12 +391,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     tips = "",
                     recommendedAge = "All ages"
                 )
-            } + demo
+            }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    /** Food subscriptions: owner plans first, then demo plans. */
+    /** Food subscriptions: owner-added plans only. */
     val marketFoodSubscriptions: StateFlow<List<FoodSubscription>> =
-        combine(foodSubscriptions, commerceRepo.observeProducts()) { demo, remote ->
+        commerceRepo.observeProducts().map { remote ->
             remote.filter { it.listType == "Subscription" }.map { p ->
                 FoodSubscription(
                     title = p.name,
@@ -394,12 +406,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     monthlyEstimate = "₹ ${p.priceInr.toInt()}/month",
                     savingsTag = ""
                 )
-            } + demo
+            }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    /** Boarding & sitters: owner partners first, then demo sitters. */
+    /** Boarding & sitters: owner-added partners only. */
     val marketBoardingSitters: StateFlow<List<BoardingSitter>> =
-        combine(boardingSitters, commerceRepo.observeProducts()) { demo, remote ->
+        commerceRepo.observeProducts().map { remote ->
             val knownSitterTypes = listOf("Full Day (24hr)", "Per Day Care", "Pet Night Care", "Feed on Time Only")
             remote.filter { it.listType == "Boarding" }.map { p ->
                 BoardingSitter(
@@ -413,7 +425,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     priceEstimate = "₹ ${p.priceInr.toInt()}",
                     features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() }
                 )
-            } + demo
+            }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val petNews: StateFlow<PetNewsItem> = flowOf(repository.getPetNews())
