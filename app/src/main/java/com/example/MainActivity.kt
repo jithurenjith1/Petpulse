@@ -129,6 +129,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
 val adminSupportTickets by viewModel.supportTickets.collectAsStateWithLifecycle()
 val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
+val adminPartnerApplications by viewModel.partnerApplications.collectAsStateWithLifecycle()
 val appCtx = LocalContext.current
     val petNews by viewModel.petNews.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle()
@@ -431,6 +432,9 @@ val appCtx = LocalContext.current
                         onSubmitRescueReport = { animal, desc, loc, cont, cb ->
                             viewModel.submitRescueReport(animal, desc, loc, cont, cb)
                         },
+                        onSubmitPartnerApplication = { kind, name, category, city, phone, planName ->
+                            viewModel.submitPartnerApplication(kind, name, category, city, phone, planName)
+                        },
                         onBookSitter = { sitterName, sitterType, priceEstimate, date, notes ->
                             viewModel.placeSitterBooking(sitterName, sitterType, priceEstimate, activePet.name, date, notes)
                         },
@@ -610,6 +614,8 @@ val appCtx = LocalContext.current
             rescueReports = adminRescueReports,
             onDeleteSupportTicket = { id -> viewModel.adminDeleteSupportTicket(id) },
             onDeleteRescueReport = { id -> viewModel.adminDeleteRescueReport(id) },
+            partnerApplications = adminPartnerApplications,
+            onDeletePartnerApplication = { id -> viewModel.adminDeletePartnerApplication(id) },
             onDismiss = { showAdminScreen = false }
         )
     }

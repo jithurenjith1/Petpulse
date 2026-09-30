@@ -60,6 +60,7 @@ fun PartnersServicesScreen(
     onSubmitRescueReport: (String, String, String, String, (Boolean) -> Unit) -> Unit,
     onBookSitter: (String, String, String, String, String) -> Unit = { _, _, _, _, _ -> },
     onSubscribePlan: (String, String, String) -> Unit = { _, _, _ -> },
+    onSubmitPartnerApplication: (String, String, String, String, String, String) -> Unit = { _, _, _, _, _, _ -> },
     activePetName: String = "",
     modifier: Modifier = Modifier
 ) {
@@ -451,6 +452,7 @@ fun PartnersServicesScreen(
             onDismiss = { showFeaturedPlansDialog = false },
             onSubscribe = { planName ->
                 showFeaturedPlansDialog = false
+                onSubmitPartnerApplication("Featured Plan", "", "", "", "", planName)
                 onPartnerJoinClick("Featured plan requested: $planName! Our team will contact you.")
             }
         )
@@ -461,6 +463,7 @@ fun PartnersServicesScreen(
             initialCategory = partnerCategoryToJoin,
             onDismiss = { showBusinessPartnerDialog = false },
             onSubmit = { name, category, city, phone ->
+                onSubmitPartnerApplication("Business Partner", name, category, city, phone, "")
                 onPartnerJoinClick("Application submitted for $name ($category) in $city!")
                 showBusinessPartnerDialog = false
             }

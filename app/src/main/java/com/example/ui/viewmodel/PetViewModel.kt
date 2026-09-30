@@ -166,6 +166,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     val rescueReports: StateFlow<List<RescueReport>> = commerceRepo.observeRescueReports()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    // Partner applications (business join forms + featured plan requests) - admin reviews
+    val partnerApplications: StateFlow<List<PartnerApplication>> = commerceRepo.observePartnerApplications()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val marketPets: StateFlow<List<MarketPet>> = combine(
         _marketPetsList,
         _selectedKeralaCity,
@@ -1404,6 +1408,25 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             )
             onDone(result.isSuccess)
         }
+    }
+
+    fun submitPartnerApplication(kind: String, name: String, category: String, city: String, phone: String, planName: String) {
+        viewModelScope.launch {
+            commerceRepo.submitPartnerApplication(
+                PartnerApplication(
+                    kind = kind,
+                    name = name,
+                    category = category,
+                    city = city,
+                    phone = phone,
+                    planName = planName
+                )
+            )
+        }
+    }
+
+    fun adminDeletePartnerApplication(id: String) {
+        viewModelScope.launch { commerceRepo.deletePartnerApplication(id) }
     }
 
     fun adminDeleteSupportTicket(id: String) {

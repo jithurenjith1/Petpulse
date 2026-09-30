@@ -49,9 +49,11 @@ fun AdminScreen(
     lostAlerts: List<AdminLostPetAlert> = emptyList(),
     supportTickets: List<SupportTicket> = emptyList(),
     rescueReports: List<RescueReport> = emptyList(),
+    partnerApplications: List<PartnerApplication> = emptyList(),
     onDeleteListing: (String) -> Unit = {},
     onDeleteSupportTicket: (String) -> Unit = {},
     onDeleteRescueReport: (String) -> Unit = {},
+    onDeletePartnerApplication: (String) -> Unit = {},
     onDeleteLostAlert: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
@@ -88,7 +90,19 @@ fun AdminScreen(
                 }
                 Spacer(Modifier.height(8.dp))
                 if (section == null) {
-                    AdminDashboard(onSelect = { section = it; showBookings = false })
+                    val pendingCounts = mapOf(
+                        "ORDERS" to orders.count { it.status == "NEW" },
+                        "DOCTOR" to bookings.count { it.type == "DOCTOR" && it.status == "NEW" },
+                        "GROOMING" to bookings.count { it.type == "GROOMING" && it.status == "NEW" },
+                        "TRAINING" to bookings.count { it.type == "TRAINER" && it.status == "NEW" },
+                        "BOARDING" to bookings.count { it.type == "BOARDING" && it.status == "NEW" },
+                        "SUBSCRIPTION" to bookings.count { it.type == "SUBSCRIPTION" && it.status == "NEW" },
+                        "ALERTS" to lostAlerts.size,
+                        "SUPPORT" to (supportTickets.size + rescueReports.size),
+                        "PARTNERS" to partnerApplications.size,
+                        "LISTINGS" to listings.size
+                    )
+                    AdminDashboard(pendingCounts = pendingCounts, onSelect = { section = it; showBookings = false })
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         TextButton(onClick = { section = null; showBookings = false }) {
@@ -186,6 +200,7 @@ fun AdminScreen(
                             }
                         }
                         "LISTINGS" -> ListingsAdminTab(listings = listings, onDelete = onDeleteListing)
+                        "PARTNERS" -> PartnersAdminTab(applications = partnerApplications, onDelete = onDeletePartnerApplication)
                         "SUPPORT" -> {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 FilterChip(
@@ -236,6 +251,7 @@ fun AdminScreen(
     assigningOrder?.let { order ->
         Dialog(onDismissRequest = { assigningOrder = null }) {
             Surface(shape = RoundedCornerShape(16.dp)) {
+                val dctx = LocalContext.current
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.admin_pick_dealer), fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(8.dp))
@@ -243,15 +259,38 @@ fun AdminScreen(
                         Text(stringResource(R.string.admin_no_dealers), fontSize = 13.sp)
                     } else {
                         dealers.forEach { dealer ->
-                            TextButton(onClick = {
-                                onAssignDealer(order.id, dealer)
-                                assigningOrder = null
-                            }) {
-                                Column(modifier = Modifier.fillMaxWidth()) {
-                                    Text(dealer.name, fontWeight = FontWeight.SemiBold)
-                                    Text("${dealer.phone} - ${dealer.city}", fontSize = 12.sp, color = Color.Gray)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(dealer.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                    Text(dealer.phone + "  -  " + dealer.city, fontSize = 12.sp, color = Color.Gray)
+                                }
+                                TextButton(onClick = {
+                                    try {
+                                        dctx.startActivity(
+                                            android.content.Intent(
+                                                android.content.Intent.ACTION_DIAL,
+                                                android.net.Uri.parse("tel:" + dealer.phone)
+                                            )
+                                        )
+                                    } catch (_: Exception) { }
+                                }) {
+                                    Text("Call", fontSize = 12.sp, color = Color(0xFF1976D2))
+                                }
+                                Button(
+                                    onClick = {
+                                        onAssignDealer(order.id, dealer)
+                                        assigningOrder = null
+                                    },
+                                    modifier = Modifier.height(34.dp)
+                                ) {
+                                    Text("Assign", fontSize = 12.sp)
                                 }
                             }
+                            Spacer(Modifier.height(4.dp))
                         }
                     }
                 }
@@ -348,6 +387,7 @@ private fun sectionTitle(key: String?): String = when (key) {
     "LISTINGS" -> "🐾 Sale & Adoption"
     "ALERTS" -> "🚨 Find My Pet"
     "SUPPORT" -> "🆘 Help & Support"
+    "PARTNERS" -> "🤝 Partner Applications"
     "DEALERS" -> "🚚 Dealers"
     else -> "Admin"
 }
@@ -361,7 +401,7 @@ private fun bookingTypeFor(key: String?): String = when (key) {
 
 /** Admin v2 home: one card per managed category. */
 @Composable
-private fun AdminDashboard(onSelect: (String) -> Unit) {
+private fun AdminDashboard(pendingCounts: Map<String, Int> = emptyMap(), onSelect: (String) -> Unit) {
     val sections = listOf(
         "ORDERS" to ("Orders" to "COD orders, assign dealers"),
         "FOOD" to ("Food" to "Pet food catalogue"),
@@ -375,15 +415,36 @@ private fun AdminDashboard(onSelect: (String) -> Unit) {
         "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
         "ALERTS" to ("Find My Pet" to "SOS alerts + GPS trackers"),
         "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
+        "PARTNERS" to ("Partner Applications" to "Business joins + featured plans"),
         "DEALERS" to ("Dealers" to "Delivery partners")
     )
+    val totalPending = pendingCounts.values.sum()
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (totalPending > 0) {
+            item {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFFFF3E0),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFCC80)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "🔔 " + totalPending + " pending items need your action - tap a card below",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFE65100),
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+        }
         items(sections.chunked(2)) { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 row.forEach { (key, label) ->
                     AdminDashboardCard(
                         title = label.first,
                         subtitle = label.second,
+                        badge = pendingCounts[key] ?: 0,
                         modifier = Modifier.weight(1f),
                         onClick = { onSelect(key) }
                     )
@@ -396,7 +457,7 @@ private fun AdminDashboard(onSelect: (String) -> Unit) {
 }
 
 @Composable
-private fun AdminDashboardCard(title: String, subtitle: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun AdminDashboardCard(title: String, subtitle: String, badge: Int = 0, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -404,8 +465,66 @@ private fun AdminDashboardCard(title: String, subtitle: String, modifier: Modifi
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                if (badge > 0) {
+                    Surface(shape = RoundedCornerShape(8.dp), color = Color(0xFFD32F2F)) {
+                        Text(
+                            text = badge.toString(),
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp)
+                        )
+                    }
+                }
+            }
             Text(subtitle, fontSize = 10.sp, color = Color.Gray, maxLines = 1)
+        }
+    }
+}
+
+/** Business partner joining forms + featured-plan requests submitted from the app. */
+@Composable
+private fun PartnersAdminTab(applications: List<PartnerApplication>, onDelete: (String) -> Unit) {
+    if (applications.isEmpty()) {
+        Text("No partner applications yet. Business join forms and featured-plan requests will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    val context = LocalContext.current
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(applications, key = { it.id }) { a ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🤝 " + a.kind, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(formatTimestamp(a.createdAt), fontSize = 11.sp, color = Color.Gray)
+                    }
+                    if (a.name.isNotBlank()) Text(a.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    if (a.category.isNotBlank()) Text("Category: " + a.category, fontSize = 12.sp, color = Color.Gray)
+                    if (a.city.isNotBlank()) Text("City: " + a.city, fontSize = 12.sp, color = Color.Gray)
+                    if (a.planName.isNotBlank()) Text("Plan: " + a.planName, fontSize = 12.sp, color = Color(0xFFA87A1F), fontWeight = FontWeight.SemiBold)
+                    if (a.phone.isNotBlank()) Text("Phone: " + a.phone, fontSize = 12.sp, color = Color(0xFF1976D2))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (a.phone.isNotBlank()) {
+                            TextButton(onClick = {
+                                try {
+                                    context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + a.phone)))
+                                } catch (_: Exception) { }
+                            }) {
+                                Text("Call", fontSize = 12.sp, color = Color(0xFF1976D2))
+                            }
+                        }
+                        TextButton(onClick = { onDelete(a.id) }) {
+                            Text("Delete", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                        }
+                    }
+                }
+            }
         }
     }
 }

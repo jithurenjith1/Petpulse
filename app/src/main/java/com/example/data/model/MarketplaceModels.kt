@@ -271,3 +271,16 @@ data class RescueReport(
     val createdAt: Long = 0L,
     val status: String = "New"
 )
+
+// Business partner joining form / featured-plan request (admin reviews these).
+data class PartnerApplication(
+    val id: String = "",
+    val kind: String = "Business Partner", // "Business Partner" | "Featured Plan"
+    val name: String = "",
+    val category: String = "",
+    val city: String = "",
+    val phone: String = "",
+    val planName: String = "",
+    val createdAt: Long = 0L,
+    val status: String = "NEW"
+)

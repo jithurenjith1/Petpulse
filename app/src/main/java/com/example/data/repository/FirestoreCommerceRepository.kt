@@ -9,6 +9,7 @@ import com.google.firebase.firestore.Query
 import com.petpulse.app.data.model.AdminLostPetAlert
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.CommunityPost
+import com.petpulse.app.data.model.PartnerApplication
 import com.petpulse.app.data.model.RescueReport
 import com.petpulse.app.data.model.SupportTicket
 import com.petpulse.app.data.model.Dealer
@@ -657,6 +658,63 @@ class FirestoreCommerceRepository {
 
     suspend fun deleteRescueReport(id: String): Result<Unit> = try {
         db.collection("rescue_reports").document(id).delete().await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    // ---------- partner applications (business join + featured plan requests) ----------
+    fun observePartnerApplications(): Flow<List<PartnerApplication>> = callbackFlow {
+        val sub = db.collection("partner_applications").addSnapshotListener { snap, err ->
+            if (err != null) {
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(snap?.documents?.mapNotNull { it.toPartnerApplication() } ?: emptyList())
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toPartnerApplication(): PartnerApplication? = try {
+        PartnerApplication(
+            id = id,
+            kind = getString("kind") ?: "Business Partner",
+            name = getString("name") ?: "",
+            category = getString("category") ?: "",
+            city = getString("city") ?: "",
+            phone = getString("phone") ?: "",
+            planName = getString("planName") ?: "",
+            createdAt = getLong("createdAt") ?: 0L,
+            status = getString("status") ?: "NEW"
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed partner application", e)
+        null
+    }
+
+    suspend fun submitPartnerApplication(a: PartnerApplication): Result<Unit> {
+        val user = auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+        return try {
+            db.collection("partner_applications").document().set(
+                mapOf(
+                    "kind" to a.kind,
+                    "name" to a.name,
+                    "category" to a.category,
+                    "city" to a.city,
+                    "phone" to a.phone,
+                    "planName" to a.planName,
+                    "createdAt" to System.currentTimeMillis(),
+                    "status" to "NEW"
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deletePartnerApplication(id: String): Result<Unit> = try {
+        db.collection("partner_applications").document(id).delete().await()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)
