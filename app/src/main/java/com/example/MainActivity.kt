@@ -621,7 +621,7 @@ val appCtx = LocalContext.current
             lostAlerts = adminLostAlerts,
             onDeleteListing = { id -> viewModel.adminDeleteListing(id) },
             onDeleteLostAlert = { id -> viewModel.adminDeleteLostAlert(id) },
-            onAddVet = { n, sp, c, city, ph, vf, inf -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf) },
+            onAddVet = { n, sp, c, city, ph, vf, inf, on -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf, on) },
             onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
             supportTickets = adminSupportTickets,
             rescueReports = adminRescueReports,
@@ -745,7 +745,9 @@ val appCtx = LocalContext.current
     if (showVetScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             VetTeleconsultScreen(
-                onClose = { showVetScreen = false }
+                onClose = { showVetScreen = false },
+                vets = adminVets,
+                onBookVet = { doctor -> selectedDoctorForBooking = doctor }
             )
         }
     }

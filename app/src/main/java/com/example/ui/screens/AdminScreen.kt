@@ -73,7 +73,7 @@ fun AdminScreen(
     onDeleteDealer: (String) -> Unit,
     onAssignBooking: (String, String, String) -> Unit = { _, _, _ -> },
     onUpdateBookingStatus: (String, String) -> Unit = { _, _ -> },
-    onAddVet: (String, String, String, String, String, Double, Double) -> Unit = { _, _, _, _, _, _, _ -> },
+    onAddVet: (String, String, String, String, String, Double, Double, Boolean) -> Unit = { _, _, _, _, _, _, _, _ -> },
     onDeleteVet: (String) -> Unit = {},
     onDismiss: () -> Unit
 ) {
@@ -1184,7 +1184,7 @@ private fun DealersAdminTab(
 @Composable
 private fun VetsAdminTab(
     vets: List<VerifiedDoctor>,
-    onAdd: (String, String, String, String, String, Double, Double) -> Unit,
+    onAdd: (String, String, String, String, String, Double, Double, Boolean) -> Unit,
     onDelete: (String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
@@ -1194,6 +1194,7 @@ private fun VetsAdminTab(
     var phone by remember { mutableStateOf("") }
     var videoFee by remember { mutableStateOf("") }
     var inPersonFee by remember { mutableStateOf("") }
+    var isOnline by remember { mutableStateOf(false) }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { Text("Add Partner Vet", fontWeight = FontWeight.Bold, fontSize = 14.sp) }
@@ -1247,6 +1248,15 @@ private fun VetsAdminTab(
             }
         }
         item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Switch(checked = isOnline, onCheckedChange = { isOnline = it })
+                Text("Online now", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+        item {
             Button(
                 onClick = {
                     if (name.isNotBlank() && phone.isNotBlank()) {
@@ -1257,7 +1267,8 @@ private fun VetsAdminTab(
                             city.trim().ifBlank { "Kochi" },
                             phone.trim(),
                             videoFee.trim().toDoubleOrNull() ?: 0.0,
-                            inPersonFee.trim().toDoubleOrNull() ?: 0.0
+                            inPersonFee.trim().toDoubleOrNull() ?: 0.0,
+                            isOnline
                         )
                         name = ""
                         specialization = ""
@@ -1266,6 +1277,7 @@ private fun VetsAdminTab(
                         phone = ""
                         videoFee = ""
                         inPersonFee = ""
+                        isOnline = false
                     }
                 },
                 enabled = name.isNotBlank() && phone.isNotBlank()
@@ -1277,7 +1289,7 @@ private fun VetsAdminTab(
         if (vets.isEmpty()) {
             item {
                 Text(
-                    "No partner vets yet. Add your clinic partners here — they will show in Market → Healthcare and replace the demo doctors.",
+                    "No partner vets yet. Add your clinic partners here - they show in Services > Doctors and in the AI symptom checker.",
                     fontSize = 13.sp,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )

@@ -110,7 +110,8 @@ data class VerifiedDoctor(
     val reviewsCount: Int = 210,
     val availableDays: String = "Mon - Sat (9:00 AM - 7:00 PM)",
     val phone: String = "+91 94471 88200",
-    val isEmergencyAvailable: Boolean = true
+    val isEmergencyAvailable: Boolean = true,
+    val isOnline: Boolean = false
 )
 
 data class CartItem(

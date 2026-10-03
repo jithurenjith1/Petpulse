@@ -500,7 +500,8 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 clinicAddress = getString("clinicAddress") ?: "",
                 videoConsultFeeInr = getDouble("videoConsultFeeInr") ?: 349.0,
                 inPersonConsultFeeInr = getDouble("inPersonConsultFeeInr") ?: 499.0,
-                phone = getString("phone") ?: ""
+                phone = getString("phone") ?: "",
+                isOnline = getBoolean("isOnline") ?: false
             )
         } catch (e: Exception) {
             Log.e("FsCommerce", "Skipping malformed vet ${id}", e)
@@ -522,6 +523,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 "videoConsultFeeInr" to vet.videoConsultFeeInr,
                 "inPersonConsultFeeInr" to vet.inPersonConsultFeeInr,
                 "phone" to vet.phone,
+                "isOnline" to vet.isOnline,
                 "createdAt" to System.currentTimeMillis()
             )
         ).await()

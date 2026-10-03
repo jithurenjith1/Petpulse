@@ -2,6 +2,7 @@ package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
+import com.petpulse.app.data.model.VerifiedDoctor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -104,7 +105,7 @@ private val DarkColors = darkColorScheme(
 // ---------------------------------------------------------------------------
 // Domain models
 // ---------------------------------------------------------------------------
-private enum class OnlineStatus { ONLINE, SCHEDULED }
+private enum class OnlineStatus { ONLINE, OFFLINE, SCHEDULED }
 
 private data class Vet(
     val name: String,
@@ -117,6 +118,24 @@ private data class Vet(
     val priceRupees: Int,
     val status: OnlineStatus,
     val verified: Boolean = false,
+    val id: String = "",
+    val source: VerifiedDoctor? = null,
+)
+
+/** Maps an admin-managed partner vet onto the display model. */
+private fun VerifiedDoctor.toDisplayVet() = Vet(
+    name = name,
+    qualification = degrees,
+    registration = ksvcRegNumber.ifBlank { "KVC" },
+    specialisation = specialization,
+    experienceYears = experienceYears,
+    rating = rating,
+    consultCount = reviewsCount,
+    priceRupees = videoConsultFeeInr.toInt(),
+    status = if (isOnline) OnlineStatus.ONLINE else OnlineStatus.OFFLINE,
+    verified = true,
+    id = id,
+    source = this,
 )
 
 private val DemoVets = listOf(
@@ -196,7 +215,9 @@ private val SlotOptions = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VetTeleconsultScreen(
-    onClose: () -> Unit = {}
+    onClose: () -> Unit = {},
+    vets: List<VerifiedDoctor> = emptyList(),
+    onBookVet: (VerifiedDoctor) -> Unit = {}
 ) {
     // Apply our Purple/Gold scheme; respects the device dark-mode setting.
     val colors = if (isSystemInDarkTheme()) DarkColors else LightColors
@@ -242,11 +263,39 @@ fun VetTeleconsultScreen(
                     item { FeaturedBanner() }
 
                     // 3 & 4. Vet list
-                    items(DemoVets, key = { it.registration }) { vet ->
-                        VetCard(
-                            vet = vet,
-                            onBook = { bookingVet = vet }
-                        )
+                    val displayVets = remember(vets) { vets.map { it.toDisplayVet() } }
+                    if (displayVets.isEmpty()) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(18.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
+                                    Text(
+                                        "No vets available right now",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(Modifier.height(6.dp))
+                                    Text(
+                                        "Partner vets added by the Wagmiya team appear here with their online status.",
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        items(displayVets, key = { it.id.ifBlank { it.name } }) { vet ->
+                            VetCard(
+                                vet = vet,
+                                onBook = { vet.source?.let { d -> onBookVet(d) } }
+                            )
+                        }
                     }
 
                     item { Spacer(Modifier.height(80.dp)) }
@@ -494,10 +543,15 @@ private fun OnlineChip(status: OnlineStatus) {
             Color.White,
             "Online now"
         )
+        OnlineStatus.OFFLINE -> Triple(
+            ScheduledGrey,
+            Color.White,
+            "Offline"
+        )
         OnlineStatus.SCHEDULED -> Triple(
             ScheduledGrey,
             Color.White,
-            "Scheduled"
+            "By appointment"
         )
     }
     AssistChip(
