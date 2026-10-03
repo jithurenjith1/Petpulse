@@ -347,7 +347,7 @@ fun MarketplaceScreen(
     }
 }
 
-/** WhatsApp contact for the Petpulse trainer desk. */
+/** WhatsApp contact for the Wagmiya trainer desk. */
 private const val TRAINER_WHATSAPP_NUMBER = "919526632311"
 
 /**
@@ -388,7 +388,7 @@ fun TrainerOnDemandCard(onRequestTrainer: () -> Unit) {
                 }
                 Button(
                     onClick = {
-                        val message = "Hi Petpulse! I would like to know more about your home pet training sessions."
+                        val message = "Hi Wagmiya! I would like to know more about your home pet training sessions."
                         try {
                             context.startActivity(
                                 Intent(

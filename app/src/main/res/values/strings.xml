@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Petpulse</string>
+    <string name="app_name">Wagmiya</string>
 
     <!-- Main navigation -->
     <string name="nav_my_pet">My Pet</string>
@@ -244,8 +244,8 @@
     <string name="modals_in_clinic_visit">In-Clinic Visit</string>
     <string name="modals_items_subtotal">Items Subtotal</string>
     <string name="modals_items">Items: </string>
-    <string name="modals_petpulse_escrow_protection">Petpulse Escrow Protection</string>
-    <string name="modals_petpulse_kerala_escrow_protection">Petpulse Kerala Escrow Protection</string>
+    <string name="modals_petpulse_escrow_protection">Wagmiya Escrow Protection</string>
+    <string name="modals_petpulse_kerala_escrow_protection">Wagmiya Kerala Escrow Protection</string>
     <string name="modals_kerala_biodegradable_packaging">Kerala Biodegradable Packaging</string>
     <string name="modals_kerala_city">Kerala City:</string>
     <string name="modals_kerala_delivery_cart">Kerala Delivery Cart</string>
@@ -294,7 +294,7 @@
     <string name="switcher_years">Years</string>
     <string name="care_healthcare_subscription_for_your_pets">Healthcare subscription for your pets</string>
     <string name="care_most_popular">MOST POPULAR</string>
-    <string name="care_petpulse_care">Petpulse Care</string>
+    <string name="care_petpulse_care">Wagmiya Care</string>
     <string name="care_save_2_months">Save 2 months</string>
     <string name="care_what_s_included">What\'s included</string>
     <string name="profile_s14_walks_completed_18_2_km">14 Walks Completed (18.2 km)</string>

@@ -437,7 +437,7 @@ private fun ShareRecordsDialog(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFF0ECF5))
                 ) {
                     Text(
-                        "petpulse.app/records/ABC123",
+                        "wagmiya.app/records/ABC123",
                         fontSize = 12.sp,
                         color = PurplePrimary,
                         fontWeight = FontWeight.Bold,

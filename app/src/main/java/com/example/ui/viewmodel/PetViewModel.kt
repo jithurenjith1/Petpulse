@@ -402,7 +402,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     title = p.name,
                     planType = p.category.ifBlank { "Monthly" },
                     comboContents = p.description,
-                    brandsIncluded = "Petpulse partners",
+                    brandsIncluded = "Wagmiya partners",
                     monthlyEstimate = "₹ ${p.priceInr.toInt()}/month",
                     savingsTag = ""
                 )

@@ -944,7 +944,7 @@ fun FindMyPetSection(
                             val marketCtx = LocalContext.current
                             FilledTonalButton(
                                 onClick = {
-                                    val message = "Hello Petpulse! I want to order: ${tracker.name} (₹ ${tracker.priceInr.toInt()}). Please share details."
+                                    val message = "Hello Wagmiya! I want to order: ${tracker.name} (₹ ${tracker.priceInr.toInt()}). Please share details."
                                     runCatching {
                                         val encoded = java.net.URLEncoder.encode(message, "UTF-8")
                                         marketCtx.startActivity(
@@ -1277,12 +1277,12 @@ fun BusinessPartnerJoinDialog(
     var description by remember { mutableStateOf("") }
 
     val categoryDescriptions = mapOf(
-        "Food & Accessories" to "Register your pet food brand, treat shop, or accessories store on Petpulse.",
+        "Food & Accessories" to "Register your pet food brand, treat shop, or accessories store on Wagmiya.",
         "Pet Trainers" to "Join as a certified pet trainer. Offer obedience, agility, and behavior training.",
         "Veterinary Doctors & Clinics" to "Register your veterinary clinic or practice. Connect with pet owners.",
         "Boarding" to "List your boarding facility, pet daycare, or home sitting service.",
         "Sales" to "Register as a pet sales partner — breeders, pet shops, and adoption centers.",
-        "Grooming Salon" to "Register your grooming salon on Petpulse."
+        "Grooming Salon" to "Register your grooming salon on Wagmiya."
     )
 
     AlertDialog(
@@ -1291,7 +1291,7 @@ fun BusinessPartnerJoinDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    categoryDescriptions[category] ?: "Register your business on Petpulse.",
+                    categoryDescriptions[category] ?: "Register your business on Wagmiya.",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1402,7 +1402,7 @@ fun FeaturedPlansDialog(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    "Promote your business to the top of search results. Petpulse users see featured partners first.",
+                    "Promote your business to the top of search results. Wagmiya users see featured partners first.",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1545,7 +1545,7 @@ fun HelpAndRescueSection(
                     Button(
                         onClick = {
                             runCatching {
-                                val encoded = java.net.URLEncoder.encode("Hello Petpulse! I need help with... ", "UTF-8")
+                                val encoded = java.net.URLEncoder.encode("Hello Wagmiya! I need help with... ", "UTF-8")
                                 ctx.startActivity(
                                     android.content.Intent(
                                         android.content.Intent.ACTION_VIEW,
@@ -1646,11 +1646,11 @@ fun HelpAndRescueSection(
                     }
                 )
                 HelplineRow(
-                    label = "Petpulse Rescue Coordination",
+                    label = "Wagmiya Rescue Coordination",
                     action = "WhatsApp",
                     onClick = {
                         runCatching {
-                            val encoded = java.net.URLEncoder.encode("Hello Petpulse! I want to report an animal in need. Details: ", "UTF-8")
+                            val encoded = java.net.URLEncoder.encode("Hello Wagmiya! I want to report an animal in need. Details: ", "UTF-8")
                             ctx.startActivity(
                                 android.content.Intent(
                                     android.content.Intent.ACTION_VIEW,
@@ -1685,7 +1685,7 @@ fun HelpAndRescueSection(
                 Button(
                     onClick = {
                         runCatching {
-                            val encoded = java.net.URLEncoder.encode("Hello Petpulse! I want to donate food/supplies for shelter animals. Please share what is needed. ", "UTF-8")
+                            val encoded = java.net.URLEncoder.encode("Hello Wagmiya! I want to donate food/supplies for shelter animals. Please share what is needed. ", "UTF-8")
                             ctx.startActivity(
                                 android.content.Intent(
                                     android.content.Intent.ACTION_VIEW,

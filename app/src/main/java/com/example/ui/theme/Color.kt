@@ -3,7 +3,7 @@ package com.petpulse.app.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ============================================================
-// Petpulse Brand Palette — "Coral & Teal"
+// Wagmiya Brand Palette — "Coral & Teal"
 // Designed to stay readable in bright daylight (high contrast)
 // and easy on the eyes at night (soft warm background).
 // ============================================================

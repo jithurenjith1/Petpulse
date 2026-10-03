@@ -105,7 +105,7 @@ data class PetListing(
 
 data class CustomerProfile(
     val name: String = "Renjith Kumar",
-    val email: String = "renjith@petpulse.app",
+    val email: String = "renjith@wagmiya.app",
     val phone: String = "+91 98470 00000",
     val location: String = "Marine Drive, Kochi",
     val isLoggedIn: Boolean = true,

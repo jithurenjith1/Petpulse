@@ -74,10 +74,10 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize().background(CreamBg)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp).padding(top = 60.dp, bottom = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.size(72.dp).clip(CircleShape).background(Brush.linearGradient(listOf(CoralPrimary, CoralLight))), contentAlignment = Alignment.Center) {
-                Icon(Icons.Default.Pets, contentDescription = "Petpulse", tint = Color.White, modifier = Modifier.size(36.dp))
+                Icon(Icons.Default.Pets, contentDescription = "Wagmiya", tint = Color.White, modifier = Modifier.size(36.dp))
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Petpulse", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkText)
+            Text(text = "Wagmiya", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkText)
             Text(text = if (isLoginMode) "Welcome back!" else "Create your account", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
             Spacer(modifier = Modifier.height(32.dp))
             OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.login_email)) }, leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = CoralPrimary) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE0D5CC), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())

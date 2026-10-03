@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-// One consistent Petpulse look, day and night:
+// One consistent Wagmiya look, day and night:
 // warm cream background, coral primary, teal secondary, near-black text.
 // (Same scheme is used whether the system is in light or dark mode, so the
 // app always looks coherent. A true auto-dark variant can come later.)

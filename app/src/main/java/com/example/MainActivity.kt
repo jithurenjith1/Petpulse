@@ -287,7 +287,7 @@ val appCtx = LocalContext.current
                         },
                         trainingPrograms = marketTrainingGuides,
                         onBookTraining = { program ->
-                            val msg = "Hello Petpulse! I want to book training: " + program.title + " (" + program.level + "). Please share details."
+                            val msg = "Hello Wagmiya! I want to book training: " + program.title + " (" + program.level + "). Please share details."
                             runCatching {
                                 val encoded = java.net.URLEncoder.encode(msg, "UTF-8")
                                 appCtx.startActivity(
@@ -496,7 +496,7 @@ val appCtx = LocalContext.current
             },
             onLogout = {
                 authViewModel!!.signOut()
-                viewModel.updateCustomerProfile("Guest Customer", "guest@petpulse.app", "+91 98470 00000")
+                viewModel.updateCustomerProfile("Guest Customer", "guest@wagmiya.app", "+91 98470 00000")
                 coroutineScope.launch { snackbarHostState.showSnackbar("Signed out successfully.") }
             }
         )

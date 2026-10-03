@@ -82,7 +82,7 @@ fun PetAppTopBar(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Pets,
-                            contentDescription = "Petpulse App Icon",
+                            contentDescription = "Wagmiya App Icon",
                             tint = Color.White,
                             modifier = Modifier.size(24.dp)
                         )
@@ -91,7 +91,7 @@ fun PetAppTopBar(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Petpulse",
+                                text = "Wagmiya",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp

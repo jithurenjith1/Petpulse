@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Petpulse</string>
+    <string name="app_name">Wagmiya</string>
 
     <!-- Main navigation -->
     <string name="nav_my_pet">എന്റെ വളർത്തുമൃഗം</string>
@@ -244,8 +244,8 @@
     <string name="modals_in_clinic_visit">ക്ലിനിക്കിലെ സന്ദർശനം</string>
     <string name="modals_items_subtotal">ഐറ്റംസ് സബ്‌ടോട്ടൽ</string>
     <string name="modals_items">ഇനങ്ങൾ: </string>
-    <string name="modals_petpulse_escrow_protection">പെറ്റ്പൾസ് എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
-    <string name="modals_petpulse_kerala_escrow_protection">പെറ്റ്പൾസ് കേരള എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
+    <string name="modals_petpulse_escrow_protection">വാഗ്മിയ എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
+    <string name="modals_petpulse_kerala_escrow_protection">വാഗ്മിയ കേരള എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
     <string name="modals_kerala_biodegradable_packaging">കേരള ബയോഡീഗ്രേഡബിൾ പാക്കേജിംഗ്</string>
     <string name="modals_kerala_city">കേരള സിറ്റി:</string>
     <string name="modals_kerala_delivery_cart">കേരള ഡെലിവറി കാർട്ട്</string>
@@ -294,7 +294,7 @@
     <string name="switcher_years">വർഷങ്ങൾ</string>
     <string name="care_healthcare_subscription_for_your_pets">നിങ്ങളുടെ പെറ്റുകൾക്കുള്ള ഹെൽത്ത്‌കെയർ സബ്‌സ്‌ക്രിപ്‌ഷൻ</string>
     <string name="care_most_popular">ഏറ്റവും ജനപ്രിയമായവ</string>
-    <string name="care_petpulse_care">പെറ്റ്പൾസ് കെയർ</string>
+    <string name="care_petpulse_care">വാഗ്മിയ കെയർ</string>
     <string name="care_save_2_months">2 മാസം സേവ് ചെയ്യുക</string>
     <string name="care_what_s_included">എന്തൊക്കെയാണ് ഉൾപ്പെടുത്തിയിരിക്കുന്നത്</string>
     <string name="profile_s14_walks_completed_18_2_km">14 നടത്തം പൂർത്തിയാക്കി (18.2 km)</string>

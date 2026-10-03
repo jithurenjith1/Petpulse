@@ -87,7 +87,7 @@ class VaccinationReminderWorker(context: Context, params: WorkerParameters) : Co
         }
         val notif = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Petpulse - $petName")
+            .setContentTitle("Wagmiya - $petName")
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setAutoCancel(true)

@@ -236,7 +236,7 @@ fun MyPetsScreen(
                                     val completedVax = vaccinations.filter { it.status.equals("Completed", ignoreCase = true) }
                                     val upcomingVax = vaccinations.filter { !it.status.equals("Completed", ignoreCase = true) }
                                     val card = buildString {
-                                        appendLine("PET PROFILE - Petpulse")
+                                        appendLine("PET PROFILE - Wagmiya")
                                         appendLine("================================")
                                         appendLine()
                                         appendLine("PET DETAILS")
@@ -287,7 +287,7 @@ fun MyPetsScreen(
                                         appendLine("Owner: ${customer.name}")
                                         if (customer.phone.isNotBlank()) appendLine("Contact: ${customer.phone}")
                                         appendLine()
-                                        appendLine("- Shared via Petpulse app")
+                                        appendLine("- Shared via Wagmiya app")
                                     }
                                     runCatching {
                                         shareContext.startActivity(

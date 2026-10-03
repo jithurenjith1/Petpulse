@@ -57,7 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Petpulse brand colors
+// Wagmiya brand colors
 private val CoralPrimary = Color(0xFFBC5233)
 private val CoralLight = Color(0xFFF6DFD4)
 private val CreamBg = Color(0xFFFBF6F0)

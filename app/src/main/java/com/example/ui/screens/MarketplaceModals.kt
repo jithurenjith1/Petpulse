@@ -372,7 +372,7 @@ fun SlideOutCartModal(
                     OutlinedButton(
                         onClick = {
                             val message = buildString {
-                                appendLine("Hi Petpulse! I would like to order:")
+                                appendLine("Hi Wagmiya! I would like to order:")
                                 cartItems.forEach {
                                     appendLine("- ${it.title} x${it.quantity} - ₹${(it.priceInr * it.quantity).toInt()}")
                                 }

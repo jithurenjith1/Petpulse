@@ -764,7 +764,7 @@ private fun AdminBookingCard(
                 if (booking.assignedPhone.isNotBlank()) {
                     TextButton(onClick = {
                         try {
-                            val msg = "New Petpulse service job\n" +
+                            val msg = "New Wagmiya service job\n" +
                                 "Type: " + booking.type + "\n" +
                                 "Customer: " + booking.customerName + " - " + booking.customerPhone + "\n" +
                                 "Pet: " + booking.petName + "\n" +
@@ -875,7 +875,7 @@ private fun AdminOrderCard(
                 if (order.dealerPhone.isNotBlank()) {
                     TextButton(onClick = {
                         try {
-                            val msg = "New Petpulse delivery job\n" +
+                            val msg = "New Wagmiya delivery job\n" +
                                 "Order #" + order.orderNumber + "\n" +
                                 "Customer: " + order.customerName + " - " + order.customerPhone + "\n" +
                                 "Address: " + order.address + ", " + order.city + "\n" +

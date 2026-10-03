@@ -190,7 +190,7 @@ data class ShopProduct(
 fun ShopProduct.toMarketProduct() = MarketProduct(
     id = id,
     name = name,
-    brand = "Petpulse",
+    brand = "Wagmiya",
     category = category.ifBlank { "General" },
     isMedicine = listType == "Medicine",
     packSize = "1 Unit",

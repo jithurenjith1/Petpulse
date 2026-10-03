@@ -305,7 +305,7 @@ private fun HeaderSection() {
                 .padding(horizontal = 14.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Petpulse",
+                text = "Wagmiya",
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
@@ -363,7 +363,7 @@ private fun FeaturedBanner() {
             }
             Spacer(Modifier.width(12.dp))
             Text(
-                text = "Petpulse Care members get 2 free consults/month + priority booking",
+                text = "Wagmiya Care members get 2 free consults/month + priority booking",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp,

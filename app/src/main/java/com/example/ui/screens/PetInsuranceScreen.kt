@@ -117,9 +117,9 @@ private const val INSURANCE_WHATSAPP_NUMBER = "919526632311"
 
 private fun openInsuranceWhatsApp(context: Context, planName: String?) {
     val message = if (planName.isNullOrEmpty()) {
-        "Hi! I'd like to know more about pet insurance on Petpulse. Please share the details."
+        "Hi! I'd like to know more about pet insurance on Wagmiya. Please share the details."
     } else {
-        "Hi! I'm interested in the \"$planName\" pet insurance plan on Petpulse. Please share the details and next steps."
+        "Hi! I'm interested in the \"$planName\" pet insurance plan on Wagmiya. Please share the details and next steps."
     }
     val uri = "https://wa.me/$INSURANCE_WHATSAPP_NUMBER?text=${Uri.encode(message)}"
     try {

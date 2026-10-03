@@ -52,7 +52,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-// Petpulse brand colors
+// Wagmiya brand colors
 private val CoralPrimary = Color(0xFFBC5233)
 private val CoralLight = Color(0xFFF6DFD4)
 private val CreamBg = Color(0xFFFBF6F0)

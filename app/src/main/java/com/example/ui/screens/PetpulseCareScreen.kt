@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // ---------------------------------------------------------------------------
-// Petpulse Care — subscription plans screen
+// Wagmiya Care — subscription plans screen
 // Material3, pure Compose, no backend.
 // ---------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ fun PetpulseCareScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close Petpulse Care"
+                    contentDescription = "Close Wagmiya Care"
                 )
             }
         }
@@ -492,7 +492,7 @@ private val IncludedDetails = listOf(
     ),
     IncludedDetail(
         title = "Marketplace Discounts",
-        description = "Automatic discounts on pet food, medicines and accessories across the Petpulse marketplace: 10% with Care, 15% with Premium."
+        description = "Automatic discounts on pet food, medicines and accessories across the Wagmiya marketplace: 10% with Care, 15% with Premium."
     ),
     IncludedDetail(
         title = "Delivery & Insurance",
