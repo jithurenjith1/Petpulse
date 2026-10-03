@@ -6,6 +6,7 @@ import com.petpulse.app.R
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.drawable.GradientDrawable
 import android.location.Location
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MyLocation
@@ -42,6 +44,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -63,6 +66,34 @@ data class PetServicePlace(
     val phone: String = "",
     val address: String = ""
 )
+
+/**
+ * Clean, light basemap (Carto Voyager). Free to use with attribution, so no
+ * Google Cloud account, API key or billing card is needed.
+ */
+private val cartoVoyager = XYTileSource(
+    "CartoVoyager", 1, 20, 256, ".png",
+    arrayOf("https://a.basemaps.cartocdn.com/rastertiles/voyager/")
+)
+
+/** Round coloured dot used as a map marker, one colour per service type. */
+private fun markerDot(ctx: android.content.Context, type: String): GradientDrawable {
+    val color = when (type) {
+        "Pet Store" -> 0xFF1D7A6E.toInt()
+        "Veterinary" -> 0xFF6A4C93.toInt()
+        "Grooming" -> 0xFFA87A1F.toInt()
+        "Boarding" -> 0xFF4E3570.toInt()
+        "You" -> 0xFF1A73E8.toInt()
+        else -> 0xFF6A4C93.toInt()
+    }
+    val d = ctx.resources.displayMetrics.density
+    return GradientDrawable().apply {
+        shape = GradientDrawable.OVAL
+        setColor(color)
+        setStroke((4 * d).toInt(), 0xFFFFFFFF.toInt())
+        setSize((26 * d).toInt(), (26 * d).toInt())
+    }
+}
 
 @Composable
 fun MapScreen() {
@@ -128,7 +159,8 @@ fun MapScreen() {
             val userMarker = Marker(mv).apply {
                 position = GeoPoint(userLat, userLon)
                 title = "Your Location"
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                icon = markerDot(mv.context, "You")
             }
             mv.overlays.add(userMarker)
         }
@@ -137,7 +169,8 @@ fun MapScreen() {
                 position = GeoPoint(place.lat, place.lon)
                 title = place.name
                 snippet = "${place.type} • ${String.format("%.1f", place.distanceKm)} km away"
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                icon = markerDot(mv.context, place.type)
             }
             mv.overlays.add(marker)
         }
@@ -177,7 +210,8 @@ fun MapScreen() {
                     factory = { ctx ->
                         Configuration.getInstance().userAgentValue = ctx.packageName
                         MapView(ctx).apply {
-                            setTileSource(TileSourceFactory.MAPNIK)
+                            setTileSource(cartoVoyager)
+                            setTilesScaledToDpi(true)
                             setMultiTouchControls(true)
                             controller.setZoom(15.0)
                             controller.setCenter(GeoPoint(userLat, userLon))
@@ -238,6 +272,32 @@ fun MapScreen() {
             modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    listOf(
+                        "Veterinary" to 0xFF6A4C93.toInt(),
+                        "Pet Store" to 0xFF1D7A6E.toInt(),
+                        "Grooming" to 0xFFA87A1F.toInt(),
+                        "Boarding" to 0xFF4E3570.toInt()
+                    ).forEach { (label, color) ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(9.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(color))
+                            )
+                            Text(label, fontSize = 10.sp, color = Color.Gray)
+                        }
+                    }
+                }
+            }
             items(places) { place ->
                 PlaceCard(place)
             }
@@ -281,6 +341,22 @@ private fun PlaceCard(place: PetServicePlace) {
                 if (place.address.isNotBlank()) {
                     Text(place.address, fontSize = 11.sp, color = Color.Gray, maxLines = 1)
                 }
+            }
+            val ctx = LocalContext.current
+            TextButton(onClick = {
+                val uri = "geo:" + place.lat + "," + place.lon +
+                    "?q=" + place.lat + "," + place.lon +
+                    "(" + android.net.Uri.encode(place.name) + ")"
+                try {
+                    ctx.startActivity(
+                        android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(uri)
+                        )
+                    )
+                } catch (_: Exception) { }
+            }) {
+                Text("Directions", fontSize = 11.sp, color = CoralPrimary, fontWeight = FontWeight.SemiBold)
             }
         }
     }
