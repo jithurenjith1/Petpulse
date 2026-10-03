@@ -57,8 +57,8 @@ import androidx.compose.ui.unit.sp
 // Material3, pure Compose, no backend.
 // ---------------------------------------------------------------------------
 
-private val Purple = Color(0xFFBC5233)
-private val PurpleDark = Color(0xFFD97F5C)
+private val Purple = Color(0xFF6A4C93)
+private val PurpleDark = Color(0xFF9C7CC9)
 private val Gold = Color(0xFFA87A1F)
 private val GoldDark = Color(0xFFA87A1F)
 

@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 // One consistent Wagmiya look, day and night:
-// warm cream background, coral primary, teal secondary, near-black text.
+// warm cream background, purple primary, teal secondary, near-black text.
 // (Same scheme is used whether the system is in light or dark mode, so the
 // app always looks coherent. A true auto-dark variant can come later.)
 private val PetpulseColorScheme = lightColorScheme(
@@ -32,7 +32,7 @@ private val PetpulseColorScheme = lightColorScheme(
     onBackground = DarkText,
     surface = SurfaceWhite,
     onSurface = DarkText,
-    surfaceVariant = Color(0xFFECE4DB),
+    surfaceVariant = Color(0xFFEDE5F5),
     onSurfaceVariant = TextGray,
     outline = BorderColor,
     error = SosRed,

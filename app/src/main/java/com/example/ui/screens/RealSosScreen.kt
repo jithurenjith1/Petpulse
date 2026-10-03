@@ -46,10 +46,10 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 
-private val CoralPrimary = Color(0xFFBC5233)
+private val CoralPrimary = Color(0xFF6A4C93)
 private val CreamBg = Color(0xFFFBF6F0)
 private val SosRed = Color(0xFFD62828)
-private val DarkText = Color(0xFF272220)
+private val DarkText = Color(0xFF241F2B)
 
 @Composable
 fun RealSosScreen(

@@ -55,15 +55,15 @@ import java.util.Date
 import java.util.Locale
 
 // ---- App palette ----
-private val CoralPrimary = Color(0xFFBC5233)
+private val CoralPrimary = Color(0xFF6A4C93)
 private val CreamBg = Color(0xFFFBF6F0)
 private val TealAccent = Color(0xFF1D7A6E)
 private val TealLight = Color(0xFFD6EBE6)
 private val AmberGold = Color(0xFFA87A1F)
 private val AmberLight = Color(0xFFF6ECD8)
-private val DarkText = Color(0xFF272220)
-private val TextGray = Color(0xFF5C554F)
-private val BorderColor = Color(0xFFE9DED4)
+private val DarkText = Color(0xFF241F2B)
+private val TextGray = Color(0xFF5A5265)
+private val BorderColor = Color(0xFFE6DCF2)
 private val DeliveredGreen = Color(0xFF2E7D32)
 private val GreenLight = Color(0xFFDDEEDC)
 private val CancelledRed = Color(0xFFB3392E)

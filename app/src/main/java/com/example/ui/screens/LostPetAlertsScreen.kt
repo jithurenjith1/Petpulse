@@ -53,11 +53,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 // Wagmiya brand colors
-private val CoralPrimary = Color(0xFFBC5233)
-private val CoralLight = Color(0xFFF6DFD4)
+private val CoralPrimary = Color(0xFF6A4C93)
+private val CoralLight = Color(0xFFEDE3F8)
 private val CreamBg = Color(0xFFFBF6F0)
 private val TealAccent = Color(0xFF1D7A6E)
-private val DarkText = Color(0xFF272220)
+private val DarkText = Color(0xFF241F2B)
 private val SosRed = Color(0xFFD62828)
 
 /**

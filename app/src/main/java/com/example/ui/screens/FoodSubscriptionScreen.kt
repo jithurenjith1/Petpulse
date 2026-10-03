@@ -47,11 +47,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // ---- App palette ----
-private val CoralPrimary = Color(0xFFBC5233)
-private val CoralLight = Color(0xFFF6DFD4)
+private val CoralPrimary = Color(0xFF6A4C93)
+private val CoralLight = Color(0xFFEDE3F8)
 private val CreamBg = Color(0xFFFBF6F0)
 private val TealAccent = Color(0xFF1D7A6E)
-private val DarkText = Color(0xFF272220)
+private val DarkText = Color(0xFF241F2B)
 
 // ---- Model ----
 data class FoodPlan(
