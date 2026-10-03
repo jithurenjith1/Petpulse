@@ -263,7 +263,7 @@ fun VetTeleconsultScreen(
                     item { FeaturedBanner() }
 
                     // 3 & 4. Vet list
-                    val displayVets = remember(vets) { vets.map { it.toDisplayVet() } }
+                    val displayVets = vets.map { it.toDisplayVet() }
                     if (displayVets.isEmpty()) {
                         item {
                             Card(
