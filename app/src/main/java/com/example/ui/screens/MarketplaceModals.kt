@@ -8,7 +8,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,7 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -116,6 +120,26 @@ fun SlideOutCartModal(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 if (cartItems.isEmpty()) {
+                    // Gentle idle animation so the empty cart feels alive
+                    val emptyCartAnim = rememberInfiniteTransition(label = "emptyCart")
+                    val bob by emptyCartAnim.animateFloat(
+                        initialValue = -8f,
+                        targetValue = 8f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(1600, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "bob"
+                    )
+                    val breathe by emptyCartAnim.animateFloat(
+                        initialValue = 0.97f,
+                        targetValue = 1.03f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(2200, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "breathe"
+                    )
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -124,13 +148,20 @@ fun SlideOutCartModal(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Outlined.ShoppingCart,
+                            Image(
+                                painter = painterResource(id = R.drawable.empty_cart_pets),
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(56.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth(0.92f)
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .graphicsLayer {
+                                        translationY = bob
+                                        scaleX = breathe
+                                        scaleY = breathe
+                                    },
+                                contentScale = ContentScale.Fit
                             )
                             Text(
                                 text = stringResource(R.string.modals_your_cart_is_empty),
@@ -138,12 +169,29 @@ fun SlideOutCartModal(
                                 fontSize = 16.sp
                             )
                             Text(
-                                text = "Add food, medicines, or supplies from the Kerala marketplace.",
+                                text = "Your pet is waiting for food!",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                text = "Add food, medicines or accessories from the Kerala marketplace.",
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 32.dp)
+                                modifier = Modifier.padding(horizontal = 28.dp)
                             )
+                            Button(
+                                onClick = onDismiss,
+                                modifier = Modifier.padding(top = 6.dp),
+                                shape = RoundedCornerShape(24.dp)
+                            ) {
+                                Text(
+                                    text = "Browse Food & Accessories",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
                 } else {
