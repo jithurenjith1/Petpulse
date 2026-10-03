@@ -1,6 +1,7 @@
 package com.petpulse.app.ui.screens
 
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import com.petpulse.app.R
 
 import androidx.compose.animation.AnimatedVisibility
@@ -166,6 +167,7 @@ fun PetpulseCareScreen(
     onClose: () -> Unit = {}
 ) {
     val palette = petpulsePalette()
+    val ctx = LocalContext.current
     var billingPeriod by remember { mutableStateOf(BillingPeriod.MONTHLY) }
     var currentPlan by remember { mutableStateOf("Basic") }
 
@@ -242,10 +244,31 @@ fun PetpulseCareScreen(
                     plan = plan,
                     billingPeriod = billingPeriod,
                     isCurrentPlan = plan.name == currentPlan,
-                    onSubscribe = { currentPlan = plan.name },
+                    onSubscribe = {
+                        // Enquiry only for now: the plan is activated by our team after launch.
+                        val msg = "Hello Wagmiya! I want to subscribe to Wagmiya Care - " +
+                            plan.name + " (" + plan.monthlyPriceLabel + " / " + plan.yearlyPriceLabel + "). " +
+                            "Please activate it for me."
+                        val encoded = java.net.URLEncoder.encode(msg, "UTF-8")
+                        ctx.startActivity(
+                            android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse("https://wa.me/919526632311?text=$encoded")
+                            )
+                        )
+                    },
                     palette = palette
                 )
             }
+
+            Spacer(Modifier.height(14.dp))
+
+            Text(
+                text = "Tap Subscribe and our team confirms on WhatsApp, then activates your plan.",
+                fontSize = 12.sp,
+                color = palette.gold,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(Modifier.height(32.dp))
 
