@@ -77,6 +77,14 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _foodCategory = MutableStateFlow("All")
     val foodCategory: StateFlow<String> = _foodCategory.asStateFlow()
 
+    // Food categorisation filters (Shop by pet / Food type / Life stage)
+    private val _foodPetType = MutableStateFlow("All")
+    val foodPetType: StateFlow<String> = _foodPetType.asStateFlow()
+    private val _foodKind = MutableStateFlow("All")
+    val foodKind: StateFlow<String> = _foodKind.asStateFlow()
+    private val _foodStage = MutableStateFlow("All")
+    val foodStage: StateFlow<String> = _foodStage.asStateFlow()
+
     private val _accessoryCategory = MutableStateFlow("All")
     val accessoryCategory: StateFlow<String> = _accessoryCategory.asStateFlow()
 
@@ -191,6 +199,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val marketFoods: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
         .map { remote -> remote.filter { it.listType == "Food" }.map { it.toMarketProduct() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Food list filtered by the Shop-by-pet / Food-type / Life-stage chips. */
+    val marketFoodsFiltered: StateFlow<List<MarketProduct>> =
+        combine(commerceRepo.observeProducts(), _foodPetType, _foodKind, _foodStage) { prods, pet, kind, stage ->
+            prods.filter { it.listType == "Food" }
+                .filter { pet == "All" || it.petType == pet }
+                .filter { kind == "All" || it.foodType == kind }
+                .filter { stage == "All" || it.lifeStage == stage }
+                .map { it.toMarketProduct() }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val marketMedicines: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
         .map { remote -> remote.filter { it.listType == "Medicine" }.map { it.toMarketProduct() } }
@@ -460,6 +478,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun setFoodCategory(cat: String) {
         _foodCategory.value = cat
     }
+
+    fun setFoodPetType(v: String) { _foodPetType.value = v }
+    fun setFoodKind(v: String) { _foodKind.value = v }
+    fun setFoodStage(v: String) { _foodStage.value = v }
 
     fun setAccessoryCategory(cat: String) {
         _accessoryCategory.value = cat
@@ -974,9 +996,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun adminAddProduct(name: String, listType: String, category: String, priceInr: Double, description: String) {
+    fun adminAddProduct(
+        name: String, listType: String, category: String, priceInr: Double, description: String,
+        petType: String = "All", foodType: String = "All", lifeStage: String = "All"
+    ) {
         viewModelScope.launch {
-            val p = ShopProduct(id = "", name = name, listType = listType, category = category, priceInr = priceInr, description = description)
+            val p = ShopProduct(
+                id = "", name = name, listType = listType, category = category,
+                priceInr = priceInr, description = description,
+                petType = petType, foodType = foodType, lifeStage = lifeStage
+            )
             _commerceEvent.value = if (commerceRepo.addProduct(p).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
     }

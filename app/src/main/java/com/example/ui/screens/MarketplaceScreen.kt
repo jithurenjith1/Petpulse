@@ -74,6 +74,12 @@ fun MarketplaceScreen(
     onGuideItemAction: (String) -> Unit = {},
     currentUid: String? = null,
     onDeleteListing: (MarketPet) -> Unit = {},
+    foodPetType: String = "All",
+    onSelectFoodPetType: (String) -> Unit = {},
+    foodKind: String = "All",
+    onSelectFoodKind: (String) -> Unit = {},
+    foodStage: String = "All",
+    onSelectFoodStage: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var listingToDelete by remember { mutableStateOf<MarketPet?>(null) }
@@ -162,6 +168,45 @@ fun MarketplaceScreen(
                         subtitle = "Authentic premium kibble, gravies & fresh Kochi farm meat packs with same-day delivery in ₹",
                         icon = Icons.Default.Restaurant
                     )
+                }
+
+                item {
+                    FoodFilterRow(
+                        label = "SHOP BY PET",
+                        options = listOf("All", "Dog", "Cat", "Other"),
+                        selected = foodPetType,
+                        onSelect = onSelectFoodPetType
+                    )
+                }
+                item {
+                    FoodFilterRow(
+                        label = "FOOD TYPE",
+                        options = listOf("All", "Dry", "Wet", "Treats", "Supplements"),
+                        selected = foodKind,
+                        onSelect = onSelectFoodKind
+                    )
+                }
+                item {
+                    FoodFilterRow(
+                        label = "LIFE STAGE",
+                        options = listOf("All", "Puppy & Kitten", "Adult", "Senior"),
+                        selected = foodStage,
+                        onSelect = onSelectFoodStage
+                    )
+                }
+
+                if (foods.isEmpty()) {
+                    item {
+                        EmptyMarketState(
+                            message = "No food products match these filters.",
+                            actionLabel = "Clear filters",
+                            onAction = {
+                                onSelectFoodPetType("All")
+                                onSelectFoodKind("All")
+                                onSelectFoodStage("All")
+                            }
+                        )
+                    }
                 }
 
                 items(foods, key = { it.id }) { food ->
@@ -1493,3 +1538,34 @@ fun EmptyMarketState(
     }
 }
 
+/** Horizontal chip filter row used in the Food section. */
+@Composable
+private fun FoodFilterRow(
+    label: String,
+    options: List<String>,
+    selected: String,
+    onSelect: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    ) {
+        Text(
+            label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(4.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(options) { opt ->
+                FilterChip(
+                    selected = selected == opt,
+                    onClick = { onSelect(opt) },
+                    label = { Text(opt, fontSize = 11.sp) }
+                )
+            }
+        }
+    }
+}

@@ -74,7 +74,10 @@ data class MarketProduct(
     val stockCount: Int = 25,
     val description: String,
     val keyBenefits: List<String> = emptyList(),
-    val dosageOrUsage: String = "As recommended on packaging"
+    val dosageOrUsage: String = "As recommended on packaging",
+    val petType: String = "All",
+    val foodType: String = "All",
+    val lifeStage: String = "All"
 )
 
 data class GroomingServiceItem(
@@ -184,7 +187,11 @@ data class ShopProduct(
     val listType: String, // "Food", "Medicine", "Grooming"
     val category: String = "General",
     val priceInr: Double,
-    val description: String = ""
+    val description: String = "",
+    // --- Food categorisation (defaults keep Firestore toObject() working) ---
+    val petType: String = "All",    // Dog / Cat / Other / All
+    val foodType: String = "All",   // Dry / Wet / Treats / Supplements / All
+    val lifeStage: String = "All"   // Puppy & Kitten / Adult / Senior / All
 )
 
 fun ShopProduct.toMarketProduct() = MarketProduct(
@@ -196,7 +203,10 @@ fun ShopProduct.toMarketProduct() = MarketProduct(
     packSize = "1 Unit",
     priceInr = priceInr,
     originalPriceInr = priceInr,
-    description = description
+    description = description,
+    petType = petType,
+    foodType = foodType,
+    lifeStage = lifeStage
 )
 
 data class Dealer(

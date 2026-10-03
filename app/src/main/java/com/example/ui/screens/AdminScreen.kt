@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -59,7 +60,7 @@ fun AdminScreen(
     onDeleteLostAlert: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
-    onAddProduct: (String, String, String, Double, String) -> Unit,
+    onAddProduct: (String, String, String, Double, String, String, String, String) -> Unit,
     onDeleteProduct: (String) -> Unit,
     onAddDealer: (String, String, String) -> Unit,
     onDeleteDealer: (String) -> Unit,
@@ -901,7 +902,7 @@ private fun AdminOrderCard(
 private fun ProductsAdminTab(
     products: List<ShopProduct>,
     listTypeFilter: String? = null,
-    onAdd: (String, String, String, Double, String) -> Unit,
+    onAdd: (String, String, String, Double, String, String, String, String) -> Unit,
     onDelete: (String) -> Unit
 ) {
     val shown = if (listTypeFilter != null) products.filter { it.listType == listTypeFilter } else products
@@ -910,6 +911,9 @@ private fun ProductsAdminTab(
     var category by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var petType by remember { mutableStateOf("All") }
+    var foodType by remember { mutableStateOf("All") }
+    var lifeStage by remember { mutableStateOf("All") }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
@@ -953,12 +957,44 @@ private fun ProductsAdminTab(
                 }
             }
         }
+        if (listType == "Food") {
+            item {
+                Column {
+                    Text("Shop by pet", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                        listOf("All", "Dog", "Cat", "Other").forEach { v ->
+                            FilterChip(selected = petType == v, onClick = { petType = v }, label = { Text(v, fontSize = 11.sp) })
+                        }
+                    }
+                }
+            }
+            item {
+                Column {
+                    Text("Food type", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                        listOf("All", "Dry", "Wet", "Treats", "Supplements").forEach { v ->
+                            FilterChip(selected = foodType == v, onClick = { foodType = v }, label = { Text(v, fontSize = 11.sp) })
+                        }
+                    }
+                }
+            }
+            item {
+                Column {
+                    Text("Life stage", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                        listOf("All", "Puppy & Kitten", "Adult", "Senior").forEach { v ->
+                            FilterChip(selected = lifeStage == v, onClick = { lifeStage = v }, label = { Text(v, fontSize = 11.sp) })
+                        }
+                    }
+                }
+            }
+        }
         item {
             Button(
                 onClick = {
                     val p = price.toDoubleOrNull()
                     if (name.isNotBlank() && p != null && p > 0) {
-                        onAdd(name.trim(), listType, category.trim(), p, description.trim())
+                        onAdd(name.trim(), listType, category.trim(), p, description.trim(), petType, foodType, lifeStage)
                         name = ""
                         category = ""
                         price = ""

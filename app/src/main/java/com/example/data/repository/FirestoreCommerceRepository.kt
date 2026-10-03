@@ -75,7 +75,10 @@ class FirestoreCommerceRepository {
             listType = getString("listType") ?: "Food",
             category = getString("category") ?: "General",
             priceInr = getDouble("priceInr") ?: 0.0,
-            description = getString("description") ?: ""
+            description = getString("description") ?: "",
+            petType = getString("petType") ?: "All",
+            foodType = getString("foodType") ?: "All",
+            lifeStage = getString("lifeStage") ?: "All"
         )
         } catch (e: Exception) {
             Log.e("FsCommerce", "Skipping malformed product ${id}", e)
@@ -93,6 +96,9 @@ class FirestoreCommerceRepository {
                     "category" to p.category,
                     "priceInr" to p.priceInr,
                     "description" to p.description,
+                    "petType" to p.petType,
+                    "foodType" to p.foodType,
+                    "lifeStage" to p.lifeStage,
                     "createdAt" to System.currentTimeMillis()
                 )
             ).await()
