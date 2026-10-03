@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import com.petpulse.app.data.model.*
 import com.petpulse.app.ui.theme.*
 import com.petpulse.app.ui.viewmodel.PartnerSubTab
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -336,14 +338,17 @@ fun PartnersServicesScreen(
 
                         // 4 Boarding Submenus
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             listOf(
                                 "Full Day (24hr)",
                                 "Per Day Care",
                                 "Pet Night Care",
-                                "Feed on Time Only"
+                                "Feed on Time Only",
+                                "Pet Walker"
                             ).forEach { type ->
                                 FilterChip(
                                     selected = boardingType == type,
@@ -492,6 +497,7 @@ private fun SitterBookingDialog(
 ) {
     var date by remember { mutableStateOf("Today") }
     var notes by remember { mutableStateOf("") }
+    var slot by remember { mutableStateOf(sitter.timeSlots.firstOrNull() ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -512,6 +518,21 @@ private fun SitterBookingDialog(
                         )
                     }
                 }
+                if (sitter.timeSlots.isNotEmpty()) {
+                    Text("Preferred time", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                    ) {
+                        sitter.timeSlots.forEach { s ->
+                            FilterChip(
+                                selected = slot == s,
+                                onClick = { slot = s },
+                                label = { Text(s, fontSize = 10.sp) }
+                            )
+                        }
+                    }
+                }
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
@@ -527,7 +548,11 @@ private fun SitterBookingDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onConfirm(date, notes.trim()) }) { Text("Confirm Booking") }
+            Button(onClick = {
+                val merged = if (slot.isBlank()) notes.trim()
+                    else "Time: " + slot + if (notes.isBlank()) "" else " | " + notes.trim()
+                onConfirm(date, merged)
+            }) { Text("Confirm Booking") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
@@ -752,6 +777,7 @@ fun BoardingSitterCard(
     sitter: BoardingSitter,
     onBook: () -> Unit
 ) {
+    val ctx = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -810,6 +836,50 @@ fun BoardingSitterCard(
                 }
             }
 
+            if (sitter.timeSlots.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    sitter.timeSlots.forEach { slot ->
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Text(
+                                slot,
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (sitter.photoUris.isNotEmpty()) {
+                Text(
+                    "Place photos (" + sitter.photoUris.size + ")",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(sitter.photoUris) { path ->
+                        AsyncImage(
+                            model = path,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(96.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                        )
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -817,14 +887,35 @@ fun BoardingSitterCard(
             ) {
                 Text(sitter.priceEstimate, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = BluePrimary)
 
-                Button(
-                    onClick = onBook,
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
-                    modifier = Modifier.height(34.dp)
-                ) {
-                    Text(stringResource(R.string.partners_book_care), fontSize = 11.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = {
+                            val msg = "Hello Wagmiya! I want to book " + sitter.sitterType + " with " +
+                                sitter.name + " (" + sitter.priceEstimate + ")."
+                            val encoded = java.net.URLEncoder.encode(msg, "UTF-8")
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://wa.me/919526632311?text=$encoded")
+                                )
+                            )
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.height(34.dp)
+                    ) {
+                        Text("WhatsApp", fontSize = 11.sp)
+                    }
+                    Button(
+                        onClick = onBook,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+                        modifier = Modifier.height(34.dp)
+                    ) {
+                        Text(stringResource(R.string.partners_book_care), fontSize = 11.sp)
+                    }
                 }
             }
         }

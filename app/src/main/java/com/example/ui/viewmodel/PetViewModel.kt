@@ -50,7 +50,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val marketplaceRepo: MarketplaceRepository = MarketplaceRepository()
     private val firestoreRepo: FirestorePetRepository = FirestorePetRepository(getApplication())
     private val firestoreMarketRepo = FirestoreMarketplaceRepository(application)
-    private val commerceRepo = FirestoreCommerceRepository()
+    private val commerceRepo = FirestoreCommerceRepository(application)
 
     init {
         val db = PetDatabase.getInstance(application)
@@ -430,7 +430,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     /** Boarding & sitters: owner-added partners only. */
     val marketBoardingSitters: StateFlow<List<BoardingSitter>> =
         commerceRepo.observeProducts().map { remote ->
-            val knownSitterTypes = listOf("Full Day (24hr)", "Per Day Care", "Pet Night Care", "Feed on Time Only")
+            val knownSitterTypes = listOf("Full Day (24hr)", "Per Day Care", "Pet Night Care", "Feed on Time Only", "Pet Walker")
             remote.filter { it.listType == "Boarding" }.map { p ->
                 BoardingSitter(
                     name = p.name,
@@ -441,7 +441,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     experience = "Verified partner",
                     rating = 4.5,
                     priceEstimate = "₹ ${p.priceInr.toInt()}",
-                    features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() }
+                    features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
+                    verified = p.verified,
+                    photoUris = p.photoUris,
+                    timeSlots = if (p.category.trim() == "Pet Walker")
+                        listOf("Morning 6-9", "Afternoon 12-3", "Evening 4-7") else emptyList()
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -998,15 +1002,17 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun adminAddProduct(
         name: String, listType: String, category: String, priceInr: Double, description: String,
-        petType: String = "All", foodType: String = "All", lifeStage: String = "All"
+        petType: String = "All", foodType: String = "All", lifeStage: String = "All",
+        photoUris: List<Uri> = emptyList(), verified: Boolean = false
     ) {
         viewModelScope.launch {
             val p = ShopProduct(
                 id = "", name = name, listType = listType, category = category,
                 priceInr = priceInr, description = description,
-                petType = petType, foodType = foodType, lifeStage = lifeStage
+                petType = petType, foodType = foodType, lifeStage = lifeStage,
+                verified = verified
             )
-            _commerceEvent.value = if (commerceRepo.addProduct(p).isSuccess) R.string.admin_saved else R.string.admin_failed
+            _commerceEvent.value = if (commerceRepo.addProduct(p, photoUris).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
     }
 

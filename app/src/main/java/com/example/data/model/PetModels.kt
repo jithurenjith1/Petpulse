@@ -184,7 +184,9 @@ data class BoardingSitter(
     val rating: Double,
     val priceEstimate: String,
     val features: List<String>,
-    val verified: Boolean = true
+    val verified: Boolean = true,
+    val photoUris: List<String> = emptyList(),
+    val timeSlots: List<String> = emptyList()
 )
 
 data class PetNewsItem(

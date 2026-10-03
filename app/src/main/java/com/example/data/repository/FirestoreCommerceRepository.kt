@@ -1,6 +1,13 @@
 package com.petpulse.app.data.repository
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import android.util.Log
+import java.io.ByteArrayOutputStream
+import java.io.File
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -27,7 +34,7 @@ import kotlinx.coroutines.tasks.await
  * Firestore rules enforce that only the account listed in `admins` can
  * write products/dealers or see orders. Everyone can read products.
  */
-class FirestoreCommerceRepository {
+class FirestoreCommerceRepository(private val appContext: Context) {
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -69,6 +76,8 @@ class FirestoreCommerceRepository {
 
     private fun DocumentSnapshot.toShopProduct(): ShopProduct? {
         return try {
+        @Suppress("UNCHECKED_CAST")
+        val photoData: List<String> = (get("photoData") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
         ShopProduct(
             id = id,
             name = getString("name") ?: return null,
@@ -78,7 +87,9 @@ class FirestoreCommerceRepository {
             description = getString("description") ?: "",
             petType = getString("petType") ?: "All",
             foodType = getString("foodType") ?: "All",
-            lifeStage = getString("lifeStage") ?: "All"
+            lifeStage = getString("lifeStage") ?: "All",
+            verified = getBoolean("verified") ?: false,
+            photoUris = photoData.mapIndexed { i, b64 -> productPhotoFileFor(id, i, b64) }.filter { it.isNotBlank() }
         )
         } catch (e: Exception) {
             Log.e("FsCommerce", "Skipping malformed product ${id}", e)
@@ -86,9 +97,10 @@ class FirestoreCommerceRepository {
         }
     }
 
-    suspend fun addProduct(p: ShopProduct): Result<Unit> {
+    suspend fun addProduct(p: ShopProduct, photoUris: List<Uri> = emptyList()): Result<Unit> {
         return try {
             auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            val photos = photoUris.take(3).mapNotNull { compressProductPhotoToBase64(it) }
             db.collection("products").document().set(
                 mapOf(
                     "name" to p.name,
@@ -99,12 +111,66 @@ class FirestoreCommerceRepository {
                     "petType" to p.petType,
                     "foodType" to p.foodType,
                     "lifeStage" to p.lifeStage,
+                    "verified" to p.verified,
+                    "photoData" to photos,
                     "createdAt" to System.currentTimeMillis()
                 )
             ).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    /** Decodes a stored base64 sitter photo into a cache file and returns its path for Coil. */
+    private fun productPhotoFileFor(docId: String, index: Int, base64Data: String): String {
+        return try {
+            val dir = File(appContext.cacheDir, "sitter_photos").apply { mkdirs() }
+            val f = File(dir, "${docId}_${index}.jpg")
+            if (!f.exists()) {
+                f.writeBytes(Base64.decode(base64Data, Base64.NO_WRAP))
+            }
+            f.absolutePath
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "sitter photo decode failed for ${docId}/${index}", e)
+            ""
+        }
+    }
+
+    /** Downscale + JPEG-compress a picked photo, return base64 (or null). */
+    private fun compressProductPhotoToBase64(uri: Uri): String? {
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, bounds)
+            }
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 1000 * 2) sample *= 2
+            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+            val decoded = appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, opts)
+            } ?: return null
+            val scale = minOf(1f, 1000f / maxOf(decoded.width, decoded.height, 1))
+            val bmp = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    decoded,
+                    (decoded.width * scale).toInt().coerceAtLeast(1),
+                    (decoded.height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else decoded
+            val out = ByteArrayOutputStream()
+            var quality = 78
+            bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            while (out.size() > 110_000 && quality > 30) {
+                quality -= 16
+                out.reset()
+                bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            }
+            Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "sitter photo compress failed", e)
+            null
         }
     }
 

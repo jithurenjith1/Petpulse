@@ -2,9 +2,13 @@ package com.petpulse.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
@@ -14,6 +18,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -33,6 +39,7 @@ import com.petpulse.app.data.model.ShopProduct
 import com.petpulse.app.data.model.AdminLostPetAlert
 import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.VerifiedDoctor
+import coil.compose.AsyncImage
 
 private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding")
 
@@ -60,7 +67,7 @@ fun AdminScreen(
     onDeleteLostAlert: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
-    onAddProduct: (String, String, String, Double, String, String, String, String) -> Unit,
+    onAddProduct: (String, String, String, Double, String, String, String, String, List<Uri>, Boolean) -> Unit,
     onDeleteProduct: (String) -> Unit,
     onAddDealer: (String, String, String) -> Unit,
     onDeleteDealer: (String) -> Unit,
@@ -902,7 +909,7 @@ private fun AdminOrderCard(
 private fun ProductsAdminTab(
     products: List<ShopProduct>,
     listTypeFilter: String? = null,
-    onAdd: (String, String, String, Double, String, String, String, String) -> Unit,
+    onAdd: (String, String, String, Double, String, String, String, String, List<Uri>, Boolean) -> Unit,
     onDelete: (String) -> Unit
 ) {
     val shown = if (listTypeFilter != null) products.filter { it.listType == listTypeFilter } else products
@@ -914,6 +921,12 @@ private fun ProductsAdminTab(
     var petType by remember { mutableStateOf("All") }
     var foodType by remember { mutableStateOf("All") }
     var lifeStage by remember { mutableStateOf("All") }
+    var placePhotos by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var verified by remember { mutableStateOf(false) }
+    var photoError by remember { mutableStateOf(false) }
+    val photoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(6)
+    ) { uris -> placePhotos = uris }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
@@ -989,16 +1002,69 @@ private fun ProductsAdminTab(
                 }
             }
         }
+        if (listType == "Boarding") {
+            item {
+                Column {
+                    Text("Place photos (min 3)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "House / flat, cage, sleeping and playing area",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Button(onClick = {
+                        photoPicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }) {
+                        Text(if (placePhotos.isEmpty()) "Add Photos" else placePhotos.size.toString() + " selected")
+                    }
+                    if (photoError && placePhotos.size < 3) {
+                        Text("Please add at least 3 photos.", fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
+                    }
+                    if (placePhotos.isNotEmpty()) {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(placePhotos) { u ->
+                                AsyncImage(
+                                    model = u,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(72.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Switch(checked = verified, onCheckedChange = { verified = it })
+                    Text("Verified sitter / walker", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
         item {
             Button(
                 onClick = {
                     val p = price.toDoubleOrNull()
                     if (name.isNotBlank() && p != null && p > 0) {
-                        onAdd(name.trim(), listType, category.trim(), p, description.trim(), petType, foodType, lifeStage)
-                        name = ""
-                        category = ""
-                        price = ""
-                        description = ""
+                        if (listType == "Boarding" && placePhotos.size < 3) {
+                            photoError = true
+                        } else {
+                            onAdd(name.trim(), listType, category.trim(), p, description.trim(), petType, foodType, lifeStage, placePhotos, verified)
+                            photoError = false
+                            placePhotos = emptyList()
+                            verified = false
+                            name = ""
+                            category = ""
+                            price = ""
+                            description = ""
+                        }
                     }
                 },
                 enabled = name.isNotBlank() && (price.toDoubleOrNull() ?: 0.0) > 0

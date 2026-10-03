@@ -191,7 +191,10 @@ data class ShopProduct(
     // --- Food categorisation (defaults keep Firestore toObject() working) ---
     val petType: String = "All",    // Dog / Cat / Other / All
     val foodType: String = "All",   // Dry / Wet / Treats / Supplements / All
-    val lifeStage: String = "All"   // Puppy & Kitten / Adult / Senior / All
+    val lifeStage: String = "All",  // Puppy & Kitten / Adult / Senior / All
+    // --- Sitter / walker trust (defaults keep Firestore toObject() working) ---
+    val verified: Boolean = false,
+    val photoUris: List<String> = emptyList()
 )
 
 fun ShopProduct.toMarketProduct() = MarketProduct(
