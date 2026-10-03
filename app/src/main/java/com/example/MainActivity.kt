@@ -38,6 +38,7 @@ import com.petpulse.app.ui.screens.PetCareTipsScreen
 import com.petpulse.app.ui.screens.AiSymptomCheckerScreen
 import com.petpulse.app.ui.screens.VetTeleconsultScreen
 import com.petpulse.app.ui.screens.PetpulseCareScreen
+import com.petpulse.app.ui.screens.OnboardingScreen
 import com.petpulse.app.ui.screens.HealthRecordsHubScreen
 import com.petpulse.app.ui.components.PetSwitcher
 import com.petpulse.app.ui.components.AddPetDialog
@@ -72,7 +73,16 @@ class MainActivity : AppCompatActivity() {
             MyApplicationTheme {
                 val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
-                if (authState.isAuthenticated && authState.user != null) {
+                // First-run onboarding: shown once after install, before login.
+                val prefs = remember { getSharedPreferences("wagmiya_prefs", MODE_PRIVATE) }
+                var showOnboarding by remember { mutableStateOf(!prefs.getBoolean("onboarding_done", false)) }
+
+                if (showOnboarding) {
+                    OnboardingScreen(onFinish = {
+                        prefs.edit().putBoolean("onboarding_done", true).apply()
+                        showOnboarding = false
+                    })
+                } else if (authState.isAuthenticated && authState.user != null) {
                 JaneAndPalsApp(viewModel = viewModel, authViewModel = authViewModel)
                 } else {
                     LoginScreen(authViewModel = authViewModel, onAuthSuccess = { })
@@ -148,10 +158,7 @@ val appCtx = LocalContext.current
     val myOrders by viewModel.myOrders.collectAsStateWithLifecycle()
 
     val filteredMarketPets by viewModel.filteredMarketPets.collectAsStateWithLifecycle()
-    val marketFoods by viewModel.marketFoodsFiltered.collectAsStateWithLifecycle()
-    val foodPetType by viewModel.foodPetType.collectAsStateWithLifecycle()
-    val foodKind by viewModel.foodKind.collectAsStateWithLifecycle()
-    val foodStage by viewModel.foodStage.collectAsStateWithLifecycle()
+    val marketFoods by viewModel.marketFoods.collectAsStateWithLifecycle()
     val marketMedicines by viewModel.marketMedicines.collectAsStateWithLifecycle()
     val groomingServices by viewModel.groomingServices.collectAsStateWithLifecycle()
     val verifiedDoctors by viewModel.verifiedDoctors.collectAsStateWithLifecycle()
@@ -351,12 +358,6 @@ val appCtx = LocalContext.current
                         onOpenOrders = { showMyOrdersScreen = true },
                         onOpenListPetModal = { showListPetModal = true },
                         currentUid = viewModel.currentUid,
-                        foodPetType = foodPetType,
-                        onSelectFoodPetType = { viewModel.setFoodPetType(it) },
-                        foodKind = foodKind,
-                        onSelectFoodKind = { viewModel.setFoodKind(it) },
-                        foodStage = foodStage,
-                        onSelectFoodStage = { viewModel.setFoodStage(it) },
                         onDeleteListing = { pet ->
                             viewModel.deleteMyListing(pet)
                             coroutineScope.launch {
@@ -600,7 +601,7 @@ val appCtx = LocalContext.current
             bookings = adminBookings,
             onAssignDealer = { id, dealer -> viewModel.adminAssignDealer(id, dealer) },
             onUpdateStatus = { id, status -> viewModel.adminUpdateOrderStatus(id, status) },
-            onAddProduct = { n, lt, c, p, d, pt, ft, ls -> viewModel.adminAddProduct(n, lt, c, p, d, pt, ft, ls) },
+            onAddProduct = { n, lt, c, p, d -> viewModel.adminAddProduct(n, lt, c, p, d) },
             onDeleteProduct = { id -> viewModel.adminDeleteProduct(id) },
             onAddDealer = { n, ph, c -> viewModel.adminAddDealer(n, ph, c) },
             onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },
