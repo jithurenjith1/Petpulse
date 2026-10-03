@@ -158,7 +158,10 @@ val appCtx = LocalContext.current
     val myOrders by viewModel.myOrders.collectAsStateWithLifecycle()
 
     val filteredMarketPets by viewModel.filteredMarketPets.collectAsStateWithLifecycle()
-    val marketFoods by viewModel.marketFoods.collectAsStateWithLifecycle()
+    val marketFoods by viewModel.marketFoodsFiltered.collectAsStateWithLifecycle()
+    val foodPetType by viewModel.foodPetType.collectAsStateWithLifecycle()
+    val foodKind by viewModel.foodKind.collectAsStateWithLifecycle()
+    val foodStage by viewModel.foodStage.collectAsStateWithLifecycle()
     val marketMedicines by viewModel.marketMedicines.collectAsStateWithLifecycle()
     val groomingServices by viewModel.groomingServices.collectAsStateWithLifecycle()
     val verifiedDoctors by viewModel.verifiedDoctors.collectAsStateWithLifecycle()
@@ -358,6 +361,12 @@ val appCtx = LocalContext.current
                         onOpenOrders = { showMyOrdersScreen = true },
                         onOpenListPetModal = { showListPetModal = true },
                         currentUid = viewModel.currentUid,
+                        foodPetType = foodPetType,
+                        onSelectFoodPetType = { viewModel.setFoodPetType(it) },
+                        foodKind = foodKind,
+                        onSelectFoodKind = { viewModel.setFoodKind(it) },
+                        foodStage = foodStage,
+                        onSelectFoodStage = { viewModel.setFoodStage(it) },
                         onDeleteListing = { pet ->
                             viewModel.deleteMyListing(pet)
                             coroutineScope.launch {
@@ -601,7 +610,7 @@ val appCtx = LocalContext.current
             bookings = adminBookings,
             onAssignDealer = { id, dealer -> viewModel.adminAssignDealer(id, dealer) },
             onUpdateStatus = { id, status -> viewModel.adminUpdateOrderStatus(id, status) },
-            onAddProduct = { n, lt, c, p, d -> viewModel.adminAddProduct(n, lt, c, p, d) },
+            onAddProduct = { n, lt, c, p, d, pt, ft, ls -> viewModel.adminAddProduct(n, lt, c, p, d, pt, ft, ls) },
             onDeleteProduct = { id -> viewModel.adminDeleteProduct(id) },
             onAddDealer = { n, ph, c -> viewModel.adminAddDealer(n, ph, c) },
             onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },
