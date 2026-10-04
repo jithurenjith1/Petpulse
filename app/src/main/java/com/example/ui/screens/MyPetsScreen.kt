@@ -1077,6 +1077,7 @@ fun VaccinationMedicalSubmenuSection(
 }
 
 // ---------------- Submenu 3: Food & Plays ----------------
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FoodAndPlaysSubmenuSection(
     pet: UserPet,
@@ -1128,9 +1129,10 @@ fun FoodAndPlaysSubmenuSection(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(stringResource(R.string.mypets_favorite_meals_treats), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     foodsList.forEach { food ->
                         Surface(
@@ -1156,9 +1158,10 @@ fun FoodAndPlaysSubmenuSection(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(stringResource(R.string.mypets_favorite_toys_play_activities), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     playsList.forEach { play ->
                         Surface(

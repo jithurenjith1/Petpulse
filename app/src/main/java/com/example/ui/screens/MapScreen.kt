@@ -210,7 +210,7 @@ fun MapScreen() {
                     factory = { ctx ->
                         Configuration.getInstance().userAgentValue = ctx.packageName
                         MapView(ctx).apply {
-                            setTileSource(cartoVoyager)
+                            setTileSource(TileSourceFactory.MAPNIK)
                             setTilesScaledToDpi(true)
                             setMultiTouchControls(true)
                             controller.setZoom(15.0)
