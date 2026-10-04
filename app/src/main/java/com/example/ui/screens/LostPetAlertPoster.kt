@@ -25,7 +25,8 @@ suspend fun postSosAlert(
     breed: String,
     contactPhone: String,
     locationLink: String,
-    reward: String = ""
+    reward: String = "",
+    alternatePhone: String = ""
 ): Boolean {
     val user = FirebaseAuth.getInstance().currentUser ?: return false
     val date = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
@@ -41,6 +42,7 @@ suspend fun postSosAlert(
                     "lastSeenLocation" to locationLink,
                     "reward" to reward,
                     "contactPhone" to contactPhone,
+                    "alternatePhone" to alternatePhone,
                     "date" to date
                 )
             )

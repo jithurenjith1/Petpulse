@@ -139,6 +139,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
 val adminSupportTickets by viewModel.supportTickets.collectAsStateWithLifecycle()
 val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
+val adminFoundReports by viewModel.foundReports.collectAsStateWithLifecycle()
 val adminPartnerApplications by viewModel.partnerApplications.collectAsStateWithLifecycle()
 val appCtx = LocalContext.current
     val petNews by viewModel.petNews.collectAsStateWithLifecycle()
@@ -619,8 +620,10 @@ val appCtx = LocalContext.current
             vets = adminVets,
             listings = adminListings,
             lostAlerts = adminLostAlerts,
+            foundReports = adminFoundReports,
             onDeleteListing = { id -> viewModel.adminDeleteListing(id) },
             onDeleteLostAlert = { id -> viewModel.adminDeleteLostAlert(id) },
+            onDeleteFoundReport = { id -> viewModel.adminDeleteFoundReport(id) },
             onAddVet = { n, sp, c, city, ph, vf, inf, on -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf, on) },
             onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
             supportTickets = adminSupportTickets,
@@ -721,7 +724,10 @@ val appCtx = LocalContext.current
     }
     if (showLostPetAlertsScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
-            LostPetAlertsScreen()
+            LostPetAlertsScreen(
+                foundReports = adminFoundReports,
+                onSubmitFoundReport = { report, photoUri -> viewModel.submitFoundReport(report, photoUri) }
+            )
             FloatingActionButton(onClick = { showLostPetAlertsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }

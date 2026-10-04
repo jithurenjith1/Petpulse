@@ -1,0 +1,139 @@
+rules_version = '2';
+
+// Petpulse Firestore Security Rules v10
+// v9: partner_applications (business join forms + featured plan requests)
+// v8: support_tickets + rescue_reports (Help & Rescue feature)
+// v7: owners can delete their own orders + bookings (required for account deletion)
+// v6: admin can moderate market listings (delete) and lost-pet alerts (delete)
+// v5.1: admin = old owner account + business email (itspetpulse@gmail.com)
+// v5: community_posts
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Admins: original owner account + new business email
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'jithurenjith1@gmail.com' ||
+        request.auth.token.email == 'itspetpulse@gmail.com'
+      );
+    }
+
+    // ---------- users: own pets, vaccinations, certificates, medical reports ----------
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+
+      match /pets/{petId} {
+        allow read, write: if isSignedIn() && request.auth.uid == uid;
+
+        match /{sub=**} {
+          allow read, write: if isSignedIn() && request.auth.uid == uid;
+        }
+      }
+    }
+
+    // ---------- admins: identity check doc, nobody writes ----------
+    match /admins/{email} {
+      allow read: if isSignedIn() && request.auth.token.email == email;
+      allow write: if false;
+    }
+
+    // ---------- lost pet SOS alerts ----------
+    match /lost_pet_alerts/{alertId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['petName', 'ownerPhone', 'lat', 'lng'])
+        && request.resource.data.petName is string
+        && request.resource.data.ownerPhone is string
+        && request.resource.data.lat is number
+        && request.resource.data.lng is number;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- market listings (pets listed by users; admin can moderate) ----------
+    match /market_listings/{listingId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- shop products (admin managed catalogue) ----------
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- delivery dealers (admin managed) ----------
+    match /dealers/{dealerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- orders (COD marketplace orders) ----------
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- service bookings (doctor / trainer / grooming) ----------
+    match /bookings/{bookingId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- vet partners (admin managed) ----------
+    match /vets/{vetId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- community posts ----------
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- everything else: denied ----------
+    // ---------- support tickets (v8: users report problems, admin reads/resolves) ----------
+    match /support_tickets/{ticketId} {
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['category', 'subject', 'details', 'contact']);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- animal rescue reports (v8: users report, admin coordinates rescue) ----------
+    match /rescue_reports/{reportId} {
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['animalType', 'description', 'location', 'contact']);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- partner applications (v9: users apply, admin reviews) ----------
+    match /partner_applications/{appId} {
+      allow create: if isSignedIn();
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- found pet sighting reports (v10: users report, admin connects) ----------
+    match /found_reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read: if isSignedIn();
+      allow delete: if isAdmin();
+      allow update: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

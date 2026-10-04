@@ -85,7 +85,26 @@ data class LostPetAlert(
     val reportedTime: String = "20 mins ago",
     val isResolved: Boolean = false,
     val description: String,
-    val collarColor: String = "Blue Tag Collar"
+    val collarColor: String = "Blue Tag Collar",
+    // Second contact number supplied by the owner (Firestore: "alternatePhone").
+    val alternatePhone: String = ""
+)
+
+/**
+ * An "I saw this pet" sighting report submitted by any signed-in user for a
+ * lost-pet alert. Stored in the Firestore "found_reports" collection.
+ * Every field has a default so Firestore toObject() keeps working.
+ */
+data class FoundPetReport(
+    val id: String = "",
+    val alertId: String = "",
+    val petName: String = "",
+    val photoData: List<String> = emptyList(),
+    val location: String = "",
+    val finderPhone: String = "",
+    val note: String = "",
+    val createdAt: Long = 0L,
+    val ownerNotified: Boolean = false
 )
 
 @Entity(tableName = "pet_listings")

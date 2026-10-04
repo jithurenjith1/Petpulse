@@ -30,6 +30,8 @@ data class AdminLostPetAlert(
     val location: String = "",
     val reward: String = "",
     val contactPhone: String = "",
+    // Owner's alternate contact number (Firestore: "alternatePhone").
+    val alternatePhone: String = "",
     val date: String = ""
 )
 

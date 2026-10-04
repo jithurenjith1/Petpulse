@@ -14,6 +14,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.petpulse.app.data.model.AdminLostPetAlert
+import com.petpulse.app.data.model.FoundPetReport
+import com.petpulse.app.data.model.LostPetAlert
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.CommunityPost
 import com.petpulse.app.data.model.PartnerApplication
@@ -613,6 +615,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                                 location = doc.getString("location") ?: "",
                                 reward = doc.getString("reward") ?: "",
                                 contactPhone = doc.getString("contactPhone") ?: "",
+                                alternatePhone = doc.getString("alternatePhone") ?: "",
                                 date = doc.getString("date") ?: ""
                             )
                         } catch (e: Exception) {
@@ -789,6 +792,163 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     suspend fun deletePartnerApplication(id: String): Result<Unit> = try {
         db.collection("partner_applications").document(id).delete().await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    // ---------- lost-pet alert write (owner SOS, includes alternatePhone) ----------
+
+    /**
+     * Persists a lost-pet SOS alert to "lost_pet_alerts". Mirrors the field names
+     * written by postSosAlert(), including the owner's alternate contact number.
+     */
+    suspend fun submitLostPetAlert(alert: LostPetAlert): Result<Unit> {
+        return try {
+            val user = auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            val date = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+                .format(java.util.Date())
+            db.collection("lost_pet_alerts").document().set(
+                mapOf(
+                    "ownerId" to user.uid,
+                    "petName" to alert.petName,
+                    "location" to alert.lastSeenLocation,
+                    "species" to alert.species,
+                    "breed" to alert.breed,
+                    "lastSeenLocation" to alert.lastSeenLocation,
+                    "reward" to alert.rewardAmount,
+                    "contactPhone" to alert.contactHelpline,
+                    "alternatePhone" to alert.alternatePhone,
+                    "date" to date
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "submitLostPetAlert failed", e)
+            Result.failure(e)
+        }
+    }
+
+    // ---------- found reports ("I saw this pet" sightings) ----------
+
+    /** Live stream of ALL sighting reports (admin sees all), newest first. */
+    fun observeFoundReports(): Flow<List<FoundPetReport>> = callbackFlow {
+        val sub = db.collection("found_reports").addSnapshotListener { snap, err ->
+            if (err != null) {
+                Log.e("FsCommerce", "found reports listen failed", err)
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(
+                snap?.documents
+                    ?.mapNotNull { it.toFoundPetReport() }
+                    ?.sortedByDescending { it.createdAt }
+                    ?: emptyList()
+            )
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toFoundPetReport(): FoundPetReport? = try {
+        @Suppress("UNCHECKED_CAST")
+        val photoData: List<String> = (get("photoData") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+        FoundPetReport(
+            id = id,
+            alertId = getString("alertId") ?: "",
+            petName = getString("petName") ?: "",
+            photoData = photoData.mapIndexed { i, b64 -> foundPhotoFileFor(id, i, b64) }.filter { it.isNotBlank() },
+            location = getString("location") ?: "",
+            finderPhone = getString("finderPhone") ?: "",
+            note = getString("note") ?: "",
+            createdAt = getLong("createdAt") ?: 0L,
+            ownerNotified = getBoolean("ownerNotified") ?: false
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed found report", e)
+        null
+    }
+
+    /** Decodes a stored base64 sighting photo into a cache file and returns its path for Coil. */
+    private fun foundPhotoFileFor(docId: String, index: Int, base64Data: String): String {
+        return try {
+            val dir = File(appContext.cacheDir, "found_photos").apply { mkdirs() }
+            val f = File(dir, "${docId}_${index}.jpg")
+            if (!f.exists()) {
+                f.writeBytes(Base64.decode(base64Data, Base64.NO_WRAP))
+            }
+            f.absolutePath
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "found photo decode failed for ${docId}/${index}", e)
+            ""
+        }
+    }
+
+    /** Downscale + JPEG-compress a sighting photo, return base64 (or null). Kept under ~110 KB. */
+    private fun compressFoundPhotoToBase64(uri: Uri): String? {
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, bounds)
+            }
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 1000 * 2) sample *= 2
+            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+            val decoded = appContext.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, opts)
+            } ?: return null
+            val scale = minOf(1f, 1000f / maxOf(decoded.width, decoded.height, 1))
+            val bmp = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    decoded,
+                    (decoded.width * scale).toInt().coerceAtLeast(1),
+                    (decoded.height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else decoded
+            val out = ByteArrayOutputStream()
+            var quality = 78
+            bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            while (out.size() > 110_000 && quality > 30) {
+                quality -= 16
+                out.reset()
+                bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            }
+            Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "found photo compress failed", e)
+            null
+        }
+    }
+
+    /**
+     * Stores a sighting report in "found_reports". The single picked photo is
+     * compressed to base64 and stored INSIDE the document (no Firebase Storage).
+     */
+    suspend fun submitFoundReport(report: FoundPetReport, photoUri: Uri?): Result<Unit> {
+        return try {
+            auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            val photos = photoUri?.let { compressFoundPhotoToBase64(it) }?.let { listOf(it) } ?: emptyList()
+            db.collection("found_reports").document().set(
+                mapOf(
+                    "alertId" to report.alertId,
+                    "petName" to report.petName,
+                    "photoData" to photos,
+                    "location" to report.location,
+                    "finderPhone" to report.finderPhone,
+                    "note" to report.note,
+                    "createdAt" to System.currentTimeMillis(),
+                    "ownerNotified" to false
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "submitFoundReport failed", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteFoundReport(id: String): Result<Unit> = try {
+        db.collection("found_reports").document(id).delete().await()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)

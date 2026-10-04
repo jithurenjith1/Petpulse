@@ -56,7 +56,8 @@ fun RealSosScreen(
     petName: String = "My Pet",
     species: String = "",
     breed: String = "",
-    ownerPhone: String = ""
+    ownerPhone: String = "",
+    alternatePhone: String = ""
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -69,6 +70,7 @@ fun RealSosScreen(
     var mapView by remember { mutableStateOf<MapView?>(null) }
     var alertSending by remember { mutableStateOf(false) }
     var alertSent by remember { mutableStateOf(false) }
+    var altPhone by remember { mutableStateOf(alternatePhone) }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -211,6 +213,17 @@ fun RealSosScreen(
 
         // Community SOS alert — posts to Firestore lost_pet_alerts so ALL app users see it live
         if (hasLocation && !alertSent) {
+            OutlinedTextField(
+                value = altPhone,
+                onValueChange = { altPhone = it },
+                label = { Text("Alternate contact number", fontSize = 12.sp) },
+                singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone
+                ),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
                     if (!alertSending) {
@@ -221,7 +234,8 @@ fun RealSosScreen(
                                 species = species,
                                 breed = breed,
                                 contactPhone = ownerPhone,
-                                locationLink = "https://maps.google.com/?q=$currentLat,$currentLon"
+                                locationLink = "https://maps.google.com/?q=$currentLat,$currentLon",
+                                alternatePhone = altPhone
                             )
                             alertSending = false
                         }

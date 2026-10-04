@@ -37,6 +37,7 @@ import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
 import com.petpulse.app.data.model.AdminLostPetAlert
+import com.petpulse.app.data.model.FoundPetReport
 import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.VerifiedDoctor
 import coil.compose.AsyncImage
@@ -57,6 +58,7 @@ fun AdminScreen(
     vets: List<VerifiedDoctor> = emptyList(),
     listings: List<MarketPet> = emptyList(),
     lostAlerts: List<AdminLostPetAlert> = emptyList(),
+    foundReports: List<FoundPetReport> = emptyList(),
     supportTickets: List<SupportTicket> = emptyList(),
     rescueReports: List<RescueReport> = emptyList(),
     partnerApplications: List<PartnerApplication> = emptyList(),
@@ -65,6 +67,7 @@ fun AdminScreen(
     onDeleteRescueReport: (String) -> Unit = {},
     onDeletePartnerApplication: (String) -> Unit = {},
     onDeleteLostAlert: (String) -> Unit = {},
+    onDeleteFoundReport: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
     onAddProduct: (String, String, String, Double, String, String, String, String, List<Uri>, Boolean) -> Unit,
@@ -108,6 +111,7 @@ fun AdminScreen(
                         "BOARDING" to bookings.count { it.type == "BOARDING" && (it.status == "NEW" || it.status == "CONFIRMED") },
                         "SUBSCRIPTION" to bookings.count { it.type == "SUBSCRIPTION" && (it.status == "NEW" || it.status == "CONFIRMED") },
                         "ALERTS" to lostAlerts.size,
+                        "FOUND" to foundReports.size,
                         "SUPPORT" to (supportTickets.size + rescueReports.size),
                         "PARTNERS" to partnerApplications.size,
                         "LISTINGS" to listings.size
@@ -251,6 +255,7 @@ fun AdminScreen(
                                 LostAlertsAdminTab(alerts = lostAlerts, onDelete = onDeleteLostAlert)
                             }
                         }
+                        "FOUND" -> FoundReportsAdminTab(reports = foundReports, onDelete = onDeleteFoundReport)
                         else -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
                     }
                 }
@@ -483,6 +488,7 @@ private fun sectionTitle(key: String?): String = when (key) {
     "BOARDING" -> "🏡 Boarding & Sitters"
     "LISTINGS" -> "🐾 Sale & Adoption"
     "ALERTS" -> "🚨 Find My Pet"
+    "FOUND" -> "🐾 Found Reports"
     "SUPPORT" -> "🆘 Help & Support"
     "PARTNERS" -> "🤝 Partner Applications"
     "DEALERS" -> "🚚 Dealers"
@@ -511,6 +517,7 @@ private fun AdminDashboard(pendingCounts: Map<String, Int> = emptyMap(), onSelec
         "BOARDING" to ("Boarding & Sitters" to "Sitters + bookings"),
         "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
         "ALERTS" to ("Find My Pet" to "SOS alerts + GPS trackers"),
+        "FOUND" to ("Found Reports" to "Sighting reports from users"),
         "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
         "PARTNERS" to ("Partner Applications" to "Business joins + featured plans"),
         "DEALERS" to ("Dealers" to "Delivery partners")
@@ -692,6 +699,67 @@ private fun LostAlertsAdminTab(alerts: List<AdminLostPetAlert>, onDelete: (Strin
                     Text("Contact: ${alert.contactPhone}", fontSize = 12.sp, color = Color(0xFF1976D2))
                     TextButton(onClick = { onDelete(alert.id) }) {
                         Text("Delete alert", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** "I saw this pet" sighting reports — photo, where/when, finder's phone, Call + WhatsApp + delete. */
+@Composable
+private fun FoundReportsAdminTab(reports: List<FoundPetReport>, onDelete: (String) -> Unit) {
+    if (reports.isEmpty()) {
+        Text("No sighting reports yet. \"I saw this pet\" reports from users will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(reports, key = { it.id }) { report ->
+            val context = LocalContext.current
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    val photo = report.photoData.firstOrNull()
+                    if (!photo.isNullOrBlank()) {
+                        AsyncImage(
+                            model = photo,
+                            contentDescription = "Sighting photo",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                        )
+                    }
+                    Text("🐾 ${report.petName.ifBlank { "Lost pet" }}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    if (report.location.isNotBlank()) {
+                        Text("Where seen: ${report.location}", fontSize = 12.sp, color = Color(0xFFE65100))
+                    }
+                    Text("When: ${formatTimestamp(report.createdAt)}", fontSize = 12.sp, color = Color.Gray)
+                    if (report.note.isNotBlank()) {
+                        Text("Note: ${report.note}", fontSize = 12.sp, color = Color.Gray)
+                    }
+                    Text("Finder phone: ${report.finderPhone}", fontSize = 12.sp, color = Color(0xFF1976D2), fontWeight = FontWeight.SemiBold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        if (report.finderPhone.isNotBlank()) {
+                            TextButton(onClick = {
+                                try {
+                                    context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${report.finderPhone}")))
+                                } catch (_: Exception) { }
+                            }) {
+                                Text("Call", fontSize = 12.sp, color = Color(0xFF1976D2))
+                            }
+                            TextButton(onClick = {
+                                try {
+                                    val msg = "Wagmiya: Thank you for reporting a sighting of ${report.petName.ifBlank { "a lost pet" }} at ${report.location}. Can you share more details?"
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(whatsappJobUrl(report.finderPhone, msg))))
+                                } catch (_: Exception) { }
+                            }) {
+                                Text("WhatsApp", fontSize = 12.sp, color = Color(0xFF25D366))
+                            }
+                        }
+                        TextButton(onClick = { onDelete(report.id) }) {
+                            Text("Delete report", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                        }
                     }
                 }
             }

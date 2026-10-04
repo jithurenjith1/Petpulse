@@ -175,6 +175,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val rescueReports: StateFlow<List<RescueReport>> = commerceRepo.observeRescueReports()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    // "I saw this pet" sighting reports. Admin sees all details; the public SOS
+    // page only checks whether a report exists for an alert (never shows the finder).
+    val foundReports: StateFlow<List<FoundPetReport>> = commerceRepo.observeFoundReports()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     // Partner applications (business join forms + featured plan requests) - admin reviews
     val partnerApplications: StateFlow<List<PartnerApplication>> = commerceRepo.observePartnerApplications()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -1459,6 +1464,14 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Any signed-in user reports a sighting of a lost pet (photo required). */
+    fun submitFoundReport(report: FoundPetReport, photoUri: Uri?, onDone: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val result = commerceRepo.submitFoundReport(report, photoUri)
+            onDone(result.isSuccess)
+        }
+    }
+
     fun submitPartnerApplication(kind: String, name: String, category: String, city: String, phone: String, planName: String) {
         viewModelScope.launch {
             commerceRepo.submitPartnerApplication(
@@ -1484,6 +1497,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun adminDeleteRescueReport(id: String) {
         viewModelScope.launch { commerceRepo.deleteRescueReport(id) }
+    }
+
+    fun adminDeleteFoundReport(id: String) {
+        viewModelScope.launch { commerceRepo.deleteFoundReport(id) }
     }
 
     fun switchPet(petId: Long) {
