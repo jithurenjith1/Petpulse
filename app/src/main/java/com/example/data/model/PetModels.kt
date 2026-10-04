@@ -18,8 +18,8 @@ data class UserPet(
     val certificateNumber: String = "CERT-KC-884210",
     val certificateIssuedBy: String = "Kennel Club & Pet Registry Council",
     val certificateDate: String = "Jan 15, 2025",
-    val favoriteFoods: String = "Boiled Chicken Breast, Salmon Kibble, Sweet Potato Chews, Peanut Butter Pops",
-    val favoritePlays: String = "Frisbee Fetch, Tug of War, Squeaky Duck Toy, Agility Jump",
+    val favoriteFoods: String = "",
+    val favoritePlays: String = "",
     val trainingStatus: String = "Basic Completed (Sit, Stay, Paw, Heel)",
     val trainingLevel: String = "Basic", // Basic, Advanced, In Progress, Blank
     val trainingMilestones: String = "Sit, Stay (30s), Paw / High Five, Heel Walk, Emergency Recall",
