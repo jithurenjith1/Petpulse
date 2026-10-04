@@ -8,6 +8,7 @@ import android.util.Base64
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.petpulse.app.data.model.CustomerProfile
 import com.petpulse.app.data.model.UserPet
 import com.petpulse.app.data.model.VaccinationRecord
 import com.petpulse.app.data.model.MedicalReport
@@ -476,8 +477,57 @@ class FirestorePetRepository(private val appContext: Context) {
             "trainingMilestones" to pet.trainingMilestones,
             "avatarRes" to pet.avatarRes,
             "photoUri" to pet.photoUri,
-            "notes" to pet.notes
+            "notes" to pet.notes,
+            "aiAnalysis" to pet.aiAnalysis
         )
+    }
+
+    // ================= CUSTOMER PROFILE (Premium gating) =================
+
+    /**
+     * Live customer profile stored at users/{uid}. The owner flips
+     * `carePlan` to "premium" for a user in the Firebase console; this flow
+     * surfaces that value (plus `carePlanUntil`) to the app so the Premium
+     * screens can gate themselves. Never throws — a missing doc or a rules
+     * denial simply emits the default profile.
+     */
+    fun observeCustomerProfile(): Flow<CustomerProfile> = callbackFlow {
+        val subscription = db.collection("users").document(uid())
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestorePetRepo", "Customer profile listener error", error)
+                    trySend(CustomerProfile())
+                    return@addSnapshotListener
+                }
+                val profile = try {
+                    snapshot?.toObject(CustomerProfile::class.java)
+                } catch (e: Exception) {
+                    Log.e("FirestorePetRepo", "Malformed customer profile", e)
+                    null
+                }
+                trySend(profile ?: CustomerProfile())
+            }
+        awaitClose { subscription.remove() }
+    }
+
+    /** Persists the customer profile, including the `carePlan` / `carePlanUntil` gating fields. */
+    suspend fun saveCustomerProfile(profile: CustomerProfile) {
+        try {
+            db.collection("users").document(uid()).set(
+                mapOf(
+                    "name" to profile.name,
+                    "email" to profile.email,
+                    "phone" to profile.phone,
+                    "location" to profile.location,
+                    "isLoggedIn" to profile.isLoggedIn,
+                    "memberSince" to profile.memberSince,
+                    "carePlan" to profile.carePlan,
+                    "carePlanUntil" to profile.carePlanUntil
+                )
+            ).await()
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "saveCustomerProfile failed", e)
+        }
     }
 
     /**

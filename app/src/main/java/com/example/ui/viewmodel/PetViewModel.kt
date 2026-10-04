@@ -62,6 +62,19 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 _marketPetsList.value = remote
             }
         }
+
+        // Pull the Premium gating fields (carePlan / carePlanUntil) from the
+        // customer's users/{uid} document. Only the plan fields are taken from
+        // Firestore so the local identity (name/email/phone) is never clobbered.
+        viewModelScope.launch {
+            firestoreRepo.observeCustomerProfile().collect { remote ->
+                val current = _customerProfile.value
+                _customerProfile.value = current.copy(
+                    carePlan = remote.carePlan,
+                    carePlanUntil = remote.carePlanUntil
+                )
+            }
+        }
     }
 
     // Navigation and UI state
@@ -97,6 +110,18 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // Customer profile state
     private val _customerProfile = MutableStateFlow(CustomerProfile())
     val customerProfile: StateFlow<CustomerProfile> = _customerProfile.asStateFlow()
+
+    /**
+     * Premium gating. True when the customer's profile document (users/{uid})
+     * carries carePlan == "premium". Derived from [customerProfile] so the whole
+     * UI reacts the moment the plan changes.
+     */
+    val isPremium: StateFlow<Boolean> = customerProfile
+        .map { it.carePlan.trim().equals("premium", ignoreCase = true) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** Convenience synchronous check for call sites that cannot collect the flow. */
+    fun isPremiumFeatureAllowed(): Boolean = isPremium.value
 
     // ================= KERALA MARKETPLACE STATE =================
     private val _selectedKeralaCity = MutableStateFlow("All Kerala")
@@ -1290,6 +1315,23 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Saves the Premium AI Pet Photo Analysis result into the pet's profile.
+     * The breed guess is prepended to the free-text [UserPet.aiAnalysis] field
+     * alongside the full observations returned by the model.
+     */
+    fun saveAiAnalysis(breed: String, notes: String) {
+        viewModelScope.launch {
+            val current = currentPetOrNull() ?: return@launch
+            val summary = buildString {
+                if (breed.isNotBlank()) append("Likely breed: ").append(breed.trim()).append('\n')
+                append(notes.trim())
+            }.trim()
+            val updated = current.copy(aiAnalysis = summary)
+            firestoreRepo.savePet(updated)
+        }
+    }
+
     fun toggleVaccinationStatus(record: VaccinationRecord) {
         viewModelScope.launch {
             val newStatus = if (record.status == "Completed") "Upcoming" else "Completed"
@@ -1409,13 +1451,27 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateCustomerProfile(name: String, email: String, phone: String) {
-        _customerProfile.value = CustomerProfile(
+        val existingPlan = _customerProfile.value.carePlan
+        val existingUntil = _customerProfile.value.carePlanUntil
+        val updated = CustomerProfile(
             name = name.ifBlank { "Alex Morgan" },
             email = email.ifBlank { "alex.morgan@example.com" },
             phone = phone.ifBlank { "+91 98470 12345" },
             location = "Kochi, Kerala",
-            isLoggedIn = true
+            isLoggedIn = true,
+            carePlan = existingPlan,
+            carePlanUntil = existingUntil
         )
+        _customerProfile.value = updated
+        // Persist the profile (including the carePlan gating fields) so the
+        // owner can manage the plan from the Firebase console.
+        viewModelScope.launch {
+            try {
+                firestoreRepo.saveCustomerProfile(updated)
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "saveCustomerProfile failed", e)
+            }
+        }
     }
 
     // ================= MULTI-PET SUPPORT =================

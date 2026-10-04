@@ -100,6 +100,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val activePetId by viewModel.activePetId.collectAsStateWithLifecycle()
     val activePet by viewModel.activePet.collectAsStateWithLifecycle()
     val customer by viewModel.customerProfile.collectAsStateWithLifecycle()
+    val isPremium by viewModel.isPremium.collectAsStateWithLifecycle()
     val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
     val adminOrders by viewModel.adminOrders.collectAsStateWithLifecycle()
     val adminDealers by viewModel.adminDealers.collectAsStateWithLifecycle()
@@ -181,6 +182,7 @@ val appCtx = LocalContext.current
     var showLostPetAlertsScreen by remember { mutableStateOf(false) }
     var showCareTipsScreen by remember { mutableStateOf(false) }
     var showSymptomScreen by remember { mutableStateOf(false) }
+    var showAiPhotoScreen by remember { mutableStateOf(false) }
     var showVetScreen by remember { mutableStateOf(false) }
     var showSubscriptionScreen by remember { mutableStateOf(false) }
     var showHealthRecordsScreen by remember { mutableStateOf(false) }
@@ -336,7 +338,9 @@ val appCtx = LocalContext.current
                         },
                         onPhotoSelected = { uri ->
                             viewModel.updatePetPhoto(uri)
-                        }
+                        },
+                        isPremium = isPremium,
+                        onOpenAiPhoto = { showAiPhotoScreen = true }
                     )
 
                 }
@@ -744,6 +748,22 @@ val appCtx = LocalContext.current
                 petName = activePet.name,
                 onBookVet = { showSymptomScreen = false; showVetScreen = true },
                 onClose = { showSymptomScreen = false }
+            )
+        }
+    }
+
+    if (showAiPhotoScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AiPetPhotoAnalysisScreen(
+                isPremium = isPremium,
+                petName = activePet.name,
+                onClose = { showAiPhotoScreen = false },
+                onSaveResult = { breed, notes ->
+                    viewModel.saveAiAnalysis(breed, notes)
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("AI analysis saved to ${activePet.name}'s profile")
+                    }
+                }
             )
         }
     }

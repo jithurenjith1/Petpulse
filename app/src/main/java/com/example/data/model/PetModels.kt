@@ -25,7 +25,10 @@ data class UserPet(
     val trainingMilestones: String = "Sit, Stay (30s), Paw / High Five, Heel Walk, Emergency Recall",
     val avatarRes: String = "img_dog_jane",
     val photoUri: String = "",
-    val notes: String = "Very energetic, friendly with children, loves morning park walks."
+    val notes: String = "Very energetic, friendly with children, loves morning park walks.",
+    // Free-text result of the Premium "AI Pet Photo Analysis" feature. Defaulted so
+    // both Room and Firestore toObject() keep working for existing documents.
+    val aiAnalysis: String = ""
 )
 
 /** A real community post, stored in Firestore "community_posts". */
@@ -128,7 +131,12 @@ data class CustomerProfile(
     val phone: String = "+91 98470 00000",
     val location: String = "Marine Drive, Kochi",
     val isLoggedIn: Boolean = true,
-    val memberSince: String = "2024"
+    val memberSince: String = "2024",
+    // Premium gating. "" = free, "care", "premium". Defaults are mandatory so
+    // Firestore toObject() keeps working for documents that predate this field.
+    val carePlan: String = "",
+    // Optional plan expiry as an epoch-millis timestamp (0 = no expiry).
+    val carePlanUntil: Long = 0L
 )
 
 data class SpeciesCategory(

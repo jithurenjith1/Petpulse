@@ -61,6 +61,80 @@ enum class PetDetailSubmenu {
     HEALTH_SETTINGS
 }
 
+/**
+ * Entry point card for the Premium "AI Pet Photo Analysis" screen. Shown in the
+ * pet profile area; free users see an upgrade hint but can still tap through to
+ * the lock screen.
+ */
+@Composable
+private fun AiPhotoAnalysisEntryCard(isPremium: Boolean, onOpen: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clickable { onOpen() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = Color(0xFFEDE3F8),
+                modifier = Modifier.size(42.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = null,
+                        tint = Color(0xFF6A4C93),
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "AI Pet Photo Analysis",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = if (isPremium) {
+                        "Snap a photo for breed & health observations"
+                    } else {
+                        "Premium feature — part of Wagmiya Care Plus"
+                    },
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (!isPremium) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = Color(0xFFA87A1F),
+                    modifier = Modifier.size(18.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPetsScreen(
@@ -86,6 +160,8 @@ fun MyPetsScreen(
     certificates: List<PetCertificate> = emptyList(),
     onAddCertificate: (title: String, registrationId: String, issuedBy: String, issueDate: String, photos: List<String>) -> Unit = { _, _, _, _, _ -> },
     onDeleteCertificate: (PetCertificate) -> Unit = {},
+    isPremium: Boolean = false,
+    onOpenAiPhoto: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -389,6 +465,11 @@ fun MyPetsScreen(
         }
 
         // 4. Submenu Content Panels
+        // Premium AI Pet Photo Analysis entry point (sits next to the AI/Care area).
+        item {
+            AiPhotoAnalysisEntryCard(isPremium = isPremium, onOpen = onOpenAiPhoto)
+        }
+
         when (selectedSubmenu) {
             PetDetailSubmenu.CERTIFICATE -> {
                 item {
