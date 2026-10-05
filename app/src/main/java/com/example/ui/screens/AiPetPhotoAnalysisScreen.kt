@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -56,6 +57,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.ai.FirebaseAI
 import com.google.firebase.ai.type.ImagePart
 import com.google.firebase.ai.type.content
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -102,8 +104,40 @@ fun AiPetPhotoAnalysisScreen(
     onClose: () -> Unit = {},
     onSaveResult: (breed: String, notes: String) -> Unit = { _, _ -> }
 ) {
-    if (!isPremium) {
-        PremiumLockScreen(petName = petName, onClose = onClose)
+    // Direct check: read carePlan straight from Firestore so the flag is found
+    // wherever the owner stored it (admins/{email}, users/{email}, users/{uid}).
+    var directPlan by remember { mutableStateOf<String?>(null) }
+    var diag by remember { mutableStateOf("checking...") }
+    LaunchedEffect(Unit) {
+        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        val email = auth.currentUser?.email ?: ""
+        val uid = auth.currentUser?.uid ?: ""
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        val paths = listOf("admins/" + email, "users/" + email, "users/" + uid)
+        val log = StringBuilder("email=" + email + " uid=" + uid.take(8))
+        for (p in paths) {
+            val parts = p.split("/")
+            if (parts.size != 2 || parts[1].isBlank()) continue
+            try {
+                val snap = db.collection(parts[0]).document(parts[1]).get().await()
+                val plan = snap.getString("carePlan") ?: ""
+                if (plan.isNotBlank()) {
+                    directPlan = plan
+                    log.append(" | ").append(p).append("='").append(plan).append("'")
+                    diag = log.toString()
+                    return@LaunchedEffect
+                }
+                log.append(" | ").append(p).append("=none")
+            } catch (e: Exception) {
+                log.append(" | ").append(p).append(" ERR:").append(e.message?.take(30))
+            }
+        }
+        diag = log.toString()
+    }
+    val premium = isPremium || (directPlan?.trim()?.equals("premium", ignoreCase = true) == true)
+
+    if (!premium) {
+        PremiumLockScreen(petName = petName, onClose = onClose, diag = diag)
     } else {
         AiPhotoAnalysisContent(petName = petName, onClose = onClose, onSaveResult = onSaveResult)
     }
@@ -113,7 +147,7 @@ fun AiPetPhotoAnalysisScreen(
 // Lock screen shown to free users.
 // ---------------------------------------------------------------------------
 @Composable
-private fun PremiumLockScreen(petName: String, onClose: () -> Unit) {
+private fun PremiumLockScreen(petName: String, onClose: () -> Unit, diag: String = "") {
     val context = LocalContext.current
 
     Scaffold(
@@ -167,6 +201,13 @@ private fun PremiumLockScreen(petName: String, onClose: () -> Unit) {
                     "Upgrade to unlock it.",
                 color = OnDarkMuted,
                 fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = "DEBUG: " + diag,
+                color = OnDarkMuted,
+                fontSize = 10.sp,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(28.dp))
