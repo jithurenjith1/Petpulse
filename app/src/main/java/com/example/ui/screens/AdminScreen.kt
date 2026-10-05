@@ -1070,42 +1070,47 @@ private fun ProductsAdminTab(
                 }
             }
         }
-        if (listType == "Boarding") {
-            item {
-                Column {
-                    Text("Place photos (min 3)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    Text(
-                        "House / flat, cage, sleeping and playing area",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+        item {
+            Column {
+                Text(
+                    if (listType == "Boarding") "Place photos (min 3)" else "Product photos (up to 3)",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    if (listType == "Boarding") "House / flat, cage, sleeping and playing area"
+                    else "Clear photos help customers buy - food, toys, medicine, accessories",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(6.dp))
+                Button(onClick = {
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
-                    Spacer(Modifier.height(6.dp))
-                    Button(onClick = {
-                        photoPicker.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    }) {
-                        Text(if (placePhotos.isEmpty()) "Add Photos" else placePhotos.size.toString() + " selected")
-                    }
-                    if (photoError && placePhotos.size < 3) {
-                        Text("Please add at least 3 photos.", fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
-                    }
-                    if (placePhotos.isNotEmpty()) {
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(placePhotos) { u ->
-                                AsyncImage(
-                                    model = u,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(72.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                )
-                            }
+                }) {
+                    Text(if (placePhotos.isEmpty()) "Add Photos" else placePhotos.size.toString() + " selected")
+                }
+                if (photoError && listType == "Boarding" && placePhotos.size < 3) {
+                    Text("Please add at least 3 photos.", fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
+                }
+                if (placePhotos.isNotEmpty()) {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(placePhotos) { u ->
+                            AsyncImage(
+                                model = u,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                            )
                         }
                     }
                 }
             }
+        }
+        if (listType == "Boarding") {
             item {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
