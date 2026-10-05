@@ -1086,12 +1086,21 @@ fun MarketProductCard(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = if (product.isMedicine) Icons.Default.Medication else Icons.Default.ShoppingBag,
-                            contentDescription = product.name,
-                            tint = if (product.isMedicine) Color(0xFF2E7D32) else Color(0xFFE65100),
-                            modifier = Modifier.size(26.dp)
-                        )
+                        if (product.photoUris.isNotEmpty()) {
+                            AsyncImage(
+                                model = product.photoUris.first(),
+                                contentDescription = product.name,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Icon(
+                                imageVector = if (product.isMedicine) Icons.Default.Medication else Icons.Default.ShoppingBag,
+                                contentDescription = product.name,
+                                tint = if (product.isMedicine) Color(0xFF2E7D32) else Color(0xFFE65100),
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
                     }
 
                     Column {

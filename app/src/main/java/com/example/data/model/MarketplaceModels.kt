@@ -79,7 +79,8 @@ data class MarketProduct(
     val dosageOrUsage: String = "As recommended on packaging",
     val petType: String = "All",
     val foodType: String = "All",
-    val lifeStage: String = "All"
+    val lifeStage: String = "All",
+    val photoUris: List<String> = emptyList()
 )
 
 data class GroomingServiceItem(
@@ -212,7 +213,8 @@ fun ShopProduct.toMarketProduct() = MarketProduct(
     description = description,
     petType = petType,
     foodType = foodType,
-    lifeStage = lifeStage
+    lifeStage = lifeStage,
+    photoUris = photoUris
 )
 
 data class Dealer(
