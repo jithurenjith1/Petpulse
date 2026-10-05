@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.MaterialTheme
 
 // ---- App palette ----
 private val CoralPrimary = Color(0xFF6A4C93)
@@ -138,17 +139,17 @@ fun PetInsuranceScreen() {
     var selectedPlanId by remember { mutableStateOf(2) } // Standard selected by default
 
     Scaffold(
-        containerColor = CreamBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.insurance_pet_insurance),
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CreamBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { innerPadding ->
@@ -246,13 +247,13 @@ private fun InsurancePlanCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(CoralLight.copy(alpha = 0.3f)),
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Default.Shield,
                         contentDescription = null,
-                        tint = CoralPrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -260,7 +261,7 @@ private fun InsurancePlanCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = plan.name,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -294,14 +295,14 @@ private fun InsurancePlanCard(
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = formatRupee(plan.pricePerMonth),
-                    color = CoralPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = stringResource(R.string.insurance_month),
-                    color = DarkText.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
@@ -323,7 +324,7 @@ private fun InsurancePlanCard(
                         Spacer(Modifier.width(10.dp))
                         Text(
                             text = feature,
-                            color = DarkText.copy(alpha = 0.8f),
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                             fontSize = 14.sp
                         )
                     }
@@ -337,7 +338,7 @@ private fun InsurancePlanCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSelected) TealAccent else CoralPrimary,
+                    containerColor = if (isSelected) TealAccent else MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 )
             ) {

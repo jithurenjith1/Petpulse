@@ -53,6 +53,7 @@ import com.petpulse.app.data.model.ServiceBooking
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material3.MaterialTheme
 
 // ---- App palette ----
 private val CoralPrimary = Color(0xFF6A4C93)
@@ -87,14 +88,14 @@ fun MyOrdersScreen(
     val context = LocalContext.current
     var selectedTab by remember { mutableStateOf(0) } // 0 = Orders, 1 = Bookings
 
-    Surface(color = CreamBg, modifier = Modifier.fillMaxSize()) {
+    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
 
             // Top bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(DarkText)
+                    .background(MaterialTheme.colorScheme.onBackground)
                     .padding(horizontal = 8.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -122,7 +123,7 @@ fun MyOrdersScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(DarkText)
+                    .background(MaterialTheme.colorScheme.onBackground)
                     .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -131,7 +132,7 @@ fun MyOrdersScreen(
                     onClick = { selectedTab = 0 },
                     label = { Text("Orders") },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = CoralPrimary,
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
                         selectedLabelColor = Color.White
                     )
                 )
@@ -140,7 +141,7 @@ fun MyOrdersScreen(
                     onClick = { selectedTab = 1 },
                     label = { Text("Bookings") },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = CoralPrimary,
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
                         selectedLabelColor = Color.White
                     )
                 )
@@ -150,7 +151,7 @@ fun MyOrdersScreen(
                 // ---------- ORDERS TAB ----------
                 if (orders.isEmpty()) {
                     EmptyState(
-                        icon = { Icon(Icons.Default.ShoppingBag, contentDescription = null, tint = BorderColor, modifier = Modifier.size(64.dp)) },
+                        icon = { Icon(Icons.Default.ShoppingBag, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(64.dp)) },
                         title = "No orders yet",
                         message = "Your orders will appear here with live\ndelivery status after you shop. 🐾"
                     )
@@ -183,7 +184,7 @@ fun MyOrdersScreen(
                 // ---------- BOOKINGS TAB ----------
                 if (bookings.isEmpty()) {
                     EmptyState(
-                        icon = { Icon(Icons.Default.EventAvailable, contentDescription = null, tint = BorderColor, modifier = Modifier.size(64.dp)) },
+                        icon = { Icon(Icons.Default.EventAvailable, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(64.dp)) },
                         title = "No bookings yet",
                         message = "Your doctor consultations and trainer\nrequests will appear here. 🩺"
                     )
@@ -228,7 +229,7 @@ private fun EmptyState(icon: @Composable () -> Unit, title: String, message: Str
     ) {
         icon()
         Spacer(Modifier.height(16.dp))
-        Text(title, color = DarkText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(title, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Spacer(Modifier.height(6.dp))
         Text(
             message,
@@ -252,7 +253,7 @@ private fun MyOrderCard(
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderColor),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -266,12 +267,12 @@ private fun MyOrderCard(
                 Column {
                     Text(
                         "#${order.orderNumber}",
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
                     if (dateText.isNotEmpty()) {
-                        Text(dateText, color = TextGray, fontSize = 11.sp)
+                        Text(dateText, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                     }
                 }
                 StatusChip(status = order.status)
@@ -289,11 +290,11 @@ private fun MyOrderCard(
                 ) {
                     Text(
                         "${item.name}  ×${item.quantity}",
-                        color = TextGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp,
                         modifier = Modifier.weight(1f)
                     )
-                    Text("₹${(item.priceInr * item.quantity).toInt()}", color = TextGray, fontSize = 12.sp)
+                    Text("₹${(item.priceInr * item.quantity).toInt()}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
             }
 
@@ -301,12 +302,12 @@ private fun MyOrderCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(CreamBg, RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.background, RoundedCornerShape(8.dp))
                     .padding(horizontal = 10.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Total (COD)", color = DarkText, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                Text("₹${order.totalInr.toInt()}", color = CoralPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text("Total (COD)", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text("₹${order.totalInr.toInt()}", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
 
             // Dealer row when assigned
@@ -348,7 +349,7 @@ private fun MyOrderCard(
                 onClick = onBuyAgain,
                 modifier = Modifier.fillMaxWidth().height(42.dp),
                 shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Default.Replay, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
@@ -383,10 +384,10 @@ private fun MyBookingCard(
         else -> Icons.Default.FitnessCenter
     }
     val typeTint = when (booking.type) {
-        "DOCTOR" -> CoralPrimary
+        "DOCTOR" -> MaterialTheme.colorScheme.primary
         "GROOMING" -> AmberGold
         "BOARDING" -> TealAccent
-        "SUBSCRIPTION" -> CoralPrimary
+        "SUBSCRIPTION" -> MaterialTheme.colorScheme.primary
         else -> TealAccent
     }
     val roleLabel = when (booking.type) {
@@ -400,7 +401,7 @@ private fun MyBookingCard(
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderColor),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -422,10 +423,10 @@ private fun MyBookingCard(
                     Column {
                         Text(
                             typeLabel,
-                            color = DarkText, fontWeight = FontWeight.Bold, fontSize = 14.sp
+                            color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp
                         )
                         if (dateText.isNotEmpty()) {
-                            Text(dateText, color = TextGray, fontSize = 11.sp)
+                            Text(dateText, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                         }
                     }
                 }
@@ -525,7 +526,7 @@ private fun DetailRow(label: String, value: String) {
             .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, color = TextGray, fontSize = 12.sp)
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
         Text(
             value,
             color = DarkText, fontSize = 12.sp,

@@ -1,6 +1,7 @@
 package com.petpulse.app.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.petpulse.app.data.local.PetDatabase
@@ -51,6 +52,19 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val firestoreRepo: FirestorePetRepository = FirestorePetRepository(getApplication())
     private val firestoreMarketRepo = FirestoreMarketplaceRepository(application)
     private val commerceRepo = FirestoreCommerceRepository(application)
+
+    // ---- Theme preference (persisted in the existing "wagmiya_prefs" file) ----
+    // Default false = light theme. Exposed as a StateFlow so MainActivity can
+    // recompose the instant the user flips the Settings switch.
+    private val themePrefs =
+        getApplication<Application>().getSharedPreferences("wagmiya_prefs", Context.MODE_PRIVATE)
+    private val _darkTheme = MutableStateFlow(themePrefs.getBoolean("dark_theme", false))
+    val darkTheme: StateFlow<Boolean> = _darkTheme.asStateFlow()
+
+    fun setDarkTheme(enabled: Boolean) {
+        _darkTheme.value = enabled
+        themePrefs.edit().putBoolean("dark_theme", enabled).apply()
+    }
 
     init {
         val db = PetDatabase.getInstance(application)

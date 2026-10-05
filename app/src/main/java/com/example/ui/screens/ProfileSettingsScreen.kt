@@ -43,6 +43,8 @@ fun ProfileSettingsScreen(
     onLoginClick: () -> Unit,
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
+    darkTheme: Boolean = false,
+    onToggleDarkTheme: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var petNameInput by remember(pet.name) { mutableStateOf(pet.name) }
@@ -117,7 +119,7 @@ fun ProfileSettingsScreen(
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = null,
-                            tint = BluePrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(36.dp)
                         )
                     }
@@ -128,7 +130,7 @@ fun ProfileSettingsScreen(
                                 text = customer.name,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = BluePrimaryDark
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                         Text(
@@ -172,12 +174,12 @@ fun ProfileSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.Default.QueryStats, contentDescription = null, tint = BluePrimary)
+                            Icon(Icons.Default.QueryStats, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             Text(
                                 text = "${pet.name}'s Health & Care Statistics",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = BluePrimaryDark
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                         Surface(
@@ -204,13 +206,13 @@ fun ProfileSettingsScreen(
                         // Stat 1: Overall Health Score
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFFF0F7FF),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(stringResource(R.string.profile_health_index), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimary)
+                                Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
                                 Text(stringResource(R.string.profile_vitals_optimal), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
                             }
                         }
@@ -218,7 +220,7 @@ fun ProfileSettingsScreen(
                         // Stat 2: Vaccinations
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFFF1F8E9),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -232,7 +234,7 @@ fun ProfileSettingsScreen(
                         // Stat 3: Monthly Expenses
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFFFFF8E1),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -247,13 +249,13 @@ fun ProfileSettingsScreen(
                     // Activity and microchip metrics
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFF9FBFE),
+                        color = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(stringResource(R.string.profile_weekly_exercise_walks), fontSize = 11.sp)
-                                Text(stringResource(R.string.profile_s14_walks_completed_18_2_km), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                                Text(stringResource(R.string.profile_s14_walks_completed_18_2_km), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(stringResource(R.string.profile_microchip_tag_status), fontSize = 11.sp)
@@ -283,12 +285,12 @@ fun ProfileSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.Default.Settings, contentDescription = null, tint = BluePrimary)
+                            Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             Text(
                                 text = stringResource(R.string.profile_settings_default_pet_configuration),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = BluePrimaryDark
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -347,11 +349,47 @@ fun ProfileSettingsScreen(
                                 onSavePetDirectly(petNameInput, petBreedInput, years, petGenderInput)
                                 onShowMessage("Pet renamed to '$petNameInput' and settings saved!")
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.testTag("save_settings_rename_button")
                         ) {
                             Text(stringResource(R.string.profile_save_pet_name), fontSize = 12.sp)
                         }
+                    }
+                }
+            }
+        }
+
+        // 3b. Appearance - light / dark theme toggle
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = "Appearance",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Dark theme", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                            Text("Use the Wagmiya magenta dark palette", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Switch(
+                            checked = darkTheme,
+                            onCheckedChange = onToggleDarkTheme,
+                            modifier = Modifier.testTag("dark_theme_switch")
+                        )
                     }
                 }
             }
@@ -372,7 +410,7 @@ fun ProfileSettingsScreen(
                         text = stringResource(R.string.profile_safety_notification_preferences),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = BluePrimaryDark
+                        color = MaterialTheme.colorScheme.primary
                     )
 
                     var notifyLostPets by remember { mutableStateOf(true) }
@@ -390,7 +428,7 @@ fun ProfileSettingsScreen(
                         Switch(
                             checked = notifyLostPets,
                             onCheckedChange = { notifyLostPets = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary)
+                            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary)
                         )
                     }
 
@@ -408,7 +446,7 @@ fun ProfileSettingsScreen(
                         Switch(
                             checked = notifyVaccines,
                             onCheckedChange = { notifyVaccines = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = BluePrimary)
+                            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary)
                         )
                     }
                 }

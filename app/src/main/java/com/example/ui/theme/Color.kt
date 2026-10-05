@@ -3,30 +3,61 @@ package com.petpulse.app.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ============================================================
-// Wagmiya Brand Palette — "Cream & Purple"
-// Designed to stay readable in bright daylight (high contrast)
-// and easy on the eyes at night (soft warm background).
+// Wagmiya Brand Palette — "Magenta"
+// Two coordinated schemes (light + dark) share the SAME identity:
+// magenta primary, purple secondary, fuchsia tertiary.
 // ============================================================
 
-// ---------- Core brand colors ----------
-val CoralPrimary = Color(0xFF6A4C93)   // main buttons (purple) — 6.4:1 contrast with white
-val CoralDark = Color(0xFF4E3570)      // pressed states, links
-val CoralMid = Color(0xFF9C7CC9)       // warm mid accent
-val CoralLight = Color(0xFFEDE3F8)     // chips, tints, subtle fills
-val TealAccent = Color(0xFF1D7A6E)     // secondary actions — 5.2:1 with white text
-val TealLight = Color(0xFFD6EBE6)      // teal tint
-val TealDeep = Color(0xFF0F3D36)       // text on teal tints
-val CreamBg = Color(0xFFFBF6F0)        // soft warm background (not blinding at night)
+// ---------- Light scheme ----------
+val MagentaPrimaryLight = Color(0xFFC724B1)          // magenta
+val MagentaSecondaryLight = Color(0xFF7C4DFF)        // purple
+val MagentaTertiaryLight = Color(0xFFE040FB)         // fuchsia
+val MagentaBackgroundLight = Color(0xFFFFF8F0)       // cream
+val MagentaSurfaceLight = Color(0xFFFFFFFF)
+val MagentaSurfaceVariantLight = Color(0xFFF6EEF6)
+val MagentaOnBackgroundLight = Color(0xFF2D2438)
+val MagentaOnSurfaceVariantLight = Color(0xFF6E6478)
+val MagentaOutlineLight = Color(0xFFE4DCEF)
+val MagentaPrimaryContainerLight = Color(0xFFF3E1F2)
+val MagentaOnPrimaryLight = Color(0xFFFFFFFF)
+val MagentaErrorLight = Color(0xFFD32F2F)
+
+// ---------- Dark scheme ----------
+val MagentaPrimaryDark = Color(0xFFE040FB)           // brighter fuchsia reads better on dark
+val MagentaSecondaryDark = Color(0xFF7C4DFF)
+val MagentaTertiaryDark = Color(0xFFC724B1)
+val MagentaBackgroundDark = Color(0xFF08060C)
+val MagentaSurfaceDark = Color(0xFF1A1622)
+val MagentaSurfaceVariantDark = Color(0xFF221C2E)
+val MagentaOnBackgroundDark = Color(0xFFFFFFFF)
+val MagentaOnSurfaceVariantDark = Color(0xFFA79FB5)
+val MagentaOutlineDark = Color(0xFF2A2338)
+val MagentaPrimaryContainerDark = Color(0xFF3A1140)
+val MagentaOnPrimaryDark = Color(0xFF1A0020)
+val MagentaErrorDark = Color(0xFFFF6B6B)
+
+// ---------- Core brand colors (kept for existing call sites) ----------
+val CoralPrimary = MagentaPrimaryLight     // main buttons / active tabs / links
+val CoralDark = Color(0xFF8E1A7E)          // pressed states, links
+val CoralMid = Color(0xFFE040FB)           // bright mid accent (fuchsia)
+val CoralLight = MagentaPrimaryContainerLight // chips, tints, subtle fills
+
+// ---------- Fixed semantic / accent colors (deliberately NOT themed) ----------
+val TealAccent = Color(0xFF1D7A6E)         // brand teal accent — fixed
+val TealLight = Color(0xFFD6EBE6)
+val TealDeep = Color(0xFF0F3D36)
+val SosRed = Color(0xFFD62828)             // emergency / errors — fixed
+val AmberGold = Color(0xFFA87A1F)          // gold badge accent — fixed
+val SuccessGreen = Color(0xFF2E7D32)       // verified / success green — fixed
+
+// ---------- Neutrals (light scheme values) ----------
+val CreamBg = MagentaBackgroundLight       // soft background
 val SurfaceWhite = Color(0xFFFFFFFF)
-val DarkText = Color(0xFF241F2B)        // 14.6:1 on cream — sharp in daylight
-val TextGray = Color(0xFF5A5265)        // secondary text — 6.8:1 on cream
-val BorderColor = Color(0xFFE6DCF2)
-val SosRed = Color(0xFFD62828)          // emergency / errors — 5.0:1 with white
-val AmberGold = Color(0xFFA87A1F)       // gold accent, readable on white
-val SuccessGreen = Color(0xFF2E7D32)
+val DarkText = MagentaOnBackgroundLight    // primary text on light
+val TextGray = MagentaOnSurfaceVariantLight
+val BorderColor = MagentaOutlineLight
 
 // ---------- Legacy purple names (kept so existing code compiles) ----------
-// These now point to the Cream & Purple brand palette.
 val PurplePrimary = CoralPrimary
 val PurplePrimaryLight = CoralMid
 val PurplePrimaryDark = CoralDark
@@ -34,14 +65,14 @@ val PurpleSecondary = TealAccent
 val PurpleTertiary = CoralPrimary
 val PurpleBackgroundLight = CreamBg
 val PurpleSurfaceLight = SurfaceWhite
-val PurpleSurfaceVariantLight = Color(0xFFEDE5F5)
+val PurpleSurfaceVariantLight = Color(0xFFF6EEF6)
 val PurpleCardLight = SurfaceWhite
-val PurplePrimaryDarkTheme = Color(0xFFC4A9E8)
-val PurpleSecondaryDarkTheme = Color(0xFF6FC7B9)
-val PurpleTertiaryDarkTheme = Color(0xFFC4A9E8)
-val PurpleBackgroundDark = Color(0xFF16121E)
-val PurpleSurfaceDark = Color(0xFF211B2B)
-val PurpleSurfaceVariantDark = Color(0xFF302838)
+val PurplePrimaryDarkTheme = MagentaPrimaryDark
+val PurpleSecondaryDarkTheme = MagentaSecondaryDark
+val PurpleTertiaryDarkTheme = MagentaTertiaryDark
+val PurpleBackgroundDark = MagentaBackgroundDark
+val PurpleSurfaceDark = MagentaSurfaceDark
+val PurpleSurfaceVariantDark = MagentaSurfaceVariantDark
 
 // ---------- Accent aliases ----------
 val AccentAmber = AmberGold
@@ -52,10 +83,10 @@ val AccentPurple = CoralPrimary
 // ---------- Legacy text colors ----------
 val TextPrimaryLight = DarkText
 val TextSecondaryLight = TextGray
-val TextPrimaryDark = Color(0xFFF2EEF7)
-val TextSecondaryDark = Color(0xFFAFA8BC)
+val TextPrimaryDark = Color(0xFFFFFFFF)
+val TextSecondaryDark = Color(0xFFA79FB5)
 
-// ---------- Legacy blue aliases ----------
+// ---------- Legacy blue aliases (now point at the magenta palette) ----------
 val BluePrimary = PurplePrimary
 val BluePrimaryLight = PurplePrimaryLight
 val BluePrimaryDark = PurplePrimaryDark

@@ -655,7 +655,7 @@ private fun ListingsAdminTab(listings: List<MarketPet>, onDelete: (String) -> Un
                         )
                         Text(
                             if (pet.listingType == "Adoption") "Adoption" else "₹ ${pet.priceInr.toInt()}",
-                            color = if (pet.listingType == "Adoption") Color(0xFF1D7A6E) else Color(0xFF6A4C93),
+                            color = if (pet.listingType == "Adoption") Color(0xFF1D7A6E) else MaterialTheme.colorScheme.primary,
                             fontSize = 12.sp, fontWeight = FontWeight.Bold
                         )
                     }

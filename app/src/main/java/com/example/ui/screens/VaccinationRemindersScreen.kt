@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import androidx.compose.material3.MaterialTheme
 
 // ---- App palette ----
 private val CoralPrimary = Color(0xFF6A4C93)
@@ -112,23 +113,23 @@ fun VaccinationRemindersScreen() {
     var showAddDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        containerColor = CreamBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.vaxrem_vaccination_reminders),
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CreamBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = CoralPrimary,
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Reminder")
@@ -220,19 +221,19 @@ private fun VaccinationReminderCard(reminder: VaccinationReminder) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = reminder.vaccineName,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "Due: ${reminder.dueDate.format(dateFormatter)}",
-                    color = DarkText.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     fontSize = 13.sp
                 )
                 Text(
                     text = "Vet: ${reminder.veterinarian}",
-                    color = DarkText.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     fontSize = 13.sp
                 )
             }
@@ -283,14 +284,14 @@ private fun AddReminderDialog(
             ) {
                 Text(
                     text = stringResource(R.string.vaxrem_add_vaccination_reminder),
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.SemiBold
                 )
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = DarkText
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -309,9 +310,9 @@ private fun AddReminderDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CoralPrimary,
-                        focusedLabelColor = CoralPrimary,
-                        cursorColor = CoralPrimary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
                 OutlinedTextField(
@@ -321,9 +322,9 @@ private fun AddReminderDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CoralPrimary,
-                        focusedLabelColor = CoralPrimary,
-                        cursorColor = CoralPrimary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
                 OutlinedTextField(
@@ -333,9 +334,9 @@ private fun AddReminderDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CoralPrimary,
-                        focusedLabelColor = CoralPrimary,
-                        cursorColor = CoralPrimary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
@@ -348,7 +349,7 @@ private fun AddReminderDialog(
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CoralPrimary,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 ),
                 enabled = vaccineName.isNotBlank()

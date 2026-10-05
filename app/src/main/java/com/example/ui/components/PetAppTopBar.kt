@@ -51,7 +51,7 @@ fun PetAppTopBar(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            BluePrimary.copy(alpha = 0.12f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                             MaterialTheme.colorScheme.surface
                         )
                     )
@@ -75,7 +75,7 @@ fun PetAppTopBar(
                             .clip(CircleShape)
                             .background(
                                 Brush.linearGradient(
-                                    listOf(BluePrimary, BlueSecondary)
+                                    listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                                 )
                             ),
                         contentAlignment = Alignment.Center
@@ -96,7 +96,7 @@ fun PetAppTopBar(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 ),
-                                color = BluePrimaryDark
+                                color = MaterialTheme.colorScheme.primary
                             )
 
                         }
@@ -130,12 +130,12 @@ fun PetAppTopBar(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
-                                    .background(BluePrimary.copy(alpha = 0.15f))
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ShoppingCart,
                                     contentDescription = "Cart",
-                                    tint = BluePrimary,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }

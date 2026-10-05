@@ -85,14 +85,14 @@ private fun AiPhotoAnalysisEntryCard(isPremium: Boolean, onOpen: () -> Unit) {
         ) {
             Surface(
                 shape = CircleShape,
-                color = Color(0xFFEDE3F8),
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.size(42.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.AutoAwesome,
                         contentDescription = null,
-                        tint = Color(0xFF6A4C93),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -162,6 +162,8 @@ fun MyPetsScreen(
     onDeleteCertificate: (PetCertificate) -> Unit = {},
     isPremium: Boolean = false,
     onOpenAiPhoto: () -> Unit = {},
+    darkTheme: Boolean = false,
+    onToggleDarkTheme: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -522,7 +524,9 @@ fun MyPetsScreen(
                         healthScore = healthScore,
                         onEditPetClick = onEditPetClick,
                         onSavePetDirectly = onSavePetDirectly,
-                        onShowMessage = onShowMessage
+                        onShowMessage = onShowMessage,
+                        darkTheme = darkTheme,
+                        onToggleDarkTheme = onToggleDarkTheme
                     )
                 }
             }
@@ -641,7 +645,7 @@ fun CertificateSubmenuSection(
                     text = "Pet Certificates & Documents",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = BluePrimaryDark
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Surface(
@@ -677,14 +681,14 @@ fun CertificateSubmenuSection(
                     Icon(
                         Icons.Default.CloudUpload,
                         contentDescription = null,
-                        tint = BluePrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(40.dp)
                     )
                     Text(
                         "No real certificates uploaded yet",
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
-                        color = DarkText
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         "Upload your pet's real certificate photos \u2014 vaccination certificate, KC registration, adoption papers, microchip record. They are saved to your account and travel with you to any phone.",
@@ -730,7 +734,7 @@ fun CertificateSubmenuSection(
                                     text = cert.title,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
-                                    color = BluePrimaryDark,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -748,8 +752,8 @@ fun CertificateSubmenuSection(
 
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFFF9FBFE),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.2f)),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(
@@ -762,7 +766,7 @@ fun CertificateSubmenuSection(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text("Registration ID", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        Text(cert.registrationId, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
+                                        Text(cert.registrationId, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                                     }
                                 }
                                 if (cert.issuedBy.isNotBlank()) {
@@ -1026,7 +1030,7 @@ fun VaccinationMedicalSubmenuSection(
                             text = "$targetStatus Vaccinations",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = BluePrimaryDark
+                            color = MaterialTheme.colorScheme.primary
                         )
                         TextButton(onClick = onAddVaccineClick) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -1044,7 +1048,7 @@ fun VaccinationMedicalSubmenuSection(
                         filteredVax.forEach { record ->
                             Surface(
                                 shape = RoundedCornerShape(10.dp),
-                                color = Color(0xFFF7FAFD),
+                                color = MaterialTheme.colorScheme.surface,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onToggleVaccine(record) }
@@ -1073,7 +1077,7 @@ fun VaccinationMedicalSubmenuSection(
                                         Text(
                                             text = "Vet: ${record.veterinarian} (${record.batchNumber})",
                                             fontSize = 10.sp,
-                                            color = BluePrimary
+                                            color = MaterialTheme.colorScheme.primary
                                         )
                                         if (targetStatus == "Upcoming") {
                                             val daysText = vaccineDueDaysText(record)
@@ -1112,7 +1116,7 @@ fun VaccinationMedicalSubmenuSection(
                             text = stringResource(R.string.mypets_veterinary_medical_reports),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = BluePrimaryDark
+                            color = MaterialTheme.colorScheme.primary
                         )
                         TextButton(onClick = onAddMedicalClick) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -1123,7 +1127,7 @@ fun VaccinationMedicalSubmenuSection(
                     medicalReports.forEach { report ->
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = Color(0xFFF7FAFD),
+                            color = MaterialTheme.colorScheme.surface,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -1131,7 +1135,7 @@ fun VaccinationMedicalSubmenuSection(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(report.title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BluePrimaryDark)
+                                    Text(report.title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                                     Text(report.date, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Text("Clinic: ${report.clinicName}", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
@@ -1195,7 +1199,7 @@ fun FoodAndPlaysSubmenuSection(
                     text = "Food & Plays ${pet.name} Likes",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = BluePrimaryDark
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 TextButton(onClick = onAddPreferenceClick) {
@@ -1300,12 +1304,12 @@ fun TrainingSubmenuSection(
                         text = stringResource(R.string.mypets_training_level_milestones),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = BluePrimaryDark
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = "Level: ${if (pet.trainingLevel.isNotBlank()) pet.trainingLevel else "Not Specified"}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = BluePrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -1317,8 +1321,8 @@ fun TrainingSubmenuSection(
 
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = Color(0xFFF4F9FF),
-                border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.2f)),
+                color = MaterialTheme.colorScheme.surface,
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1326,7 +1330,7 @@ fun TrainingSubmenuSection(
                         text = pet.trainingStatus,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
-                        color = BluePrimaryDark
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = trainingDescription(pet.trainingLevel),
@@ -1368,7 +1372,7 @@ fun TrainingSubmenuSection(
                     text = "Recommended Training Programs",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = BluePrimaryDark
+                    color = MaterialTheme.colorScheme.primary
                 )
                 trainingPrograms.forEach { program ->
                     Surface(
@@ -1382,16 +1386,16 @@ fun TrainingSubmenuSection(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(program.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
+                                Text(program.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
-                                    color = BluePrimary.copy(alpha = 0.15f)
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                                 ) {
                                     Text(
                                         text = program.level.uppercase(),
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = BluePrimary,
+                                        color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
@@ -1402,7 +1406,7 @@ fun TrainingSubmenuSection(
                             if (program.tips.isNotBlank()) {
                                 Text(program.tips, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            Text("Recommended age: ${program.recommendedAge}", fontSize = 11.sp, color = BluePrimary)
+                            Text("Recommended age: ${program.recommendedAge}", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
                             FilledTonalButton(
                                 onClick = { onBookTraining(program) },
                                 shape = RoundedCornerShape(8.dp),
@@ -1561,7 +1565,7 @@ fun AddVaccinationRecordDialog(
         confirmButton = {
             Button(
                 onClick = { onSave(vaccineName, dateGiven, nextDueDate, status, doctor) },
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(stringResource(R.string.mypets_save))
             }
@@ -1617,7 +1621,7 @@ fun AddMedicalReportDialog(
         confirmButton = {
             Button(
                 onClick = { onSave(title, clinic, diagnosis, prescription) },
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(stringResource(R.string.mypets_save_report))
             }
@@ -1661,7 +1665,7 @@ fun AddPreferenceItemDialog(
         confirmButton = {
             Button(
                 onClick = { onSave(foods, plays) },
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(stringResource(R.string.mypets_save))
             }
@@ -1683,7 +1687,9 @@ fun HealthAndSettingsSection(
     onEditPetClick: () -> Unit,
     onDeleteAccount: () -> Unit = {},
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
-    onShowMessage: (String) -> Unit
+    onShowMessage: (String) -> Unit,
+    darkTheme: Boolean = false,
+    onToggleDarkTheme: (Boolean) -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
@@ -1698,8 +1704,8 @@ fun HealthAndSettingsSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(Icons.Default.QueryStats, contentDescription = null, tint = BluePrimary)
-                    Text(text = "${pet.name}'s Health & Care Statistics", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
+                    Icon(Icons.Default.QueryStats, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Text(text = "${pet.name}'s Health & Care Statistics", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
                 Surface(shape = RoundedCornerShape(8.dp), color = AccentGreen.copy(alpha = 0.15f)) {
                     Text(text = stringResource(R.string.mypets_excellent), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AccentGreen, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
@@ -1707,15 +1713,15 @@ fun HealthAndSettingsSection(
             }
             Divider()
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF0F7FF), modifier = Modifier.weight(1f)) {
+                Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.weight(1f)) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(stringResource(R.string.mypets_health_index), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimary)
+                        Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
                         Text(stringResource(R.string.mypets_vitals_optimal), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
                     }
                 }
-                Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF1F8E9), modifier = Modifier.weight(1f)) {
+                Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.weight(1f)) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(stringResource(R.string.mypets_vaccinations), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
@@ -1723,7 +1729,7 @@ fun HealthAndSettingsSection(
                         Text(stringResource(R.string.mypets_up_to_date), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
                     }
                 }
-                Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFFFF8E1), modifier = Modifier.weight(1f)) {
+                Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.weight(1f)) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Medical Reports", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
@@ -1732,17 +1738,34 @@ fun HealthAndSettingsSection(
                     }
                 }
             }
-            Surface(shape = RoundedCornerShape(10.dp), color = Color(0xFFF9FBFE), modifier = Modifier.fillMaxWidth()) {
+            Surface(shape = RoundedCornerShape(10.dp), color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Vaccines Completed", fontSize = 11.sp)
-                        Text("${vaccinations.count { it.status == "Completed" }} of ${vaccinations.size}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                        Text("${vaccinations.count { it.status == "Completed" }} of ${vaccinations.size}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(stringResource(R.string.mypets_microchip_tag_status), fontSize = 11.sp)
                         Text("Active (${pet.microchipNumber})", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AccentGreen)
                     }
                 }
+            }
+            Divider()
+            // Appearance: light / dark theme toggle (persisted)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Dark theme", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text("Use the Wagmiya magenta dark palette", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Switch(
+                    checked = darkTheme,
+                    onCheckedChange = onToggleDarkTheme,
+                    modifier = Modifier.testTag("dark_theme_switch")
+                )
             }
             Divider()
             // App settings: account deletion (Google Play requirement)
@@ -1753,7 +1776,7 @@ fun HealthAndSettingsSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Account", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = BluePrimaryDark)
+                    Text("Account", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     Text("Signed in as ${customer.email}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 OutlinedButton(

@@ -67,7 +67,7 @@ fun ExplorePetsScreen(
                     text = stringResource(R.string.explore_pet_species_care_encyclopedia),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = BluePrimaryDark
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = "Select your pet type to personalize food, accessories, health & training",
@@ -90,7 +90,7 @@ fun ExplorePetsScreen(
                     val isSelected = species.id == selectedSpecies
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.surface,
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                         tonalElevation = if (isSelected) 6.dp else 2.dp,
                         shadowElevation = if (isSelected) 4.dp else 1.dp,
                         modifier = Modifier
@@ -156,7 +156,7 @@ fun ExplorePetsScreen(
                             text = "${currentSpeciesObj.name} Care Portal",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = BluePrimaryDark
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = currentSpeciesObj.description,
@@ -195,7 +195,7 @@ fun ExplorePetsScreen(
                         text = {
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.surface,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                                 shadowElevation = if (isSelected) 3.dp else 0.dp,
                                 modifier = Modifier.padding(vertical = 4.dp)
                             ) {
@@ -312,13 +312,13 @@ fun FoodItemCard(item: FoodItem, onAddToList: () -> Unit) {
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(item.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
+                    Text(item.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                 }
                 Text(
                     text = item.estimatedPrice,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 14.sp,
-                    color = BluePrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -331,7 +331,7 @@ fun FoodItemCard(item: FoodItem, onAddToList: () -> Unit) {
             ) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFF0F4F8)
+                    color = MaterialTheme.colorScheme.surface
                 ) {
                     Text(
                         text = "Portion: ${item.recommendedPortion}",
@@ -346,7 +346,7 @@ fun FoodItemCard(item: FoodItem, onAddToList: () -> Unit) {
                     onClick = onAddToList,
                     shape = RoundedCornerShape(10.dp),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.height(32.dp)
                 ) {
                     Icon(Icons.Default.AddShoppingCart, contentDescription = null, modifier = Modifier.size(14.dp))
@@ -383,18 +383,18 @@ fun AccessoryItemCard(item: AccessoryItem, onBuy: () -> Unit) {
                             text = item.subType.uppercase(),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = BlueSecondary,
+                            color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(item.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
+                    Text(item.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                 }
                 Text(
                     text = item.estimatedPrice,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 14.sp,
-                    color = BluePrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -437,18 +437,18 @@ fun HealthCareItemCard(item: HealthCareItem, onBook: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(Icons.Default.HealthAndSafety, contentDescription = null, tint = BluePrimary)
-                    Text(item.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
+                    Icon(Icons.Default.HealthAndSafety, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Text(item.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                 }
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = BluePrimary.copy(alpha = 0.12f)
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                 ) {
                     Text(
                         text = item.subType,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = BluePrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
@@ -469,7 +469,7 @@ fun HealthCareItemCard(item: HealthCareItem, onBook: () -> Unit) {
                 Button(
                     onClick = onBook,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                     modifier = Modifier.height(32.dp)
                 ) {
@@ -498,11 +498,11 @@ fun TrainingGuideCard(guide: TrainingGuide) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.School, contentDescription = null, tint = AccentAmber)
-                    Text(guide.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = BluePrimaryDark)
+                    Text(guide.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                 }
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = if (guide.level == "Basic") Color(0xFFE8F5E9) else Color(0xFFEDE7F6)
+                    color = if (guide.level == "Basic") Color(0xFFE8F5E9) else MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
                         text = "${guide.level.uppercase()} LEVEL",
@@ -518,7 +518,7 @@ fun TrainingGuideCard(guide: TrainingGuide) {
 
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                color = Color(0xFFF8FAFC),
+                color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -531,7 +531,7 @@ fun TrainingGuideCard(guide: TrainingGuide) {
 
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = Color(0xFFFFF8E1),
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(

@@ -172,7 +172,7 @@ private fun SpeciesFilterRow(
                 onClick = { onSelect(species) },
                 label = { Text(species.label) },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = CoralPrimary,
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
                     selectedLabelColor = Color.White
                 )
             )
@@ -196,7 +196,7 @@ private fun VideoCard(video: TrainingVideo) {
                     .aspectRatio(16f / 9f)
                     .background(
                         Brush.linearGradient(
-                            colors = listOf(CoralLight, TealAccent.copy(alpha = 0.7f))
+                            colors = listOf(MaterialTheme.colorScheme.primaryContainer, TealAccent.copy(alpha = 0.7f))
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -239,7 +239,7 @@ private fun VideoCard(video: TrainingVideo) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = video.title,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     lineHeight = 20.sp
@@ -251,12 +251,12 @@ private fun VideoCard(video: TrainingVideo) {
                         modifier = Modifier
                             .size(6.dp)
                             .clip(CircleShape)
-                            .background(CoralPrimary)
+                            .background(MaterialTheme.colorScheme.primary)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = video.duration,
-                        color = DarkText.copy(alpha = 0.6f),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                         fontSize = 13.sp
                     )
                 }

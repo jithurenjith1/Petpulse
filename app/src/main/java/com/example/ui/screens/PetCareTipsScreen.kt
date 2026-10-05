@@ -308,7 +308,7 @@ private fun CategoryFilterRow(
                     )
                 },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = CoralPrimary,
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
                     selectedLabelColor = Color.White,
                     selectedLeadingIconColor = Color.White
                 )
@@ -347,21 +347,21 @@ private fun CareTipCard(tip: CareTip, isMalayalam: Boolean = false) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = tip.category.label,
-                    color = CoralPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = if (isMalayalam && tip.malTitle.isNotBlank()) tip.malTitle else tip.title,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = if (isMalayalam && tip.malDescription.isNotBlank()) tip.malDescription else tip.description,
-                    color = DarkText.copy(alpha = 0.75f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 )

@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.MaterialTheme
 
 // ---- App palette ----
 private val CoralPrimary = Color(0xFF6A4C93)
@@ -111,17 +112,17 @@ fun FoodSubscriptionScreen() {
     var selectedPlanId by remember { mutableStateOf(2) } // Premium selected by default
 
     Scaffold(
-        containerColor = CreamBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.foodsub_food_subscriptions),
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CreamBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { innerPadding ->
@@ -151,7 +152,7 @@ private fun FoodPlanCard(
     onSubscribe: () -> Unit
 ) {
     val borderColor by animateColorAsState(
-        targetValue = if (isSelected) CoralPrimary else Color.Transparent,
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
         label = "planBorder"
     )
 
@@ -180,7 +181,7 @@ private fun FoodPlanCard(
                 Column {
                     Text(
                         text = plan.name,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -188,14 +189,14 @@ private fun FoodPlanCard(
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             text = formatRupee(plan.pricePerMonth),
-                            color = CoralPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 26.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
                             text = stringResource(R.string.foodsub_mo),
-                            color = DarkText.copy(alpha = 0.6f),
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                             fontSize = 14.sp,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
@@ -206,7 +207,7 @@ private fun FoodPlanCard(
                         modifier = Modifier
                             .size(28.dp)
                             .clip(CircleShape)
-                            .background(CoralPrimary),
+                            .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -235,7 +236,7 @@ private fun FoodPlanCard(
                         Spacer(Modifier.width(10.dp))
                         Text(
                             text = feature,
-                            color = DarkText.copy(alpha = 0.8f),
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                             fontSize = 14.sp
                         )
                     }
@@ -249,7 +250,7 @@ private fun FoodPlanCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSelected) TealAccent else CoralPrimary,
+                    containerColor = if (isSelected) TealAccent else MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 )
             ) {

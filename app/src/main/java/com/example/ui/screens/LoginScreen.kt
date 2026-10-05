@@ -71,22 +71,22 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
         authState.error?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show(); authViewModel.clearError() }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(CreamBg)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp).padding(top = 60.dp, bottom = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(modifier = Modifier.size(72.dp).clip(CircleShape).background(Brush.linearGradient(listOf(CoralPrimary, CoralLight))), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.size(72.dp).clip(CircleShape).background(Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer))), contentAlignment = Alignment.Center) {
                 Icon(Icons.Default.Pets, contentDescription = "Wagmiya", tint = Color.White, modifier = Modifier.size(36.dp))
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Wagmiya", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkText)
+            Text(text = "Wagmiya", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             Text(text = if (isLoginMode) "Welcome back!" else "Create your account", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
             Spacer(modifier = Modifier.height(32.dp))
-            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.login_email)) }, leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = CoralPrimary) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE3DCF0), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.login_email)) }, leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline, focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.login_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = CoralPrimary) }, trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = "Toggle password", tint = Color.Gray) } }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE3DCF0), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.login_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }, trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = "Toggle password", tint = Color.Gray) } }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline, focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
             AnimatedVisibility(visible = !isLoginMode, enter = fadeIn(), exit = fadeOut()) {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
-                    OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = { Text(stringResource(R.string.login_confirm_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = CoralPrimary) }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE3DCF0), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = { Text(stringResource(R.string.login_confirm_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline, focusedContainerColor = Color.White, unfocusedContainerColor = Color.White), modifier = Modifier.fillMaxWidth())
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -97,22 +97,22 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
                     if (password.length < 6) { Toast.makeText(context, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show(); return@Button }
                     authViewModel.signUpWithEmail(email.trim(), password)
                 }
-            }, enabled = !authState.isLoading && email.isNotBlank() && password.isNotBlank(), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary, disabledContainerColor = CoralLight), modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            }, enabled = !authState.isLoading && email.isNotBlank() && password.isNotBlank(), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, disabledContainerColor = MaterialTheme.colorScheme.primaryContainer), modifier = Modifier.fillMaxWidth().height(52.dp)) {
                 if (authState.isLoading) { CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(24.dp)) }
                 else { Text(text = if (isLoginMode) "Sign In" else "Sign Up", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }
             }
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE3DCF0))
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
                 Text(text = stringResource(R.string.login_or), color = Color.Gray, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp))
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE3DCF0))
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
             }
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedButton(onClick = {
                 val intent = authViewModel.getGoogleSignInIntent(context)
                 if (intent != null) { googleLauncher.launch(intent) }
-            }, enabled = !authState.isLoading, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White), border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE3DCF0)), modifier = Modifier.fillMaxWidth().height(52.dp)) {
-                Text(text = stringResource(R.string.login_continue_with_google), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = DarkText)
+            }, enabled = !authState.isLoading, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline), modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                Text(text = stringResource(R.string.login_continue_with_google), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(modifier = Modifier.weight(1f))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {

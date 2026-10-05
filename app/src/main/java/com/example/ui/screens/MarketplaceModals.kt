@@ -95,7 +95,7 @@ fun SlideOutCartModal(
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
                             contentDescription = "Cart",
-                            tint = BluePrimary
+                            tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = stringResource(R.string.modals_kerala_delivery_cart),
@@ -336,7 +336,7 @@ fun SlideOutCartModal(
                                             modifier = Modifier
                                                 .size(28.dp)
                                                 .clip(CircleShape)
-                                                .background(BluePrimary)
+                                                .background(MaterialTheme.colorScheme.primary)
                                         ) {
                                             Icon(Icons.Default.Add, contentDescription = "Increase", tint = Color.White, modifier = Modifier.size(14.dp))
                                         }
@@ -388,7 +388,7 @@ fun SlideOutCartModal(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(stringResource(R.string.modals_total_amount), fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
-                                Text("₹${total.toInt()}", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimaryDark)
+                                Text("₹${total.toInt()}", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
@@ -402,7 +402,7 @@ fun SlideOutCartModal(
                             .fillMaxWidth()
                             .height(48.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
@@ -582,7 +582,7 @@ fun SecureEscrowCheckoutModal(
                                 onClick = { deliveryCity = city },
                                 label = { Text(city, fontSize = 12.sp) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = BluePrimary,
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
                                     selectedLabelColor = Color.White
                                 )
                             )
@@ -686,11 +686,11 @@ fun SecureEscrowCheckoutModal(
                                     .clickable { paymentMethod = method },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) BluePrimary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
                                 ),
                                 border = BorderStroke(
                                     1.dp,
-                                    if (isSelected) BluePrimary else MaterialTheme.colorScheme.outlineVariant
+                                    if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                                 )
                             ) {
                                 Row(
@@ -700,7 +700,7 @@ fun SecureEscrowCheckoutModal(
                                     RadioButton(
                                         selected = isSelected,
                                         onClick = { paymentMethod = method },
-                                        colors = RadioButtonDefaults.colors(selectedColor = BluePrimary)
+                                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
@@ -735,7 +735,7 @@ fun SecureEscrowCheckoutModal(
                         ) {
                             Column {
                                 Text(stringResource(R.string.modals_total_escrow_amount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("₹${total.toInt()}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimaryDark)
+                                Text("₹${total.toInt()}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
                                 Text(
                                     "Items ₹${subtotal.toInt()} • Delivery: " + if (deliveryFee == 0.0) "FREE" else "₹${deliveryFee.toInt()}",
                                     fontSize = 11.sp,
@@ -798,7 +798,7 @@ fun OrderTimelineTrackingModal(
                         Icon(
                             imageVector = Icons.Default.LocalShipping,
                             contentDescription = null,
-                            tint = BluePrimary
+                            tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = stringResource(R.string.modals_kerala_orders_live_timeline),
@@ -871,7 +871,7 @@ fun OrderCardWithTimeline(
                         text = "Order #${order.orderId}",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 15.sp,
-                        color = BluePrimary
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = "${order.orderDate} • ${order.deliveryCity}, Kerala",
@@ -900,7 +900,7 @@ fun OrderCardWithTimeline(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 border = BorderStroke(1.dp, Color(0xFFF0D9A8))
             ) {
                 Row(
@@ -948,10 +948,10 @@ fun OrderCardWithTimeline(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(BluePrimary.copy(alpha = 0.12f)),
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.DirectionsBike, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.DirectionsBike, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                     }
                     Column {
                         Text(order.deliveryRiderName, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -995,7 +995,7 @@ fun OrderCardWithTimeline(
                                 .clip(CircleShape)
                                 .background(
                                     if (event.isCurrent) Color(0xFF2E7D32)
-                                    else if (event.isCompleted) BluePrimary
+                                    else if (event.isCompleted) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.surfaceVariant
                                 ),
                             contentAlignment = Alignment.Center
@@ -1107,7 +1107,7 @@ fun ListPetFormModal(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = if (isExotic) Color(0xFFEDE7F6) else MaterialTheme.colorScheme.surfaceVariant)
+                        colors = CardDefaults.cardColors(containerColor = if (isExotic) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Row(
                             modifier = Modifier
@@ -1291,7 +1291,7 @@ fun ListPetFormModal(
                             .fillMaxWidth()
                             .height(48.dp),
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Icon(Icons.Default.Publish, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
@@ -1557,7 +1557,7 @@ fun DoctorBookingModal(
                             Text(
                                 text = "${doctor.name} (${doctor.clinicCity})",
                                 fontSize = 12.sp,
-                                color = BluePrimary,
+                                color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -1580,14 +1580,14 @@ fun DoctorBookingModal(
                                 .clickable { consultType = "Video Consultation" },
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (consultType.contains("Video")) BluePrimary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface
+                                containerColor = if (consultType.contains("Video")) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface
                             ),
-                            border = BorderStroke(1.dp, if (consultType.contains("Video")) BluePrimary else MaterialTheme.colorScheme.outlineVariant)
+                            border = BorderStroke(1.dp, if (consultType.contains("Video")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.Videocam, contentDescription = null, tint = BluePrimary)
+                                Icon(Icons.Default.Videocam, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 Text(stringResource(R.string.modals_video_consult), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                Text("₹${doctor.videoConsultFeeInr.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = BluePrimaryDark)
+                                Text("₹${doctor.videoConsultFeeInr.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
                             }
                         }
 
@@ -1597,9 +1597,9 @@ fun DoctorBookingModal(
                                 .clickable { consultType = "In-Person Clinic Visit" },
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (consultType.contains("In-Person")) BluePrimary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface
+                                containerColor = if (consultType.contains("In-Person")) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface
                             ),
-                            border = BorderStroke(1.dp, if (consultType.contains("In-Person")) BluePrimary else MaterialTheme.colorScheme.outlineVariant)
+                            border = BorderStroke(1.dp, if (consultType.contains("In-Person")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.LocalHospital, contentDescription = null, tint = Color(0xFF00796B))
@@ -1638,9 +1638,9 @@ fun DoctorBookingModal(
                                     .clickable { selectedSlot = slot },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) BluePrimary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
                                 ),
-                                border = BorderStroke(1.dp, if (isSelected) BluePrimary else MaterialTheme.colorScheme.outlineVariant)
+                                border = BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -1698,7 +1698,7 @@ fun DoctorBookingModal(
                             .fillMaxWidth()
                             .height(48.dp),
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Icon(Icons.Default.CheckCircle, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))

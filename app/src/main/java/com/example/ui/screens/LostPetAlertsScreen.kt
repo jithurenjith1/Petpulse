@@ -276,14 +276,14 @@ private fun LostPetAlertCard(
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = alert.petName,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = alert.date,
-                    color = DarkText.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                     fontSize = 12.sp
                 )
             }
@@ -325,7 +325,7 @@ private fun LostPetAlertCard(
                     label = "Primary number",
                     value = alert.contactPhone,
                     actionLabel = "Call",
-                    actionColor = CoralPrimary,
+                    actionColor = MaterialTheme.colorScheme.primary,
                     enabled = alert.contactPhone.isNotBlank(),
                     onAction = { placeCall(context, alert.contactPhone) }
                 )
@@ -333,7 +333,7 @@ private fun LostPetAlertCard(
                     label = "Alternate number",
                     value = alert.alternatePhone,
                     actionLabel = "Call",
-                    actionColor = CoralPrimary,
+                    actionColor = MaterialTheme.colorScheme.primary,
                     enabled = alert.alternatePhone.isNotBlank(),
                     onAction = { placeCall(context, alert.alternatePhone) }
                 )
@@ -355,7 +355,7 @@ private fun LostPetAlertCard(
                     label = "Wagmiya",
                     value = WagmiyaPhoneDisplay,
                     actionLabel = "Call",
-                    actionColor = CoralPrimary,
+                    actionColor = MaterialTheme.colorScheme.primary,
                     enabled = true,
                     onAction = { placeCall(context, WagmiyaPhoneDigits) }
                 )
@@ -366,7 +366,7 @@ private fun LostPetAlertCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("👀 I saw this pet", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = CoralPrimary)
+                    Text("👀 I saw this pet", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -410,7 +410,7 @@ private fun ContactRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                color = DarkText.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 fontSize = 12.sp
             )
             Text(
@@ -423,7 +423,7 @@ private fun ContactRow(
         TextButton(onClick = onAction, enabled = enabled) {
             Text(
                 text = actionLabel,
-                color = if (enabled) actionColor else DarkText.copy(alpha = 0.3f),
+                color = if (enabled) actionColor else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
             )
@@ -454,7 +454,7 @@ private fun ReportSightingDialog(
                 Text(
                     "A photo is required. Your phone number stays private — only the Wagmiya team sees it.",
                     fontSize = 12.sp,
-                    color = DarkText.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                 )
                 OutlinedButton(
                     onClick = {
@@ -526,7 +526,7 @@ private fun AlertDetailRow(
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = CoralPrimary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))

@@ -414,8 +414,8 @@ fun TrainerOnDemandCard(onRequestTrainer: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Icon(Icons.Default.SportsScore, contentDescription = null, tint = TealAccent, modifier = Modifier.size(30.dp))
                 Column {
-                    Text("Trainer On-Demand", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = DarkText)
-                    Text("Certified trainer for home obedience & behavior sessions", fontSize = 11.sp, color = TextGray)
+                    Text("Trainer On-Demand", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
+                    Text("Certified trainer for home obedience & behavior sessions", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -423,7 +423,7 @@ fun TrainerOnDemandCard(onRequestTrainer: () -> Unit) {
                 Button(
                     onClick = onRequestTrainer,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                     modifier = Modifier.weight(1f).height(38.dp)
                 ) {
@@ -488,7 +488,7 @@ fun KeralaHeroLocationBar(
                 .background(
                     Brush.verticalGradient(
                         listOf(
-                            BluePrimary.copy(alpha = 0.08f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
                             MaterialTheme.colorScheme.surface
                         )
                     )
@@ -508,13 +508,13 @@ fun KeralaHeroLocationBar(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(BluePrimary.copy(alpha = 0.15f)),
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = "Kerala Location",
-                            tint = BluePrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -524,7 +524,7 @@ fun KeralaHeroLocationBar(
                             text = stringResource(R.string.market_kerala_pet_care_vet_hub),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = BluePrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = if (selectedCity == "All Kerala") "Statewide Kerala (₹ INR)" else "$selectedCity, Kerala (₹ INR)",
@@ -570,7 +570,7 @@ fun KeralaHeroLocationBar(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(CircleShape)
-                                .background(BluePrimary)
+                                .background(MaterialTheme.colorScheme.primary)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ShoppingCart,
@@ -620,7 +620,7 @@ fun KeralaHeroLocationBar(
                             }
                         } else null,
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = BluePrimary,
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
                             selectedLabelColor = Color.White,
                             selectedLeadingIconColor = Color.White
                         )
@@ -647,9 +647,9 @@ fun MarketplaceQuickActionRow(
                 .fillMaxWidth()
                 .height(44.dp),
             shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, BluePrimary),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = BluePrimary
+                contentColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Icon(
@@ -686,7 +686,7 @@ fun MarketplaceCategorySelector(
         selectedTabIndex = categories.indexOfFirst { it.first == selectedCategory }.coerceAtLeast(0),
         edgePadding = 16.dp,
         containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = BluePrimary,
+        contentColor = MaterialTheme.colorScheme.primary,
         divider = {}
     ) {
         categories.forEach { (cat, info) ->
@@ -708,7 +708,7 @@ fun MarketplaceCategorySelector(
                         modifier = Modifier.size(20.dp)
                     )
                 },
-                selectedContentColor = BluePrimary,
+                selectedContentColor = MaterialTheme.colorScheme.primary,
                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -732,7 +732,7 @@ fun PetListingsHeader(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (isExoticsOnly) Color(0xFFEDE7F6) else MaterialTheme.colorScheme.surfaceVariant
+                containerColor = if (isExoticsOnly) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant
             ),
             border = BorderStroke(
                 width = 1.dp,
@@ -799,12 +799,12 @@ fun PetListingsHeader(
                         )
                     },
                     colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = if (isSelected) BluePrimary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
-                        labelColor = if (isSelected) BluePrimary else MaterialTheme.colorScheme.onSurface
+                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
+                        labelColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                     ),
                     border = BorderStroke(
                         width = 1.dp,
-                        color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.outlineVariant
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                     )
                 )
             }
@@ -840,7 +840,7 @@ fun MarketPetCard(
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(
-                            if (pet.isImportedExotic) Color(0xFFF3E5F5) else BluePrimary.copy(alpha = 0.12f)
+                            if (pet.isImportedExotic) Color(0xFFF3E5F5) else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -877,13 +877,13 @@ fun MarketPetCard(
                         Spacer(modifier = Modifier.width(6.dp))
                         Surface(
                             shape = RoundedCornerShape(4.dp),
-                            color = if (pet.listingType == "Adoption") Color(0xFFE8F5E9) else BluePrimary.copy(alpha = 0.12f)
+                            color = if (pet.listingType == "Adoption") Color(0xFFE8F5E9) else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                         ) {
                             Text(
                                 text = pet.listingType,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (pet.listingType == "Adoption") Color(0xFF2E7D32) else BluePrimary,
+                                color = if (pet.listingType == "Adoption") Color(0xFF2E7D32) else MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
                         }
@@ -915,7 +915,7 @@ fun MarketPetCard(
                                 text = "₹${pet.priceInr.toInt()}",
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 18.sp,
-                                color = BluePrimaryDark
+                                color = MaterialTheme.colorScheme.primary
                             )
                             if (pet.originalPriceInr != null && pet.originalPriceInr > pet.priceInr) {
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -972,7 +972,7 @@ fun MarketPetCard(
                 if (pet.isImportedExotic) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = Color(0xFFEDE7F6)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = "✨ ${pet.importCountry ?: "Imported/Exotic"}",
@@ -999,7 +999,7 @@ fun MarketPetCard(
 
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFFFFF8E1)
+                    color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
                         text = stringResource(R.string.market_escrow_protected),
@@ -1039,7 +1039,7 @@ fun MarketPetCard(
                     onClick = onClick,
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
                         text = if (pet.listingType == "Adoption") "Adopt Pet" else "Reserve with Escrow",
@@ -1108,7 +1108,7 @@ fun MarketProductCard(
                             text = product.brand.uppercase(),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = BluePrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = product.name,
@@ -1131,7 +1131,7 @@ fun MarketProductCard(
                         text = "₹${product.priceInr.toInt()}",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 17.sp,
-                        color = BluePrimaryDark
+                        color = MaterialTheme.colorScheme.primary
                     )
                     if (product.originalPriceInr > product.priceInr) {
                         Text(
@@ -1199,7 +1199,7 @@ fun MarketProductCard(
                     onClick = onAddToCart,
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(
                         imageVector = Icons.Default.AddShoppingCart,
@@ -1269,7 +1269,7 @@ fun GroomingServiceCard(
                         text = "₹${service.priceInr.toInt()}",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 18.sp,
-                        color = BluePrimaryDark
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = "${service.durationMinutes} mins",
@@ -1396,7 +1396,7 @@ fun VerifiedDoctorCard(
                             text = doctor.specialization,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = BluePrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -1440,7 +1440,7 @@ fun VerifiedDoctorCard(
                         text = "Video: ₹${doctor.videoConsultFeeInr.toInt()} | Clinic: ₹${doctor.inPersonConsultFeeInr.toInt()}",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = BluePrimaryDark
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = doctor.availableDays,
@@ -1452,7 +1452,7 @@ fun VerifiedDoctorCard(
                 Button(
                     onClick = onBook,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
                         text = stringResource(R.string.market_book_slot),
@@ -1482,13 +1482,13 @@ fun MarketSectionHeader(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(BluePrimary.copy(alpha = 0.12f)),
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = BluePrimary,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1539,7 +1539,7 @@ fun EmptyMarketState(
             )
             Button(
                 onClick = onAction,
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(actionLabel, fontSize = 12.sp)
             }

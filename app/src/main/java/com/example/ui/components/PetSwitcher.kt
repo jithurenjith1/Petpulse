@@ -66,10 +66,10 @@ private fun PetChip(pet: UserPet, isSelected: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
-        color = if (isSelected) CoralPrimary else Color.White,
+        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
         border = androidx.compose.foundation.BorderStroke(
             1.dp,
-            if (isSelected) CoralPrimary else Color(0xFFE3DCF0)
+            if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
         )
     ) {
         Row(
@@ -81,13 +81,13 @@ private fun PetChip(pet: UserPet, isSelected: Boolean, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .background(if (isSelected) Color.White.copy(0.3f) else CreamBg),
+                    .background(if (isSelected) Color.White.copy(0.3f) else MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.Pets,
                     contentDescription = null,
-                    tint = if (isSelected) Color.White else CoralPrimary,
+                    tint = if (isSelected) Color.White else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -95,7 +95,7 @@ private fun PetChip(pet: UserPet, isSelected: Boolean, onClick: () -> Unit) {
                 text = pet.name,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = if (isSelected) Color.White else DarkText
+                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onBackground
             )
         }
     }
@@ -107,7 +107,7 @@ private fun AddPetChip(onClick: () -> Unit) {
         modifier = Modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         color = Color.Transparent,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE3DCF0))
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
@@ -155,7 +155,7 @@ fun AddPetDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.switcher_add_new_pet), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = DarkText)
+                Text(stringResource(R.string.switcher_add_new_pet), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground)
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Gray)
                 }
@@ -171,7 +171,7 @@ fun AddPetDialog(
                     label = { Text(stringResource(R.string.switcher_pet_name)) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE3DCF0)),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -183,7 +183,7 @@ fun AddPetDialog(
                             onClick = { species = s },
                             label = { Text(s, fontSize = 12.sp) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = CoralPrimary,
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
                                 selectedLabelColor = Color.White
                             )
                         )
@@ -195,7 +195,7 @@ fun AddPetDialog(
                     label = { Text(stringResource(R.string.switcher_breed)) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE3DCF0)),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -207,7 +207,7 @@ fun AddPetDialog(
                             onClick = { gender = g },
                             label = { Text(g, fontSize = 12.sp) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = CoralPrimary,
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
                                 selectedLabelColor = Color.White
                             )
                         )
@@ -224,7 +224,7 @@ fun AddPetDialog(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE3DCF0)),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
@@ -233,7 +233,7 @@ fun AddPetDialog(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CoralPrimary, unfocusedBorderColor = Color(0xFFE3DCF0)),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -255,7 +255,7 @@ fun AddPetDialog(
                 },
                 enabled = name.isNotBlank(),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(stringResource(R.string.switcher_add_pet), fontWeight = FontWeight.SemiBold)
             }

@@ -76,7 +76,7 @@ fun CustomerLoginDialog(
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Customer Account",
-                        tint = BluePrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(32.dp)
                     )
                     Column {
@@ -84,7 +84,7 @@ fun CustomerLoginDialog(
                             text = if (currentCustomer.isLoggedIn) "Customer Profile" else "Customer Sign In",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = BluePrimaryDark
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = stringResource(R.string.dialogs_access_your_pet_s_records_partner_bookings),
@@ -136,7 +136,7 @@ fun CustomerLoginDialog(
                     text = stringResource(R.string.settings_app_language),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = BluePrimaryDark
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -196,7 +196,7 @@ fun CustomerLoginDialog(
                             onLogin(name, email, phone)
                             onDismiss()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier.testTag("login_submit_button")
                     ) {
                         Text(stringResource(R.string.dialogs_save_enter))
@@ -261,14 +261,14 @@ fun EditPetProfileDialog(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Edit Pet",
-                        tint = BluePrimary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Column {
                         Text(
                             text = stringResource(R.string.dialogs_edit_pet_profile),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = BluePrimaryDark
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = "Rename Jane or change breed, age & preferences",
@@ -400,7 +400,7 @@ fun EditPetProfileDialog(
                             )
                             onDismiss()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier.testTag("save_pet_details_button")
                     ) {
                         Text(stringResource(R.string.dialogs_save_changes))
@@ -631,7 +631,7 @@ fun AddPetListingDialog(
                     text = stringResource(R.string.dialogs_post_pet_for_adoption_or_sale),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = BluePrimaryDark
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Row(
@@ -734,7 +734,7 @@ fun AddPetListingDialog(
                                 onDismiss()
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier.testTag("submit_pet_listing_btn")
                     ) {
                         Text(stringResource(R.string.dialogs_publish_listing))

@@ -1,41 +1,55 @@
 package com.petpulse.app.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
-// One consistent Wagmiya look, day and night:
-// warm cream background, purple primary, teal secondary, near-black text.
-// (Same scheme is used whether the system is in light or dark mode, so the
-// app always looks coherent. A true auto-dark variant can come later.)
-private val PetpulseColorScheme = lightColorScheme(
-    primary = CoralPrimary,
-    onPrimary = Color.White,
-    primaryContainer = CoralLight,
-    onPrimaryContainer = CoralDark,
-    secondary = TealAccent,
+// ============================================================
+// Wagmiya Material3 theme — light + dark schemes.
+// Both schemes share the SAME magenta identity so the app looks
+// coherent whichever mode the user picks.
+// ============================================================
+
+private val WagmiyaLightColors = lightColorScheme(
+    primary = MagentaPrimaryLight,
+    onPrimary = MagentaOnPrimaryLight,
+    primaryContainer = MagentaPrimaryContainerLight,
+    onPrimaryContainer = MagentaOnBackgroundLight,
+    secondary = MagentaSecondaryLight,
     onSecondary = Color.White,
-    secondaryContainer = TealLight,
-    onSecondaryContainer = TealDeep,
-    tertiary = AmberGold,
+    tertiary = MagentaTertiaryLight,
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFF3E7CC),
-    onTertiaryContainer = Color(0xFF4A3710),
-    background = CreamBg,
-    onBackground = DarkText,
-    surface = SurfaceWhite,
-    onSurface = DarkText,
-    surfaceVariant = Color(0xFFEDE5F5),
-    onSurfaceVariant = TextGray,
-    outline = BorderColor,
-    error = SosRed,
+    background = MagentaBackgroundLight,
+    onBackground = MagentaOnBackgroundLight,
+    surface = MagentaSurfaceLight,
+    onSurface = MagentaOnBackgroundLight,
+    surfaceVariant = MagentaSurfaceVariantLight,
+    onSurfaceVariant = MagentaOnSurfaceVariantLight,
+    outline = MagentaOutlineLight,
+    error = MagentaErrorLight,
+    onError = Color.White,
+)
+
+private val WagmiyaDarkColors = darkColorScheme(
+    primary = MagentaPrimaryDark,
+    onPrimary = MagentaOnPrimaryDark,
+    primaryContainer = MagentaPrimaryContainerDark,
+    onPrimaryContainer = MagentaOnBackgroundDark,
+    secondary = MagentaSecondaryDark,
+    onSecondary = Color.White,
+    tertiary = MagentaTertiaryDark,
+    onTertiary = Color.White,
+    background = MagentaBackgroundDark,
+    onBackground = MagentaOnBackgroundDark,
+    surface = MagentaSurfaceDark,
+    onSurface = MagentaOnBackgroundDark,
+    surfaceVariant = MagentaSurfaceVariantDark,
+    onSurfaceVariant = MagentaOnSurfaceVariantDark,
+    outline = MagentaOutlineDark,
+    error = MagentaErrorDark,
     onError = Color.White,
 )
 
@@ -45,13 +59,9 @@ fun MyApplicationTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        else -> PetpulseColorScheme
-    }
+    // dynamicColor kept for API compatibility but the Wagmiya palette is
+    // always used so the magenta brand identity is preserved.
+    val colorScheme = if (darkTheme) WagmiyaDarkColors else WagmiyaLightColors
 
     MaterialTheme(
         colorScheme = colorScheme,

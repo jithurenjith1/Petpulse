@@ -177,7 +177,7 @@ fun MapScreen() {
         mv.invalidate()
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(CreamBg)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // Filter chips
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
@@ -190,7 +190,7 @@ fun MapScreen() {
                     onClick = { selectedFilter = key },
                     label = { Text(label, fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = CoralPrimary,
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
                         selectedLabelColor = Color.White
                     )
                 )
@@ -224,7 +224,7 @@ fun MapScreen() {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (isLoading) {
-                            CircularProgressIndicator(color = CoralPrimary)
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             Text(stringResource(R.string.map_getting_location), modifier = Modifier.padding(top = 12.dp), color = Color.Gray)
                         } else {
                             Text(stringResource(R.string.map_location_permission_needed), color = Color.Gray)
@@ -236,7 +236,7 @@ fun MapScreen() {
                                         Manifest.permission.ACCESS_COARSE_LOCATION
                                     ))
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                             ) { Text(stringResource(R.string.map_grant_location)) }
                         }
                     }
@@ -251,7 +251,7 @@ fun MapScreen() {
                         mapView?.controller?.setZoom(15.0)
                     },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp),
-                    containerColor = CoralPrimary
+                    containerColor = MaterialTheme.colorScheme.primary
                 ) {
                     Icon(Icons.Default.MyLocation, contentDescription = "My Location", tint = Color.White)
                 }
@@ -264,7 +264,7 @@ fun MapScreen() {
             text = "Nearby Pet Services (${places.size})",
             fontWeight = FontWeight.Bold,
             fontSize = 15.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
         )
 
@@ -319,7 +319,7 @@ private fun PlaceCard(place: PetServicePlace) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(
-                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(CoralPrimary.copy(0.15f)),
+                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary.copy(0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -331,12 +331,12 @@ private fun PlaceCard(place: PetServicePlace) {
                         else -> Icons.Default.Pets
                     },
                     contentDescription = null,
-                    tint = CoralPrimary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(place.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = DarkText)
+                Text(place.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
                 Text("${place.type} • ${String.format("%.1f", place.distanceKm)} km away", fontSize = 12.sp, color = Color.Gray)
                 if (place.address.isNotBlank()) {
                     Text(place.address, fontSize = 11.sp, color = Color.Gray, maxLines = 1)
@@ -356,7 +356,7 @@ private fun PlaceCard(place: PetServicePlace) {
                     )
                 } catch (_: Exception) { }
             }) {
-                Text("Directions", fontSize = 11.sp, color = CoralPrimary, fontWeight = FontWeight.SemiBold)
+                Text("Directions", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
             }
         }
     }

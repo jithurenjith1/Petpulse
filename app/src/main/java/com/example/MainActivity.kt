@@ -70,7 +70,9 @@ class MainActivity : AppCompatActivity() {
             )
         }
         setContent {
-            MyApplicationTheme {
+            // Reactive theme preference - toggling in Settings switches instantly.
+            val darkTheme by viewModel.darkTheme.collectAsStateWithLifecycle()
+            MyApplicationTheme(darkTheme = darkTheme) {
                 val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
                 // First-run onboarding: shown once after install, before login.
@@ -244,14 +246,14 @@ val appCtx = LocalContext.current
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                item { FeatureButton("Nearby", Color(0xFF6A4C93)) { showMapScreen = true } }
-                item { FeatureButton("Insurance", Color(0xFF6A4C93)) { showInsuranceScreen = true } }
-                item { FeatureButton("Community", Color(0xFF6A4C93)) { showCommunityScreen = true } }
-                item { FeatureButton("Care Tips", Color(0xFF6A4C93)) { showCareTipsScreen = true } }
+                item { FeatureButton("Nearby", MaterialTheme.colorScheme.primary) { showMapScreen = true } }
+                item { FeatureButton("Insurance", MaterialTheme.colorScheme.primary) { showInsuranceScreen = true } }
+                item { FeatureButton("Community", MaterialTheme.colorScheme.primary) { showCommunityScreen = true } }
+                item { FeatureButton("Care Tips", MaterialTheme.colorScheme.primary) { showCareTipsScreen = true } }
                 item { FeatureButton("AI Triage", Color(0xFFA87A1F)) { showSymptomScreen = true } }
                 item { FeatureButton("Vet Online", Color(0xFFA87A1F)) { showVetScreen = true } }
-                item { FeatureButton("Care Plan", Color(0xFF6A4C93)) { showSubscriptionScreen = true } }
-                item { FeatureButton("Records", Color(0xFF6A4C93)) { showHealthRecordsScreen = true } }
+                item { FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true } }
+                item { FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true } }
             }
             }
 
@@ -340,7 +342,9 @@ val appCtx = LocalContext.current
                             viewModel.updatePetPhoto(uri)
                         },
                         isPremium = isPremium,
-                        onOpenAiPhoto = { showAiPhotoScreen = true }
+                        onOpenAiPhoto = { showAiPhotoScreen = true },
+                        darkTheme = darkTheme,
+                        onToggleDarkTheme = { viewModel.setDarkTheme(it) }
                     )
 
                 }
@@ -483,7 +487,7 @@ val appCtx = LocalContext.current
             FloatingActionButton(
                 onClick = { showMapScreen = false },
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
-                containerColor = Color(0xFF6A4C93)
+                containerColor = MaterialTheme.colorScheme.primary
             ) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
@@ -701,7 +705,7 @@ val appCtx = LocalContext.current
     if (showInsuranceScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             PetInsuranceScreen()
-            FloatingActionButton(onClick = { showInsuranceScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showInsuranceScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = MaterialTheme.colorScheme.primary) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showCommunityScreen) {
@@ -723,7 +727,7 @@ val appCtx = LocalContext.current
                 },
                 onOpenLostPetAlerts = { showLostPetAlertsScreen = true }
             )
-            FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = MaterialTheme.colorScheme.primary) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showLostPetAlertsScreen) {
@@ -732,13 +736,13 @@ val appCtx = LocalContext.current
                 foundReports = adminFoundReports,
                 onSubmitFoundReport = { report, photoUri -> viewModel.submitFoundReport(report, photoUri) }
             )
-            FloatingActionButton(onClick = { showLostPetAlertsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showLostPetAlertsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = MaterialTheme.colorScheme.primary) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showCareTipsScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             PetCareTipsScreen()
-            FloatingActionButton(onClick = { showCareTipsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = Color(0xFF6A4C93)) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+            FloatingActionButton(onClick = { showCareTipsScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = MaterialTheme.colorScheme.primary) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
 
@@ -840,12 +844,12 @@ private fun FeatureButton(label: String, color: Color, onClick: () -> Unit) {
 
 @Composable
 fun FeatureScreenWrapper(title: String, content: @Composable () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF6F0))) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         content()
         FloatingActionButton(
             onClick = { },
             modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
-            containerColor = Color(0xFF6A4C93),
+            containerColor = MaterialTheme.colorScheme.primary,
             shape = CircleShape
         ) {
             Text("X", color = Color.White, fontWeight = FontWeight.Bold)

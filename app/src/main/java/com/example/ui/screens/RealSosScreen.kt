@@ -132,7 +132,7 @@ fun RealSosScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(CreamBg)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // SOS Header
         Card(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -182,7 +182,7 @@ fun RealSosScreen(
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(48.dp))
+                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(48.dp))
                         Text(stringResource(R.string.sos_waiting_for_location), color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
@@ -197,7 +197,7 @@ fun RealSosScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.sos_current_location), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DarkText)
+                    Text(stringResource(R.string.sos_current_location), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Lat: ${String.format("%.6f", currentLat)}", fontSize = 12.sp, color = Color.Gray)
                     Text("Lon: ${String.format("%.6f", currentLon)}", fontSize = 12.sp, color = Color.Gray)
@@ -293,7 +293,7 @@ fun RealSosScreen(
                 },
                 modifier = Modifier.weight(1f).height(52.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = if (isTracking) SosRed else CoralPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = if (isTracking) SosRed else MaterialTheme.colorScheme.primary)
             ) {
                 Text(if (isTracking) "STOP TRACKING" else "START LIVE TRACKING", fontWeight = FontWeight.Bold)
             }

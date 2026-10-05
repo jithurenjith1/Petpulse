@@ -504,7 +504,7 @@ private fun SitterBookingDialog(
         title = { Text("Book " + sitter.name, fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(sitter.sitterType + " \u2022 " + sitter.priceEstimate, fontSize = 13.sp, color = BluePrimary, fontWeight = FontWeight.SemiBold)
+                Text(sitter.sitterType + " \u2022 " + sitter.priceEstimate, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                 if (petName.isNotBlank()) {
                     Text("Pet: " + petName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -592,7 +592,7 @@ fun GroomingCenterCard(
                     )
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = BluePrimary.copy(alpha = 0.85f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
@@ -615,7 +615,7 @@ fun GroomingCenterCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(center.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = BluePrimaryDark)
+                        Text(center.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
                         if (center.verified) {
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
@@ -642,13 +642,13 @@ fun GroomingCenterCard(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(Icons.Default.LocationOn, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                 Text("${center.address} • ${center.distance}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                color = Color(0xFFF4F8FD),
+                color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -666,7 +666,7 @@ fun GroomingCenterCard(
             ) {
                 Column {
                     Text(stringResource(R.string.partners_starting_from), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(center.startingPrice, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = BluePrimary)
+                    Text(center.startingPrice, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -684,7 +684,7 @@ fun GroomingCenterCard(
                     Button(
                         onClick = onBookClick,
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                         modifier = Modifier.height(34.dp)
                     ) {
@@ -725,12 +725,12 @@ fun SubscriptionCard(
                             text = "${subscription.planType.uppercase()} RECURRING PLAN",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (subscription.planType == "Yearly") AccentGreen else BluePrimary,
+                            color = if (subscription.planType == "Yearly") AccentGreen else MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(subscription.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                    Text(subscription.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                 }
 
                 Surface(
@@ -755,12 +755,12 @@ fun SubscriptionCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(subscription.monthlyEstimate, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = BluePrimary)
+                Text(subscription.monthlyEstimate, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
 
                 Button(
                     onClick = onSubscribe,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                     modifier = Modifier.height(34.dp)
                 ) {
@@ -800,11 +800,11 @@ fun BoardingSitterCard(
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = BluePrimary)
+                        Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     }
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text(sitter.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                            Text(sitter.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                             if (sitter.verified) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = "Verified", tint = AccentGreen, modifier = Modifier.size(16.dp))
                             }
@@ -823,7 +823,7 @@ fun BoardingSitterCard(
 
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                color = Color(0xFFF7FAFD),
+                color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -885,7 +885,7 @@ fun BoardingSitterCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(sitter.priceEstimate, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = BluePrimary)
+                Text(sitter.priceEstimate, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
@@ -910,7 +910,7 @@ fun BoardingSitterCard(
                     Button(
                         onClick = onBook,
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                         modifier = Modifier.height(34.dp)
                     ) {
@@ -992,7 +992,7 @@ fun FindMyPetSection(
                 text = "GPS Tracker Collars",
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
-                color = BluePrimaryDark
+                color = MaterialTheme.colorScheme.primary
             )
             gpsTrackers.forEach { tracker ->
                 Card(
@@ -1010,20 +1010,20 @@ fun FindMyPetSection(
                             Column(modifier = Modifier.weight(1f)) {
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
-                                    color = BluePrimary.copy(alpha = 0.15f)
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                                 ) {
                                     Text(
                                         text = tracker.category.uppercase(),
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = BluePrimary,
+                                        color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(tracker.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                                Text(tracker.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                             }
-                            Text("₹ ${tracker.priceInr.toInt()}", fontWeight = FontWeight.ExtraBold, fontSize = 13.sp, color = BluePrimary)
+                            Text("₹ ${tracker.priceInr.toInt()}", fontWeight = FontWeight.ExtraBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                         }
                         if (tracker.description.isNotBlank()) {
                             Text(tracker.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -1074,18 +1074,18 @@ fun FindMyPetSection(
                     Column {
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = BluePrimary.copy(alpha = 0.15f)
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                         ) {
                             Text(
                                 text = stringResource(R.string.partners_hardware_sponsor_coming_soon),
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = BluePrimary,
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(stringResource(R.string.partners_smart_collar_gps_tracker_prototype), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                        Text(stringResource(R.string.partners_smart_collar_gps_tracker_prototype), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                     }
                 }
 
@@ -1115,7 +1115,7 @@ fun FindMyPetSection(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(R.string.partners_price_tba_sponsored_partner), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                    Text(stringResource(R.string.partners_price_tba_sponsored_partner), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     FilledTonalButton(onClick = {}, shape = RoundedCornerShape(10.dp), modifier = Modifier.height(32.dp)) {
                         Text(stringResource(R.string.partners_notify_on_launch), fontSize = 11.sp)
                     }
@@ -1129,7 +1129,7 @@ fun FindMyPetSection(
             text = "Active Lost Pet Alerts in Your Area (Within 5 km)",
             fontWeight = FontWeight.Bold,
             fontSize = 13.sp,
-            color = BluePrimaryDark
+            color = MaterialTheme.colorScheme.primary
         )
 
         lostAlerts.forEach { alert ->
@@ -1145,7 +1145,7 @@ fun FindMyPetSection(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("${alert.petName} (${alert.breed})", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFD32F2F))
-                        Text("${alert.distanceKm} km away", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                        Text("${alert.distanceKm} km away", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
                     Text("Last seen: ${alert.lastSeenLocation} • ${alert.reportedTime}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(alert.description, fontSize = 12.sp)
@@ -1205,10 +1205,10 @@ fun PetListingCard(
                         )
                     }
                     Spacer(modifier = Modifier.height(2.dp))
-                    Text(listing.petName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                    Text(listing.petName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                 }
 
-                Text(listing.priceEstimate, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp, color = BluePrimary)
+                Text(listing.priceEstimate, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
             }
 
             Text("${listing.species} • ${listing.breed} • ${listing.age}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
@@ -1219,7 +1219,7 @@ fun PetListingCard(
                 Button(
                     onClick = onContact,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                     modifier = Modifier.height(32.dp)
                 ) {
@@ -1255,17 +1255,17 @@ fun PetNewsAndEventsSection(
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = BluePrimary.copy(alpha = 0.12f)
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                 ) {
                     Text(
                         text = stringResource(R.string.partners_featured_pet_story),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = BluePrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
-                Text(news.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                Text(news.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                 Text("By ${news.source} • ${news.timeAgo}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(news.fullContent, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
             }
@@ -1276,7 +1276,7 @@ fun PetNewsAndEventsSection(
             text = stringResource(R.string.partners_upcoming_competitions_events_calendar),
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
-            color = BluePrimaryDark
+            color = MaterialTheme.colorScheme.primary
         )
 
         events.forEach { event ->
@@ -1291,7 +1291,7 @@ fun PetNewsAndEventsSection(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(event.title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BluePrimaryDark)
+                        Text(event.title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                     }
                     Text("📅 ${event.date} • 📍 ${event.location}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Row(
@@ -1303,7 +1303,7 @@ fun PetNewsAndEventsSection(
                         Button(
                             onClick = { onRegisterEvent(event) },
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                             modifier = Modifier.height(30.dp)
                         ) {
@@ -1324,8 +1324,8 @@ fun PartnerJoinCalloutCard(
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F7FF)),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.2f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
@@ -1335,9 +1335,9 @@ fun PartnerJoinCalloutCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Icon(Icons.Default.Storefront, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(28.dp))
+            Icon(Icons.Default.Storefront, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BluePrimaryDark)
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 Text(description, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             FilledTonalButton(
@@ -1437,7 +1437,7 @@ fun BusinessPartnerJoinDialog(
                         onSubmit(name, category, city, phone)
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(stringResource(R.string.partners_submit_application))
             }
@@ -1611,8 +1611,8 @@ fun HelpAndRescueSection(
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(26.dp))
-                    Text("Help & Support", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BluePrimaryDark)
+                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(26.dp))
+                    Text("Help & Support", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                 }
 
                 FaqItem(
@@ -1688,7 +1688,7 @@ fun HelpAndRescueSection(
         // ---- 2. Rescue Help ----
         Card(
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFECB3)),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -1721,7 +1721,7 @@ fun HelpAndRescueSection(
                     Text("Report Animal in Need / Cruelty", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
 
-                Text("Helpline Directory", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BluePrimaryDark)
+                Text("Helpline Directory", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 HelplineRow(
                     label = "Police Emergency (112)",
                     action = "Call",
@@ -1830,9 +1830,9 @@ private fun FaqItem(question: String, answer: String) {
             .padding(vertical = 4.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (expanded) "v " else "> ", fontSize = 11.sp, color = BluePrimary)
+            Text(if (expanded) "v " else "> ", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.width(4.dp))
-            Text(question, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = BluePrimaryDark)
+            Text(question, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
         }
         if (expanded) {
             Text(

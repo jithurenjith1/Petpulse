@@ -78,25 +78,25 @@ fun PetCommunityScreen(
 
     MaterialTheme {
         Scaffold(
-            containerColor = CreamBg,
+            containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
                             text = stringResource(R.string.community_pet_community),
-                            color = DarkText,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Bold
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = CreamBg
+                        containerColor = MaterialTheme.colorScheme.background
                     )
                 )
             },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { showNewPostDialog = true },
-                    containerColor = CoralPrimary,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "New Post")
@@ -148,11 +148,11 @@ fun PetCommunityScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Icon(Icons.Default.Pets, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(36.dp))
-                                Text("No community posts yet", color = DarkText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Icon(Icons.Default.Pets, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(36.dp))
+                                Text("No community posts yet", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                                 Text(
                                     "Be the first to share a story about your pet! Tap the + button below.",
-                                    color = DarkText.copy(alpha = 0.6f), fontSize = 13.sp
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp
                                 )
                             }
                         }
@@ -206,7 +206,7 @@ private fun PostCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(CoralLight),
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -220,7 +220,7 @@ private fun PostCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = post.authorName,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 15.sp
                     )
@@ -234,7 +234,7 @@ private fun PostCard(
                 }
                 Text(
                     text = timeAgoText(post.createdAt),
-                    color = DarkText.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                     fontSize = 12.sp
                 )
                 if (isOwnPost) {
@@ -251,7 +251,7 @@ private fun PostCard(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = post.message,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 15.sp,
                 lineHeight = 22.sp
             )
@@ -285,7 +285,7 @@ private fun NewPostDialog(
         title = {
             Text(
                 text = stringResource(R.string.community_new_post),
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -319,7 +319,7 @@ private fun NewPostDialog(
                     }
                 },
                 enabled = message.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(stringResource(R.string.community_post), color = Color.White)
             }
