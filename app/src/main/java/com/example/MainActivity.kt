@@ -97,6 +97,9 @@ class MainActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null) {
+    // Theme preference - collected here (not just in MainActivity's setContent scope) so the
+    // Settings switch recomposes this composable and MyPetsScreen reactively.
+    val darkTheme by viewModel.darkTheme.collectAsStateWithLifecycle()
     val currentTab by viewModel.currentMainTab.collectAsStateWithLifecycle()
     val allPets by viewModel.allPets.collectAsStateWithLifecycle()
     val activePetId by viewModel.activePetId.collectAsStateWithLifecycle()
