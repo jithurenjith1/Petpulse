@@ -347,7 +347,11 @@ val appCtx = LocalContext.current
                         isPremium = isPremium,
                         onOpenAiPhoto = { showAiPhotoScreen = true },
                         darkTheme = darkTheme,
-                        onToggleDarkTheme = { viewModel.setDarkTheme(it) }
+                        onToggleDarkTheme = { viewModel.setDarkTheme(it) },
+                        pets = allPets,
+                        activePetId = activePetId,
+                        onPetSelected = { viewModel.switchPet(it) },
+                        onAddPetClick = { showAddPetDialog = true }
                     )
 
                 }

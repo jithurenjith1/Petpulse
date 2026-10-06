@@ -5,7 +5,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "user_pets")
 data class UserPet(
-    @PrimaryKey(autoGenerate = true) val id: Long = 1L,
+    // autoGenerate primary key. Default 0L means a freshly-built UserPet is a
+    // BRAND-NEW pet: Room generates a new row id (so new pets are APPENDED, never
+    // replacing an existing row) and FirestorePetRepository.savePet creates a new
+    // document. Existing pets carry their real (non-zero) id.
+    @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val name: String = "Jane",
     val species: String = "Dog",
     val breed: String = "Indie",

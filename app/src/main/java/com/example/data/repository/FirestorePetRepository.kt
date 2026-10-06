@@ -142,13 +142,22 @@ class FirestorePetRepository(private val appContext: Context) {
         awaitClose { }
     }
 
-    suspend fun savePet(pet: UserPet) {
+    /**
+     * Persists a pet and returns its stable id. A pet with id <= 0 is a brand-new
+     * pet: it is always APPENDED as a new document (never overwriting an existing
+     * one) and the freshly-generated stable id is returned so the caller can select
+     * the new pet directly. Existing pets (id > 0) are updated in place and their
+     * own id is returned.
+     */
+    suspend fun savePet(pet: UserPet): Long {
         val petMap = petToMap(pet)
         if (pet.id <= 0L) {
             // Brand-new pet (PetViewModel.addNewPet sets id = 0). Always create a NEW
             // document so adding a second/third pet never overwrites an existing one.
             val docRef = petsRef().add(petMap).await()
-            petDocIdMap[stableIdOf(docRef.id)] = docRef.id
+            val newId = stableIdOf(docRef.id)
+            petDocIdMap[newId] = docRef.id
+            return newId
         } else {
             val existingDocId = petDocIdMap[pet.id]
 
@@ -170,8 +179,10 @@ class FirestorePetRepository(private val appContext: Context) {
                     val docRef = petsRef().add(petMap).await()
                     val newStableId = stableIdOf(docRef.id)
                     petDocIdMap[newStableId] = docRef.id
+                    return newStableId
                 }
             }
+            return pet.id
         }
     }
 

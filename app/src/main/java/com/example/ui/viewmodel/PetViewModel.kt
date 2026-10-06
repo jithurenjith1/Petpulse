@@ -9,9 +9,11 @@ import com.petpulse.app.data.model.*
 import com.petpulse.app.data.repository.MarketplaceRepository
 import com.petpulse.app.data.repository.PetRepository
 import com.petpulse.app.data.repository.FirestorePetRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.launch
 import android.net.Uri
 import com.petpulse.app.R
@@ -305,7 +307,23 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _activePetId = MutableStateFlow(1L)
     val activePetId: StateFlow<Long> = _activePetId.asStateFlow()
 
-    val allPets: StateFlow<List<UserPet>> = firestoreRepo.getAllUserPets()
+    // Emits the currently signed-in uid and re-emits whenever the auth state
+    // changes (sign-in / sign-out). The Firestore repository resolves uid() ONCE
+    // per subscription, so without this the pets listener can latch onto
+    // users/anonymous/pets (bound before the user signs in) and stay empty forever
+    // — which leaves the PetSwitcher with no pets to show and makes the app look
+    // like it only ever holds a single (active) pet.
+    private val signedInUid: Flow<String> = callbackFlow {
+        val auth = FirebaseAuth.getInstance()
+        val listener = FirebaseAuth.AuthStateListener { fa ->
+            trySend(fa.currentUser?.uid ?: "anonymous")
+        }
+        auth.addAuthStateListener(listener)
+        awaitClose { auth.removeAuthStateListener(listener) }
+    }
+
+    val allPets: StateFlow<List<UserPet>> = signedInUid
+        .flatMapLatest { firestoreRepo.getAllUserPets() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -1493,7 +1511,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Resolve the ACTIVE pet reliably. The selected pet id (_activePetId) is always
      * correct because the pet tabs set it directly — but the activePet StateFlow
-     * can still hold the DEMO placeholder (UserPet() with id 1L) when its
+     * can still hold the DEMO placeholder (UserPet() with id 0L) when its
      * Firestore lookup has not emitted yet. All saves must go through this so
      * they never write to the non-existent placeholder pet id.
      */
@@ -1579,11 +1597,9 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addNewPet(name: String, species: String, breed: String, gender: String, ageYears: Int, ageMonths: Int) {
         viewModelScope.launch {
-            // Force a brand-new primary key. UserPet.id defaults to 1L (the seeded
-            // default pet row); leaving it unset made every new pet reuse id 1, so
-            // adding a second pet REPLACED the previous one instead of adding it.
-            // 0L lets Room autoGenerate a new row and tells
-            // FirestorePetRepository.savePet to create a NEW document.
+            // Force a brand-new primary key. A fresh UserPet must have id 0 so it is
+            // APPENDED (Room auto-generates a new row; FirestorePetRepository.savePet
+            // creates a NEW document) instead of overwriting an existing pet.
             val newPet = UserPet(
                 id = 0L,
                 name = name.ifBlank { "New Pet" },
@@ -1606,17 +1622,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 notes = ""
             )
             try {
-                firestoreRepo.savePet(newPet)
+                // savePet appends a NEW document and returns its stable id, so the
+                // freshly-added pet can be selected directly — no guessing from an
+                // unordered list.
+                val newId = firestoreRepo.savePet(newPet)
+                if (newId > 0L) _activePetId.value = newId
             } catch (e: Exception) {
                 android.util.Log.e("PetViewModel", "Error saving new pet", e)
-            }
-            // Wait briefly for Firestore to sync, then switch to newest pet
-            try {
-                kotlinx.coroutines.delay(500)
-                val pets = firestoreRepo.getAllUserPets().first()
-                _activePetId.value = pets.lastOrNull()?.id ?: 1L
-            } catch (e: Exception) {
-                android.util.Log.e("PetViewModel", "Error switching to new pet", e)
             }
         }
     }
