@@ -144,26 +144,33 @@ class FirestorePetRepository(private val appContext: Context) {
 
     suspend fun savePet(pet: UserPet) {
         val petMap = petToMap(pet)
-        val existingDocId = petDocIdMap[pet.id]
-
-        if (existingDocId != null) {
-            petsRef().document(existingDocId).set(petMap).await()
+        if (pet.id <= 0L) {
+            // Brand-new pet (PetViewModel.addNewPet sets id = 0). Always create a NEW
+            // document so adding a second/third pet never overwrites an existing one.
+            val docRef = petsRef().add(petMap).await()
+            petDocIdMap[stableIdOf(docRef.id)] = docRef.id
         } else {
-            val snapshot = petsRef().get().await()
-            var found = false
-            for (doc in snapshot.documents) {
-                val stableId = stableIdOf(doc.id)
-                if (stableId == pet.id) {
-                    petDocIdMap[pet.id] = doc.id
-                    petsRef().document(doc.id).set(petMap).await()
-                    found = true
-                    break
+            val existingDocId = petDocIdMap[pet.id]
+
+            if (existingDocId != null) {
+                petsRef().document(existingDocId).set(petMap).await()
+            } else {
+                val snapshot = petsRef().get().await()
+                var found = false
+                for (doc in snapshot.documents) {
+                    val stableId = stableIdOf(doc.id)
+                    if (stableId == pet.id) {
+                        petDocIdMap[pet.id] = doc.id
+                        petsRef().document(doc.id).set(petMap).await()
+                        found = true
+                        break
+                    }
                 }
-            }
-            if (!found) {
-                val docRef = petsRef().add(petMap).await()
-                val newStableId = stableIdOf(docRef.id)
-                petDocIdMap[newStableId] = docRef.id
+                if (!found) {
+                    val docRef = petsRef().add(petMap).await()
+                    val newStableId = stableIdOf(docRef.id)
+                    petDocIdMap[newStableId] = docRef.id
+                }
             }
         }
     }

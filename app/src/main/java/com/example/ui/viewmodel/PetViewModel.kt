@@ -1579,7 +1579,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addNewPet(name: String, species: String, breed: String, gender: String, ageYears: Int, ageMonths: Int) {
         viewModelScope.launch {
+            // Force a brand-new primary key. UserPet.id defaults to 1L (the seeded
+            // default pet row); leaving it unset made every new pet reuse id 1, so
+            // adding a second pet REPLACED the previous one instead of adding it.
+            // 0L lets Room autoGenerate a new row and tells
+            // FirestorePetRepository.savePet to create a NEW document.
             val newPet = UserPet(
+                id = 0L,
                 name = name.ifBlank { "New Pet" },
                 species = species,
                 breed = breed.ifBlank { "Mixed" },
