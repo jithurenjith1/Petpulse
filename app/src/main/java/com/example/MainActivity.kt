@@ -241,7 +241,11 @@ val appCtx = LocalContext.current
                 pets = allPets,
                 activePetId = activePetId,
                 onPetSelected = { viewModel.switchPet(it) },
-                onAddPetClick = { showAddPetDialog = true }
+                onAddPetClick = { showAddPetDialog = true },
+                onPetLongPress = { pet ->
+                    viewModel.deletePetById(pet.id)
+                    coroutineScope.launch { snackbarHostState.showSnackbar("Pet '" + pet.name + "' removed") }
+                }
             )
             // Feature buttons grid — shown ONLY in My Pet section
             if (currentTab == MainNavTab.MY_PETS) {
@@ -341,21 +345,13 @@ val appCtx = LocalContext.current
                             viewModel.deleteCurrentPet()
                             coroutineScope.launch { snackbarHostState.showSnackbar("Pet removed") }
                         },
-                        onPetLongPress = { pet ->
-                            viewModel.deletePetById(pet.id)
-                            coroutineScope.launch { snackbarHostState.showSnackbar("Pet '" + pet.name + "' removed") }
-                        },
                         onPhotoSelected = { uri ->
                             viewModel.updatePetPhoto(uri)
                         },
                         isPremium = isPremium,
                         onOpenAiPhoto = { showAiPhotoScreen = true },
                         darkTheme = darkTheme,
-                        onToggleDarkTheme = { viewModel.setDarkTheme(it) },
-                        pets = allPets,
-                        activePetId = activePetId,
-                        onPetSelected = { viewModel.switchPet(it) },
-                        onAddPetClick = { showAddPetDialog = true }
+                        onToggleDarkTheme = { viewModel.setDarkTheme(it) }
                     )
 
                 }

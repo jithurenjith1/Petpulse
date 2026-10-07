@@ -9,8 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -158,7 +156,6 @@ fun MyPetsScreen(
     onShowMessage: (String) -> Unit,
     onDeleteAccount: () -> Unit = {},
     onDeletePet: () -> Unit = {},
-    onPetLongPress: (UserPet) -> Unit = {},
     onPhotoSelected: (String) -> Unit = {},
     certificates: List<PetCertificate> = emptyList(),
     onAddCertificate: (title: String, registrationId: String, issuedBy: String, issueDate: String, photos: List<String>) -> Unit = { _, _, _, _, _ -> },
@@ -167,12 +164,6 @@ fun MyPetsScreen(
     onOpenAiPhoto: () -> Unit = {},
     darkTheme: Boolean = false,
     onToggleDarkTheme: (Boolean) -> Unit = {},
-    // All saved pets + which one is active, so this screen can show a full pet
-    // list/selector and let the user switch between every saved pet.
-    pets: List<UserPet> = emptyList(),
-    activePetId: Long = 0L,
-    onPetSelected: (Long) -> Unit = {},
-    onAddPetClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -182,7 +173,6 @@ fun MyPetsScreen(
     var showAddCertificateDialog by remember { mutableStateOf(false) }
     var certificatePhotoViewer by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var petToRemove by remember { mutableStateOf<UserPet?>(null) }
 
     LazyColumn(
         modifier = modifier
@@ -191,20 +181,6 @@ fun MyPetsScreen(
             .testTag("my_pets_screen"),
         contentPadding = PaddingValues(bottom = 90.dp, top = 8.dp)
     ) {
-        // 1. Pet selector — shows ALL saved pets and lets the user switch between
-        // them (plus an "+ Add Pet" chip). Without this the screen only ever showed
-        // the single active pet, so each newly added pet appeared to replace the
-        // previous one.
-        item {
-            PetSelectorRow(
-                pets = pets,
-                activePetId = activePetId,
-                onPetSelected = onPetSelected,
-                onAddPetClick = onAddPetClick,
-                onPetLongPress = { petToRemove = it }
-            )
-        }
-
         // 2. Jane's Hero Profile Card
         item {
             Card(
@@ -574,23 +550,6 @@ fun MyPetsScreen(
             },
             dismissButton = {
                 OutlinedButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.mypets_cancel)) }
-            }
-        )
-    }
-
-    petToRemove?.let { target ->
-        AlertDialog(
-            onDismissRequest = { petToRemove = null },
-            title = { Text("Remove ${target.name}?") },
-            text = { Text("This will permanently delete ${target.name} and all associated records. This cannot be undone.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onPetLongPress(target)
-                    petToRemove = null
-                }) { Text(stringResource(R.string.mypets_delete)) }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = { petToRemove = null }) { Text(stringResource(R.string.mypets_cancel)) }
             }
         )
     }
@@ -1956,73 +1915,6 @@ fun VaccinationReminderBanner(vaccinations: List<VaccinationRecord>) {
                     },
                     fontSize = 11.sp,
                     color = fg
-                )
-            }
-        }
-    }
-}
-
-
-
-
-/**
- * Horizontal list of every saved pet, with the active one highlighted, plus an
- * "+ Add Pet" chip. Tapping a pet switches the active pet; tapping Add opens the
- * Add-Pet dialog. This is what makes the "My Pets" screen show and switch between
- * ALL pets instead of only the active one.
- */
-@Composable
-@OptIn(ExperimentalFoundationApi::class)
-private fun PetSelectorRow(
-    pets: List<UserPet>,
-    activePetId: Long,
-    onPetSelected: (Long) -> Unit,
-    onAddPetClick: () -> Unit,
-    onPetLongPress: (UserPet) -> Unit = {}
-) {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        items(pets) { pet ->
-            val isSelected = pet.id == activePetId
-            Surface(
-                modifier = Modifier.combinedClickable(
-                    onClick = { onPetSelected(pet.id) },
-                    onLongClick = { onPetLongPress(pet) }
-                ),
-                shape = RoundedCornerShape(20.dp),
-                color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.surface,
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    if (isSelected) BluePrimary else MaterialTheme.colorScheme.outline
-                )
-            ) {
-                Text(
-                    text = pet.name,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
-                )
-            }
-        }
-        item {
-            Surface(
-                modifier = Modifier.clickable { onAddPetClick() },
-                shape = RoundedCornerShape(20.dp),
-                color = Color.Transparent,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-            ) {
-                Text(
-                    text = "+ Add Pet",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = BluePrimary,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                 )
             }
         }

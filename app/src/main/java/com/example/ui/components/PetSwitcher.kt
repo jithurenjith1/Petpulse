@@ -5,7 +5,9 @@ import com.petpulse.app.R
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -39,8 +41,11 @@ fun PetSwitcher(
     pets: List<UserPet>,
     activePetId: Long,
     onPetSelected: (Long) -> Unit,
-    onAddPetClick: () -> Unit
+    onAddPetClick: () -> Unit,
+    onPetLongPress: (UserPet) -> Unit = {}
 ) {
+    var petToRemove by remember { mutableStateOf<UserPet?>(null) }
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,20 +56,39 @@ fun PetSwitcher(
             PetChip(
                 pet = pet,
                 isSelected = pet.id == activePetId,
-                onClick = { onPetSelected(pet.id) }
+                onClick = { onPetSelected(pet.id) },
+                onLongClick = { petToRemove = pet }
             )
         }
         item {
             AddPetChip(onClick = onAddPetClick)
         }
     }
+
+    petToRemove?.let { target ->
+        AlertDialog(
+            onDismissRequest = { petToRemove = null },
+            title = { Text("Remove ${target.name}?") },
+            text = { Text("This will permanently delete ${target.name} and all associated records. This cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onPetLongPress(target)
+                    petToRemove = null
+                }) { Text(stringResource(R.string.mypets_delete)) }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { petToRemove = null }) { Text(stringResource(R.string.mypets_cancel)) }
+            }
+        )
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun PetChip(pet: UserPet, isSelected: Boolean, onClick: () -> Unit) {
+private fun PetChip(pet: UserPet, isSelected: Boolean, onClick: () -> Unit, onLongClick: () -> Unit = {}) {
     Surface(
         modifier = Modifier
-            .clickable(onClick = onClick),
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = RoundedCornerShape(20.dp),
         color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
         border = androidx.compose.foundation.BorderStroke(
