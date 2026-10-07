@@ -545,6 +545,10 @@ val appCtx = LocalContext.current
         EditPetProfileDialog(
             pet = activePet,
             onDismiss = { showEditPetDialog = false },
+            onDeletePet = {
+                viewModel.deleteCurrentPet()
+                coroutineScope.launch { snackbarHostState.showSnackbar("Pet removed") }
+            },
             onSave = { name, breed, gender, ageYears, ageMonths, weightKg, foods, plays, trainingStatus, trainingLevel, notes ->
                 viewModel.updateFullPetDetails(
                     name, breed, gender, ageYears, ageMonths, weightKg,

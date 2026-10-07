@@ -211,6 +211,7 @@ fun CustomerLoginDialog(
 fun EditPetProfileDialog(
     pet: UserPet,
     onDismiss: () -> Unit,
+    onDeletePet: () -> Unit = {},
     onSave: (
         name: String,
         breed: String,
@@ -225,6 +226,7 @@ fun EditPetProfileDialog(
         notes: String
     ) -> Unit
 ) {
+    var confirmDelete by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf(pet.name) }
     var breed by remember { mutableStateOf(pet.breed) }
     var gender by remember { mutableStateOf(pet.gender) }
@@ -383,8 +385,25 @@ fun EditPetProfileDialog(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    TextButton(onClick = { confirmDelete = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Pet",
+                            tint = Color(0xFFD62828),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "Delete Pet",
+                            color = Color(0xFFD62828),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.dialogs_cancel))
                     }
@@ -405,9 +424,28 @@ fun EditPetProfileDialog(
                     ) {
                         Text(stringResource(R.string.dialogs_save_changes))
                     }
+                    }
                 }
             }
         }
+    }
+
+    if (confirmDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = { Text("Delete " + pet.name + "?") },
+            text = { Text("This will permanently delete " + pet.name + " and all associated records. This cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDelete = false
+                    onDeletePet()
+                    onDismiss()
+                }) { Text("Delete", color = Color(0xFFD62828), fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.dialogs_cancel)) }
+            }
+        )
     }
 }
 
