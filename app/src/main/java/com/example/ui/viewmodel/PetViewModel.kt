@@ -1651,6 +1651,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Delete a SPECIFIC pet by id - used by the long-press on a pet chip. */
+    fun deletePetById(petId: Long) {
+        _activePetId.value = petId
+        deleteCurrentPet()
+    }
+
 }
 
 

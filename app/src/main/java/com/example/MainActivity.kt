@@ -341,6 +341,10 @@ val appCtx = LocalContext.current
                             viewModel.deleteCurrentPet()
                             coroutineScope.launch { snackbarHostState.showSnackbar("Pet removed") }
                         },
+                        onPetLongPress = { pet ->
+                            viewModel.deletePetById(pet.id)
+                            coroutineScope.launch { snackbarHostState.showSnackbar("Pet '" + pet.name + "' removed") }
+                        },
                         onPhotoSelected = { uri ->
                             viewModel.updatePetPhoto(uri)
                         },
