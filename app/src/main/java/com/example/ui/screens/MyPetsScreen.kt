@@ -1754,23 +1754,6 @@ fun HealthAndSettingsSection(
                 }
             }
             Divider()
-            // Appearance: light / dark theme toggle (persisted)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Dark theme", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-                    Text("Use the Wagmiya magenta dark palette", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Switch(
-                    checked = darkTheme,
-                    onCheckedChange = onToggleDarkTheme,
-                    modifier = Modifier.testTag("dark_theme_switch")
-                )
-            }
-            Divider()
             // App settings: account deletion (Google Play requirement)
             var showDeleteAccountDialog by remember { mutableStateOf(false) }
             Row(

@@ -35,6 +35,8 @@ fun PetAppTopBar(
     onCartClick: () -> Unit = {},
     onSosClick: () -> Unit,
     onLoginClick: () -> Unit,
+    darkTheme: Boolean = false,
+    onToggleDarkTheme: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -166,6 +168,23 @@ fun PetAppTopBar(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
+                        )
+                    }
+
+                    // Light / Dark theme toggle (always visible in the top bar)
+                    IconButton(
+                        onClick = { onToggleDarkTheme(!darkTheme) },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                            .testTag("theme_toggle_button")
+                    ) {
+                        Icon(
+                            imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            contentDescription = if (darkTheme) "Switch to light theme" else "Switch to dark theme",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
 

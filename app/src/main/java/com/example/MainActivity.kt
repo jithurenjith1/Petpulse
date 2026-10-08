@@ -214,7 +214,9 @@ val appCtx = LocalContext.current
                 cartItemCount = cartItemCount,
                 onCartClick = { showCartModal = true },
                 onSosClick = { showSosScreen = true },
-                onLoginClick = { showLoginDialog = true }
+                onLoginClick = { showLoginDialog = true },
+                darkTheme = darkTheme,
+                onToggleDarkTheme = { viewModel.setDarkTheme(it) }
             )
 
         },

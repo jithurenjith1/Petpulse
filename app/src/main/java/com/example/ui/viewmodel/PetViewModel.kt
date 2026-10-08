@@ -180,15 +180,33 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val commerceEvent: StateFlow<Int?> = _commerceEvent.asStateFlow()
     fun onCommerceEventShown() { _commerceEvent.value = null }
 
+    // Emits the currently signed-in uid and re-emits whenever the auth state
+    // changes (sign-in / sign-out). The commerce repository resolves
+    // auth.currentUser ONCE per subscription, so an orders listener bound before
+    // the user signs in would latch onto an unauthenticated (permission-denied)
+    // path and stay empty forever. Every auth-dependent stream below is driven
+    // off this flow via flatMapLatest so it re-binds the moment the user signs
+    // in or out.
+    private val signedInUid: Flow<String> = callbackFlow {
+        val auth = FirebaseAuth.getInstance()
+        val listener = FirebaseAuth.AuthStateListener { fa ->
+            trySend(fa.currentUser?.uid ?: "anonymous")
+        }
+        auth.addAuthStateListener(listener)
+        awaitClose { auth.removeAuthStateListener(listener) }
+    }
+
     // Admin gate + admin data (non-admins simply see empty lists)
     val isAdmin: StateFlow<Boolean> = commerceRepo.observeIsAdmin()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    val adminOrders: StateFlow<List<AdminOrder>> = commerceRepo.observeOrders()
+    val adminOrders: StateFlow<List<AdminOrder>> = signedInUid
+        .flatMapLatest { commerceRepo.observeOrders() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // Live orders of the signed-in customer (My Orders screen)
-    val myOrders: StateFlow<List<AdminOrder>> = commerceRepo.observeMyOrders()
+    val myOrders: StateFlow<List<AdminOrder>> = signedInUid
+        .flatMapLatest { commerceRepo.observeMyOrders() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // Live service bookings (doctor consults + trainer requests) — admin & customer
@@ -307,20 +325,9 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _activePetId = MutableStateFlow(1L)
     val activePetId: StateFlow<Long> = _activePetId.asStateFlow()
 
-    // Emits the currently signed-in uid and re-emits whenever the auth state
-    // changes (sign-in / sign-out). The Firestore repository resolves uid() ONCE
-    // per subscription, so without this the pets listener can latch onto
-    // users/anonymous/pets (bound before the user signs in) and stay empty forever
-    // — which leaves the PetSwitcher with no pets to show and makes the app look
-    // like it only ever holds a single (active) pet.
-    private val signedInUid: Flow<String> = callbackFlow {
-        val auth = FirebaseAuth.getInstance()
-        val listener = FirebaseAuth.AuthStateListener { fa ->
-            trySend(fa.currentUser?.uid ?: "anonymous")
-        }
-        auth.addAuthStateListener(listener)
-        awaitClose { auth.removeAuthStateListener(listener) }
-    }
+    // NOTE: signedInUid is declared near the top of this class (above adminOrders
+    // / myOrders) so every auth-reactive stream - pets AND orders - re-binds after
+    // sign-in. See the declaration there.
 
     val allPets: StateFlow<List<UserPet>> = signedInUid
         .flatMapLatest { firestoreRepo.getAllUserPets() }
