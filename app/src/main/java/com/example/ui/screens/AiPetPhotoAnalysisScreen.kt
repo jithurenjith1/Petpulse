@@ -28,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -107,14 +108,12 @@ fun AiPetPhotoAnalysisScreen(
     // Direct check: read carePlan straight from Firestore so the flag is found
     // wherever the owner stored it (admins/{email}, users/{email}, users/{uid}).
     var directPlan by remember { mutableStateOf<String?>(null) }
-    var diag by remember { mutableStateOf("checking...") }
     LaunchedEffect(Unit) {
         val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
         val email = auth.currentUser?.email ?: ""
         val uid = auth.currentUser?.uid ?: ""
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
         val paths = listOf("admins/" + email, "users/" + email, "users/" + uid)
-        val log = StringBuilder("email=" + email + " uid=" + uid.take(8))
         for (p in paths) {
             val parts = p.split("/")
             if (parts.size != 2 || parts[1].isBlank()) continue
@@ -123,21 +122,17 @@ fun AiPetPhotoAnalysisScreen(
                 val plan = snap.getString("carePlan") ?: ""
                 if (plan.isNotBlank()) {
                     directPlan = plan
-                    log.append(" | ").append(p).append("='").append(plan).append("'")
-                    diag = log.toString()
                     return@LaunchedEffect
                 }
-                log.append(" | ").append(p).append("=none")
-            } catch (e: Exception) {
-                log.append(" | ").append(p).append(" ERR:").append(e.message?.take(30))
+            } catch (_: Exception) {
+                // ignore and try the next candidate path
             }
         }
-        diag = log.toString()
     }
     val premium = isPremium || (directPlan?.trim()?.equals("premium", ignoreCase = true) == true)
 
     if (!premium) {
-        PremiumLockScreen(petName = petName, onClose = onClose, diag = diag)
+        PremiumLockScreen(petName = petName, onClose = onClose)
     } else {
         AiPhotoAnalysisContent(petName = petName, onClose = onClose, onSaveResult = onSaveResult)
     }
@@ -147,7 +142,7 @@ fun AiPetPhotoAnalysisScreen(
 // Lock screen shown to free users.
 // ---------------------------------------------------------------------------
 @Composable
-private fun PremiumLockScreen(petName: String, onClose: () -> Unit, diag: String = "") {
+private fun PremiumLockScreen(petName: String, onClose: () -> Unit) {
     val context = LocalContext.current
 
     Scaffold(
@@ -203,13 +198,6 @@ private fun PremiumLockScreen(petName: String, onClose: () -> Unit, diag: String
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = "DEBUG: " + diag,
-                color = OnDarkMuted,
-                fontSize = 10.sp,
-                textAlign = TextAlign.Center
-            )
             Spacer(Modifier.height(28.dp))
             Button(
                 onClick = {
@@ -254,6 +242,7 @@ private fun AiPhotoAnalysisContent(
     var aiText by remember { mutableStateOf("") }
     var errorText by remember { mutableStateOf("") }
     var saved by remember { mutableStateOf(false) }
+    var consentGiven by remember { mutableStateOf(false) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -346,6 +335,25 @@ private fun AiPhotoAnalysisContent(
 
             Spacer(Modifier.height(16.dp))
 
+            // ---- Consent / disclosure required before the photo is uploaded ----
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = consentGiven,
+                    onCheckedChange = { consentGiven = it }
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = "I understand my pet's photo will be sent to Google (Gemini) " +
+                        "through Firebase AI Logic for analysis. See the Privacy Policy in Settings.",
+                    color = OnDarkMuted,
+                    fontSize = 11.sp
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+
             // ---- Analyse button ----
             Button(
                 onClick = {
@@ -389,7 +397,7 @@ private fun AiPhotoAnalysisContent(
                         }
                     }
                 },
-                enabled = !isAnalysing && photoUri != null,
+                enabled = !isAnalysing && photoUri != null && consentGiven,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Color.White)

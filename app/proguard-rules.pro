@@ -1,21 +1,40 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
+# ---------------------------------------------------------------------------
+# Project-specific ProGuard / R8 rules for Wagmiya (com.petpulse.app).
 #
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# minifyEnabled = true is enabled for the release build type (see
+# app/build.gradle.kts -> buildTypes.release.proguardFiles), so these keep
+# rules are REQUIRED. Firestore deserialises documents reflectively through
+# DocumentSnapshot.toObject(...), which silently returns null / empty objects
+# if R8 renames or strips the model fields or the no-arg constructor.
+# ---------------------------------------------------------------------------
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# --- Firestore / Room data models (loaded reflectively via toObject()) ---
+-keep class com.petpulse.app.data.model.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# --- Documents deserialised from other packages ---
+# LostPetAlertItem is defined in the ui.screens package but is still created
+# reflectively by DocumentSnapshot.toObject<LostPetAlertItem>().
+-keep class com.petpulse.app.ui.screens.LostPetAlertItem { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# --- Generic signatures + annotations that reflective (de)serialisation needs ---
+-keepattributes Signature,*Annotation*,EnclosingMethod,InnerClasses
+
+# --- Firestore field mapping (@PropertyName) ---
+-keepclassmembers class * {
+    @com.google.firebase.firestore.PropertyName <fields>;
+    @com.google.firebase.firestore.PropertyName <methods>;
+}
+
+# --- Room: keep the generated database implementation and entities ---
+-keep class * extends androidx.room.RoomDatabase { *; }
+-dontwarn androidx.room.paging.**
+
+# --- Firebase AI Logic (Gemini) types are constructed by the SDK ---
+-keep class com.google.firebase.ai.** { *; }
+-dontwarn com.google.firebase.ai.**
+
+# --- Networking libraries: silence optional-dependency warnings ---
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn retrofit2.**
+-dontwarn javax.annotation.**

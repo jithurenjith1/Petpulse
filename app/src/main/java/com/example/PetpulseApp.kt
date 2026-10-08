@@ -4,6 +4,9 @@ import android.app.Application
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.PersistentCacheSettings
@@ -17,6 +20,7 @@ import java.util.concurrent.TimeUnit
 class PetpulseApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        installAppCheck()
         FirebaseFirestore.getInstance().firestoreSettings =
             FirebaseFirestoreSettings.Builder()
                 .setLocalCacheSettings(PersistentCacheSettings.newBuilder().build())
@@ -27,5 +31,20 @@ class PetpulseApp : Application() {
             ExistingPeriodicWorkPolicy.KEEP,
             request
         )
+    }
+
+    /**
+     * Firebase App Check is declared in the project but must be installed here.
+     * Debug builds use the Debug provider (register the debug token in the
+     * Firebase console); release builds use Play Integrity so that only genuine
+     * installs from Google Play can call Firebase backends.
+     */
+    private fun installAppCheck() {
+        val factory = if (BuildConfig.DEBUG) {
+            DebugAppCheckProviderFactory.getInstance()
+        } else {
+            PlayIntegrityAppCheckProviderFactory.getInstance()
+        }
+        FirebaseAppCheck.getInstance().installAppCheckProviderFactory(factory)
     }
 }

@@ -53,6 +53,9 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
+/** Public privacy policy opened from the Health & Settings section. */
+private const val PRIVACY_POLICY_URL = "https://sites.google.com/view/petpulse-privacy/"
+
 enum class PetDetailSubmenu {
     CERTIFICATE,
     VACCINATION_MEDICAL,
@@ -1805,6 +1808,39 @@ fun HealthAndSettingsSection(
                     dismissButton = {
                         TextButton(onClick = { showDeleteAccountDialog = false }) { Text("Cancel") }
                     }
+                )
+            }
+            Divider()
+            // Privacy policy link (opens the public policy in a browser)
+            val privacyContext = androidx.compose.ui.platform.LocalContext.current
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        runCatching {
+                            privacyContext.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    Uri.parse(PRIVACY_POLICY_URL)
+                                )
+                            )
+                        }
+                    }
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Default.PrivacyTip,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "Privacy Policy",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

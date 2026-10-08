@@ -1,13 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Backup rules for Wagmiya (Android 11 and below).
+   allowBackup is set to "false" in AndroidManifest.xml, so cloud backup is
+   disabled entirely; these exclusions are a defence-in-depth layer that also
+   keeps the Firestore persistent disk cache, the local Room database and any
+   SharedPreferences holding user data out of any backup / transfer.
    See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Firestore persistent disk cache + any other app files (PII / pet data) -->
+    <exclude domain="file" path="." />
+    <!-- Local Room database (pets, vaccinations, medical reports, alerts) -->
+    <exclude domain="database" path="." />
+    <!-- SharedPreferences that may hold user data / auth state -->
+    <exclude domain="sharedpref" path="." />
+    <!-- External app storage -->
+    <exclude domain="external" path="." />
 </full-backup-content>

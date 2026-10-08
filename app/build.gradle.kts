@@ -53,6 +53,10 @@ android {
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    // java.time (LocalDate, DateTimeFormatter, ChronoUnit) is used in main code
+    // but only exists on API 26+. Core-library desugaring makes it work on the
+    // minSdk 24 (Android 7.x) floor without raising minSdk.
+    isCoreLibraryDesugaringEnabled = true
   }
   buildFeatures {
     compose = true
@@ -114,7 +118,9 @@ dependencies {
   implementation(libs.androidx.credentials.play.services)
   implementation(libs.googleid)
   implementation("com.google.android.gms:play-services-auth:21.3.0")
-  implementation(libs.firebase.appcheck.recaptcha)
+  // Firebase App Check: Play Integrity provider for release, Debug provider for debug.
+  implementation(libs.firebase.appcheck)
+  implementation(libs.firebase.appcheck.playintegrity)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.logging.interceptor)
@@ -141,5 +147,6 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
+  coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
 
