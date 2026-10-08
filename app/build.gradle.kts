@@ -121,6 +121,7 @@ dependencies {
   // Firebase App Check: Play Integrity provider for release, Debug provider for debug.
   implementation(libs.firebase.appcheck)
   implementation(libs.firebase.appcheck.playintegrity)
+  implementation(libs.firebase.appcheck.debug)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.logging.interceptor)
