@@ -225,9 +225,9 @@ fun MapScreen() {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (isLoading) {
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            Text(stringResource(R.string.map_getting_location), modifier = Modifier.padding(top = 12.dp), color = Color.Gray)
+                            Text(stringResource(R.string.map_getting_location), modifier = Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
-                            Text(stringResource(R.string.map_location_permission_needed), color = Color.Gray)
+                            Text(stringResource(R.string.map_location_permission_needed), color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.height(12.dp))
                             Button(
                                 onClick = {
@@ -293,7 +293,7 @@ fun MapScreen() {
                                     .clip(CircleShape)
                                     .background(Color(color))
                             )
-                            Text(label, fontSize = 10.sp, color = Color.Gray)
+                            Text(label, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -310,7 +310,7 @@ private fun PlaceCard(place: PetServicePlace) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -337,9 +337,9 @@ private fun PlaceCard(place: PetServicePlace) {
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(place.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
-                Text("${place.type} • ${String.format("%.1f", place.distanceKm)} km away", fontSize = 12.sp, color = Color.Gray)
+                Text("${place.type} • ${String.format("%.1f", place.distanceKm)} km away", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (place.address.isNotBlank()) {
-                    Text(place.address, fontSize = 11.sp, color = Color.Gray, maxLines = 1)
+                    Text(place.address, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
             }
             val ctx = LocalContext.current

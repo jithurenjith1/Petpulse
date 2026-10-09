@@ -200,7 +200,7 @@ fun SlideOutCartModal(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
-                        color = if (amountRemaining == 0.0) Color(0xFFE8F5E9) else Color(0xFFFFF3E0)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -536,8 +536,8 @@ fun SecureEscrowCheckoutModal(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE0F2F1)),
-                        border = BorderStroke(1.dp, Color(0xFF80CBC4))
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -550,12 +550,12 @@ fun SecureEscrowCheckoutModal(
                                     text = stringResource(R.string.modals_petpulse_kerala_escrow_protection),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF004D40)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     text = "Pay in cash at your doorstep after inspecting the items. No online payment is taken in the app.",
                                     fontSize = 11.sp,
-                                    color = Color(0xFF004D40)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -627,8 +627,8 @@ fun SecureEscrowCheckoutModal(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE)),
-                            border = BorderStroke(1.dp, Color(0xFFEF9A9A))
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
@@ -640,7 +640,7 @@ fun SecureEscrowCheckoutModal(
                                 Text(
                                     text = "Your order contains antibiotics/prescription meds. Attach your KSVC doctor's prescription slip.",
                                     fontSize = 11.sp,
-                                    color = Color(0xFF5D4037)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Button(
@@ -859,7 +859,7 @@ fun OrderCardWithTimeline(
 
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFFE8F5E9)
+                    color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
                         text = "₹${order.totalInr.toInt()} (${order.paymentMethod.take(8)}..)",
@@ -878,7 +878,7 @@ fun OrderCardWithTimeline(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                border = BorderStroke(1.dp, Color(0xFFF0D9A8))
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Row(
                     modifier = Modifier

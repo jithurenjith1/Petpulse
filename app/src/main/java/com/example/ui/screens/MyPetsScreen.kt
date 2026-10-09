@@ -1226,7 +1226,7 @@ fun FoodAndPlaysSubmenuSection(
                     foodsList.forEach { food ->
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFFFF3E0)
+                            color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Text(
                                 text = "• $food",
@@ -1255,7 +1255,7 @@ fun FoodAndPlaysSubmenuSection(
                     playsList.forEach { play ->
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFE1F5FE)
+                            color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Text(
                                 text = "★ $play",
@@ -1355,13 +1355,13 @@ fun TrainingSubmenuSection(
                             Text(text = "• $cmd", fontSize = 14.sp, fontWeight = FontWeight.Medium)
                             Surface(
                                 shape = RoundedCornerShape(4.dp),
-                                color = if (isMastered) AccentGreen.copy(alpha = 0.15f) else Color.LightGray.copy(alpha = 0.3f)
+                                color = if (isMastered) AccentGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 Text(
                                     text = if (isMastered) "MASTERED" else "IN PROGRESS",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (isMastered) AccentGreen else Color.DarkGray,
+                                    color = if (isMastered) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }
@@ -1921,7 +1921,7 @@ fun VaccinationReminderBanner(vaccinations: List<VaccinationRecord>) {
 
     val (record, days) = mostUrgent
     val overdue = days < 0
-    val bg = if (overdue) Color(0xFFF7DCD9) else Color(0xFFF6ECD8)
+    val bg = MaterialTheme.colorScheme.surfaceVariant
     val fg = if (overdue) Color(0xFFD62828) else Color(0xFFA87A1F)
 
     Card(

@@ -246,8 +246,8 @@ fun MarketplaceScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
-                            border = BorderStroke(1.dp, Color(0xFFFFB74D))
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                         ) {
                             Row(
                                 modifier = Modifier.padding(12.dp),
@@ -270,7 +270,7 @@ fun MarketplaceScreen(
                                     Text(
                                         text = "All medicines are dispatched in climate-controlled tamper-evident pouches from licensed Kerala veterinary stockists.",
                                         fontSize = 11.sp,
-                                        color = Color(0xFF5D4037)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -870,7 +870,7 @@ fun MarketPetCard(
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(
-                            if (pet.isImportedExotic) Color(0xFFF3E5F5) else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            if (pet.isImportedExotic) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -907,7 +907,7 @@ fun MarketPetCard(
                         Spacer(modifier = Modifier.width(6.dp))
                         Surface(
                             shape = RoundedCornerShape(4.dp),
-                            color = if (pet.listingType == "Adoption") Color(0xFFE8F5E9) else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            color = if (pet.listingType == "Adoption") MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                         ) {
                             Text(
                                 text = pet.listingType,
@@ -1016,13 +1016,13 @@ fun MarketPetCard(
 
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFFE0F2F1)
+                    color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
                         text = "📍 ${pet.city}, Kerala",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF00796B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                     )
                 }
@@ -1112,7 +1112,7 @@ fun MarketProductCard(
                             .size(50.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(
-                                if (product.isMedicine) Color(0xFFE8F5E9) else Color(0xFFFFF3E0)
+                                MaterialTheme.colorScheme.surfaceVariant
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -1188,7 +1188,7 @@ fun MarketProductCard(
                 Spacer(modifier = Modifier.height(6.dp))
                 Surface(
                     shape = RoundedCornerShape(4.dp),
-                    color = Color(0xFFFFEBEE)
+                    color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
                         text = stringResource(R.string.market_prescription_required_attach_at_checkout),
@@ -1270,13 +1270,13 @@ fun GroomingServiceCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Surface(
                         shape = RoundedCornerShape(4.dp),
-                        color = Color(0xFFE0F7FA)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = if (service.isInHomeVan) "🚐 AT-DOORSTEP GROOMING VAN" else "🏬 CLINIC SPA",
                             fontSize = 9.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF006064),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -1390,7 +1390,7 @@ fun VerifiedDoctorCard(
                         modifier = Modifier
                             .size(50.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFE8F5E9)),
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

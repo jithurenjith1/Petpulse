@@ -287,7 +287,7 @@ fun AdminScreen(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(dealer.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                    Text(dealer.phone + "  -  " + dealer.city, fontSize = 12.sp, color = Color.Gray)
+                                    Text(dealer.phone + "  -  " + dealer.city, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 TextButton(onClick = {
                                     try {
@@ -373,7 +373,7 @@ private fun AssignBookingDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(title, fontWeight = FontWeight.Bold)
-                Text(booking.customerName + " - " + booking.customerPhone, fontSize = 12.sp, color = Color.Gray)
+                Text(booking.customerName + " - " + booking.customerPhone, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (booking.providerName.isNotBlank()) {
                     Text("Customer requested: " + booking.providerName, fontSize = 12.sp, color = Color(0xFFA87A1F))
                 }
@@ -400,7 +400,7 @@ private fun AssignBookingDialog(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(c.first, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                                    Text(c.third, fontSize = 11.sp, color = Color.Gray)
+                                    Text(c.third, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     if (c.second.isNotBlank()) {
                                         Text(c.second, fontSize = 11.sp, color = Color(0xFF1976D2))
                                     }
@@ -417,7 +417,7 @@ private fun AssignBookingDialog(
                     Text(
                         "No saved providers yet. Add vets/partners in the admin panel, or type the name below.",
                         fontSize = 11.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(8.dp))
                 }
@@ -439,7 +439,7 @@ private fun AssignBookingDialog(
                 Text(
                     "On confirm: booking status becomes CONFIRMED and this name + phone are saved on the booking.",
                     fontSize = 10.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -528,8 +528,8 @@ private fun AdminDashboard(pendingCounts: Map<String, Int> = emptyMap(), onSelec
             item {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFFFF3E0),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFCC80)),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -583,7 +583,7 @@ private fun AdminDashboardCard(title: String, subtitle: String, badge: Int = 0, 
                     }
                 }
             }
-            Text(subtitle, fontSize = 10.sp, color = Color.Gray, maxLines = 1)
+            Text(subtitle, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
         }
     }
 }
@@ -606,11 +606,11 @@ private fun PartnersAdminTab(applications: List<PartnerApplication>, onDelete: (
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("🤝 " + a.kind, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text(formatTimestamp(a.createdAt), fontSize = 11.sp, color = Color.Gray)
+                        Text(formatTimestamp(a.createdAt), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (a.name.isNotBlank()) Text(a.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                    if (a.category.isNotBlank()) Text("Category: " + a.category, fontSize = 12.sp, color = Color.Gray)
-                    if (a.city.isNotBlank()) Text("City: " + a.city, fontSize = 12.sp, color = Color.Gray)
+                    if (a.category.isNotBlank()) Text("Category: " + a.category, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (a.city.isNotBlank()) Text("City: " + a.city, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (a.planName.isNotBlank()) Text("Plan: " + a.planName, fontSize = 12.sp, color = Color(0xFFA87A1F), fontWeight = FontWeight.SemiBold)
                     if (a.phone.isNotBlank()) Text("Phone: " + a.phone, fontSize = 12.sp, color = Color(0xFF1976D2))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -659,8 +659,8 @@ private fun ListingsAdminTab(listings: List<MarketPet>, onDelete: (String) -> Un
                             fontSize = 12.sp, fontWeight = FontWeight.Bold
                         )
                     }
-                    Text("${pet.species} • ${pet.breed} • ${pet.age} • ${pet.city}", fontSize = 12.sp, color = Color.Gray)
-                    Text("Seller: ${pet.sellerName} (${pet.sellerPhone})", fontSize = 12.sp, color = Color.Gray)
+                    Text("${pet.species} • ${pet.breed} • ${pet.age} • ${pet.city}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Seller: ${pet.sellerName} (${pet.sellerPhone})", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     TextButton(onClick = { onDelete(pet.id) }) {
                         Text("Delete listing", fontSize = 12.sp, color = Color(0xFFD32F2F))
                     }
@@ -687,11 +687,11 @@ private fun LostAlertsAdminTab(alerts: List<AdminLostPetAlert>, onDelete: (Strin
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("🚨 ${alert.petName}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text(alert.date, fontSize = 11.sp, color = Color.Gray)
+                        Text(alert.date, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("${alert.species} • ${alert.breed}", fontSize = 12.sp, color = Color.Gray)
+                    Text("${alert.species} • ${alert.breed}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (alert.location.isNotBlank()) {
-                        Text("Last seen: ${alert.location}", fontSize = 12.sp, color = Color.Gray)
+                        Text("Last seen: ${alert.location}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (alert.reward.isNotBlank()) {
                         Text("Reward: ${alert.reward}", fontSize = 12.sp, color = Color(0xFFA87A1F))
@@ -734,9 +734,9 @@ private fun FoundReportsAdminTab(reports: List<FoundPetReport>, onDelete: (Strin
                     if (report.location.isNotBlank()) {
                         Text("Where seen: ${report.location}", fontSize = 12.sp, color = Color(0xFFE65100))
                     }
-                    Text("When: ${formatTimestamp(report.createdAt)}", fontSize = 12.sp, color = Color.Gray)
+                    Text("When: ${formatTimestamp(report.createdAt)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (report.note.isNotBlank()) {
-                        Text("Note: ${report.note}", fontSize = 12.sp, color = Color.Gray)
+                        Text("Note: ${report.note}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text("Finder phone: ${report.finderPhone}", fontSize = 12.sp, color = Color(0xFF1976D2), fontWeight = FontWeight.SemiBold)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -805,17 +805,17 @@ private fun AdminBookingCard(
                 Text(statusLabel, color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             Text("${booking.customerName} - ${booking.customerPhone}", fontSize = 13.sp)
-            Text("Pet: ${booking.petName}", fontSize = 12.sp, color = Color.Gray)
+            Text("Pet: ${booking.petName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (booking.providerName.isNotBlank()) {
-                Text("Requested: ${booking.providerName} (${booking.serviceInfo})", fontSize = 12.sp, color = Color.Gray)
+                Text("Requested: ${booking.providerName} (${booking.serviceInfo})", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
-                Text("${booking.serviceInfo}", fontSize = 12.sp, color = Color.Gray)
+                Text("${booking.serviceInfo}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (booking.dateLabel.isNotBlank() || booking.slot.isNotBlank()) {
-                Text("Schedule: ${booking.dateLabel} ${booking.slot}".trim(), fontSize = 12.sp, color = Color.Gray)
+                Text("Schedule: ${booking.dateLabel} ${booking.slot}".trim(), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (booking.notes.isNotBlank()) {
-                Text("Notes: ${booking.notes}", fontSize = 12.sp, color = Color.Gray)
+                Text("Notes: ${booking.notes}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (booking.feeInr > 0) {
                 Text("Fee: ₹ ${booking.feeInr.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
@@ -925,7 +925,7 @@ private fun AdminOrderCard(
                 Text(statusLabel, color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             Text("${order.customerName} - ${order.customerPhone}", fontSize = 13.sp)
-            Text("${order.address}, ${order.city}", fontSize = 12.sp, color = Color.Gray)
+            Text("${order.address}, ${order.city}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
                 "${order.items.sumOf { it.quantity }} ${stringResource(R.string.admin_items)} - ₹ ${order.totalInr.toInt()}",
                 fontSize = 13.sp,
@@ -1164,7 +1164,7 @@ private fun ProductsAdminTab(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(p.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                            Text("${p.listType} - ₹ ${p.priceInr.toInt()}", fontSize = 12.sp, color = Color.Gray)
+                            Text("${p.listType} - ₹ ${p.priceInr.toInt()}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         TextButton(onClick = { onDelete(p.id) }) {
                             Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
@@ -1242,7 +1242,7 @@ private fun DealersAdminTab(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(d.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                            Text("${d.phone} - ${d.city}", fontSize = 12.sp, color = Color.Gray)
+                            Text("${d.phone} - ${d.city}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         TextButton(onClick = { onDelete(d.id) }) {
                             Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
@@ -1396,7 +1396,7 @@ private fun VetsAdminTab(
                         Text("${vet.specialization} • ${vet.clinicName}, ${vet.clinicCity}", fontSize = 12.sp)
                         Text(
                             "Video ₹${vet.videoConsultFeeInr.toInt()} • Clinic ₹${vet.inPersonConsultFeeInr.toInt()} • ${vet.phone}",
-                            fontSize = 12.sp, color = Color.Gray
+                            fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -1421,11 +1421,11 @@ private fun SupportTicketsAdminTab(tickets: List<SupportTicket>, onDelete: (Stri
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("${t.category}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text(formatTimestamp(t.createdAt), fontSize = 11.sp, color = Color.Gray)
+                        Text(formatTimestamp(t.createdAt), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(t.subject, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
                     if (t.details.isNotBlank()) {
-                        Text(t.details, fontSize = 12.sp, color = Color.Gray)
+                        Text(t.details, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (t.contact.isNotBlank()) {
                         Text("Contact: ${t.contact}", fontSize = 12.sp, color = Color(0xFF1976D2))
@@ -1455,7 +1455,7 @@ private fun RescueReportsAdminTab(reports: List<RescueReport>, onDelete: (String
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("🐕 ${r.animalType}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text(formatTimestamp(r.createdAt), fontSize = 11.sp, color = Color.Gray)
+                        Text(formatTimestamp(r.createdAt), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (r.description.isNotBlank()) {
                         Text(r.description, fontSize = 12.sp)

@@ -577,7 +577,7 @@ fun LostPetSosDialog(
 
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFFFEBEE),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -594,7 +594,7 @@ fun LostPetSosDialog(
                         Text(
                             text = "Push notifications and live map pins will be broadcasted to all guardians within 5km radius.",
                             fontSize = 11.sp,
-                            color = Color(0xFFB71C1C)
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 }

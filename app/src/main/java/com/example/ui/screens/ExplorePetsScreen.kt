@@ -301,7 +301,7 @@ fun FoodItemCard(item: FoodItem, onAddToList: () -> Unit) {
                 Column(modifier = Modifier.weight(1f)) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = Color(0xFFE8F5E9)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = item.subType.uppercase(),
@@ -377,7 +377,7 @@ fun AccessoryItemCard(item: AccessoryItem, onBuy: () -> Unit) {
                 Column(modifier = Modifier.weight(1f)) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = Color(0xFFE1F5FE)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = item.subType.uppercase(),
@@ -502,7 +502,7 @@ fun TrainingGuideCard(guide: TrainingGuide) {
                 }
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = if (guide.level == "Basic") Color(0xFFE8F5E9) else MaterialTheme.colorScheme.surfaceVariant
+                    color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
                         text = "${guide.level.uppercase()} LEVEL",
@@ -540,7 +540,7 @@ fun TrainingGuideCard(guide: TrainingGuide) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(Icons.Default.Lightbulb, contentDescription = null, tint = AccentAmber, modifier = Modifier.size(18.dp))
-                    Text("Expert Tip: ${guide.tips}", fontSize = 11.sp, color = Color(0xFF6D4C41))
+                    Text("Expert Tip: ${guide.tips}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

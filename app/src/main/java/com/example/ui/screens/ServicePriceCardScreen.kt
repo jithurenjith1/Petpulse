@@ -181,7 +181,7 @@ private fun PriceRow(item: PriceItem) {
                 Text(
                     text = stringResource(item.noteRes),
                     fontSize = 11.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Spacer(Modifier.width(12.dp))

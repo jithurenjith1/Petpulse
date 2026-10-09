@@ -90,7 +90,7 @@ private fun PetChip(pet: UserPet, isSelected: Boolean, onClick: () -> Unit, onLo
         modifier = Modifier
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = RoundedCornerShape(20.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
+        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
         border = androidx.compose.foundation.BorderStroke(
             1.dp,
             if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
@@ -171,7 +171,7 @@ fun AddPetDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
         title = {
             Row(
@@ -181,7 +181,7 @@ fun AddPetDialog(
             ) {
                 Text(stringResource(R.string.switcher_add_new_pet), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground)
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Gray)
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         },
@@ -199,7 +199,7 @@ fun AddPetDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text(stringResource(R.string.switcher_species), fontSize = 13.sp, color = Color.Gray)
+                Text(stringResource(R.string.switcher_species), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(speciesOptions) { s ->
                         FilterChip(
@@ -223,7 +223,7 @@ fun AddPetDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text(stringResource(R.string.switcher_gender), fontSize = 13.sp, color = Color.Gray)
+                Text(stringResource(R.string.switcher_gender), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     genderOptions.forEach { g ->
                         FilterChip(

@@ -153,7 +153,7 @@ fun PartnersServicesScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 4.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFAF6E8)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA87A1F))
             ) {
                 Row(
@@ -179,7 +179,7 @@ fun PartnersServicesScreen(
                         Text(
                             "Appear at the top of grooming, boarding & vet searches. Plans from ₹999/month.",
                             fontSize = 11.sp,
-                            color = Color(0xFF7A6A45)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     FilledTonalButton(
@@ -633,7 +633,7 @@ fun GroomingCenterCard(
                         if (center.verified) {
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = Color(0xFFE8F5E9)
+                                color = MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
@@ -733,7 +733,7 @@ fun SubscriptionCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = if (subscription.planType == "Yearly") Color(0xFFE8F5E9) else Color(0xFFE3F2FD)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = "${subscription.planType.uppercase()} RECURRING PLAN",
@@ -959,8 +959,8 @@ fun FindMyPetSection(
         // 5km SOS Alert Broadcast Card
         Card(
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF0F0)),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFCDD2)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -971,7 +971,7 @@ fun FindMyPetSection(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Default.NotificationImportant, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(26.dp))
-                        Text(stringResource(R.string.partners_find_my_pet_5km_sos_network), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFB71C1C))
+                        Text(stringResource(R.string.partners_find_my_pet_5km_sos_network), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.error)
                     }
                 }
 
@@ -1214,7 +1214,7 @@ fun PetListingCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = if (listing.listingType == "Adoption") Color(0xFFE8F5E9) else Color(0xFFFFF3E0)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = listing.listingType.uppercase(),
@@ -1525,7 +1525,7 @@ fun FeaturedPlansDialog(
                             .clickable { selectedPlan = index },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected) Color(0xFFFAF6E8) else MaterialTheme.colorScheme.surface
+                            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
                         ),
                         border = androidx.compose.foundation.BorderStroke(
                             width = if (isSelected) 2.dp else 1.dp,
@@ -1709,7 +1709,7 @@ fun HelpAndRescueSection(
         Card(
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFECB3)),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1777,14 +1777,14 @@ fun HelpAndRescueSection(
         // ---- 3. Donate & Help ----
         Card(
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC8E6C9)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.Favorite, contentDescription = null, tint = Color(0xFF2E7D32), modifier = Modifier.size(26.dp))
-                    Text("Donate & Help Shelters", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF1B5E20))
+                    Text("Donate & Help Shelters", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 Text(

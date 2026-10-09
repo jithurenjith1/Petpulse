@@ -183,7 +183,7 @@ fun RealSosScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(48.dp))
-                        Text(stringResource(R.string.sos_waiting_for_location), color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
+                        Text(stringResource(R.string.sos_waiting_for_location), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
             }
@@ -194,14 +194,14 @@ fun RealSosScreen(
             Card(
                 modifier = Modifier.fillMaxWidth().padding(12.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.sos_current_location), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Lat: ${String.format("%.6f", currentLat)}", fontSize = 12.sp, color = Color.Gray)
-                    Text("Lon: ${String.format("%.6f", currentLon)}", fontSize = 12.sp, color = Color.Gray)
-                    Text("Track points: ${locationHistory.size}", fontSize = 12.sp, color = Color.Gray)
+                    Text("Lat: ${String.format("%.6f", currentLat)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Lon: ${String.format("%.6f", currentLon)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Track points: ${locationHistory.size}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "Google Maps: https://maps.google.com/?q=$currentLat,$currentLon",
