@@ -168,6 +168,8 @@ fun MyPetsScreen(
     onOpenAiPhoto: () -> Unit = {},
     onOpenToxicFood: () -> Unit = {},
     onOpenServicePrice: () -> Unit = {},
+    onOpenHousingHelp: () -> Unit = {},
+    onOpenConsentInfo: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -530,7 +532,9 @@ fun MyPetsScreen(
                         onSavePetDirectly = onSavePetDirectly,
                         onShowMessage = onShowMessage,
                         onOpenToxicFood = onOpenToxicFood,
-                        onOpenServicePrice = onOpenServicePrice
+                        onOpenServicePrice = onOpenServicePrice,
+                        onOpenHousingHelp = onOpenHousingHelp,
+                        onOpenConsentInfo = onOpenConsentInfo
                     )
                 }
             }
@@ -1693,7 +1697,9 @@ fun HealthAndSettingsSection(
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
     onOpenToxicFood: () -> Unit = {},
-    onOpenServicePrice: () -> Unit = {}
+    onOpenServicePrice: () -> Unit = {},
+    onOpenHousingHelp: () -> Unit = {},
+    onOpenConsentInfo: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
@@ -1778,6 +1784,18 @@ fun HealthAndSettingsSection(
                 title = stringResource(R.string.mypets_service_price_card),
                 subtitle = stringResource(R.string.mypets_service_price_card_note),
                 onClick = onOpenServicePrice
+            )
+            HealthToolRow(
+                icon = Icons.Default.Home,
+                title = stringResource(R.string.mypets_housing_help),
+                subtitle = stringResource(R.string.mypets_housing_help_note),
+                onClick = onOpenHousingHelp
+            )
+            HealthToolRow(
+                icon = Icons.Default.PrivacyTip,
+                title = stringResource(R.string.mypets_consent_info),
+                subtitle = stringResource(R.string.mypets_consent_info_note),
+                onClick = onOpenConsentInfo
             )
             Divider()
             // App settings: account deletion (Google Play requirement)

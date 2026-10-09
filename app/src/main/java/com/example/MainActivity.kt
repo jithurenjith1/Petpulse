@@ -78,12 +78,23 @@ class MainActivity : AppCompatActivity() {
                 // First-run onboarding: shown once after install, before login.
                 val prefs = remember { getSharedPreferences("wagmiya_prefs", MODE_PRIVATE) }
                 var showOnboarding by remember { mutableStateOf(!prefs.getBoolean("onboarding_done", false)) }
+                // One-time privacy consent (India DPDP-style), shown after onboarding and
+                // before the login / main app. Stored in the same "wagmiya_prefs" file.
+                var showConsent by remember { mutableStateOf(!prefs.getBoolean("consent_accepted", false)) }
 
                 if (showOnboarding) {
                     OnboardingScreen(onFinish = {
                         prefs.edit().putBoolean("onboarding_done", true).apply()
                         showOnboarding = false
                     })
+                } else if (showConsent) {
+                    ConsentScreen(
+                        onAgree = {
+                            prefs.edit().putBoolean("consent_accepted", true).apply()
+                            showConsent = false
+                        },
+                        onExit = { finish() }
+                    )
                 } else if (authState.isAuthenticated && authState.user != null) {
                 JaneAndPalsApp(viewModel = viewModel, authViewModel = authViewModel)
                 } else {
@@ -132,11 +143,13 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val marketTrainingGuides by viewModel.marketTrainingGuides.collectAsStateWithLifecycle()
     val marketFoodSubs by viewModel.marketFoodSubscriptions.collectAsStateWithLifecycle()
     val marketBoarding by viewModel.marketBoardingSitters.collectAsStateWithLifecycle()
+    val marketTrainerPartners by viewModel.marketTrainerPartners.collectAsStateWithLifecycle()
     val adminListings by viewModel.adminListings.collectAsStateWithLifecycle()
     val adminLostAlerts by viewModel.adminLostAlerts.collectAsStateWithLifecycle()
 
     val partnerSubTab by viewModel.partnerSubTab.collectAsStateWithLifecycle()
     val boardingType by viewModel.boardingType.collectAsStateWithLifecycle()
+    val trainerSpeciality by viewModel.trainerSpeciality.collectAsStateWithLifecycle()
     val groomingCenters by viewModel.groomingCenters.collectAsStateWithLifecycle()
     val foodSubscriptions by viewModel.foodSubscriptions.collectAsStateWithLifecycle()
     val boardingSitters by viewModel.boardingSitters.collectAsStateWithLifecycle()
@@ -193,6 +206,8 @@ val appCtx = LocalContext.current
     var showHealthRecordsScreen by remember { mutableStateOf(false) }
     var showToxicFoodScreen by remember { mutableStateOf(false) }
     var showServicePriceScreen by remember { mutableStateOf(false) }
+    var showHousingHelpScreen by remember { mutableStateOf(false) }
+    var showConsentInfoScreen by remember { mutableStateOf(false) }
     var exploreSubTabUnused by remember { mutableStateOf(0) } // sub-tabs removed
     var showAddPetDialog by remember { mutableStateOf(false) }
 
@@ -357,7 +372,9 @@ val appCtx = LocalContext.current
                         isPremium = isPremium,
                         onOpenAiPhoto = { showAiPhotoScreen = true },
                         onOpenToxicFood = { showToxicFoodScreen = true },
-                        onOpenServicePrice = { showServicePriceScreen = true }
+                        onOpenServicePrice = { showServicePriceScreen = true },
+                        onOpenHousingHelp = { showHousingHelpScreen = true },
+                        onOpenConsentInfo = { showConsentInfoScreen = true }
                     )
 
                 }
@@ -453,6 +470,9 @@ val appCtx = LocalContext.current
                         groomingCenters = groomingCenters,
                         foodSubscriptions = marketFoodSubs,
                         boardingSitters = marketBoarding,
+                        trainerPartners = marketTrainerPartners,
+                        trainerSpeciality = trainerSpeciality,
+                        onSelectTrainerSpeciality = { viewModel.setTrainerSpeciality(it) },
                         lostPetAlerts = lostAlerts,
                         petListings = petListings,
                         gpsTrackers = gpsTrackers,
@@ -831,6 +851,21 @@ val appCtx = LocalContext.current
                     showServicePriceScreen = false
                     viewModel.setMainTab(MainNavTab.PARTNERS_SERVICES)
                 }
+            )
+        }
+    }
+
+    if (showHousingHelpScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            HousingHelpScreen(onClose = { showHousingHelpScreen = false })
+        }
+    }
+
+    if (showConsentInfoScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ConsentScreen(
+                onAgree = { showConsentInfoScreen = false },
+                onExit = { showConsentInfoScreen = false }
             )
         }
     }

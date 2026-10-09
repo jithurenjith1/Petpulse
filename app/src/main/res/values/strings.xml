@@ -516,4 +516,61 @@
     <string name="verified_become_partner_title">Become a verified partner</string>
     <string name="verified_become_partner_desc">Get your ID and address verified to earn customer trust and more bookings.</string>
     <string name="admin_verified_provider">Verified provider (ID + address)</string>
+    <!-- Privacy & Consent (India DPDP-style) -->
+    <string name="consent_title">Privacy &amp; Consent</string>
+    <string name="consent_subtitle">Before you continue, please read how Wagmiya handles your data.</string>
+    <string name="consent_points_heading">What we collect and how we protect it</string>
+    <string name="consent_point_data">Pet profiles, health records, contact details and photos that you add to the app.</string>
+    <string name="consent_point_firebase">Your data is stored securely in Firebase (Google Cloud) and sent only over HTTPS.</string>
+    <string name="consent_point_ai">When you use AI photo analysis, the pet photo you choose is sent to Google Gemini through Firebase AI Logic to generate the result.</string>
+    <string name="consent_point_location">Location is used only to show nearby services and for the lost-pet SOS alert. It is not used for advertising.</string>
+    <string name="consent_point_no_ads">There are no ads in Wagmiya and no third-party advertising trackers.</string>
+    <string name="consent_point_delete">You can delete your account and your data from inside the app at any time (My Pet &gt; Health &amp; Settings).</string>
+    <string name="consent_privacy_policy_link">Read the full Privacy Policy</string>
+    <string name="consent_agree">I Agree</string>
+    <string name="consent_not_now">Not now</string>
+    <string name="consent_footer">By tapping I Agree you confirm you are 18 or older and accept the Privacy Policy.</string>
+
+    <!-- Housing &amp; Society Help -->
+    <string name="housing_title">Housing &amp; Society Help</string>
+    <string name="housing_subtitle">Practical help for pet parents facing society, landlord or neighbour objections.</string>
+    <string name="housing_position_heading">Know your position</string>
+    <string name="housing_position_1">No central law bans keeping a pet in your own home. Keeping a companion animal is lawful in India.</string>
+    <string name="housing_position_2">Society bye-laws cannot take away a resident\'s right to keep a pet; they can only regulate how common areas are used.</string>
+    <string name="housing_position_3">Pets are members of the family. Wilfully harming or abandoning an animal is punishable under the Prevention of Cruelty to Animals Act, 1960.</string>
+    <string name="housing_position_4">A resident cannot be forced to give up a pet only because another resident objects; a real, proven nuisance must be shown.</string>
+    <string name="housing_position_5">Keep your records ready: vaccination certificate, registration or licence, and any adoption or purchase proof.</string>
+    <string name="housing_position_6">If the society insists, put your request in writing and ask for the rule or bye-law in writing too. Stay calm and escalate only if needed.</string>
+    <string name="housing_templates_heading">Ready-to-use messages</string>
+    <string name="housing_templates_note">Copy or share these and fill in the parts in brackets.</string>
+    <string name="housing_template_request_title">1. Polite request to the society or landlord</string>
+    <string name="housing_template_request_body">Dear Sir/Madam,\n\nI am a resident of [Flat No. / House Name]. I would like to inform you that I keep a pet dog or cat at my home. The animal is vaccinated, registered and well looked after, and is a member of my family.\n\nI request you to kindly note this and permit me to continue keeping my pet. I assure you that I will keep the pet clean and quiet, within my own premises, and will use the lift and common areas responsibly.\n\nThank you for your understanding.\n\nYours sincerely,\n[Your Name]\n[Flat No. / Contact Number]</string>
+    <string name="housing_template_complaint_title">2. Reply to a complaint</string>
+    <string name="housing_template_complaint_body">Dear Sir/Madam,\n\nThank you for sharing your concern about my pet. I take it seriously and would like to clarify the following:\n\n1. My pet is vaccinated, dewormed and registered. The records are available on request.\n2. My pet does not attack or trouble anyone and is always supervised in common areas.\n3. There is no central law that bans keeping a pet in a home, and society bye-laws cannot take away a resident\'s right to keep a pet.\n\nI request that we resolve this amicably. I am willing to take reasonable steps such as keeping the pet leashed in common areas, avoiding peak hours in the lift, and cleaning up after it.\n\nYours sincerely,\n[Your Name]\n[Flat No. / Contact Number]</string>
+    <string name="housing_template_whatsapp_title">3. Short WhatsApp message</string>
+    <string name="housing_template_whatsapp_body">Hello, I stay in [Flat No.]. I keep a pet dog or cat at home. It is vaccinated and registered, and I always keep it clean and supervised. Please let me know if there is any specific concern and I will address it right away. Thank you.</string>
+    <string name="housing_copy">Copy</string>
+    <string name="housing_share">Share</string>
+    <string name="housing_copied">Copied to clipboard</string>
+    <string name="housing_tips_heading">Useful tips</string>
+    <string name="housing_tip_1">Register or license your pet with the local body if your area requires it, and keep the certificate handy.</string>
+    <string name="housing_tip_2">Maintain up-to-date vaccination and deworming records, and share them if the society asks.</string>
+    <string name="housing_tip_3">Clean up after your pet in lifts, corridors and common areas, and keep your own premises clean.</string>
+    <string name="housing_tip_4">Control noise: train your pet not to bark at night, and use toys or walks to reduce stress.</string>
+    <string name="housing_tip_5">Use common areas responsibly: keep the pet leashed, avoid peak hours, and never leave it unattended.</string>
+    <string name="housing_tip_6">Be a good neighbour: talk to residents politely, join society meetings, and offer reasonable adjustments.</string>
+    <string name="housing_disclaimer">This is general information, not legal advice. For a specific dispute, consult a lawyer or a local animal welfare organisation.</string>
+
+    <!-- My Pets entry points -->
+    <string name="mypets_housing_help">Housing &amp; Society Help</string>
+    <string name="mypets_housing_help_note">Know your rights, ready-made letters and tips</string>
+    <string name="mypets_consent_info">Privacy &amp; Consent</string>
+    <string name="mypets_consent_info_note">What data we collect and how it is used</string>
+
+    <!-- Trainers &amp; Behaviour (Services) -->
+    <string name="partners_trainers_behaviour">8. Trainers &amp; Behaviour</string>
+    <string name="partners_trainers_network">Trainer &amp; Behaviourist Network</string>
+    <string name="partners_trainers_speciality_trainer">Trainer</string>
+    <string name="partners_trainers_speciality_behaviourist">Behaviourist</string>
+    <string name="partners_trainers_speciality_obedience">Obedience</string>
 </resources>

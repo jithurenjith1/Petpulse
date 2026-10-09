@@ -43,7 +43,8 @@ enum class PartnerSubTab {
     FIND_MY_PET,
     SALE_AND_ADOPTION,
     NEWS_AND_EVENTS,
-    SUPPORT
+    SUPPORT,
+    TRAINERS
 }
 
 class PetViewModel(application: Application) : AndroidViewModel(application) {
@@ -141,6 +142,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _boardingType = MutableStateFlow("Full Day (24hr)")
     val boardingType: StateFlow<String> = _boardingType.asStateFlow()
+
+    // Trainers & Behaviour: the selected speciality chip. Values must match the
+    // "category" an admin types when adding a Trainer partner (Trainer /
+    // Behaviourist / Obedience). Defaults to the first chip.
+    private val _trainerSpeciality = MutableStateFlow("Trainer")
+    val trainerSpeciality: StateFlow<String> = _trainerSpeciality.asStateFlow()
 
     // Customer profile state
     private val _customerProfile = MutableStateFlow(CustomerProfile())
@@ -582,6 +589,31 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    /**
+     * Trainers & behaviourists: owner-added partners only (Products with
+     * listType "Trainer"), reusing the same model and admin-managed collection
+     * that powers boarding / sitters / walkers.
+     */
+    val marketTrainerPartners: StateFlow<List<BoardingSitter>> =
+        commerceRepo.observeProducts().map { remote ->
+            val knownSpecialities = listOf("Trainer", "Behaviourist", "Obedience")
+            remote.filter { it.listType == "Trainer" }.map { p ->
+                BoardingSitter(
+                    name = p.name,
+                    // Respect the admin's category when it matches a filter chip,
+                    // otherwise default to the first chip so the partner is never hidden.
+                    sitterType = p.category.trim().takeIf { it in knownSpecialities } ?: "Trainer",
+                    tagline = p.description.take(60),
+                    experience = "Verified partner",
+                    rating = 4.5,
+                    priceEstimate = "₹ ${p.priceInr.toInt()}",
+                    features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
+                    verified = p.verified,
+                    photoUris = p.photoUris
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val petNews: StateFlow<PetNewsItem> = flowOf(repository.getPetNews())
         .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getPetNews())
 
@@ -635,6 +667,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setBoardingType(type: String) {
         _boardingType.value = type
+    }
+
+    fun setTrainerSpeciality(type: String) {
+        _trainerSpeciality.value = type
     }
 
     // Marketplace setters & helpers

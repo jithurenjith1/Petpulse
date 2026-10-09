@@ -42,7 +42,7 @@ import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.VerifiedDoctor
 import coil.compose.AsyncImage
 
-private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding")
+private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding", "Trainer")
 
 /**
  * Owner-only panel: Orders -> assign dealer -> mark delivered,
@@ -213,6 +213,7 @@ fun AdminScreen(
                                 ProductsAdminTab(products = products, listTypeFilter = "Boarding", onAdd = onAddProduct, onDelete = onDeleteProduct)
                             }
                         }
+                        "TRAINERS" -> ProductsAdminTab(products = products, listTypeFilter = "Trainer", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "LISTINGS" -> ListingsAdminTab(listings = listings, onDelete = onDeleteListing)
                         "PARTNERS" -> PartnersAdminTab(applications = partnerApplications, onDelete = onDeletePartnerApplication)
                         "SUPPORT" -> {
@@ -486,6 +487,7 @@ private fun sectionTitle(key: String?): String = when (key) {
     "ACCESSORIES" -> "🛍️ Accessories"
     "SUBSCRIPTION" -> "🔁 Subscriptions"
     "BOARDING" -> "🏡 Boarding & Sitters"
+    "TRAINERS" -> "Trainers & Behaviour"
     "LISTINGS" -> "🐾 Sale & Adoption"
     "ALERTS" -> "🚨 Find My Pet"
     "FOUND" -> "🐾 Found Reports"
@@ -515,6 +517,7 @@ private fun AdminDashboard(pendingCounts: Map<String, Int> = emptyMap(), onSelec
         "ACCESSORIES" to ("Accessories" to "Toys, clothing & more"),
         "SUBSCRIPTION" to ("Subscriptions" to "Food plan subscriptions"),
         "BOARDING" to ("Boarding & Sitters" to "Sitters + bookings"),
+        "TRAINERS" to ("Trainers & Behaviour" to "Trainer & behaviourist partners"),
         "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
         "ALERTS" to ("Find My Pet" to "SOS alerts + GPS trackers"),
         "FOUND" to ("Found Reports" to "Sighting reports from users"),

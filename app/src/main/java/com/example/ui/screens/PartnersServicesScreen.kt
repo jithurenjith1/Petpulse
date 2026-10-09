@@ -64,6 +64,9 @@ fun PartnersServicesScreen(
     onBookSitter: (String, String, String, String, String) -> Unit = { _, _, _, _, _ -> },
     onSubscribePlan: (String, String, String) -> Unit = { _, _, _ -> },
     onSubmitPartnerApplication: (String, String, String, String, String, String) -> Unit = { _, _, _, _, _, _ -> },
+    trainerPartners: List<BoardingSitter> = emptyList(),
+    trainerSpeciality: String = "",
+    onSelectTrainerSpeciality: (String) -> Unit = {},
     activePetName: String = "",
     modifier: Modifier = Modifier
 ) {
@@ -220,6 +223,7 @@ fun PartnersServicesScreen(
                         PartnerSubTab.SALE_AND_ADOPTION -> "🐾 5. Sale & Adoption"
                         PartnerSubTab.NEWS_AND_EVENTS -> "📰 6. News & Events"
                         PartnerSubTab.SUPPORT -> "🆘 7. Help & Rescue"
+                        PartnerSubTab.TRAINERS -> stringResource(R.string.partners_trainers_behaviour)
                     }
                     Tab(
                         selected = isSelected,
@@ -460,6 +464,67 @@ fun PartnersServicesScreen(
                         news = petNews,
                         events = events,
                         onRegisterEvent = { event -> onActionNotification("Registered for ${event.title}") }
+                    )
+                }
+            }
+
+            PartnerSubTab.TRAINERS -> {
+                // Section 8: Trainers & Behaviour — partner-listed trainers and
+                // behaviourists, reusing the same listing + booking pattern as
+                // boarding / sitters (Products collection, listType "Trainer").
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.partners_trainers_network),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = BluePrimaryDark
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            listOf(
+                                stringResource(R.string.partners_trainers_speciality_trainer) to "Trainer",
+                                stringResource(R.string.partners_trainers_speciality_behaviourist) to "Behaviourist",
+                                stringResource(R.string.partners_trainers_speciality_obedience) to "Obedience"
+                            ).forEach { pair ->
+                                FilterChip(
+                                    selected = trainerSpeciality == pair.second,
+                                    onClick = { onSelectTrainerSpeciality(pair.second) },
+                                    label = { Text(pair.first, fontSize = 11.sp) },
+                                    modifier = Modifier.testTag("trainer_filter_" + pair.second)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                val filteredTrainers = trainerPartners.filter { it.sitterType == trainerSpeciality }
+                items(filteredTrainers) { trainer ->
+                    BoardingSitterCard(
+                        sitter = trainer,
+                        onBook = { sitterToBook = trainer }
+                    )
+                }
+
+                // Become a verified trainer / behaviourist partner — same dialog
+                // used across the partner hub.
+                item {
+                    PartnerJoinCalloutCard(
+                        title = stringResource(R.string.verified_become_partner_title),
+                        description = stringResource(R.string.verified_become_partner_desc),
+                        onJoinClick = {
+                            partnerCategoryToJoin = "Trainer"
+                            showBusinessPartnerDialog = true
+                        }
                     )
                 }
             }
