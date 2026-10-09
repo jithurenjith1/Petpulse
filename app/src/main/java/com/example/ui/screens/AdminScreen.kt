@@ -76,7 +76,7 @@ fun AdminScreen(
     onDeleteDealer: (String) -> Unit,
     onAssignBooking: (String, String, String) -> Unit = { _, _, _ -> },
     onUpdateBookingStatus: (String, String) -> Unit = { _, _ -> },
-    onAddVet: (String, String, String, String, String, Double, Double, Boolean) -> Unit = { _, _, _, _, _, _, _, _ -> },
+    onAddVet: (String, String, String, String, String, Double, Double, Boolean, Boolean) -> Unit = { _, _, _, _, _, _, _, _, _ -> },
     onDeleteVet: (String) -> Unit = {},
     onDismiss: () -> Unit
 ) {
@@ -1257,7 +1257,7 @@ private fun DealersAdminTab(
 @Composable
 private fun VetsAdminTab(
     vets: List<VerifiedDoctor>,
-    onAdd: (String, String, String, String, String, Double, Double, Boolean) -> Unit,
+    onAdd: (String, String, String, String, String, Double, Double, Boolean, Boolean) -> Unit,
     onDelete: (String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
@@ -1268,6 +1268,7 @@ private fun VetsAdminTab(
     var videoFee by remember { mutableStateOf("") }
     var inPersonFee by remember { mutableStateOf("") }
     var isOnline by remember { mutableStateOf(false) }
+    var isVerified by remember { mutableStateOf(true) }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { Text("Add Partner Vet", fontWeight = FontWeight.Bold, fontSize = 14.sp) }
@@ -1330,6 +1331,15 @@ private fun VetsAdminTab(
             }
         }
         item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Switch(checked = isVerified, onCheckedChange = { isVerified = it })
+                Text(stringResource(R.string.admin_verified_provider), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+        item {
             Button(
                 onClick = {
                     if (name.isNotBlank() && phone.isNotBlank()) {
@@ -1341,7 +1351,8 @@ private fun VetsAdminTab(
                             phone.trim(),
                             videoFee.trim().toDoubleOrNull() ?: 0.0,
                             inPersonFee.trim().toDoubleOrNull() ?: 0.0,
-                            isOnline
+                            isOnline,
+                            isVerified
                         )
                         name = ""
                         specialization = ""
@@ -1351,6 +1362,7 @@ private fun VetsAdminTab(
                         videoFee = ""
                         inPersonFee = ""
                         isOnline = false
+                        isVerified = true
                     }
                 },
                 enabled = name.isNotBlank() && phone.isNotBlank()

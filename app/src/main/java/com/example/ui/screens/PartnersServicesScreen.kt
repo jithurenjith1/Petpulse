@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.petpulse.app.data.model.*
+import com.petpulse.app.ui.components.IdVerifiedBadge
 import com.petpulse.app.ui.theme.*
 import com.petpulse.app.ui.viewmodel.PartnerSubTab
 import coil.compose.AsyncImage
@@ -366,6 +367,19 @@ fun PartnersServicesScreen(
                     BoardingSitterCard(
                         sitter = sitter,
                         onBook = { sitterToBook = sitter }
+                    )
+                }
+
+                // Become a verified partner — opens the existing business/partner
+                // onboarding dialog (same flow used across the partner hub).
+                item {
+                    PartnerJoinCalloutCard(
+                        title = stringResource(R.string.verified_become_partner_title),
+                        description = stringResource(R.string.verified_become_partner_desc),
+                        onJoinClick = {
+                            partnerCategoryToJoin = "Boarding"
+                            showBusinessPartnerDialog = true
+                        }
                     )
                 }
             }
@@ -820,6 +834,12 @@ fun BoardingSitterCard(
             }
 
             Text(sitter.tagline, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+
+            // Green ID-verified badge + explanatory line (reuses the admin-set
+            // verified flag that is already toggled in the admin console).
+            if (sitter.verified) {
+                IdVerifiedBadge()
+            }
 
             Surface(
                 shape = RoundedCornerShape(10.dp),

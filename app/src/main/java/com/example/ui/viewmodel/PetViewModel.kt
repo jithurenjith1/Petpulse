@@ -1154,7 +1154,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         phone: String,
         videoFee: Double,
         inPersonFee: Double,
-        isOnline: Boolean = false
+        isOnline: Boolean = false,
+        isVerified: Boolean = true
     ) {
         viewModelScope.launch {
             val vet = VerifiedDoctor(
@@ -1170,7 +1171,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 videoConsultFeeInr = if (videoFee <= 0) 349.0 else videoFee,
                 inPersonConsultFeeInr = if (inPersonFee <= 0) 499.0 else inPersonFee,
                 phone = phone,
-                isOnline = isOnline
+                isOnline = isOnline,
+                isVerified = isVerified
             )
             _commerceEvent.value = if (commerceRepo.addVet(vet).isSuccess) R.string.admin_saved else R.string.admin_failed
         }

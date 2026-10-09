@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -165,6 +166,8 @@ fun MyPetsScreen(
     onDeleteCertificate: (PetCertificate) -> Unit = {},
     isPremium: Boolean = false,
     onOpenAiPhoto: () -> Unit = {},
+    onOpenToxicFood: () -> Unit = {},
+    onOpenServicePrice: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -525,7 +528,9 @@ fun MyPetsScreen(
                         healthScore = healthScore,
                         onEditPetClick = onEditPetClick,
                         onSavePetDirectly = onSavePetDirectly,
-                        onShowMessage = onShowMessage
+                        onShowMessage = onShowMessage,
+                        onOpenToxicFood = onOpenToxicFood,
+                        onOpenServicePrice = onOpenServicePrice
                     )
                 }
             }
@@ -1686,7 +1691,9 @@ fun HealthAndSettingsSection(
     onEditPetClick: () -> Unit,
     onDeleteAccount: () -> Unit = {},
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
-    onShowMessage: (String) -> Unit
+    onShowMessage: (String) -> Unit,
+    onOpenToxicFood: () -> Unit = {},
+    onOpenServicePrice: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
@@ -1751,6 +1758,27 @@ fun HealthAndSettingsSection(
                     }
                 }
             }
+            Divider()
+            // Health Tools — quick access to the offline reference screens
+            // (Toxic Food Check and the Service Price Card).
+            Text(
+                stringResource(R.string.mypets_health_tools),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            HealthToolRow(
+                icon = Icons.Default.Warning,
+                title = stringResource(R.string.mypets_toxic_food_check),
+                subtitle = stringResource(R.string.mypets_toxic_food_check_note),
+                onClick = onOpenToxicFood
+            )
+            HealthToolRow(
+                icon = Icons.Default.Info,
+                title = stringResource(R.string.mypets_service_price_card),
+                subtitle = stringResource(R.string.mypets_service_price_card_note),
+                onClick = onOpenServicePrice
+            )
             Divider()
             // App settings: account deletion (Google Play requirement)
             var showDeleteAccountDialog by remember { mutableStateOf(false) }
@@ -1939,5 +1967,30 @@ fun VaccinationReminderBanner(vaccinations: List<VaccinationRecord>) {
                 )
             }
         }
+    }
+}
+
+/** A tappable row used in the Health & Settings submenu to open a helper screen. */
+@Composable
+private fun HealthToolRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
     }
 }

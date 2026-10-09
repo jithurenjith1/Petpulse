@@ -191,6 +191,8 @@ val appCtx = LocalContext.current
     var showVetScreen by remember { mutableStateOf(false) }
     var showSubscriptionScreen by remember { mutableStateOf(false) }
     var showHealthRecordsScreen by remember { mutableStateOf(false) }
+    var showToxicFoodScreen by remember { mutableStateOf(false) }
+    var showServicePriceScreen by remember { mutableStateOf(false) }
     var exploreSubTabUnused by remember { mutableStateOf(0) } // sub-tabs removed
     var showAddPetDialog by remember { mutableStateOf(false) }
 
@@ -263,6 +265,8 @@ val appCtx = LocalContext.current
                 item { FeatureButton("Vet Online", Color(0xFFA87A1F)) { showVetScreen = true } }
                 item { FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true } }
                 item { FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true } }
+                item { FeatureButton(stringResource(R.string.mypets_feature_toxic_food), Color(0xFFD62828)) { showToxicFoodScreen = true } }
+                item { FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary) { showServicePriceScreen = true } }
             }
             }
 
@@ -351,7 +355,9 @@ val appCtx = LocalContext.current
                             viewModel.updatePetPhoto(uri)
                         },
                         isPremium = isPremium,
-                        onOpenAiPhoto = { showAiPhotoScreen = true }
+                        onOpenAiPhoto = { showAiPhotoScreen = true },
+                        onOpenToxicFood = { showToxicFoodScreen = true },
+                        onOpenServicePrice = { showServicePriceScreen = true }
                     )
 
                 }
@@ -639,7 +645,7 @@ val appCtx = LocalContext.current
             onDeleteListing = { id -> viewModel.adminDeleteListing(id) },
             onDeleteLostAlert = { id -> viewModel.adminDeleteLostAlert(id) },
             onDeleteFoundReport = { id -> viewModel.adminDeleteFoundReport(id) },
-            onAddVet = { n, sp, c, city, ph, vf, inf, on -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf, on) },
+            onAddVet = { n, sp, c, city, ph, vf, inf, on, vfy -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf, on, vfy) },
             onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
             supportTickets = adminSupportTickets,
             rescueReports = adminRescueReports,
@@ -807,6 +813,24 @@ val appCtx = LocalContext.current
             HealthRecordsHubScreen(
                 petName = activePet.name,
                 onClose = { showHealthRecordsScreen = false }
+            )
+        }
+    }
+
+    if (showToxicFoodScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ToxicFoodScreen(onClose = { showToxicFoodScreen = false })
+        }
+    }
+
+    if (showServicePriceScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ServicePriceCardScreen(
+                onClose = { showServicePriceScreen = false },
+                onOpenServices = {
+                    showServicePriceScreen = false
+                    viewModel.setMainTab(MainNavTab.PARTNERS_SERVICES)
+                }
             )
         }
     }

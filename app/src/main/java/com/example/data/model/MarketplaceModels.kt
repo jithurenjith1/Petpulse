@@ -114,7 +114,11 @@ data class VerifiedDoctor(
     val availableDays: String = "Mon - Sat (9:00 AM - 7:00 PM)",
     val phone: String = "+91 94471 88200",
     val isEmergencyAvailable: Boolean = true,
-    val isOnline: Boolean = false
+    val isOnline: Boolean = false,
+    // Admin-controlled ID-verification. Defaults to true so existing partner-vet
+    // documents (and Firestore toObject for docs without the field) stay verified,
+    // preserving the current behaviour. Defaults are mandatory for toObject().
+    val isVerified: Boolean = true
 )
 
 data class CartItem(

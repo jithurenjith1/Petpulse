@@ -3,6 +3,7 @@ package com.petpulse.app.ui.screens
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 import com.petpulse.app.data.model.VerifiedDoctor
+import com.petpulse.app.ui.components.IdVerifiedBadge
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -133,7 +134,7 @@ private fun VerifiedDoctor.toDisplayVet() = Vet(
     consultCount = reviewsCount,
     priceRupees = videoConsultFeeInr.toInt(),
     status = if (isOnline) OnlineStatus.ONLINE else OnlineStatus.OFFLINE,
-    verified = true,
+    verified = isVerified,
     id = id,
     source = this,
 )
@@ -393,15 +394,6 @@ private fun VetCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(Modifier.width(6.dp))
-                    if (vet.verified) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "KVC Verified",
-                            tint = Color(0xFF4CAF50),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
                 }
                 OnlineChip(vet.status)
             }
@@ -414,6 +406,12 @@ private fun VetCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            // Admin-set ID verification badge + explanatory line.
+            if (vet.verified) {
+                Spacer(Modifier.height(6.dp))
+                IdVerifiedBadge()
+            }
 
             Spacer(Modifier.height(4.dp))
 
