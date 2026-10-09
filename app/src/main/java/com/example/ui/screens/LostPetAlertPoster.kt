@@ -14,8 +14,8 @@ import java.util.Locale
  * (the feed uses a live snapshot listener, so an alert posted from one phone
  * appears on all other phones while the app is open).
  *
- * The document satisfies the deployed Firestore security rules, which require
- * the keys "ownerId" (matching the signed-in user) and "petName".
+ * The document satisfies the deployed Firestore security rules, which require the
+ * keys 'petName', 'ownerPhone', 'lat' and 'lng' (plus a signed-in user).
  *
  * Returns true on success, false on failure (e.g. not signed in or write denied).
  */
@@ -26,7 +26,9 @@ suspend fun postSosAlert(
     contactPhone: String,
     locationLink: String,
     reward: String = "",
-    alternatePhone: String = ""
+    alternatePhone: String = "",
+    lat: Double = 0.0,
+    lng: Double = 0.0
 ): Boolean {
     val user = FirebaseAuth.getInstance().currentUser ?: return false
     val date = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
@@ -41,8 +43,13 @@ suspend fun postSosAlert(
                     "breed" to breed,
                     "lastSeenLocation" to locationLink,
                     "reward" to reward,
+                    // Rules require the key 'ownerPhone' (number/string) plus numeric
+                    // 'lat' and 'lng'. 'contactPhone' is kept for the in-app readers.
+                    "ownerPhone" to contactPhone,
                     "contactPhone" to contactPhone,
                     "alternatePhone" to alternatePhone,
+                    "lat" to lat,
+                    "lng" to lng,
                     "date" to date
                 )
             )

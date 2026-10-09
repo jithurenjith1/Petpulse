@@ -798,7 +798,12 @@ val appCtx = LocalContext.current
     if (showSubscriptionScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             PetpulseCareScreen(
-                onClose = { showSubscriptionScreen = false }
+                onClose = { showSubscriptionScreen = false },
+                activePlan = when (customer.carePlan.trim().lowercase()) {
+                    "premium" -> "Premium"
+                    "care" -> "Care"
+                    else -> "Basic"
+                }
             )
         }
     }

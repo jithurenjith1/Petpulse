@@ -209,11 +209,15 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         .flatMapLatest { commerceRepo.observeMyOrders() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    // Live service bookings (doctor consults + trainer requests) — admin & customer
-    val adminBookings: StateFlow<List<ServiceBooking>> = commerceRepo.observeBookings()
+    // Live service bookings (doctor consults + trainer requests) — admin & customer.
+    // Re-binds on every auth change (same pattern as orders) so a listener created
+    // before sign-in does not latch onto a permission-denied, empty-forever path.
+    val adminBookings: StateFlow<List<ServiceBooking>> = signedInUid
+        .flatMapLatest { commerceRepo.observeBookings() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val myBookings: StateFlow<List<ServiceBooking>> = commerceRepo.observeMyBookings()
+    val myBookings: StateFlow<List<ServiceBooking>> = signedInUid
+        .flatMapLatest { commerceRepo.observeMyBookings() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val adminDealers: StateFlow<List<Dealer>> = commerceRepo.observeDealers()
@@ -227,20 +231,25 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         .map { remote -> remote.filter { it.listType == "GPS" } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    // Help & Support tickets and animal rescue reports (admin sees all)
-    val supportTickets: StateFlow<List<SupportTicket>> = commerceRepo.observeSupportTickets()
+    // Help & Support tickets and animal rescue reports (admin sees all).
+    // All four re-bind after sign-in (rules only allow the admin to read them).
+    val supportTickets: StateFlow<List<SupportTicket>> = signedInUid
+        .flatMapLatest { commerceRepo.observeSupportTickets() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val rescueReports: StateFlow<List<RescueReport>> = commerceRepo.observeRescueReports()
+    val rescueReports: StateFlow<List<RescueReport>> = signedInUid
+        .flatMapLatest { commerceRepo.observeRescueReports() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // "I saw this pet" sighting reports. Admin sees all details; the public SOS
     // page only checks whether a report exists for an alert (never shows the finder).
-    val foundReports: StateFlow<List<FoundPetReport>> = commerceRepo.observeFoundReports()
+    val foundReports: StateFlow<List<FoundPetReport>> = signedInUid
+        .flatMapLatest { commerceRepo.observeFoundReports() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // Partner applications (business join forms + featured plan requests) - admin reviews
-    val partnerApplications: StateFlow<List<PartnerApplication>> = commerceRepo.observePartnerApplications()
+    val partnerApplications: StateFlow<List<PartnerApplication>> = signedInUid
+        .flatMapLatest { commerceRepo.observePartnerApplications() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val marketPets: StateFlow<List<MarketPet>> = combine(
         _marketPetsList,
@@ -389,14 +398,54 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val lostPetAlerts: StateFlow<List<LostPetAlert>> = repository.lostPetAlerts
+    // Live SOS alerts come from Firestore (lost_pet_alerts), mapped to the local
+    // model. The old Room-backed table was never written (broadcastLostPet is not
+    // called anywhere), so this feed was permanently empty even when real SOS
+    // alerts existed in Firestore.
+    val lostPetAlerts: StateFlow<List<LostPetAlert>> = commerceRepo.observeLostPetAlerts()
+        .map { alerts ->
+            alerts.map { a ->
+                LostPetAlert(
+                    petName = a.petName,
+                    species = a.species,
+                    breed = a.breed,
+                    lastSeenLocation = a.location,
+                    distanceKm = 0.0,
+                    rewardAmount = a.reward,
+                    contactHelpline = a.contactPhone,
+                    reportedTime = a.date,
+                    description = "",
+                    alternatePhone = a.alternatePhone
+                )
+            }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    val petListings: StateFlow<List<PetListing>> = repository.petListings
+    // Sale & Adoption feed now mirrors the SAME Firestore market_listings the Market
+    // tab uses. The old Room table was local-only: listings posted there were
+    // invisible to every other user and to the admin panel.
+    val petListings: StateFlow<List<PetListing>> = _marketPetsList
+        .map { pets ->
+            pets.map { p ->
+                PetListing(
+                    petName = p.name,
+                    species = p.species,
+                    breed = p.breed,
+                    age = p.age,
+                    location = p.city,
+                    description = p.description,
+                    contactNumber = p.sellerPhone,
+                    listingType = p.listingType,
+                    priceEstimate = if (p.listingType == "Adoption") "Free for Adoption"
+                        else "₹ ${p.priceInr.toInt()}",
+                    postedBy = p.sellerName.ifBlank { "Community Member" }
+                )
+            }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -1472,21 +1521,23 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         description: String,
         phone: String
     ) {
-        viewModelScope.launch {
-            val listing = PetListing(
-                petName = petName,
-                species = species,
-                breed = breed,
-                age = age,
-                location = location,
-                description = description,
-                contactNumber = phone,
-                listingType = listingType,
-                priceEstimate = if (listingType == "Adoption") "Free for Adoption" else price,
-                postedBy = _customerProfile.value.name
-            )
-            repository.addPetListing(listing)
-        }
+        // Persist to the SAME Firestore market_listings collection the Market tab
+        // uses, so the listing is visible to every user and to the admin panel.
+        // (This previously wrote a local Room table nobody else could see.)
+        submitOwnerMarketPetListing(
+            name = petName,
+            species = species,
+            breed = breed,
+            age = age,
+            gender = "Unknown",
+            city = location,
+            isExotic = false,
+            listingType = listingType,
+            priceInr = parseRupees(price),
+            description = description,
+            phone = phone,
+            photos = emptyList()
+        )
     }
 
     fun updateCustomerProfile(name: String, email: String, phone: String) {
@@ -1625,6 +1676,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 favoritePlays = "",
                 trainingStatus = "",
                 trainingLevel = "Basic",
+                trainingMilestones = "",
                 avatarRes = "img_dog_jane",
                 notes = ""
             )

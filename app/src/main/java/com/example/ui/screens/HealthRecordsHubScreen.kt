@@ -73,19 +73,11 @@ fun HealthRecordsHubScreen(
     val textColor = if (isDark) Color(0xFFF2EEF7) else Color(0xFF1A1A1A)
     val mutedColor = if (isDark) Color(0xFFAFA8BC) else Color(0xFF666666)
 
-    // Demo timeline data (in-memory)
-    val timeline = remember {
-        mutableStateListOf(
-            TimelineEntry(EntryType.WEIGHT, "Weight Check", "10 Sep 2026", "14.5 kg, healthy range"),
-            TimelineEntry(EntryType.DEWORMING, "Deworming", "1 Sep 2026", "Drontal Plus, next due Dec 2026"),
-            TimelineEntry(EntryType.VACCINE, "Rabies Vaccination", "15 Aug 2026", "Next due: Aug 2027"),
-            TimelineEntry(EntryType.VET_VISIT, "Vet Visit — Annual Checkup", "20 Aug 2026", "All clear, healthy"),
-            TimelineEntry(EntryType.VACCINE, "Parvo Vaccination", "15 Aug 2026", "Booster dose"),
-            TimelineEntry(EntryType.WEIGHT, "Weight Check", "1 Aug 2026", "13.8 kg, slight underweight")
-        )
-    }
+    // Real records only: the timeline starts empty and fills as the user adds
+    // entries. No demo/placeholder medical history is shipped.
+    val timeline = remember { mutableStateListOf<TimelineEntry>() }
 
-    val allergies = remember { mutableStateListOf("Chicken protein (mild)") }
+    val allergies = remember { mutableStateListOf<String>() }
 
     var showAddWeight by remember { mutableStateOf(false) }
     var showAddDeworming by remember { mutableStateOf(false) }
@@ -114,9 +106,9 @@ fun HealthRecordsHubScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCard("Weight", "14.5 kg", "Last: 10 Sep", entryColor(EntryType.WEIGHT), surfaceColor, textColor, mutedColor, Modifier.weight(1f))
-                StatCard("Vaccines", "3/3", "Next: Aug 2027", entryColor(EntryType.VACCINE), surfaceColor, textColor, mutedColor, Modifier.weight(1f))
-                StatCard("Vet Visits", "2", "Last: 20 Aug", entryColor(EntryType.VET_VISIT), surfaceColor, textColor, mutedColor, Modifier.weight(1f))
+                StatCard("Weight", timeline.lastOrNull { it.type == EntryType.WEIGHT }?.let { it.notes.substringBefore(",").trim() } ?: "—", "From your entries", entryColor(EntryType.WEIGHT), surfaceColor, textColor, mutedColor, Modifier.weight(1f))
+                StatCard("Vaccines", "${timeline.count { it.type == EntryType.VACCINE }}", "Logged", entryColor(EntryType.VACCINE), surfaceColor, textColor, mutedColor, Modifier.weight(1f))
+                StatCard("Vet Visits", "${timeline.count { it.type == EntryType.VET_VISIT }}", "Logged", entryColor(EntryType.VET_VISIT), surfaceColor, textColor, mutedColor, Modifier.weight(1f))
             }
             Spacer(Modifier.height(16.dp))
 

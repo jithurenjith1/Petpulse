@@ -164,12 +164,15 @@ private fun petpulsePalette(): PetpulsePalette =
 
 @Composable
 fun PetpulseCareScreen(
-    onClose: () -> Unit = {}
+    onClose: () -> Unit = {},
+    activePlan: String = "Basic"
 ) {
     val palette = petpulsePalette()
     val ctx = LocalContext.current
     var billingPeriod by remember { mutableStateOf(BillingPeriod.MONTHLY) }
-    var currentPlan by remember { mutableStateOf("Basic") }
+    // Reflect the plan actually stored on the user's profile instead of always
+    // showing "Basic". Empty/unknown values fall back to the free plan.
+    val currentPlan = activePlan
 
     Scaffold(
         containerColor = palette.background,

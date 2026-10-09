@@ -235,7 +235,9 @@ fun RealSosScreen(
                                 breed = breed,
                                 contactPhone = ownerPhone,
                                 locationLink = "https://maps.google.com/?q=$currentLat,$currentLon",
-                                alternatePhone = altPhone
+                                alternatePhone = altPhone,
+                                lat = currentLat,
+                                lng = currentLon
                             )
                             alertSending = false
                         }
