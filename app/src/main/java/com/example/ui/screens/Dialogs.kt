@@ -273,7 +273,7 @@ fun EditPetProfileDialog(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "Rename Jane or change breed, age & preferences",
+                            text = "Rename your pet or change breed, age & preferences",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

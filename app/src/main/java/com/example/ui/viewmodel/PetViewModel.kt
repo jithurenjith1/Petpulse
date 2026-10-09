@@ -26,7 +26,6 @@ import com.petpulse.app.data.repository.FirestoreCommerceRepository
 enum class MainNavTab {
     MY_PETS,
     MARKETPLACE,
-    EXPLORE_PETS,
     PARTNERS_SERVICES,
 }
 
@@ -79,13 +78,33 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        // Pull the Premium gating fields (carePlan / carePlanUntil) from the
-        // customer's users/{uid} document. Only the plan fields are taken from
-        // Firestore so the local identity (name/email/phone) is never clobbered.
+        // Real signed-in identity. Take name / email / phone from the Firebase
+        // Auth user (never a hard-coded demo person) and track the sign-in flag.
+        viewModelScope.launch {
+            val auth = FirebaseAuth.getInstance()
+            auth.addAuthStateListener { fa ->
+                val user = fa.currentUser
+                val current = _customerProfile.value
+                _customerProfile.value = current.copy(
+                    name = user?.displayName?.takeIf { it.isNotBlank() } ?: current.name,
+                    email = user?.email?.takeIf { it.isNotBlank() } ?: current.email,
+                    phone = user?.phoneNumber?.takeIf { it.isNotBlank() } ?: current.phone,
+                    isLoggedIn = user != null
+                )
+            }
+        }
+
+        // Merge the users/{uid} profile document (name / email / phone / location
+        // plus the carePlan gating fields). A Firestore value is used only when it
+        // is non-blank, so an absent document never invents an identity.
         viewModelScope.launch {
             firestoreRepo.observeCustomerProfile().collect { remote ->
                 val current = _customerProfile.value
                 _customerProfile.value = current.copy(
+                    name = remote.name.takeIf { it.isNotBlank() } ?: current.name,
+                    email = remote.email.takeIf { it.isNotBlank() } ?: current.email,
+                    phone = remote.phone.takeIf { it.isNotBlank() } ?: current.phone,
+                    location = remote.location.takeIf { it.isNotBlank() } ?: current.location,
                     carePlan = remote.carePlan,
                     carePlanUntil = remote.carePlanUntil
                 )
@@ -303,22 +322,17 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val _verifiedDoctorsList = MutableStateFlow<List<VerifiedDoctor>>(emptyList())
-
     /** Real partner vets added by the owner (Firestore "vets" collection). */
     val partnerVets: StateFlow<List<VerifiedDoctor>> = commerceRepo.observeVets()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    // When partner vets exist they REPLACE the sample demo doctors; otherwise the
-    // demo list is shown so the Healthcare tab is never empty. Fresh in-session vet
-    // registrations are always kept on top.
+    // The Healthcare tab lists the owner-added partner vets, narrowed to the
+    // selected Kerala city. (Vet self-registration was dead code and was removed.)
     val verifiedDoctors: StateFlow<List<VerifiedDoctor>> = combine(
-        _verifiedDoctorsList, partnerVets, _selectedKeralaCity
-    ) { local, partners, city ->
-        val base = if (partners.isEmpty()) local
-        else partners + local.filter { it.id.startsWith("vet_reg_") }
-        if (city == "All Kerala") base
-        else base.filter { it.clinicCity.equals(city, ignoreCase = true) }
+        partnerVets, _selectedKeralaCity
+    ) { partners, city ->
+        if (city == "All Kerala") partners
+        else partners.filter { it.clinicCity.equals(city, ignoreCase = true) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Cart calculations
@@ -574,15 +588,21 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val events: StateFlow<List<PetEventItem>> = flowOf(repository.getUpcomingEvents())
         .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getUpcomingEvents())
 
-    // Quick Stats Calculation
-    val healthScore: StateFlow<Int> = vaccinations.map { list ->
-        if (list.isEmpty()) 95
-        else {
-            val completed = list.count { it.status == "Completed" }
-            val ratio = (completed.toFloat() / list.size.toFloat()) * 100
-            ratio.toInt().coerceIn(60, 100)
+    // Health score derived from the pet's OWN records (vaccinations, certificates
+    // and medical reports). When there is not enough data the score is 0, which the
+    // UI renders as an honest "Not enough data yet" state - never a fabricated 95.
+    val healthScore: StateFlow<Int> = combine(vaccinations, certificates, medicalReports) { vax, certs, reports ->
+        if (vax.isEmpty() && certs.isEmpty() && reports.isEmpty()) {
+            0
+        } else {
+            val completed = vax.count { it.status == "Completed" }
+            val vaxRatio = if (vax.isEmpty()) 0.0 else completed.toFloat() / vax.size.toFloat()
+            val score = 60.0 + vaxRatio * 30.0 +
+                (if (certs.isNotEmpty()) 5.0 else 0.0) +
+                (if (reports.isNotEmpty()) 5.0 else 0.0)
+            score.toInt().coerceIn(0, 100)
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 95)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     // Navigation setters
     fun setMainTab(tab: MainNavTab) {
@@ -700,34 +720,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun registerVeterinarian(
-        name: String,
-        degrees: String,
-        ksvcRegNumber: String,
-        specialization: String,
-        experienceYears: Int,
-        clinicName: String,
-        clinicCity: String,
-        clinicAddress: String,
-        videoConsultFeeInr: Double,
-        inPersonConsultFeeInr: Double,
-        phone: String
-    ) {
-        submitVetRegistration(
-            name = name,
-            degrees = degrees,
-            ksvcNumber = ksvcRegNumber,
-            specialization = specialization,
-            experience = experienceYears,
-            clinicName = clinicName,
-            city = clinicCity,
-            address = clinicAddress,
-            videoFee = videoConsultFeeInr,
-            inPersonFee = inPersonConsultFeeInr,
-            phone = phone
-        )
-    }
-
     fun bookDoctorConsultation(
         doctor: VerifiedDoctor,
         consultType: String,
@@ -823,7 +815,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         val subtotal = items.sumOf { it.priceInr * it.quantity }
         val deliveryFee = calculateDeliveryFee(subtotal, city, _isExpressDelivery.value)
         val total = subtotal + deliveryFee
-        val randomOtp = (1000..9999).random().toString()
         val orderNum = (10000..99999).random()
 
         val newOrder = EscrowOrder(
@@ -838,17 +829,17 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             customerName = name.ifBlank { _customerProfile.value.name },
             customerPhone = phone.ifBlank { _customerProfile.value.phone },
             paymentMethod = paymentMethod,
-            isEscrowProtected = true,
+            isEscrowProtected = false,
             status = OrderStatus.MERCHANT_CONFIRMED,
-            deliveryOtp = randomOtp,
-            deliveryRiderName = "Sreejith K. ($city Hub)",
-            deliveryRiderVehicle = "KL-07-CB-4412",
-            deliveryRiderPhone = "+91 98471 99221",
+            deliveryOtp = "",
+            deliveryRiderName = "",
+            deliveryRiderVehicle = "",
+            deliveryRiderPhone = "",
             orderDate = "Just now",
             timeline = listOf(
                 OrderTimelineEvent(
-                    title = "Order Placed & Escrow Secured",
-                    description = "₹${total.toInt()} held in Jane & Pals Kerala Escrow Shield.",
+                    title = "Order Placed",
+                    description = "Your order has been received.",
                     timestamp = "Just now",
                     isCompleted = true
                 ),
@@ -860,20 +851,20 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     isCurrent = true
                 ),
                 OrderTimelineEvent(
-                    title = "Packed & Sealed with Quality Seal",
+                    title = "Packed & Sealed",
                     description = "Safe transit with tamper-evident packaging.",
                     timestamp = "Upcoming",
                     isCompleted = false
                 ),
                 OrderTimelineEvent(
                     title = "Out for Doorstep Delivery",
-                    description = "Live rider assignment. Share OTP $randomOtp upon inspection.",
+                    description = "Our delivery partner will contact you before arrival.",
                     timestamp = "Estimated in 45-60 mins",
                     isCompleted = false
                 ),
                 OrderTimelineEvent(
-                    title = "Delivered & Escrow Released",
-                    description = "Seller paid only after customer confirms satisfaction.",
+                    title = "Delivered",
+                    description = "Please pay the delivery partner in cash on delivery.",
                     timestamp = "Pending Delivery",
                     isCompleted = false
                 )
@@ -1290,47 +1281,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Vet Registration
-    fun submitVetRegistration(
-        name: String,
-        degrees: String,
-        ksvcNumber: String,
-        specialization: String,
-        experience: Int,
-        clinicName: String,
-        city: String,
-        address: String,
-        videoFee: Double,
-        inPersonFee: Double,
-        phone: String
-    ) {
-        val newVet = VerifiedDoctor(
-            id = "vet_reg_${System.currentTimeMillis()}",
-            name = if (name.startsWith("Dr.")) name else "Dr. $name",
-            degrees = degrees.ifBlank { "BVSc & AH" },
-            ksvcRegNumber = ksvcNumber.ifBlank { "KSVC/2024/${(1000..9999).random()}" },
-            specialization = specialization.ifBlank { "Veterinary Physician" },
-            experienceYears = if (experience <= 0) 5 else experience,
-            clinicName = clinicName.ifBlank { "$name Pet Care Clinic" },
-            clinicCity = city.ifBlank { "Kochi" },
-            clinicAddress = address.ifBlank { "Main Road, $city, Kerala" },
-            videoConsultFeeInr = if (videoFee <= 0) 349.0 else videoFee,
-            inPersonConsultFeeInr = if (inPersonFee <= 0) 499.0 else inPersonFee,
-            rating = 5.0,
-            reviewsCount = 1,
-            availableDays = "Mon - Sat (9:00 AM - 7:00 PM)",
-            phone = phone.ifBlank { "+91 98470 00000" },
-            isEmergencyAvailable = true
-        )
-        _verifiedDoctorsList.value = listOf(newVet) + _verifiedDoctorsList.value
-    }
-
     // Business actions for My Pet
     fun renameAndConfigurePet(name: String, breed: String, ageYears: Int, gender: String) {
         viewModelScope.launch {
             val current = currentPetOrNull() ?: return@launch
             val updated = current.copy(
-                name = name.ifBlank { "Jane" },
+                name = name.ifBlank { "" },
                 breed = breed.ifBlank { "Indie" },
                 ageYears = ageYears,
                 gender = gender.ifBlank { "Female" }
@@ -1355,7 +1311,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val current = currentPetOrNull() ?: return@launch
             val updated = current.copy(
-                name = name.ifBlank { "Jane" },
+                name = name.ifBlank { "" },
                 breed = breed.ifBlank { "Indie" },
                 gender = gender.ifBlank { "Female" },
                 ageYears = ageYears,
@@ -1544,11 +1500,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         val existingPlan = _customerProfile.value.carePlan
         val existingUntil = _customerProfile.value.carePlanUntil
         val updated = CustomerProfile(
-            name = name.ifBlank { "Alex Morgan" },
-            email = email.ifBlank { "alex.morgan@example.com" },
-            phone = phone.ifBlank { "+91 98470 12345" },
-            location = "Kochi, Kerala",
+            name = name.trim(),
+            email = email.trim(),
+            phone = phone.trim(),
+            location = _customerProfile.value.location,
             isLoggedIn = true,
+            memberSince = _customerProfile.value.memberSince,
             carePlan = existingPlan,
             carePlanUntil = existingUntil
         )

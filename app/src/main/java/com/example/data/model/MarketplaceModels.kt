@@ -156,13 +156,13 @@ data class EscrowOrder(
     val deliveryAddress: String,
     val customerName: String,
     val customerPhone: String,
-    val paymentMethod: String, // "Cash on Delivery (COD)", "UPI (GPay / PhonePe)", "Cards / Netbanking"
-    val isEscrowProtected: Boolean = true,
+    val paymentMethod: String, // "Cash on Delivery (COD)" — the app has no online payment SDK
+    val isEscrowProtected: Boolean = false,
     val status: OrderStatus = OrderStatus.OUT_FOR_DELIVERY,
-    val deliveryOtp: String = "5824",
-    val deliveryRiderName: String = "Sreejith K. (Kochi Hub)",
-    val deliveryRiderVehicle: String = "KL-07-CB-4412",
-    val deliveryRiderPhone: String = "+91 98471 99221",
+    val deliveryOtp: String = "",
+    val deliveryRiderName: String = "",
+    val deliveryRiderVehicle: String = "",
+    val deliveryRiderPhone: String = "",
     val orderDate: String,
     val timeline: List<OrderTimelineEvent>
 )
@@ -179,7 +179,7 @@ data class DoctorBooking(
     val timeSlot: String,
     val feeInr: Double,
     val status: String = "Confirmed",
-    val meetingLinkOrAddress: String = "https://meet.google.com/jp-vet-kerala"
+    val meetingLinkOrAddress: String = ""
 )
 
 

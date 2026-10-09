@@ -46,8 +46,6 @@ fun ProfileSettingsScreen(
     onLoginClick: () -> Unit,
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
-    darkTheme: Boolean = false,
-    onToggleDarkTheme: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var petNameInput by remember(pet.name) { mutableStateOf(pet.name) }
@@ -357,42 +355,6 @@ fun ProfileSettingsScreen(
                         ) {
                             Text(stringResource(R.string.profile_save_pet_name), fontSize = 12.sp)
                         }
-                    }
-                }
-            }
-        }
-
-        // 3b. Appearance - light / dark theme toggle
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(
-                        text = "Appearance",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Dark theme", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
-                            Text("Use the Wagmiya magenta dark palette", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(
-                            checked = darkTheme,
-                            onCheckedChange = onToggleDarkTheme,
-                            modifier = Modifier.testTag("dark_theme_switch")
-                        )
                     }
                 }
             }

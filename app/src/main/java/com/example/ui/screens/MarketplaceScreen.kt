@@ -103,7 +103,7 @@ fun MarketplaceScreen(
             )
         }
 
-        // 2. Quick Action Buttons (List Pet & Vet Register)
+        // 2. Quick Action Button (List Pet)
         item {
             MarketplaceQuickActionRow(
                 onOpenListPetModal = onOpenListPetModal,
@@ -278,6 +278,12 @@ fun MarketplaceScreen(
                     }
                 }
 
+                if (medicines.isEmpty()) {
+                    item {
+                        EmptyMarketState(message = stringResource(R.string.market_empty_no_products))
+                    }
+                }
+
                 items(medicines, key = { it.id }) { med ->
                     MarketProductCard(
                         product = med,
@@ -295,6 +301,12 @@ fun MarketplaceScreen(
                     )
                 }
 
+                if (groomingServices.isEmpty()) {
+                    item {
+                        EmptyMarketState(message = stringResource(R.string.market_empty_no_services))
+                    }
+                }
+
                 items(groomingServices, key = { it.id }) { service ->
                     GroomingServiceCard(
                         service = service,
@@ -310,6 +322,12 @@ fun MarketplaceScreen(
                         subtitle = "KSVC certified vets for tele-consults + vaccinations, checkups & treatments",
                         icon = Icons.Default.LocalHospital
                     )
+                }
+
+                if (doctors.isEmpty() && healthCareItems.isEmpty()) {
+                    item {
+                        EmptyMarketState(message = stringResource(R.string.market_empty_no_vets))
+                    }
                 }
 
                 items(doctors, key = { it.id }) { doctor ->
@@ -340,6 +358,12 @@ fun MarketplaceScreen(
                     )
                 }
 
+                if (accessories.isEmpty()) {
+                    item {
+                        EmptyMarketState(message = stringResource(R.string.market_empty_no_products))
+                    }
+                }
+
                 items(accessories, key = { "a_" + it.name }) { item ->
                     AccessoryItemCard(
                         item = item,
@@ -358,6 +382,12 @@ fun MarketplaceScreen(
                         subtitle = "Basic to advanced training programs for your pet",
                         icon = Icons.Default.School
                     )
+                }
+
+                if (trainingGuides.isEmpty()) {
+                    item {
+                        EmptyMarketState(message = stringResource(R.string.market_empty_no_training))
+                    }
                 }
 
                 items(trainingGuides, key = { "t_" + it.title }) { guide ->
@@ -1042,7 +1072,7 @@ fun MarketPetCard(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
-                        text = if (pet.listingType == "Adoption") "Adopt Pet" else "Reserve with Escrow",
+                        text = if (pet.listingType == "Adoption") "Adopt Pet" else "Reserve Pet",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -1512,8 +1542,8 @@ fun MarketSectionHeader(
 @Composable
 fun EmptyMarketState(
     message: String,
-    actionLabel: String,
-    onAction: () -> Unit
+    actionLabel: String = "",
+    onAction: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -1537,11 +1567,13 @@ fun EmptyMarketState(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
-            Button(
-                onClick = onAction,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text(actionLabel, fontSize = 12.sp)
+            if (actionLabel.isNotBlank()) {
+                Button(
+                    onClick = onAction,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(actionLabel, fontSize = 12.sp)
+                }
             }
         }
     }

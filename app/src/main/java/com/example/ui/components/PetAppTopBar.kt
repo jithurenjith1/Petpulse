@@ -103,7 +103,11 @@ fun PetAppTopBar(
 
                         }
                         Text(
-                            text = if (customer.isLoggedIn) stringResource(R.string.top_bar_guardian, customer.name) else stringResource(R.string.top_bar_sign_in),
+                            text = when {
+                                !customer.isLoggedIn -> stringResource(R.string.top_bar_sign_in)
+                                customer.name.isBlank() -> stringResource(R.string.top_bar_add_your_name)
+                                else -> stringResource(R.string.top_bar_guardian, customer.name)
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

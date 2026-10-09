@@ -130,12 +130,12 @@ data class PetListing(
 )
 
 data class CustomerProfile(
-    val name: String = "Renjith Kumar",
-    val email: String = "renjith@wagmiya.app",
-    val phone: String = "+91 98470 00000",
-    val location: String = "Marine Drive, Kochi",
-    val isLoggedIn: Boolean = true,
-    val memberSince: String = "2024",
+    val name: String = "",
+    val email: String = "",
+    val phone: String = "",
+    val location: String = "",
+    val isLoggedIn: Boolean = false,
+    val memberSince: String = "",
     // Premium gating. "" = free, "care", "premium". Defaults are mandatory so
     // Firestore toObject() keeps working for documents that predate this field.
     val carePlan: String = "",

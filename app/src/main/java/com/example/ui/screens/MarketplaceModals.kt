@@ -404,10 +404,10 @@ fun SlideOutCartModal(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Proceed to Escrow Checkout (₹${total.toInt()})",
+                            text = "Proceed to Checkout (₹${total.toInt()})",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -471,7 +471,7 @@ fun SecureEscrowCheckoutModal(
     var streetAddress by remember { mutableStateOf(if (customer.location.isNotBlank()) customer.location else "Door No 12/B, MG Road, Kerala") }
     var customerName by remember { mutableStateOf(customer.name) }
     var customerPhone by remember { mutableStateOf(customer.phone) }
-    var paymentMethod by remember { mutableStateOf("Cash on Delivery (COD)") }
+    val paymentMethod = "Cash on Delivery (COD)"
     var prescriptionAttached by remember { mutableStateOf(false) }
 
     val hasMedicinesWithRx = cartItems.any { it.prescriptionRequired }
@@ -515,7 +515,7 @@ fun SecureEscrowCheckoutModal(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Shield,
-                                contentDescription = "Escrow Shield",
+                                contentDescription = "Secure Checkout",
                                 tint = Color(0xFF00796B),
                                 modifier = Modifier.size(24.dp)
                             )
@@ -531,7 +531,7 @@ fun SecureEscrowCheckoutModal(
                     }
                 }
 
-                // Escrow Guarantee Banner
+                // Cash on Delivery notice (the app has no online payment SDK)
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -544,7 +544,7 @@ fun SecureEscrowCheckoutModal(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Text("🛡️", fontSize = 24.sp)
+                            Text("🚚", fontSize = 24.sp)
                             Column {
                                 Text(
                                     text = stringResource(R.string.modals_petpulse_kerala_escrow_protection),
@@ -553,7 +553,7 @@ fun SecureEscrowCheckoutModal(
                                     color = Color(0xFF004D40)
                                 )
                                 Text(
-                                    text = "Your payment is held safely in escrow. Funds are released to the vendor ONLY AFTER doorstep inspection with your delivery OTP.",
+                                    text = "Pay in cash at your doorstep after inspecting the items. No online payment is taken in the app.",
                                     fontSize = 11.sp,
                                     color = Color(0xFF004D40)
                                 )
@@ -662,7 +662,7 @@ fun SecureEscrowCheckoutModal(
                     }
                 }
 
-                // Payment Method Selector
+                // Payment Method - Cash on Delivery only (no online payment SDK)
                 item {
                     Text(
                         text = stringResource(R.string.modals_s2_escrow_payment_method),
@@ -670,52 +670,29 @@ fun SecureEscrowCheckoutModal(
                         fontSize = 14.sp
                     )
 
-                    val paymentOptions = listOf(
-                        "Cash on Delivery (COD)" to "Pay at doorstep after checking items (Verified via OTP)",
-                        "UPI (GPay / PhonePe / Paytm)" to "Instant UPI transfer held in Kerala Escrow Vault",
-                        "Credit / Debit Card" to "Visa, MasterCard, RuPay with 256-bit encryption",
-                        "Kerala Netbanking (SBI / Federal)" to "Direct bank transfer from Federal Bank, SIB, SBI"
-                    )
-
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        paymentOptions.forEach { (method, desc) ->
-                            val isSelected = paymentMethod == method
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { paymentMethod = method },
-                                shape = RoundedCornerShape(10.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
-                                ),
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.LocalShipping, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Cash on Delivery (COD)",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
                                 )
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    RadioButton(
-                                        selected = isSelected,
-                                        onClick = { paymentMethod = method },
-                                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Text(
-                                            text = method,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.sp
-                                        )
-                                        Text(
-                                            text = desc,
-                                            fontSize = 11.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
+                                Text(
+                                    text = "Pay in cash at your doorstep after checking the items.",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
@@ -750,7 +727,7 @@ fun SecureEscrowCheckoutModal(
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
                             ) {
-                                Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(stringResource(R.string.modals_lock_place_order), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
@@ -821,7 +798,7 @@ fun OrderTimelineTrackingModal(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No active orders yet. Place an escrow order from the marketplace!",
+                            text = "No active orders yet. Place an order from the marketplace!",
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -1296,209 +1273,6 @@ fun ListPetFormModal(
                         Icon(Icons.Default.Publish, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(stringResource(R.string.modals_post_pet_listing_with_escrow_protection), fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                    }
-                }
-            }
-        }
-    }
-}
-
-// ================= 5. FORM FOR VETS TO REGISTER =================
-@Composable
-fun RegisterVetFormModal(
-    onDismiss: () -> Unit,
-    onSubmit: (name: String, degrees: String, ksvcNumber: String, spec: String, exp: Int, clinic: String, city: String, address: String, videoFee: Double, inPersonFee: Double, phone: String) -> Unit
-) {
-    var doctorName by remember { mutableStateOf("") }
-    var degrees by remember { mutableStateOf("BVSc & AH, MVSc") }
-    var ksvcNumber by remember { mutableStateOf("") }
-    var specialization by remember { mutableStateOf("Small Animal Physician") }
-    var experienceText by remember { mutableStateOf("8") }
-    var clinicName by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("Kochi") }
-    var address by remember { mutableStateOf("") }
-    var videoFeeText by remember { mutableStateOf("399") }
-    var inPersonFeeText by remember { mutableStateOf("599") }
-    var phone by remember { mutableStateOf("+91 94470 00000") }
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.95f)
-                .testTag("register_vet_modal"),
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(Icons.Default.MedicalInformation, contentDescription = null, tint = Color(0xFF00796B))
-                            Text(
-                                text = stringResource(R.string.modals_kerala_vet_doctor_registration),
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        IconButton(onClick = onDismiss) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
-                        }
-                    }
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = doctorName,
-                        onValueChange = { doctorName = it },
-                        label = { Text(stringResource(R.string.modals_doctor_full_name_e_g_dr_anoop_kumar)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = ksvcNumber,
-                        onValueChange = { ksvcNumber = it },
-                        label = { Text(stringResource(R.string.modals_kerala_state_vet_council_ksvc_reg_number)) },
-                        placeholder = { Text("e.g. KSVC/2019/4821") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = degrees,
-                            onValueChange = { degrees = it },
-                            label = { Text(stringResource(R.string.modals_qualifications)) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        OutlinedTextField(
-                            value = experienceText,
-                            onValueChange = { experienceText = it },
-                            label = { Text(stringResource(R.string.modals_exp_years)) },
-                            modifier = Modifier.weight(0.7f),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                    }
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = specialization,
-                        onValueChange = { specialization = it },
-                        label = { Text("Specialization (Surgery, Dermatology, Exotics)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = clinicName,
-                        onValueChange = { clinicName = it },
-                        label = { Text(stringResource(R.string.modals_hospital_clinic_name)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                }
-
-                item {
-                    Text(stringResource(R.string.modals_city_district_in_kerala), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    val cities = listOf("Kochi", "Trivandrum", "Kozhikode", "Thrissur")
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        items(cities) { c ->
-                            FilterChip(
-                                selected = city == c,
-                                onClick = { city = c },
-                                label = { Text(c, fontSize = 12.sp) }
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = address,
-                        onValueChange = { address = it },
-                        label = { Text(stringResource(R.string.modals_clinic_address_landmark)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = videoFeeText,
-                            onValueChange = { videoFeeText = it },
-                            label = { Text(stringResource(R.string.modals_video_fee)) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        OutlinedTextField(
-                            value = inPersonFeeText,
-                            onValueChange = { inPersonFeeText = it },
-                            label = { Text(stringResource(R.string.modals_clinic_fee)) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                    }
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = { phone = it },
-                        label = { Text(stringResource(R.string.modals_official_phone_whatsapp_91)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                }
-
-                item {
-                    Button(
-                        onClick = {
-                            val exp = experienceText.toIntOrNull() ?: 5
-                            val vFee = videoFeeText.toDoubleOrNull() ?: 399.0
-                            val inFee = inPersonFeeText.toDoubleOrNull() ?: 599.0
-                            onSubmit(doctorName, degrees, ksvcNumber, specialization, exp, clinicName, city, address, vFee, inFee, phone)
-                            onDismiss()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
-                    ) {
-                        Icon(Icons.Default.VerifiedUser, contentDescription = null)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(stringResource(R.string.modals_register_verify_ksvc_profile), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             }

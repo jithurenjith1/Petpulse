@@ -351,9 +351,7 @@ val appCtx = LocalContext.current
                             viewModel.updatePetPhoto(uri)
                         },
                         isPremium = isPremium,
-                        onOpenAiPhoto = { showAiPhotoScreen = true },
-                        darkTheme = darkTheme,
-                        onToggleDarkTheme = { viewModel.setDarkTheme(it) }
+                        onOpenAiPhoto = { showAiPhotoScreen = true }
                     )
 
                 }
@@ -427,7 +425,7 @@ val appCtx = LocalContext.current
                         },
                         onPetSelected = { pet ->
                             coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Escrow reservation requested for ${pet.name} (${pet.breed}) in ${pet.city}!")
+                                snackbarHostState.showSnackbar("Reservation requested for ${pet.name} (${pet.breed}) in ${pet.city}!")
                             }
                         },
                         guideFoods = foodItems,
@@ -438,10 +436,6 @@ val appCtx = LocalContext.current
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
                         }
                     )
-                }
-
-                MainNavTab.EXPLORE_PETS -> {
-                    // Merged into Market tab — no separate screen
                 }
 
                 MainNavTab.PARTNERS_SERVICES -> {

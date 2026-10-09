@@ -281,7 +281,7 @@ fun PartnersServicesScreen(
                 item {
                     PartnerJoinCalloutCard(
                         title = "Own a Pet Grooming Center?",
-                        description = "Join Jane & Pals as a certified Grooming Business Entity to receive direct customer bookings.",
+                        description = "Join Wagmiya as a certified Grooming Business Entity to receive direct customer bookings.",
                         onJoinClick = {
                             partnerCategoryToJoin = "Grooming Salon"
                             showBusinessPartnerDialog = true

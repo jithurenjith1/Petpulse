@@ -35,7 +35,7 @@
     <string name="mypets_favorite_food_comma_separated">പ്രിയപ്പെട്ട ഭക്ഷണം (കോമ ഉപയോഗിച്ച് വേർതിരിച്ചത്)</string>
     <string name="mypets_favorite_plays_toys_comma_separated">പ്രിയപ്പെട്ട കളികളും കളിപ്പാട്ടങ്ങളും (കോമ ഉപയോഗിച്ച് വേർതിരിച്ചത്)</string>
     <string name="mypets_food_care">ഭക്ഷണവും പരിചരണവും</string>
-    <string name="mypets_food_plays_jane_likes">ഭക്ഷണവും കളികളും ജെയ്‌നിന് ഇഷ്ടമുള്ളവയും</string>
+    <string name="mypets_food_plays_jane_likes">ഭക്ഷണവും കളികളും</string>
     <string name="mypets_full_edit_form">പൂർണ്ണമായ എഡിറ്റ് ഫോം</string>
     <string name="mypets_gender">ലിംഗം</string>
     <string name="mypets_health_index">ഹെൽത്ത് ഇൻഡക്സ്</string>
@@ -83,7 +83,7 @@
     <string name="market_list_a_pet_owner">ഒരു വളർത്തുമൃഗത്തെ ലിസ്റ്റ് ചെയ്യുക (ഉടമ)</string>
     <string name="market_select_delivery_service_region">ഡെലിവറിയും സർവീസ് റീജിയണും തിരഞ്ഞെടുക്കുക:</string>
     <string name="market_prescription_required_attach_at_checkout">⚠️ കുറിപ്പടി ആവശ്യമാണ് (ചെക്ക്ഔട്ടിൽ അറ്റാച്ച് ചെയ്യുക)</string>
-    <string name="market_escrow_protected">🛡️ എസ്ക്രോ പ്രൊട്ടക്റ്റഡ്</string>
+    <string name="market_escrow_protected">🚚 ക്യാഷ് ഓൺ ഡെലിവറി</string>
     <string name="partners_add_to_calendar">കലണ്ടറിലേക്ക് ചേർക്കുക</string>
     <string name="partners_adoption_pet_listings">ദത്തെടുക്കലും വളർത്തുമൃഗങ്ങളുടെ ലിസ്റ്റിംഗും</string>
     <string name="partners_apply">അപേക്ഷിക്കുക</string>
@@ -160,7 +160,7 @@
     <string name="dialogs_lost_pet_name">നഷ്ടപ്പെട്ട വളർത്തുമൃഗത്തിന്റെ പേര്</string>
     <string name="dialogs_mobile_number">മൊബൈൽ നമ്പർ</string>
     <string name="dialogs_pet_name">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
-    <string name="dialogs_pet_name_default_jane">വളർത്തുമൃഗത്തിന്റെ പേര് (ഡിഫോൾട്ട്: ജെയ്ൻ)</string>
+    <string name="dialogs_pet_name_default_jane">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
     <string name="dialogs_pet_for_sale">വിൽപ്പനയ്ക്കുള്ള വളർത്തുമൃഗം</string>
     <string name="dialogs_plays_toys_pet_likes">കളികളും കളിപ്പാട്ടങ്ങളും വളർത്തുമൃഗത്തിന് ഇഷ്ടമാണ്</string>
     <string name="dialogs_post_pet_for_adoption_or_sale">ദത്തെടുക്കാനോ വിൽക്കാനോ ഉള്ള വളർത്തുമൃഗത്തെ പോസ്റ്റ് ചെയ്യുക</string>
@@ -217,7 +217,7 @@
     <string name="modals_s1_choose_consultation_mode">1. കൺസൾട്ടേഷൻ മോഡ് തിരഞ്ഞെടുക്കുക:</string>
     <string name="modals_s1_kerala_delivery_address">1. കേരളത്തിലെ ഡെലിവറി വിലാസം</string>
     <string name="modals_s2_hour_express_delivery">2-മണിക്കൂർ എക്സ്പ്രസ് ഡെലിവറി</string>
-    <string name="modals_s2_escrow_payment_method">2. എസ്ക്രോ പേയ്‌മെന്റ് രീതി</string>
+    <string name="modals_s2_escrow_payment_method">2. പേയ്‌മെന്റ് രീതി</string>
     <string name="modals_s2_select_date">2. തീയതി തിരഞ്ഞെടുക്കുക:</string>
     <string name="modals_s3_available_time_slot">3. ലഭ്യമായ സമയ സ്ലോട്ട്:</string>
     <string name="modals_age">പ്രായം</string>
@@ -233,7 +233,7 @@
     <string name="modals_customer_name">കസ്റ്റമർ പേര്</string>
     <string name="modals_direct_hub_courier_in_kochi_tvm_50">കൊച്ചി / ടിവിഎമ്മിൽ നേരിട്ടുള്ള ഹബ് കൊറിയർ (+₹50)</string>
     <string name="modals_doctor_full_name_e_g_dr_anoop_kumar">ഡോക്ടറുടെ മുഴുവൻ പേര് (ഉദാ. ഡോ. അനൂപ് കുമാർ)</string>
-    <string name="modals_doorstep_escrow_otp">ഡോർസ്റ്റെപ്പ് എസ്ക്രോ OTP:</string>
+    <string name="modals_doorstep_escrow_otp">ഡോർസ്റ്റെപ്പ് ഡെലിവറി OTP:</string>
     <string name="modals_exp_years">പരിചയം (വർഷം)</string>
     <string name="modals_free">സൗജന്യം</string>
     <string name="modals_free_for_adoption">സൗജന്യ ദത്തെടുക്കൽ</string>
@@ -244,8 +244,8 @@
     <string name="modals_in_clinic_visit">ക്ലിനിക്കിലെ സന്ദർശനം</string>
     <string name="modals_items_subtotal">ഐറ്റംസ് സബ്‌ടോട്ടൽ</string>
     <string name="modals_items">ഇനങ്ങൾ: </string>
-    <string name="modals_petpulse_escrow_protection">വാഗ്മിയ എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
-    <string name="modals_petpulse_kerala_escrow_protection">വാഗ്മിയ കേരള എസ്ക്രോ പ്രൊട്ടക്ഷൻ</string>
+    <string name="modals_petpulse_escrow_protection">ക്യാഷ് ഓൺ ഡെലിവറി</string>
+    <string name="modals_petpulse_kerala_escrow_protection">ക്യാഷ് ഓൺ ഡെലിവറി (COD)</string>
     <string name="modals_kerala_biodegradable_packaging">കേരള ബയോഡീഗ്രേഡബിൾ പാക്കേജിംഗ്</string>
     <string name="modals_kerala_city">കേരള സിറ്റി:</string>
     <string name="modals_kerala_delivery_cart">കേരള ഡെലിവറി കാർട്ട്</string>
@@ -255,22 +255,22 @@
     <string name="modals_list_a_pet_for_sale_adoption">വിൽപ്പനയ്ക്കോ ദത്തെടുക്കലിനോ ഒരു വളർത്തുമൃഗത്തെ ലിസ്റ്റ് ചെയ്യുക</string>
     <string name="modals_listing_type">ലിസ്റ്റിംഗ് തരം:</string>
     <string name="modals_live_order_timeline">ലൈവ് ഓർഡർ ടൈംലൈൻ:</string>
-    <string name="modals_lock_place_order">ലോക്ക് &amp; പ്ലേസ് ഓർഡർ</string>
+    <string name="modals_lock_place_order">ഓർഡർ ചെയ്യുക</string>
     <string name="modals_official_phone_whatsapp_91">ഔദ്യോഗിക ഫോൺ / വാട്സ്ആപ്പ് (+91)</string>
     <string name="modals_pet_description_temperament">വളർത്തുമൃഗത്തിന്റെ വിവരണം &amp; സ്വഭാവം</string>
     <string name="modals_pet_name">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
     <string name="modals_pet_photos_up_to_5_tap_a_photo_to_remove">വളർത്തുമൃഗങ്ങളുടെ ഫോട്ടോകൾ (5 എണ്ണം വരെ — ഫോട്ടോ ഒഴിവാക്കാൻ അതിൽ ടാപ്പ് ചെയ്യുക):</string>
-    <string name="modals_post_pet_listing_with_escrow_protection">എസ്ക്രോ പ്രൊട്ടക്ഷനോടെ വളർത്തുമൃഗങ്ങളുടെ ലിസ്റ്റിംഗ് പോസ്റ്റ് ചെയ്യുക</string>
+    <string name="modals_post_pet_listing_with_escrow_protection">വളർത്തുമൃഗങ്ങളുടെ ലിസ്റ്റിംഗ് പോസ്റ്റ് ചെയ്യുക</string>
     <string name="modals_price_in_inr">വില INR-ൽ (₹)</string>
     <string name="modals_qualifications">യോഗ്യതകൾ</string>
     <string name="modals_register_verify_ksvc_profile">KSVC പ്രൊഫൈൽ രജിസ്റ്റർ ചെയ്ത് പരിശോധിക്കുക</string>
     <string name="modals_rx_required">Rx ആവശ്യമാണ്</string>
     <string name="modals_sale_inr">വിൽപ്പന (INR ₹)</string>
-    <string name="modals_secure_escrow_checkout">സുരക്ഷിതമായ എസ്ക്രോ ചെക്കൗട്ട്</string>
+    <string name="modals_secure_escrow_checkout">ചെക്കൗട്ട്</string>
     <string name="modals_species">സ്പീഷീസ്:</string>
     <string name="modals_symptoms_reason_for_consultation">ലക്ഷണങ്ങൾ / കൺസൾട്ടേഷനുള്ള കാരണം</string>
     <string name="modals_total_amount">ആകെ തുക</string>
-    <string name="modals_total_escrow_amount">ആകെ എസ്ക്രോ തുക</string>
+    <string name="modals_total_escrow_amount">ആകെ തുക</string>
     <string name="modals_video_consult">വീഡിയോ കൺസൾട്ട്</string>
     <string name="modals_video_fee">വീഡിയോ ഫീസ് (₹)</string>
     <string name="modals_your_cart_is_empty">നിങ്ങളുടെ കാർട്ട് ശൂന്യമാണ്</string>
@@ -308,7 +308,7 @@
     <string name="profile_gender_female">ലിംഗം (പെൺ)</string>
     <string name="profile_health_index">ഹെൽത്ത് ഇൻഡക്സ്</string>
     <string name="profile_microchip_tag_status">മൈക്രോചിപ്പ് ടാഗ് സ്റ്റാറ്റസ്:</string>
-    <string name="profile_pet_name_default_jane">വളർത്തുമൃഗത്തിന്റെ പേര് (ഡിഫോൾട്ട്: ജെയ്ൻ)</string>
+    <string name="profile_pet_name_default_jane">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
     <string name="profile_safety_notification_preferences">സുരക്ഷാ &amp; നോട്ടിഫിക്കേഷൻ മുൻഗണനകൾ</string>
     <string name="profile_save_pet_name">വളർത്തുമൃഗത്തിന്റെ പേര് സേവ് ചെയ്യുക</string>
     <string name="profile_settings_default_pet_configuration">സെറ്റിംഗ്സ്: ഡിഫോൾട്ട് പെറ്റ് കോൺഫിഗറേഷൻ</string>
@@ -380,4 +380,11 @@
     <string name="order_failed_msg">ഓർഡർ നൽകാൻ കഴിഞ്ഞില്ല — നിങ്ങളുടെ ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിക്കുക.</string>
     <string name="order_sign_in_to_place">ഓർഡർ നൽകുന്നതിന് ദയവായി സൈൻ ഇൻ ചെയ്യുക.</string>
     <string name="admin_items">ഇനങ്ങൾ</string>
+    <string name="top_bar_add_your_name">നിങ്ങളുടെ പേര് ചേര്ക്കുക</string>
+    <string name="mypets_not_enough_data">ആവശ്യത്തിന് ഡാറ്റയില്ല</string>
+    <string name="mypets_add_your_email">നിങ്ങളുടെ ഇമെയിൽ ചേര്ക്കുക</string>
+    <string name="market_empty_no_products">ഇതുവരെ ഉൽപ്പന്നങ്ങളില്ല</string>
+    <string name="market_empty_no_services">ഇതുവരെ സേവനങ്ങളില്ല</string>
+    <string name="market_empty_no_vets">ഇതുവരെ വെറ്റിനറി ഡോക്ടറ്മാരില്ല</string>
+    <string name="market_empty_no_training">ഇതുവരെ പരിശീലന പ്രോഗ്രാമുകളില്ല</string>
 </resources>

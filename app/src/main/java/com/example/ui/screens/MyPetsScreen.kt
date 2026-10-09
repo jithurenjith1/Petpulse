@@ -165,8 +165,6 @@ fun MyPetsScreen(
     onDeleteCertificate: (PetCertificate) -> Unit = {},
     isPremium: Boolean = false,
     onOpenAiPhoto: () -> Unit = {},
-    darkTheme: Boolean = false,
-    onToggleDarkTheme: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -527,9 +525,7 @@ fun MyPetsScreen(
                         healthScore = healthScore,
                         onEditPetClick = onEditPetClick,
                         onSavePetDirectly = onSavePetDirectly,
-                        onShowMessage = onShowMessage,
-                        darkTheme = darkTheme,
-                        onToggleDarkTheme = onToggleDarkTheme
+                        onShowMessage = onShowMessage
                     )
                 }
             }
@@ -1690,9 +1686,7 @@ fun HealthAndSettingsSection(
     onEditPetClick: () -> Unit,
     onDeleteAccount: () -> Unit = {},
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
-    onShowMessage: (String) -> Unit,
-    darkTheme: Boolean = false,
-    onToggleDarkTheme: (Boolean) -> Unit = {}
+    onShowMessage: (String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
@@ -1720,8 +1714,12 @@ fun HealthAndSettingsSection(
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(stringResource(R.string.mypets_health_index), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
-                        Text(stringResource(R.string.mypets_vitals_optimal), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                        if (healthScore > 0) {
+                            Text("$healthScore%", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                            Text(stringResource(R.string.mypets_vitals_optimal), fontSize = 10.sp, color = AccentGreen, fontWeight = FontWeight.SemiBold)
+                        } else {
+                            Text(stringResource(R.string.mypets_not_enough_data), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
                 Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.weight(1f)) {
@@ -1763,7 +1761,11 @@ fun HealthAndSettingsSection(
             ) {
                 Column {
                     Text("Account", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    Text("Signed in as ${customer.email}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        if (customer.email.isBlank()) stringResource(R.string.mypets_add_your_email) else "Signed in as ${customer.email}",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
                 OutlinedButton(
                     onClick = { showDeleteAccountDialog = true },

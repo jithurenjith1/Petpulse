@@ -35,7 +35,7 @@
     <string name="mypets_favorite_food_comma_separated">Favorite Food (Comma-separated)</string>
     <string name="mypets_favorite_plays_toys_comma_separated">Favorite Plays &amp; Toys (Comma-separated)</string>
     <string name="mypets_food_care">Food &amp; Care</string>
-    <string name="mypets_food_plays_jane_likes">Food &amp; Plays Jane Likes</string>
+    <string name="mypets_food_plays_jane_likes">Food &amp; Plays Your Pet Likes</string>
     <string name="mypets_full_edit_form">Full Edit Form</string>
     <string name="mypets_gender">Gender</string>
     <string name="mypets_health_index">Health Index</string>
@@ -83,7 +83,7 @@
     <string name="market_list_a_pet_owner">List a Pet (Owner)</string>
     <string name="market_select_delivery_service_region">Select Delivery &amp; Service Region:</string>
     <string name="market_prescription_required_attach_at_checkout">⚠️ Prescription Required (Attach at Checkout)</string>
-    <string name="market_escrow_protected">🛡️ Escrow Protected</string>
+    <string name="market_escrow_protected">🚚 Cash on Delivery</string>
     <string name="partners_add_to_calendar">Add to Calendar</string>
     <string name="partners_adoption_pet_listings">Adoption &amp; Pet Listings</string>
     <string name="partners_apply">Apply</string>
@@ -160,7 +160,7 @@
     <string name="dialogs_lost_pet_name">Lost Pet Name</string>
     <string name="dialogs_mobile_number">Mobile Number</string>
     <string name="dialogs_pet_name">Pet Name</string>
-    <string name="dialogs_pet_name_default_jane">Pet Name (Default: Jane)</string>
+    <string name="dialogs_pet_name_default_jane">Pet Name</string>
     <string name="dialogs_pet_for_sale">Pet for Sale</string>
     <string name="dialogs_plays_toys_pet_likes">Plays &amp; Toys Pet Likes</string>
     <string name="dialogs_post_pet_for_adoption_or_sale">Post Pet for Adoption or Sale</string>
@@ -217,7 +217,7 @@
     <string name="modals_s1_choose_consultation_mode">1. Choose Consultation Mode:</string>
     <string name="modals_s1_kerala_delivery_address">1. Kerala Delivery Address</string>
     <string name="modals_s2_hour_express_delivery">2-Hour Express Delivery</string>
-    <string name="modals_s2_escrow_payment_method">2. Escrow Payment Method</string>
+    <string name="modals_s2_escrow_payment_method">2. Payment Method</string>
     <string name="modals_s2_select_date">2. Select Date:</string>
     <string name="modals_s3_available_time_slot">3. Available Time Slot:</string>
     <string name="modals_age">Age</string>
@@ -233,7 +233,7 @@
     <string name="modals_customer_name">Customer Name</string>
     <string name="modals_direct_hub_courier_in_kochi_tvm_50">Direct hub courier in Kochi / TVM (+₹50)</string>
     <string name="modals_doctor_full_name_e_g_dr_anoop_kumar">Doctor Full Name (e.g. Dr. Anoop Kumar)</string>
-    <string name="modals_doorstep_escrow_otp">Doorstep Escrow OTP:</string>
+    <string name="modals_doorstep_escrow_otp">Doorstep Delivery OTP:</string>
     <string name="modals_exp_years">Exp (Years)</string>
     <string name="modals_free">FREE</string>
     <string name="modals_free_for_adoption">Free for Adoption</string>
@@ -244,8 +244,8 @@
     <string name="modals_in_clinic_visit">In-Clinic Visit</string>
     <string name="modals_items_subtotal">Items Subtotal</string>
     <string name="modals_items">Items: </string>
-    <string name="modals_petpulse_escrow_protection">Wagmiya Escrow Protection</string>
-    <string name="modals_petpulse_kerala_escrow_protection">Wagmiya Kerala Escrow Protection</string>
+    <string name="modals_petpulse_escrow_protection">Cash on Delivery</string>
+    <string name="modals_petpulse_kerala_escrow_protection">Cash on Delivery (COD)</string>
     <string name="modals_kerala_biodegradable_packaging">Kerala Biodegradable Packaging</string>
     <string name="modals_kerala_city">Kerala City:</string>
     <string name="modals_kerala_delivery_cart">Kerala Delivery Cart</string>
@@ -255,22 +255,22 @@
     <string name="modals_list_a_pet_for_sale_adoption">List a Pet for Sale / Adoption</string>
     <string name="modals_listing_type">Listing Type:</string>
     <string name="modals_live_order_timeline">Live Order Timeline:</string>
-    <string name="modals_lock_place_order">Lock &amp; Place Order</string>
+    <string name="modals_lock_place_order">Place Order</string>
     <string name="modals_official_phone_whatsapp_91">Official Phone / WhatsApp (+91)</string>
     <string name="modals_pet_description_temperament">Pet Description &amp; Temperament</string>
     <string name="modals_pet_name">Pet Name</string>
     <string name="modals_pet_photos_up_to_5_tap_a_photo_to_remove">Pet Photos (up to 5 — tap a photo to remove):</string>
-    <string name="modals_post_pet_listing_with_escrow_protection">Post Pet Listing with Escrow Protection</string>
+    <string name="modals_post_pet_listing_with_escrow_protection">Post Pet Listing</string>
     <string name="modals_price_in_inr">Price in INR (₹)</string>
     <string name="modals_qualifications">Qualifications</string>
     <string name="modals_register_verify_ksvc_profile">Register &amp; Verify KSVC Profile</string>
     <string name="modals_rx_required">Rx Required</string>
     <string name="modals_sale_inr">Sale (INR ₹)</string>
-    <string name="modals_secure_escrow_checkout">Secure Escrow Checkout</string>
+    <string name="modals_secure_escrow_checkout">Checkout</string>
     <string name="modals_species">Species:</string>
     <string name="modals_symptoms_reason_for_consultation">Symptoms / Reason for Consultation</string>
     <string name="modals_total_amount">Total Amount</string>
-    <string name="modals_total_escrow_amount">Total Escrow Amount</string>
+    <string name="modals_total_escrow_amount">Total Amount</string>
     <string name="modals_video_consult">Video Consult</string>
     <string name="modals_video_fee">Video Fee (₹)</string>
     <string name="modals_your_cart_is_empty">Your Cart is Empty</string>
@@ -308,7 +308,7 @@
     <string name="profile_gender_female">Gender (Female)</string>
     <string name="profile_health_index">Health Index</string>
     <string name="profile_microchip_tag_status">Microchip Tag Status:</string>
-    <string name="profile_pet_name_default_jane">Pet Name (Default: Jane)</string>
+    <string name="profile_pet_name_default_jane">Pet Name</string>
     <string name="profile_safety_notification_preferences">Safety &amp; Notification Preferences</string>
     <string name="profile_save_pet_name">Save Pet Name</string>
     <string name="profile_settings_default_pet_configuration">Settings: Default Pet Configuration</string>
@@ -380,4 +380,11 @@
     <string name="order_failed_msg">Order could not be placed — check your connection.</string>
     <string name="order_sign_in_to_place">Please sign in to place an order.</string>
     <string name="admin_items">items</string>
+    <string name="top_bar_add_your_name">Add your name</string>
+    <string name="mypets_not_enough_data">Not enough data yet</string>
+    <string name="mypets_add_your_email">Add your email</string>
+    <string name="market_empty_no_products">No products yet</string>
+    <string name="market_empty_no_services">No services yet</string>
+    <string name="market_empty_no_vets">No vets available yet</string>
+    <string name="market_empty_no_training">No training programs yet</string>
 </resources>
