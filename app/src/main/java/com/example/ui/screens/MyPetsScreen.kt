@@ -139,7 +139,7 @@ private fun AiPhotoAnalysisEntryCard(isPremium: Boolean, onOpen: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MyPetsScreen(
     pet: UserPet,
@@ -170,6 +170,7 @@ fun MyPetsScreen(
     onOpenServicePrice: () -> Unit = {},
     onOpenHousingHelp: () -> Unit = {},
     onOpenConsentInfo: () -> Unit = {},
+    onOpenQrTag: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -324,10 +325,13 @@ fun MyPetsScreen(
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            // Edit / Rename + Delete Pet buttons
-                            Row(
+                            // Edit / Rename + Share + QR Tag + Delete Pet buttons.
+                            // FlowRow so the extra QR Tag action wraps instead of
+                            // being pushed off the narrow hero card.
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                             FilledTonalButton(
                                 onClick = onEditPetClick,
@@ -427,6 +431,22 @@ fun MyPetsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Share Profile", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                            FilledTonalButton(
+                                onClick = onOpenQrTag,
+                                modifier = Modifier
+                                    .height(34.dp)
+                                    .testTag("qr_tag_button"),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.QrCode,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(R.string.mypets_qr_tag), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                             OutlinedButton(
                                 onClick = { showDeleteDialog = true },

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Pet Tag - Wagmiya</title>
+  <style>
+    :root {
+      --magenta: #c724b1;
+      --magenta-dark: #8e1a7e;
+      --bg: #fff8f0;
+      --surface: #ffffff;
+      --text: #2d2438;
+      --muted: #6e6478;
+      --outline: #e4dcef;
+      --danger: #d32f2f;
+      --danger-bg: #fdecea;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Malayalam", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 20px 16px 48px;
+    }
+    .wrap { width: 100%; max-width: 440px; }
+    .brand {
+      text-align: center;
+      font-weight: 800;
+      color: var(--magenta);
+      font-size: 15px;
+      letter-spacing: 0.4px;
+      margin: 4px 0 14px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--outline);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 6px 20px rgba(45, 36, 56, 0.08);
+    }
+    .photo {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid var(--outline);
+      background: #f6eef6;
+      display: block;
+    }
+    .photo-empty {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      border: 1px dashed var(--outline);
+      background: #f6eef6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    h1 { font-size: 24px; margin: 16px 0 4px; }
+    .breed { color: var(--muted); font-size: 15px; margin: 0 0 4px; }
+    .species { color: var(--muted); font-size: 13px; margin: 0; }
+    .lost {
+      margin-top: 16px;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 800;
+      font-size: 16px;
+      text-align: center;
+    }
+    .lost small { display: block; font-weight: 500; font-size: 12px; margin-top: 4px; }
+    .safe-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    label { display: block; font-size: 13px; font-weight: 600; margin: 16px 0 6px; }
+    textarea {
+      width: 100%;
+      min-height: 72px;
+      border: 1px solid var(--outline);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--text);
+      resize: vertical;
+    }
+    button {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 12px;
+      background: var(--magenta);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:active { background: var(--magenta-dark); }
+    button[disabled] { opacity: 0.6; cursor: default; }
+    .status { margin-top: 12px; font-size: 14px; min-height: 20px; }
+    .status.ok { color: #1d7a6e; }
+    .status.err { color: var(--danger); }
+    .center { text-align: center; color: var(--muted); font-size: 14px; }
+    .privacy { margin-top: 18px; font-size: 11px; color: var(--muted); text-align: center; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">WAGMIYA PET TAG</div>
+
+    <div class="card" id="card">
+      <div class="center" id="loading">Loading pet details...</div>
+
+      <div id="pet" style="display:none">
+        <div id="photoHolder"></div>
+        <h1 id="petName">-</h1>
+        <p class="breed" id="petBreed">-</p>
+        <p class="species" id="petSpecies">-</p>
+
+        <div class="lost" id="lostBanner" style="display:none">
+          I'M LOST - please help
+          <small>This pet has been reported missing. Please contact the owner below.</small>
+        </div>
+
+        <p class="safe-note">
+          You can see this pet's name, photo and breed only. The owner's phone number is
+          never shown here. If you have found this pet, tap the button to let the owner know.
+        </p>
+
+        <label for="note">Add a short note (optional)</label>
+        <textarea id="note" maxlength="300" placeholder="Where did you find the pet? Any details that help."></textarea>
+
+        <button id="notifyBtn">Notify the owner</button>
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="center" id="error" style="display:none"></div>
+    </div>
+
+    <p class="privacy">
+      Wagmiya Pet Tag. This page shows only the safe details of a lost-pet tag.
+    </p>
+  </div>
+
+  <script>
+    // ---------------------------------------------------------------------
+    // Public, static lost-pet tag page (no build step).
+    //
+    // The tag URL is https://wagmiya.app/p/<publicId> and the page also accepts
+    // a ?id=<publicId> query parameter. It reads a SINGLE public document from
+    // the "pet_tags" collection via the Firestore REST API and renders only the
+    // safe fields (name, photo, breed, lost). It never reads or shows the
+    // owner's phone / email / address.
+    //
+    // "Notify the owner" creates one document in "tag_scans" (public create).
+    // ---------------------------------------------------------------------
+
+    // Project id from app/google-services.json (project_info.project_id).
+    var PROJECT_ID = "petz-58515";
+
+    // Public Firebase Web API key from app/google-services.json (client api_key).
+    // Firebase Web API keys are public client identifiers, not secrets; restrict
+    // them by HTTP referrer / API in the Google Cloud console for production.
+    var API_KEY = "AIzaSyB-ljDxF2bwPoD95WMnpj0CXXZwUQW5W4w";
+
+    var FIRESTORE = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID +
+      "/databases/(default)/documents";
+
+    function tagId() {
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get("id");
+      if (id) return id.trim();
+      // Fall back to the path form /p/<publicId>.
+      var m = window.location.pathname.match(/\/p\/([^\/]+)\/?$/);
+      return m ? decodeURIComponent(m[1]) : "";
+    }
+
+    function str(field) {
+      if (!field) return "";
+      if (field.stringValue !== undefined) return field.stringValue;
+      if (field.booleanValue !== undefined) return field.booleanValue ? "true" : "false";
+      if (field.integerValue !== undefined) return String(field.integerValue);
+      return "";
+    }
+
+    function showError(msg) {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("pet").style.display = "none";
+      var e = document.getElementById("error");
+      e.textContent = msg;
+      e.style.display = "block";
+    }
+
+    var currentOwnerUid = "";
+
+    function renderPet(fields) {
+      var name = str(fields.petName);
+      var species = str(fields.species);
+      var breed = str(fields.breed);
+      var photo = str(fields.photoData);
+      var lost = fields.lost && fields.lost.booleanValue === true;
+      currentOwnerUid = str(fields.ownerUid);
+
+      document.getElementById("petName").textContent = name || "A pet";
+      document.getElementById("petBreed").textContent = breed ? ("Breed: " + breed) : "";
+      document.getElementById("petSpecies").textContent = species ? ("Species: " + species) : "";
+
+      var holder = document.getElementById("photoHolder");
+      holder.innerHTML = "";
+      if (photo) {
+        var img = document.createElement("img");
+        img.className = "photo";
+        img.alt = name ? (name + " photo") : "Pet photo";
+        img.src = "data:image/jpeg;base64," + photo;
+        holder.appendChild(img);
+      } else {
+        var ph = document.createElement("div");
+        ph.className = "photo-empty";
+        ph.textContent = "No photo";
+        holder.appendChild(ph);
+      }
+
+      document.getElementById("lostBanner").style.display = lost ? "block" : "none";
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("pet").style.display = "block";
+    }
+
+    function loadPet() {
+      var id = tagId();
+      if (!id) { showError("This tag link is missing its id."); return; }
+      var url = FIRESTORE + "/pet_tags/" + encodeURIComponent(id) + "?key=" + API_KEY;
+      fetch(url)
+        .then(function (r) {
+          if (r.status === 404) { throw new Error("notfound"); }
+          if (!r.ok) { throw new Error("http " + r.status); }
+          return r.json();
+        })
+        .then(function (doc) {
+          if (!doc || !doc.fields) { throw new Error("notfound"); }
+          renderPet(doc.fields);
+        })
+        .catch(function (err) {
+          if (String(err.message) === "notfound") {
+            showError("This pet tag was not found. It may have been removed.");
+          } else {
+            showError("Could not load this pet tag. Please try again.");
+          }
+        });
+    }
+
+    function createScan(lat, lng) {
+      var id = tagId();
+      var note = document.getElementById("note").value.trim();
+      var fields = {
+        publicId: { stringValue: id },
+        ownerUid: { stringValue: currentOwnerUid },
+        createdAt: { integerValue: String(Date.now()) }
+      };
+      if (note) { fields.message = { stringValue: note }; }
+      if (typeof lat === "number" && typeof lng === "number") {
+        fields.lat = { doubleValue: lat };
+        fields.lng = { doubleValue: lng };
+      }
+      return fetch(FIRESTORE + "/tag_scans?key=" + API_KEY, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: fields })
+      }).then(function (r) {
+        if (!r.ok) { throw new Error("http " + r.status); }
+        return r.json();
+      });
+    }
+
+    function setStatus(msg, cls) {
+      var s = document.getElementById("status");
+      s.textContent = msg;
+      s.className = "status " + (cls || "");
+    }
+
+    function notify() {
+      var btn = document.getElementById("notifyBtn");
+      btn.disabled = true;
+      setStatus("Sending...", "");
+
+      var send = function (lat, lng) {
+        createScan(lat, lng)
+          .then(function () {
+            setStatus("Thank you. The owner has been notified.", "ok");
+            document.getElementById("note").value = "";
+          })
+          .catch(function () {
+            setStatus("Could not send the notification. Please try again.", "err");
+            btn.disabled = false;
+          });
+      };
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function (pos) { send(pos.coords.latitude, pos.coords.longitude); },
+          function () { send(null, null); },
+          { timeout: 8000, maximumAge: 60000 }
+        );
+      } else {
+        send(null, null);
+      }
+    }
+
+    document.getElementById("notifyBtn").addEventListener("click", notify);
+    loadPet();
+  </script>
+</body>
+</html>

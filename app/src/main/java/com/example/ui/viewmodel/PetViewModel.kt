@@ -402,6 +402,32 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = emptyList()
         )
 
+    // ---- PET QR TAG: public lost-pet tag ----
+
+    // "Someone scanned your tag" notifications for the signed-in owner. Auth-reactive:
+    // re-binds on sign-in / sign-out (same signedInUid.flatMapLatest pattern as
+    // orders and pets).
+    val tagScans: StateFlow<List<TagScan>> = signedInUid
+        .flatMapLatest { firestoreRepo.observeTagScans() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    // The PUBLIC tag document for the ACTIVE pet (null until a tag is created).
+    val activePetTag: StateFlow<PetTag?> = activePet
+        .map { it.qrPublicId }
+        .distinctUntilChanged()
+        .flatMapLatest { publicId ->
+            if (publicId.isBlank()) flowOf<PetTag?>(null) else firestoreRepo.observePetTag(publicId)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
+
     init {
         // CRITICAL FIX: on a cold start _activePetId keeps the default 1L, which
         // never matches a real Firestore pet id — every vaccination / medical /
@@ -1394,6 +1420,34 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             val current = currentPetOrNull() ?: return@launch
             val updated = current.copy(photoUri = photoUri)
             firestoreRepo.savePet(updated)
+        }
+    }
+
+    /**
+     * Ensure the active pet has a random, non-guessable public QR id and a matching
+     * public "pet_tags" document. The existing id is reused when present, so the
+     * same tag is never regenerated (and the printed code keeps working).
+     */
+    fun ensureActivePetQrTag() {
+        viewModelScope.launch {
+            val pet = currentPetOrNull() ?: return@launch
+            val publicId = pet.qrPublicId.ifBlank {
+                java.util.UUID.randomUUID().toString().replace("-", "")
+            }
+            if (pet.qrPublicId.isBlank()) {
+                firestoreRepo.savePet(pet.copy(qrPublicId = publicId))
+            }
+            firestoreRepo.ensurePetTag(pet, publicId)
+        }
+    }
+
+    /** Flip the public "lost" flag on the active pet's tag. */
+    fun setActivePetTagLost(lost: Boolean) {
+        viewModelScope.launch {
+            val pet = currentPetOrNull() ?: return@launch
+            val publicId = pet.qrPublicId
+            if (publicId.isBlank()) return@launch
+            firestoreRepo.setTagLost(publicId, lost)
         }
     }
 

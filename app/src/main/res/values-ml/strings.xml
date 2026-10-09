@@ -580,4 +580,20 @@
     <string name="partners_trainers_speciality_trainer">പരിശീലകൻ</string>
     <string name="partners_trainers_speciality_behaviourist">പെരുമാറ്റ വിദഗ്ധൻ</string>
     <string name="partners_trainers_speciality_obedience">അനുസരണം</string>
+
+    <!-- Pet QR Tag (lost-pet public tag) -->
+    <string name="mypets_qr_tag">QR ടാഗ്</string>
+    <string name="petqr_title">പെറ്റ് QR ടാഗ്</string>
+    <string name="petqr_scan_help">Anyone who finds your pet can scan this code to see the pet\'s name, photo and breed and send you a notification. Your phone number is never shown.</string>
+    <string name="petqr_share">പങ്കിടുക</string>
+    <string name="petqr_share_chooser">ടാഗ് ലിങ്ക് പങ്കിടുക</string>
+    <string name="petqr_save_print_hint">ഈ കോഡ് സേവ് ചെയ്യുകയോ പ്രിന്റ് ചെയ്യുകയോ ചെയ്ത് ഒരു കോളർ ടാഗിലോ സ്റ്റിക്കറിലോ ഒട്ടിക്കുക.</string>
+    <string name="petqr_mark_lost">LOST ആയി അടയാളപ്പെടുത്തുക</string>
+    <string name="petqr_mark_found">FOUND ആയി അടയാളപ്പെടുത്തുക</string>
+    <string name="petqr_lost_banner">ഈ വളർത്തുമൃഗം LOST ആയി അടയാളപ്പെടുത്തിയിരിക്കുന്നു. കണ്ടെത്തുന്നവർക്ക് ഒരു സഹായ ബാനർ കാണാം.</string>
+    <string name="petqr_preparing">നിങ്ങളുടെ ടാഗ് തയ്യാറാക്കുന്നു...</string>
+    <string name="petqr_scans_title">ടാഗ് സ്കാനുകൾ</string>
+    <string name="petqr_scans_empty">ഇതുവരെ ആരും ഈ ടാഗ് സ്കാൻ ചെയ്തിട്ടില്ല.</string>
+    <string name="petqr_scan_line">Someone scanned %1$s\'s tag</string>
+    <string name="petqr_scans_note">ആരെങ്കിലും നിങ്ങളുടെ ടാഗ് പേജ് തുറന്ന് ഉടമയെ അറിയിക്കുക എന്നതിൽ ടാപ്പ് ചെയ്യുമ്പോൾ സ്കാനുകൾ ഇവിടെ കാണാം.</string>
 </resources>

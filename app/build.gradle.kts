@@ -127,6 +127,8 @@ dependencies {
   implementation(libs.logging.interceptor)
   implementation(libs.moshi.kotlin)
   implementation(libs.okhttp)
+  // QR code generation for the Pet QR Tag feature (rendered to a Compose bitmap).
+  implementation(libs.zxing.core)
   implementation(libs.play.services.location)
     implementation("org.osmdroid:osmdroid-android:6.1.20")
   implementation(libs.retrofit)

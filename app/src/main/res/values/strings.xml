@@ -580,4 +580,20 @@
     <string name="partners_trainers_speciality_trainer">Trainer</string>
     <string name="partners_trainers_speciality_behaviourist">Behaviourist</string>
     <string name="partners_trainers_speciality_obedience">Obedience</string>
+
+    <!-- Pet QR Tag (lost-pet public tag) -->
+    <string name="mypets_qr_tag">QR Tag</string>
+    <string name="petqr_title">Pet QR Tag</string>
+    <string name="petqr_scan_help">Anyone who finds your pet can scan this code to see the pet\'s name, photo and breed and send you a notification. Your phone number is never shown.</string>
+    <string name="petqr_share">Share</string>
+    <string name="petqr_share_chooser">Share Tag Link</string>
+    <string name="petqr_save_print_hint">Save or print this code and attach it to a collar tag or a sticker.</string>
+    <string name="petqr_mark_lost">Mark as LOST</string>
+    <string name="petqr_mark_found">Mark as FOUND</string>
+    <string name="petqr_lost_banner">This pet is marked as LOST. Finders will see a help banner.</string>
+    <string name="petqr_preparing">Preparing your tag...</string>
+    <string name="petqr_scans_title">Tag scans</string>
+    <string name="petqr_scans_empty">No one has scanned this tag yet.</string>
+    <string name="petqr_scan_line">Someone scanned %1$s\'s tag</string>
+    <string name="petqr_scans_note">Scans appear here when someone opens your tag page and taps Notify the owner.</string>
 </resources>

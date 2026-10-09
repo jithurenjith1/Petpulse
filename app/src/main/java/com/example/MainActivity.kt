@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.petpulse.app.ui.screens.AdminScreen
+import com.petpulse.app.ui.screens.PetQrScreen
 
 class MainActivity : AppCompatActivity() {
 
@@ -128,6 +129,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
 
     val medicalReports by viewModel.medicalReports.collectAsStateWithLifecycle()
     val certificates by viewModel.certificates.collectAsStateWithLifecycle()
+    val activePetTag by viewModel.activePetTag.collectAsStateWithLifecycle()
+    val tagScans by viewModel.tagScans.collectAsStateWithLifecycle()
     val communityPosts by viewModel.communityPosts.collectAsStateWithLifecycle()
 
     val speciesList by viewModel.speciesList.collectAsStateWithLifecycle()
@@ -208,6 +211,7 @@ val appCtx = LocalContext.current
     var showServicePriceScreen by remember { mutableStateOf(false) }
     var showHousingHelpScreen by remember { mutableStateOf(false) }
     var showConsentInfoScreen by remember { mutableStateOf(false) }
+    var showPetQrScreen by remember { mutableStateOf(false) }
     var exploreSubTabUnused by remember { mutableStateOf(0) } // sub-tabs removed
     var showAddPetDialog by remember { mutableStateOf(false) }
 
@@ -374,7 +378,8 @@ val appCtx = LocalContext.current
                         onOpenToxicFood = { showToxicFoodScreen = true },
                         onOpenServicePrice = { showServicePriceScreen = true },
                         onOpenHousingHelp = { showHousingHelpScreen = true },
-                        onOpenConsentInfo = { showConsentInfoScreen = true }
+                        onOpenConsentInfo = { showConsentInfoScreen = true },
+                        onOpenQrTag = { showPetQrScreen = true }
                     )
 
                 }
@@ -866,6 +871,19 @@ val appCtx = LocalContext.current
             ConsentScreen(
                 onAgree = { showConsentInfoScreen = false },
                 onExit = { showConsentInfoScreen = false }
+            )
+        }
+    }
+
+    if (showPetQrScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            PetQrScreen(
+                pet = activePet,
+                tag = activePetTag,
+                tagScans = tagScans,
+                onEnsureTag = { viewModel.ensureActivePetQrTag() },
+                onToggleLost = { lost -> viewModel.setActivePetTagLost(lost) },
+                onClose = { showPetQrScreen = false }
             )
         }
     }

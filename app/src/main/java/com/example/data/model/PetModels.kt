@@ -32,7 +32,13 @@ data class UserPet(
     val notes: String = "Very energetic, friendly with children, loves morning park walks.",
     // Free-text result of the Premium "AI Pet Photo Analysis" feature. Defaulted so
     // both Room and Firestore toObject() keep working for existing documents.
-    val aiAnalysis: String = ""
+    val aiAnalysis: String = "",
+    // Random, non-guessable id of this pet's PUBLIC QR tag (the "pet_tags"
+    // document id). It is NOT the Firestore pet id and NOT the owner uid, so the
+    // public page cannot be enumerated. Empty until the owner opens the QR Tag
+    // screen; defaulted so Room and Firestore toObject() keep working for pets
+    // that predate this field.
+    val qrPublicId: String = ""
 )
 
 /** A real community post, stored in Firestore "community_posts". */
@@ -235,6 +241,40 @@ data class PetEventItem(
     val location: String,
     val entryStatus: String,
     val prizePool: String
+)
+
+/**
+ * The PUBLIC, non-sensitive projection of a pet shown when a stranger scans the
+ * pet's QR tag. Stored in the Firestore "pet_tags" collection with the random
+ * publicId as the document id. It deliberately holds ONLY safe fields - the
+ * owner's phone number, email, address and the pet's microchip number are NEVER
+ * written here. Every field has a default so Firestore toObject() keeps working.
+ */
+data class PetTag(
+    val publicId: String = "",
+    val petName: String = "",
+    val species: String = "",
+    val breed: String = "",
+    val photoData: String = "",   // base64 JPEG of the pet photo, or ""
+    val lost: Boolean = false,
+    val ownerUid: String = "",
+    val createdAt: Long = 0L
+)
+
+/**
+ * A "someone scanned this pet's tag" notification, created by the public scan
+ * page and stored in the Firestore "tag_scans" collection. The owner reads their
+ * own rows (matched on ownerUid). message / lat / lng are optional and default
+ * to safe values so Firestore toObject() keeps working.
+ */
+data class TagScan(
+    val id: String = "",
+    val publicId: String = "",
+    val ownerUid: String = "",
+    val message: String = "",
+    val lat: Double = 0.0,
+    val lng: Double = 0.0,
+    val createdAt: Long = 0L
 )
 
 

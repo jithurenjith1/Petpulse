@@ -13,6 +13,8 @@ import com.petpulse.app.data.model.UserPet
 import com.petpulse.app.data.model.VaccinationRecord
 import com.petpulse.app.data.model.MedicalReport
 import com.petpulse.app.data.model.PetCertificate
+import com.petpulse.app.data.model.PetTag
+import com.petpulse.app.data.model.TagScan
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -496,8 +498,145 @@ class FirestorePetRepository(private val appContext: Context) {
             "avatarRes" to pet.avatarRes,
             "photoUri" to pet.photoUri,
             "notes" to pet.notes,
-            "aiAnalysis" to pet.aiAnalysis
+            "aiAnalysis" to pet.aiAnalysis,
+            "qrPublicId" to pet.qrPublicId
         )
+    }
+
+    // ================= PET QR TAG (public lost-pet tag) =================
+
+    /**
+     * Create or refresh the PUBLIC, non-sensitive "pet_tags" document for a pet.
+     * The document id is the random publicId (never the pet id or the uid), so the
+     * page cannot be enumerated. Only safe fields are written: publicId, petName,
+     * species, breed, photoData, lost, ownerUid, createdAt. The owner's phone /
+     * email / address and the pet's microchip are NEVER written here. On an update
+     * the existing `lost` flag and `createdAt` are preserved.
+     */
+    suspend fun ensurePetTag(pet: UserPet, publicId: String) {
+        val ownerUid = auth.currentUser?.uid ?: return
+        if (publicId.isBlank()) return
+        try {
+            val ref = db.collection("pet_tags").document(publicId)
+            val existing = ref.get().await()
+            val photo = photoBase64For(pet)
+            if (existing.exists()) {
+                ref.update(
+                    mapOf(
+                        "petName" to pet.name,
+                        "species" to pet.species,
+                        "breed" to pet.breed,
+                        "photoData" to photo
+                    )
+                ).await()
+            } else {
+                ref.set(
+                    mapOf(
+                        "publicId" to publicId,
+                        "petName" to pet.name,
+                        "species" to pet.species,
+                        "breed" to pet.breed,
+                        "photoData" to photo,
+                        "lost" to false,
+                        "ownerUid" to ownerUid,
+                        "createdAt" to System.currentTimeMillis()
+                    )
+                ).await()
+            }
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "ensurePetTag failed for $publicId", e)
+        }
+    }
+
+    /** Flip the public "lost" flag on a pet tag (owner-only write). */
+    suspend fun setTagLost(publicId: String, lost: Boolean) {
+        if (publicId.isBlank()) return
+        try {
+            db.collection("pet_tags").document(publicId).update("lost", lost).await()
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "setTagLost failed for $publicId", e)
+        }
+    }
+
+    /** Live public tag document for a publicId (null while it does not exist). */
+    fun observePetTag(publicId: String): Flow<PetTag?> = callbackFlow {
+        if (publicId.isBlank()) {
+            trySend(null)
+            awaitClose { }
+            return@callbackFlow
+        }
+        val subscription = db.collection("pet_tags").document(publicId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestorePetRepo", "Pet tag listener error", error)
+                    trySend(null)
+                    return@addSnapshotListener
+                }
+                val tag = try {
+                    snapshot?.toObject(PetTag::class.java)
+                } catch (e: Exception) {
+                    Log.e("FirestorePetRepo", "Malformed pet tag", e)
+                    null
+                }
+                trySend(tag)
+            }
+        awaitClose { subscription.remove() }
+    }
+
+    /**
+     * Live "someone scanned your tag" notifications for the signed-in owner.
+     * Reads only the owner's own tag_scans rows (rules allow owner-only reads).
+     */
+    fun observeTagScans(): Flow<List<TagScan>> = callbackFlow {
+        val ownerUid = auth.currentUser?.uid
+        if (ownerUid == null) {
+            trySend(emptyList())
+            awaitClose { }
+            return@callbackFlow
+        }
+        val subscription = db.collection("tag_scans")
+            .whereEqualTo("ownerUid", ownerUid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestorePetRepo", "Tag scan listener error", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                val scans = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        TagScan(
+                            id = doc.id,
+                            publicId = doc.getString("publicId") ?: "",
+                            ownerUid = doc.getString("ownerUid") ?: "",
+                            message = doc.getString("message") ?: "",
+                            lat = doc.getDouble("lat") ?: 0.0,
+                            lng = doc.getDouble("lng") ?: 0.0,
+                            createdAt = doc.getLong("createdAt") ?: 0L
+                        )
+                    } catch (e: Exception) {
+                        Log.e("FirestorePetRepo", "Malformed tag scan doc ${doc.id}", e)
+                        null
+                    }
+                }?.sortedByDescending { it.createdAt } ?: emptyList()
+                trySend(scans)
+            }
+        awaitClose { subscription.remove() }
+    }
+
+    /**
+     * Best-effort base64 JPEG of the pet's photo for the public page ("" when the
+     * pet has no photo). The app stores the photo as a content/file URI, so it is
+     * compressed here the same way certificate photos are.
+     */
+    private fun photoBase64For(pet: UserPet): String {
+        val uriStr = pet.photoUri
+        if (uriStr.isBlank()) return ""
+        return try {
+            compressCertToBase64(Uri.parse(uriStr)) ?: ""
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "pet photo base64 failed", e)
+            ""
+        }
     }
 
     // ================= CUSTOMER PROFILE (Premium gating) =================
