@@ -46,7 +46,7 @@ private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory",
 
 /**
  * Owner-only panel: Orders -> assign dealer -> mark delivered,
- * Products (add/remove own items), Dealers (add/remove delivery partners),
+ * Products (add/remove own items), Dealers (the partner shops that fulfil & deliver),
  * Bookings (doctor consults + trainer requests -> assign -> confirm/complete).
  */
 @Composable
@@ -116,7 +116,21 @@ fun AdminScreen(
                         "PARTNERS" to partnerApplications.size,
                         "LISTINGS" to listings.size
                     )
-                    AdminDashboard(pendingCounts = pendingCounts, onSelect = { section = it; showBookings = false })
+                    // Totals for the catalogue / partner cards the admin also manages.
+                    // These are plain collection sizes (not pending work), so they
+                    // badge their card but are NOT added to the "items pending" total.
+                    val catalogueCounts = mapOf(
+                        "FOOD" to products.count { it.listType == "Food" },
+                        "MEDICINE" to products.count { it.listType == "Medicine" },
+                        "ACCESSORIES" to products.count { it.listType == "Accessory" },
+                        "TRAINERS" to products.count { it.listType == "Trainer" },
+                        "DEALERS" to dealers.size
+                    )
+                    AdminDashboard(
+                        pendingCounts = pendingCounts + catalogueCounts,
+                        pendingTotal = pendingCounts.values.sum(),
+                        onSelect = { section = it; showBookings = false }
+                    )
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         TextButton(onClick = { section = null; showBookings = false }) {
@@ -501,14 +515,19 @@ private fun bookingTypeFor(key: String?): String = when (key) {
     "DOCTOR" -> "DOCTOR"
     "TRAINING" -> "TRAINER"
     "BOARDING" -> "BOARDING"
+    "GROOMING" -> "GROOMING"
     else -> "GROOMING"
 }
 
 /** Admin v2 home: one card per managed category. */
 @Composable
-private fun AdminDashboard(pendingCounts: Map<String, Int> = emptyMap(), onSelect: (String) -> Unit) {
+private fun AdminDashboard(
+    pendingCounts: Map<String, Int> = emptyMap(),
+    pendingTotal: Int? = null,
+    onSelect: (String) -> Unit
+) {
     val sections = listOf(
-        "ORDERS" to ("Orders" to "COD orders, assign dealers"),
+        "ORDERS" to ("Orders" to stringResource(R.string.admin_orders_subtitle)),
         "FOOD" to ("Food" to "Pet food catalogue"),
         "MEDICINE" to ("Medicine" to "Pharmacy catalogue"),
         "GROOMING" to ("Grooming" to "Services & bookings"),
@@ -523,9 +542,9 @@ private fun AdminDashboard(pendingCounts: Map<String, Int> = emptyMap(), onSelec
         "FOUND" to ("Found Reports" to "Sighting reports from users"),
         "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
         "PARTNERS" to ("Partner Applications" to "Business joins + featured plans"),
-        "DEALERS" to ("Dealers" to "Delivery partners")
+        "DEALERS" to ("Dealers" to stringResource(R.string.admin_dealers_subtitle))
     )
-    val totalPending = pendingCounts.values.sum()
+    val totalPending = pendingTotal ?: pendingCounts.values.sum()
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (totalPending > 0) {
             item {
@@ -968,7 +987,7 @@ private fun AdminOrderCard(
                             )
                         } catch (_: Exception) { }
                     }) {
-                        Text("Send job to dealer", fontSize = 12.sp, color = Color(0xFF25D366))
+                        Text(stringResource(R.string.admin_send_job_dealer), fontSize = 12.sp, color = Color(0xFF25D366))
                     }
                 }
             }

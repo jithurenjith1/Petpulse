@@ -180,6 +180,18 @@ fun MyPetsScreen(
     var certificatePhotoViewer by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    // The demo placeholder pet (UserPet() with id 0L) is shown only when the
+    // account has no real saved pet yet. Its "Jane" / "IND-9842-JANE" / 14.5 kg
+    // values are fake defaults, so present a genuine "no pets yet" empty state
+    // instead of them (and never pretend they belong to the user).
+    val isPlaceholderPet = pet.id <= 0L
+    val hasPetDetails = !isPlaceholderPet && pet.name.isNotBlank()
+    val petTitle = when {
+        isPlaceholderPet -> stringResource(R.string.mypets_no_pets_title)
+        pet.name.isBlank() -> stringResource(R.string.mypets_add_pet_title)
+        else -> pet.name
+    }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -237,6 +249,15 @@ fun MyPetsScreen(
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
                                 )
+                            } else if (!hasPetDetails) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = stringResource(R.string.mypets_add_photo),
+                                    tint = BluePrimary,
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .size(32.dp)
+                                )
                             } else {
                                 Image(
                                     painter = painterResource(id = R.drawable.img_dog_jane),
@@ -255,41 +276,51 @@ fun MyPetsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = pet.name,
+                                    text = petTitle,
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = BluePrimaryDark
                                 )
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = BluePrimary.copy(alpha = 0.12f)
-                                ) {
-                                    Text(
-                                        text = "${pet.gender} • ${pet.species}",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = BluePrimary,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                    )
+                                if (hasPetDetails) {
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = BluePrimary.copy(alpha = 0.12f)
+                                    ) {
+                                        Text(
+                                            text = "${pet.gender} • ${pet.species}",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = BluePrimary,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
                                 }
                             }
 
                             Spacer(modifier = Modifier.height(6.dp))
 
-                            Text(
-                                text = "Breed: ${pet.breed} • Age: ${pet.ageYears} Yrs ${pet.ageMonths} Mos",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            if (!hasPetDetails) {
+                                Text(
+                                    text = stringResource(R.string.mypets_add_pet_hint),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else {
+                                Text(
+                                    text = "Breed: ${pet.breed} • Age: ${pet.ageYears} Yrs ${pet.ageMonths} Mos",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
 
-                            Spacer(modifier = Modifier.height(2.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
 
-                            Text(
-                                text = "Weight: ${pet.weightKg} kg • Microchip: ${pet.microchipNumber}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                                Text(
+                                    text = "Weight: ${pet.weightKg} kg • Microchip: ${pet.microchipNumber}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
                             Spacer(modifier = Modifier.height(8.dp))
 

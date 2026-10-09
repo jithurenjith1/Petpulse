@@ -357,7 +357,7 @@
     <string name="admin_no_products">No products added yet</string>
     <string name="admin_no_dealers">No dealers added yet</string>
     <string name="admin_status_new">New</string>
-    <string name="admin_status_assigned">Assigned</string>
+    <string name="admin_status_assigned">Assigned to dealer</string>
     <string name="admin_status_delivered">Delivered</string>
     <string name="admin_status_cancelled">Cancelled</string>
     <string name="admin_assign_dealer">Assign Dealer</string>
@@ -380,6 +380,13 @@
     <string name="order_failed_msg">Order could not be placed — check your connection.</string>
     <string name="order_sign_in_to_place">Please sign in to place an order.</string>
     <string name="admin_items">items</string>
+    <string name="admin_orders_subtitle">COD orders — assign a dealer to fulfil &amp; deliver</string>
+    <string name="admin_dealers_subtitle">Partner shops that fulfil &amp; deliver orders</string>
+    <string name="admin_send_job_dealer">Send job to dealer</string>
+    <string name="mypets_no_pets_title">No pets yet</string>
+    <string name="mypets_add_pet_title">Add your pet</string>
+    <string name="mypets_add_pet_hint">Tap the photo to add a picture, or tap Edit / Rename Pet to fill in the details.</string>
+    <string name="mypets_add_photo">Add pet photo</string>
     <string name="top_bar_add_your_name">Add your name</string>
     <string name="mypets_not_enough_data">Not enough data yet</string>
     <string name="mypets_add_your_email">Add your email</string>

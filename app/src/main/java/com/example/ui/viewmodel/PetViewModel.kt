@@ -1562,19 +1562,62 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // ================= MULTI-PET SUPPORT =================
     
     /**
-     * Resolve the ACTIVE pet reliably. The selected pet id (_activePetId) is always
-     * correct because the pet tabs set it directly — but the activePet StateFlow
-     * can still hold the DEMO placeholder (UserPet() with id 0L) when its
-     * Firestore lookup has not emitted yet. All saves must go through this so
-     * they never write to the non-existent placeholder pet id.
+     * Resolve the ACTIVE pet for a WRITE, materialising the placeholder when needed.
+     * The selected pet id (_activePetId) is always correct because the pet tabs set
+     * it directly — but when the account has no saved pet yet the UI shows the DEMO
+     * placeholder (UserPet() with id 0L) and activePet never resolves to a real
+     * document. A save (e.g. a newly picked photo) would then silently write to a
+     * document that does not exist, so the change never sticks. In that case we
+     * FIRST create a real Firestore document for the pet, point _activePetId at it,
+     * and return it so the caller's write lands on a genuine document.
      */
     private suspend fun currentPetOrNull(): UserPet? {
         val id = _activePetId.value
-        if (activePet.value.id == id) return activePet.value
-        return try {
+        if (activePet.value.id == id && id > 0L) return activePet.value
+        val existing = try {
             firestoreRepo.getPetById(id).first()
         } catch (e: Exception) {
             android.util.Log.e("PetViewModel", "currentPetOrNull failed for id $id", e)
+            null
+        }
+        if (existing != null) return existing
+        // No real document for the active pet: the UI is showing the placeholder.
+        // Materialise it into a genuine saved pet so this edit persists instead of
+        // being lost (and never overwritten by the placeholder on the next read).
+        return try {
+            val blank = UserPet(
+                id = 0L,
+                name = "",
+                species = "",
+                breed = "",
+                gender = "",
+                ageYears = 0,
+                ageMonths = 0,
+                weightKg = 0.0,
+                microchipNumber = "",
+                hasCertificate = false,
+                certificateNumber = "",
+                certificateIssuedBy = "",
+                certificateDate = "",
+                favoriteFoods = "",
+                favoritePlays = "",
+                trainingStatus = "",
+                trainingLevel = "",
+                trainingMilestones = "",
+                avatarRes = "img_dog_jane",
+                photoUri = "",
+                notes = "",
+                aiAnalysis = ""
+            )
+            val newId = firestoreRepo.savePet(blank)
+            if (newId > 0L) {
+                _activePetId.value = newId
+                blank.copy(id = newId)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("PetViewModel", "Failed to materialise placeholder pet", e)
             null
         }
     }

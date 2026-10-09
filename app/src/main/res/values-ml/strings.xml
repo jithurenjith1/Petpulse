@@ -357,7 +357,7 @@
     <string name="admin_no_products">ഇതുവരെ ഉൽപ്പന്നങ്ങളൊന്നും ചേർത്തിട്ടില്ല</string>
     <string name="admin_no_dealers">ഇതുവരെ ഡീലർമാരെ ചേർത്തിട്ടില്ല</string>
     <string name="admin_status_new">പുതിയത്</string>
-    <string name="admin_status_assigned">അസൈൻ ചെയ്തത്</string>
+    <string name="admin_status_assigned">ഡീലറെ ഏൽപ്പിച്ചു</string>
     <string name="admin_status_delivered">ഡെലിവർ ചെയ്തു</string>
     <string name="admin_status_cancelled">റദ്ദാക്കി</string>
     <string name="admin_assign_dealer">ഡീലറെ അസൈൻ ചെയ്യുക</string>
@@ -380,6 +380,13 @@
     <string name="order_failed_msg">ഓർഡർ നൽകാൻ കഴിഞ്ഞില്ല — നിങ്ങളുടെ ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിക്കുക.</string>
     <string name="order_sign_in_to_place">ഓർഡർ നൽകുന്നതിന് ദയവായി സൈൻ ഇൻ ചെയ്യുക.</string>
     <string name="admin_items">ഇനങ്ങൾ</string>
+    <string name="admin_orders_subtitle">COD ഓർഡറുകൾ — നിറവേറ്റാനും ഡെലിവർ ചെയ്യാനും ഒരു ഡീലറെ അസൈൻ ചെയ്യുക</string>
+    <string name="admin_dealers_subtitle">ഓർഡറുകൾ നിറവേറ്റി ഡെലിവർ ചെയ്യുന്ന പങ്കാളി കടകൾ</string>
+    <string name="admin_send_job_dealer">ജോലി ഡീലറിലേക്ക് അയയ്ക്കുക</string>
+    <string name="mypets_no_pets_title">ഇതുവരെ വളർത്തുമൃഗങ്ങളില്ല</string>
+    <string name="mypets_add_pet_title">നിങ്ങളുടെ വളർത്തുമൃഗത്തെ ചേർക്കുക</string>
+    <string name="mypets_add_pet_hint">ചിത്രം ചേർക്കാൻ ഫോട്ടോ ടാപ്പ് ചെയ്യുക, അല്ലെങ്കിൽ വിശദാംശങ്ങൾ പൂരിപ്പിക്കാൻ Edit / Rename Pet ടാപ്പ് ചെയ്യുക.</string>
+    <string name="mypets_add_photo">വളർത്തുമൃഗത്തിന്റെ ഫോട്ടോ ചേർക്കുക</string>
     <string name="top_bar_add_your_name">നിങ്ങളുടെ പേര് ചേര്ക്കുക</string>
     <string name="mypets_not_enough_data">ആവശ്യത്തിന് ഡാറ്റയില്ല</string>
     <string name="mypets_add_your_email">നിങ്ങളുടെ ഇമെയിൽ ചേര്ക്കുക</string>
