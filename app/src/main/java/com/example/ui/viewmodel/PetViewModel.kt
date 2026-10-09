@@ -596,7 +596,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             0
         } else {
             val completed = vax.count { it.status == "Completed" }
-            val vaxRatio = if (vax.isEmpty()) 0.0 else completed.toFloat() / vax.size.toFloat()
+            val vaxRatio = if (vax.isEmpty()) 0.0 else completed.toDouble() / vax.size.toDouble()
             val score = 60.0 + vaxRatio * 30.0 +
                 (if (certs.isNotEmpty()) 5.0 else 0.0) +
                 (if (reports.isNotEmpty()) 5.0 else 0.0)
