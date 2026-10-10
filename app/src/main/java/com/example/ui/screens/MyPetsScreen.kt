@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -171,6 +172,7 @@ fun MyPetsScreen(
     onOpenHousingHelp: () -> Unit = {},
     onOpenConsentInfo: () -> Unit = {},
     onOpenQrTag: () -> Unit = {},
+    onOpenInsurance: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -471,7 +473,15 @@ fun MyPetsScreen(
             }
         }
 
-        // 2.5 Vaccination Reminder Banner — overdue or due within 3 days
+        // 2.5 Contextual insurance nudge — a small, dismissible card shown once per
+        // pet (persisted in "wagmiya_prefs") that opens the existing insurance screen.
+        if (hasPetDetails) {
+            item {
+                InsuranceNudgeCard(petId = pet.id, onSeePlans = onOpenInsurance)
+            }
+        }
+
+        // 2.6 Vaccination Reminder Banner — overdue or due within 3 days
         item {
             VaccinationReminderBanner(vaccinations = vaccinations)
         }
@@ -2061,5 +2071,65 @@ private fun HealthToolRow(
             Text(subtitle, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+    }
+}
+
+/**
+ * Small, dismissible insurance nudge shown once per pet on the pet screen. The
+ * "seen" flag is persisted in the shared "wagmiya_prefs" file so it never nags.
+ * "See plans" opens the EXISTING insurance screen (PetInsuranceScreen) - no new
+ * insurer or payment flow is introduced.
+ */
+@Composable
+private fun InsuranceNudgeCard(petId: Long, onSeePlans: () -> Unit) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("wagmiya_prefs", android.content.Context.MODE_PRIVATE) }
+    val flagKey = "insurance_nudge_pet_" + petId
+    var dismissed by remember(petId) { mutableStateOf(prefs.getBoolean(flagKey, false)) }
+    if (!dismissed) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                Text(
+                    text = stringResource(R.string.insurance_nudge_title),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.insurance_nudge_body),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        onClick = {
+                            prefs.edit().putBoolean(flagKey, true).apply()
+                            dismissed = true
+                            onSeePlans()
+                        },
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(stringResource(R.string.insurance_nudge_see_plans), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    TextButton(
+                        onClick = {
+                            prefs.edit().putBoolean(flagKey, true).apply()
+                            dismissed = true
+                        }
+                    ) {
+                        Text(stringResource(R.string.insurance_nudge_not_now), fontSize = 12.sp)
+                    }
+                }
+            }
+        }
     }
 }

@@ -596,4 +596,49 @@
     <string name="petqr_scans_empty">ഇതുവരെ ആരും ഈ ടാഗ് സ്കാൻ ചെയ്തിട്ടില്ല.</string>
     <string name="petqr_scan_line">Someone scanned %1$s\'s tag</string>
     <string name="petqr_scans_note">ആരെങ്കിലും നിങ്ങളുടെ ടാഗ് പേജ് തുറന്ന് ഉടമയെ അറിയിക്കുക എന്നതിൽ ടാപ്പ് ചെയ്യുമ്പോൾ സ്കാനുകൾ ഇവിടെ കാണാം.</string>
+
+    <!-- Contextual insurance placements (A1/A2/A3) -->
+    <string name="insurance_nudge_title">നിങ്ങളുടെ വളർത്തുമൃഗത്തിന് ഇൻഷുറൻസ് ഉണ്ടോ?</string>
+    <string name="insurance_nudge_body">അപകടവും രോഗവും ഉൾക്കൊള്ളുന്ന കവറേജ് വലിയ വെറ്ററിനറി ബില്ലുകളിൽ നിന്ന് സംരക്ഷിക്കും. ഞങ്ങളുടെ പ്ലാനുകൾ കാണുക, കവറേജ് ലഭിക്കാൻ ഞങ്ങൾ സഹായിക്കാം.</string>
+    <string name="insurance_nudge_see_plans">പ്ലാനുകൾ കാണുക</string>
+    <string name="insurance_nudge_not_now">ഇപ്പോൾ വേണ്ട</string>
+    <string name="modals_cover_generic_pet">നിങ്ങളുടെ വളർത്തുമൃഗത്തിന്</string>
+    <string name="modals_cover_optional">ഓപ്ഷണൽ ആഡ്-ഓൺ</string>
+    <string name="modals_cover_add_title">%1$s-നായി അപകട കവർ ചേർക്കുക</string>
+    <string name="modals_cover_price">30 ദിവസത്തേക്ക് 99 രൂപ</string>
+    <string name="modals_cover_add">ചേർക്കുക</string>
+    <string name="modals_cover_remove">ഒഴിവാക്കുക</string>
+    <string name="modals_cover_note">ഈ കവർ സജീവമാക്കാൻ ഞങ്ങൾ നിങ്ങളെ ബന്ധപ്പെടും. ഇത് ഞങ്ങളുടെ അന്വേഷണ ടീമിലൂടെ ക്രമീകരിക്കുന്നതാണ്, തൽക്ഷണ പോളിസിയല്ല.</string>
+    <string name="modals_cover_summary_line">%1$s-നുള്ള അപകട കവർ ആഡ്-ഓൺ ചേർത്തു. സജീവമാക്കാൻ ഞങ്ങൾ നിങ്ങളെ ബന്ധപ്പെടും.</string>
+    <string name="order_accident_cover_line">അപകട കവർ ആഡ്-ഓൺ: സജീവമാക്കാൻ ഞങ്ങൾ നിങ്ങളെ ബന്ധപ്പെടും.</string>
+    <string name="doctor_cover_title">%1$s-നായി വെൽനസ്, OPD കവർ</string>
+    <string name="doctor_cover_body">ഇവിടെ ഇരിക്കുമ്പോൾ, %1$s-നായി വെൽനസ്, OPD കവറിനെക്കുറിച്ച് ഞങ്ങളോട് ചോദിക്കുക. ഞങ്ങളുടെ പങ്കാളി ഇൻഷുറർമാരുമായി ഇത് ക്രമീകരിക്കും.</string>
+    <string name="doctor_cover_action">പ്ലാനുകൾ കാണുക</string>
+    <string name="doctor_cover_dismiss">ഒഴിവാക്കുക</string>
+
+    <!-- Admin Partner Ledger (B) -->
+    <string name="admin_ledger_title_card">പങ്കാളി ലെഡ്ജർ</string>
+    <string name="admin_ledger_subtitle">ഓരോ പങ്കാളിക്കും കമ്മീഷൻ</string>
+    <string name="admin_ledger_section">പങ്കാളി ലെഡ്ജർ</string>
+    <string name="admin_ledger_summary_label">ഈ മാസം നൽകാനുള്ള ആകെ കമ്മീഷൻ</string>
+    <string name="admin_ledger_note">ഒരു ഡീലർ നിയോഗിച്ചതിനുശേഷമുള്ള ഓർഡറുകളും, ഒരു സേവനദാതാവ് സ്ഥിരീകരിച്ചതിനുശേഷമുള്ള ബുക്കിംഗുകളും മാത്രമേ കമ്മീഷനിൽ കണക്കാക്കൂ.</string>
+    <string name="admin_ledger_note_counts">%1$d ഓർഡറുകളും %2$d ബുക്കിംഗുകളും ഇതുവരെ നിയോഗിച്ചിട്ടില്ല, അതിനാൽ കണക്കാക്കിയിട്ടില്ല.</string>
+    <string name="admin_ledger_empty">ഇതുവരെ പങ്കാളികളില്ല. ഡീലർമാർ, വെറ്റുകൾ, നിയോഗിച്ച സിറ്റർമാർ, ട്രെയിനർമാർ, ഗ്രൂമർമാർ എന്നിവർ ഇവിടെ കാണാം.</string>
+    <string name="admin_ledger_count_value">%1$d ഓർഡറുകൾ / ബുക്കിംഗുകൾ</string>
+    <string name="admin_ledger_percent_value">%1$s%% കമ്മീഷൻ</string>
+    <string name="admin_ledger_month_amount">ഈ മാസം %1$s</string>
+    <string name="admin_ledger_paid_chip">അടച്ചു</string>
+    <string name="admin_ledger_edit_percent">ശതമാനം ക്രമീകരിക്കുക</string>
+    <string name="admin_ledger_mark_paid">അടച്ചതായി അടയാളപ്പെടുത്തുക</string>
+    <string name="admin_ledger_mark_unpaid">അടയ്ക്കാത്തതായി അടയാളപ്പെടുത്തുക</string>
+    <string name="admin_ledger_dialog_title">കമ്മീഷൻ ശതമാനം ക്രമീകരിക്കുക</string>
+    <string name="admin_ledger_dialog_label">ശതമാനം (0 മുതൽ 100 വരെ)</string>
+    <string name="admin_ledger_cancel">റദ്ദാക്കുക</string>
+    <string name="admin_ledger_save">സേവ് ചെയ്യുക</string>
+    <string name="ledger_type_dealer">ഡീലർ</string>
+    <string name="ledger_type_vet">വെറ്റ്</string>
+    <string name="ledger_type_sitter">സിറ്റർ / വാക്കർ</string>
+    <string name="ledger_type_trainer">ട്രെയിനർ</string>
+    <string name="ledger_type_groomer">ഗ്രൂമർ</string>
+    <string name="ledger_type_other">പങ്കാളി</string>
 </resources>

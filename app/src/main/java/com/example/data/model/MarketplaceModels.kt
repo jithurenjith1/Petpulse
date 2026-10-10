@@ -246,7 +246,12 @@ data class AdminOrder(
     val status: String = "NEW",
     val dealerName: String = "",
     val dealerPhone: String = "",
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    // Optional accident-cover add-on chosen at checkout. Recorded on the order
+    // document ("accidentCover") so the team can follow up and activate it via the
+    // existing enquiry. Defaulted so Firestore toObject() keeps working for orders
+    // that predate this field.
+    val accidentCover: Boolean = false
 )
 
 /**
@@ -305,4 +310,22 @@ data class PartnerApplication(
     val planName: String = "",
     val createdAt: Long = 0L,
     val status: String = "NEW"
+)
+
+/**
+ * Admin-configured commission settings for a partner in the Wagmiya Partner Ledger.
+ * Stored in the Firestore "partner_ledger" collection, keyed by a stable id built
+ * from the partner's type, name and phone so a single partner keeps one record.
+ * This is NOT a partner model (dealers/vets already exist) - it only holds the
+ * admin's commission percent and the paid/unpaid dues flag. Every field has a
+ * default so Firestore toObject() keeps working.
+ */
+data class PartnerCommission(
+    val id: String = "",              // stable key: "TYPE|name|phone" (lowercased)
+    val partnerName: String = "",
+    val partnerType: String = "",      // DEALER | VET | SITTER | TRAINER | GROOMER | OTHER
+    val phone: String = "",
+    val commissionPercent: Double = 10.0,
+    val duesPaid: Boolean = false,
+    val updatedAt: Long = 0L
 )

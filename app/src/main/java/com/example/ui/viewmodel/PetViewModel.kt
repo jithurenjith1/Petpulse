@@ -249,6 +249,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val adminDealers: StateFlow<List<Dealer>> = commerceRepo.observeDealers()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    // Admin commission settings per partner (Partner Ledger). Re-binds after
+    // sign-in because rules only allow the admin to read this collection.
+    val partnerCommissions: StateFlow<List<PartnerCommission>> = signedInUid
+        .flatMapLatest { commerceRepo.observePartnerCommissions() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     val shopProducts: StateFlow<List<ShopProduct>> = commerceRepo.observeProducts()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -871,7 +877,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         address: String,
         name: String,
         phone: String,
-        paymentMethod: String
+        paymentMethod: String,
+        addAccidentCover: Boolean = false
     ): EscrowOrder {
         val items = _cartItems.value
         val subtotal = items.sumOf { it.priceInr * it.quantity }
@@ -946,7 +953,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 customerName = newOrder.customerName,
                 customerPhone = newOrder.customerPhone,
                 address = newOrder.deliveryAddress,
-                city = newOrder.deliveryCity
+                city = newOrder.deliveryCity,
+                accidentCover = addAccidentCover
             )
             _commerceEvent.value = when {
                 result.exceptionOrNull()?.message == "NOT_SIGNED_IN" -> R.string.order_sign_in_to_place
@@ -967,6 +975,21 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun adminUpdateOrderStatus(orderId: String, status: String) {
         viewModelScope.launch {
             _commerceEvent.value = if (commerceRepo.updateOrderStatus(orderId, status).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Save the admin's commission percent (and paid flag) for one partner. */
+    fun setPartnerCommission(entry: PartnerCommission) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.upsertPartnerCommission(entry).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Mark a partner's commission dues as paid (or unpaid again). */
+    fun setPartnerDuesPaid(entry: PartnerCommission, paid: Boolean) {
+        viewModelScope.launch {
+            val updated = entry.copy(duesPaid = paid)
+            _commerceEvent.value = if (commerceRepo.upsertPartnerCommission(updated).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
     }
 

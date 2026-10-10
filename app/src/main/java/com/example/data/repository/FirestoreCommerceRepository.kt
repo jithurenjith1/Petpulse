@@ -23,6 +23,7 @@ import com.petpulse.app.data.model.RescueReport
 import com.petpulse.app.data.model.SupportTicket
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.OrderItemSnap
+import com.petpulse.app.data.model.PartnerCommission
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
 import com.petpulse.app.data.model.VerifiedDoctor
@@ -294,7 +295,8 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             status = getString("status") ?: "NEW",
             dealerName = getString("dealerName") ?: "",
             dealerPhone = getString("dealerPhone") ?: "",
-            createdAt = getLong("createdAt") ?: 0L
+            createdAt = getLong("createdAt") ?: 0L,
+            accidentCover = getBoolean("accidentCover") ?: false
         )
     } catch (e: Exception) {
         Log.e("FsCommerce", "Skipping malformed order ${id}", e)
@@ -308,7 +310,8 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         customerName: String,
         customerPhone: String,
         address: String,
-        city: String
+        city: String,
+        accidentCover: Boolean = false
     ): Result<String> {
         return try {
             auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
@@ -326,6 +329,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 "status" to "NEW",
                 "dealerName" to "",
                 "dealerPhone" to "",
+                "accidentCover" to accidentCover,
                 "createdAt" to System.currentTimeMillis()
             )
         ).await()
@@ -952,5 +956,65 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)
+    }
+
+    // ---------- partner ledger (admin commission tracking) ----------
+
+    /**
+     * Live stream of the admin's per-partner commission settings. Non-admin
+     * listeners are denied by rules and simply see an empty list. The collection
+     * holds ONLY the admin-configured percent and paid flag per partner - the
+     * partners themselves come from the existing dealers/vets/bookings data.
+     */
+    fun observePartnerCommissions(): Flow<List<PartnerCommission>> = callbackFlow {
+        val sub = db.collection("partner_ledger").addSnapshotListener { snap, err ->
+            if (err != null) {
+                Log.e("FsCommerce", "partner ledger listen failed", err)
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(snap?.documents?.mapNotNull { it.toPartnerCommission() } ?: emptyList())
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toPartnerCommission(): PartnerCommission? = try {
+        PartnerCommission(
+            id = id,
+            partnerName = getString("partnerName") ?: "",
+            partnerType = getString("partnerType") ?: "",
+            phone = getString("phone") ?: "",
+            commissionPercent = getDouble("commissionPercent") ?: 10.0,
+            duesPaid = getBoolean("duesPaid") ?: false,
+            updatedAt = getLong("updatedAt") ?: 0L
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed partner ledger entry ${id}", e)
+        null
+    }
+
+    /**
+     * Creates/updates the commission settings for one partner, keyed by
+     * [PartnerCommission.id]. Only the admin can write here (enforced by rules).
+     */
+    suspend fun upsertPartnerCommission(entry: PartnerCommission): Result<Unit> {
+        if (entry.id.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_ID"))
+        return try {
+            auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            db.collection("partner_ledger").document(entry.id).set(
+                mapOf(
+                    "partnerName" to entry.partnerName,
+                    "partnerType" to entry.partnerType,
+                    "phone" to entry.phone,
+                    "commissionPercent" to entry.commissionPercent,
+                    "duesPaid" to entry.duesPaid,
+                    "updatedAt" to System.currentTimeMillis()
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "upsertPartnerCommission failed", e)
+            Result.failure(e)
+        }
     }
 }

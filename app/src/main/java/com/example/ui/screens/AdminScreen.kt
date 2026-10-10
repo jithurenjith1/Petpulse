@@ -40,6 +40,7 @@ import com.petpulse.app.data.model.AdminLostPetAlert
 import com.petpulse.app.data.model.FoundPetReport
 import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.VerifiedDoctor
+import com.petpulse.app.data.model.PartnerCommission
 import coil.compose.AsyncImage
 
 private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding", "Trainer")
@@ -62,6 +63,9 @@ fun AdminScreen(
     supportTickets: List<SupportTicket> = emptyList(),
     rescueReports: List<RescueReport> = emptyList(),
     partnerApplications: List<PartnerApplication> = emptyList(),
+    partnerCommissions: List<PartnerCommission> = emptyList(),
+    onSetPartnerCommission: (PartnerCommission) -> Unit = {},
+    onSetPartnerDuesPaid: (PartnerCommission, Boolean) -> Unit = { _, _ -> },
     onDeleteListing: (String) -> Unit = {},
     onDeleteSupportTicket: (String) -> Unit = {},
     onDeleteRescueReport: (String) -> Unit = {},
@@ -84,6 +88,13 @@ fun AdminScreen(
     var showBookings by remember { mutableStateOf(false) }
     var assigningOrder by remember { mutableStateOf<AdminOrder?>(null) }
     var assigningBooking by remember { mutableStateOf<ServiceBooking?>(null) }
+    var editingPartner by remember { mutableStateOf<PartnerLedgerRow?>(null) }
+
+    // Partner Ledger rows are derived from the existing dealers / vets / bookings
+    // data merged with the admin's saved commission settings.
+    val partnerRows = remember(dealers, vets, orders, bookings, partnerCommissions) {
+        buildPartnerLedgerRows(dealers, vets, orders, bookings, partnerCommissions)
+    }
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface) {
@@ -124,7 +135,8 @@ fun AdminScreen(
                         "MEDICINE" to products.count { it.listType == "Medicine" },
                         "ACCESSORIES" to products.count { it.listType == "Accessory" },
                         "TRAINERS" to products.count { it.listType == "Trainer" },
-                        "DEALERS" to dealers.size
+                        "DEALERS" to dealers.size,
+                        "LEDGER" to partnerRows.size
                     )
                     AdminDashboard(
                         pendingCounts = pendingCounts + catalogueCounts,
@@ -136,7 +148,11 @@ fun AdminScreen(
                         TextButton(onClick = { section = null; showBookings = false }) {
                             Text("<", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
-                        Text(sectionTitle(section), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(
+                            text = if (section == "LEDGER") stringResource(R.string.admin_ledger_section) else sectionTitle(section),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
                     }
                     Spacer(Modifier.height(4.dp))
                     when (section) {
@@ -271,6 +287,16 @@ fun AdminScreen(
                             }
                         }
                         "FOUND" -> FoundReportsAdminTab(reports = foundReports, onDelete = onDeleteFoundReport)
+                        "LEDGER" -> PartnerLedgerTab(
+                            rows = partnerRows,
+                            unattributedOrders = orders.count { it.dealerName.isBlank() },
+                            unattributedBookings = bookings.count {
+                                it.assignedName.isBlank() &&
+                                    (it.type == "DOCTOR" || it.type == "TRAINER" || it.type == "BOARDING" || it.type == "GROOMING")
+                            },
+                            onEditPercent = { row -> editingPartner = row },
+                            onTogglePaid = { row -> onSetPartnerDuesPaid(row.toCommission(), !row.duesPaid) }
+                        )
                         else -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
                     }
                 }
@@ -344,6 +370,17 @@ fun AdminScreen(
             onAssign = { name, phone ->
                 onAssignBooking(booking.id, name, phone)
                 assigningBooking = null
+            }
+        )
+    }
+
+    editingPartner?.let { row ->
+        PartnerCommissionDialog(
+            row = row,
+            onDismiss = { editingPartner = null },
+            onSave = { percent ->
+                onSetPartnerCommission(row.toCommission().copy(commissionPercent = percent))
+                editingPartner = null
             }
         )
     }
@@ -508,6 +545,7 @@ private fun sectionTitle(key: String?): String = when (key) {
     "SUPPORT" -> "🆘 Help & Support"
     "PARTNERS" -> "🤝 Partner Applications"
     "DEALERS" -> "🚚 Dealers"
+    "LEDGER" -> "Partner Ledger"
     else -> "Admin"
 }
 
@@ -542,6 +580,7 @@ private fun AdminDashboard(
         "FOUND" to ("Found Reports" to "Sighting reports from users"),
         "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
         "PARTNERS" to ("Partner Applications" to "Business joins + featured plans"),
+        "LEDGER" to (stringResource(R.string.admin_ledger_title_card) to stringResource(R.string.admin_ledger_subtitle)),
         "DEALERS" to ("Dealers" to stringResource(R.string.admin_dealers_subtitle))
     )
     val totalPending = pendingTotal ?: pendingCounts.values.sum()
@@ -1507,4 +1546,341 @@ private fun whatsappJobUrl(phone: String, message: String): String {
     val digits = phone.filter { it.isDigit() }
     val encoded = java.net.URLEncoder.encode(message, "UTF-8")
     return "https://wa.me/" + digits + "?text=" + encoded
+}
+
+// ===================== Partner Ledger (admin commission tracking) =====================
+
+/** A partner discovered from the existing dealers / vets / bookings data. */
+private data class PartnerSeed(
+    val key: String,
+    val name: String,
+    val typeCode: String,
+    val phone: String
+)
+
+/** One rendered Partner Ledger row: partner + attributed business + commission. */
+private data class PartnerLedgerRow(
+    val key: String,
+    val name: String,
+    val typeCode: String,
+    val phone: String,
+    val attributedCount: Int,
+    val commissionPercent: Double,
+    val duesPaid: Boolean,
+    val commissionMonthInr: Double
+) {
+    fun toCommission(): PartnerCommission = PartnerCommission(
+        id = key,
+        partnerName = name,
+        partnerType = typeCode,
+        phone = phone,
+        commissionPercent = commissionPercent,
+        duesPaid = duesPaid,
+        updatedAt = 0L
+    )
+}
+
+private fun partnerKey(typeCode: String, name: String, phone: String): String =
+    typeCode + "|" + name.trim().lowercase() + "|" + normalizePhone(phone)
+
+private fun normalizePhone(phone: String): String = phone.filter { it.isDigit() }
+
+private fun formatPercentNumber(percent: Double): String =
+    if (percent == Math.floor(percent)) percent.toInt().toString() else percent.toString()
+
+/** Rupee amount with Indian digit grouping, e.g. 1234567 -> ₹12,34,567. */
+private fun formatIndianRupees(amount: Double): String = "₹" + groupIndian(Math.round(amount))
+
+private fun groupIndian(value: Long): String {
+    val negative = value < 0
+    val digits = Math.abs(value).toString()
+    val grouped = if (digits.length <= 3) {
+        digits
+    } else {
+        val last3 = digits.substring(digits.length - 3)
+        val rest = digits.substring(0, digits.length - 3)
+        val sb = StringBuilder()
+        var i = rest.length
+        while (i > 0) {
+            val start = maxOf(0, i - 2)
+            if (sb.isNotEmpty()) sb.insert(0, ',')
+            sb.insert(0, rest.substring(start, i))
+            i = start
+        }
+        sb.append(',').append(last3).toString()
+    }
+    return (if (negative) "-" else "") + grouped
+}
+
+/** Epoch millis of 00:00 on the 1st of the current month (device timezone). */
+private fun startOfCurrentMonthMillis(): Long {
+    val cal = java.util.Calendar.getInstance()
+    cal.set(java.util.Calendar.DAY_OF_MONTH, 1)
+    cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+    cal.set(java.util.Calendar.MINUTE, 0)
+    cal.set(java.util.Calendar.SECOND, 0)
+    cal.set(java.util.Calendar.MILLISECOND, 0)
+    return cal.timeInMillis
+}
+
+/**
+ * Builds the Partner Ledger rows. Partners come ONLY from data the app already has:
+ * the "dealers" collection, the "vets" collection, and the provider names assigned
+ * on bookings. Business is attributed to a partner by matching the assigned dealer /
+ * provider NAME or PHONE on orders and bookings - nothing is invented, and a partner
+ * with no attribution simply shows a count of 0.
+ */
+private fun buildPartnerLedgerRows(
+    dealers: List<Dealer>,
+    vets: List<VerifiedDoctor>,
+    orders: List<AdminOrder>,
+    bookings: List<ServiceBooking>,
+    saved: List<PartnerCommission>
+): List<PartnerLedgerRow> {
+    val savedByKey = saved.associateBy { it.id }
+    val seeds = LinkedHashMap<String, PartnerSeed>()
+
+    fun seedOf(name: String, typeCode: String, phone: String) {
+        if (name.isBlank()) return
+        val key = partnerKey(typeCode, name, phone)
+        if (!seeds.containsKey(key)) {
+            seeds[key] = PartnerSeed(key, name.trim(), typeCode, phone.trim())
+        }
+    }
+
+    dealers.forEach { seedOf(it.name, "DEALER", it.phone) }
+    vets.forEach { seedOf(it.name, "VET", it.phone) }
+    bookings.forEach { b ->
+        if (b.assignedName.isNotBlank()) {
+            val code = when (b.type) {
+                "DOCTOR" -> "VET"
+                "TRAINER" -> "TRAINER"
+                "BOARDING" -> "SITTER"
+                "GROOMING" -> "GROOMER"
+                else -> "OTHER"
+            }
+            seedOf(b.assignedName, code, b.assignedPhone)
+        }
+    }
+
+    val monthStart = startOfCurrentMonthMillis()
+
+    fun matches(seed: PartnerSeed, name: String, phone: String): Boolean {
+        val nameMatch = name.isNotBlank() && name.trim().equals(seed.name, ignoreCase = true)
+        val phoneMatch = seed.phone.isNotBlank() && phone.isNotBlank() &&
+            normalizePhone(phone) == normalizePhone(seed.phone)
+        return nameMatch || phoneMatch
+    }
+
+    return seeds.values.map { seed ->
+        val savedEntry = savedByKey[seed.key]
+        val percent = savedEntry?.commissionPercent ?: 10.0
+        val paid = savedEntry?.duesPaid ?: false
+
+        val matchedOrders = orders.filter { matches(seed, it.dealerName, it.dealerPhone) }
+        val matchedBookings = bookings.filter { matches(seed, it.assignedName, it.assignedPhone) }
+
+        val orderValueMonth = matchedOrders.filter { it.createdAt in monthStart..Long.MAX_VALUE }.sumOf { it.totalInr }
+        val bookingValueMonth = matchedBookings.filter { it.createdAt in monthStart..Long.MAX_VALUE }.sumOf { it.feeInr }
+        val commission = (orderValueMonth + bookingValueMonth) * percent / 100.0
+
+        PartnerLedgerRow(
+            key = seed.key,
+            name = seed.name,
+            typeCode = seed.typeCode,
+            phone = seed.phone,
+            attributedCount = matchedOrders.size + matchedBookings.size,
+            commissionPercent = percent,
+            duesPaid = paid,
+            commissionMonthInr = commission
+        )
+    }.sortedBy { it.name.lowercase() }
+}
+
+@Composable
+private fun partnerTypeLabel(typeCode: String): String = when (typeCode) {
+    "DEALER" -> stringResource(R.string.ledger_type_dealer)
+    "VET" -> stringResource(R.string.ledger_type_vet)
+    "SITTER" -> stringResource(R.string.ledger_type_sitter)
+    "TRAINER" -> stringResource(R.string.ledger_type_trainer)
+    "GROOMER" -> stringResource(R.string.ledger_type_groomer)
+    else -> stringResource(R.string.ledger_type_other)
+}
+
+/** Admin "Partner Ledger" section: summary strip + one row per partner. */
+@Composable
+private fun PartnerLedgerTab(
+    rows: List<PartnerLedgerRow>,
+    unattributedOrders: Int,
+    unattributedBookings: Int,
+    onEditPercent: (PartnerLedgerRow) -> Unit,
+    onTogglePaid: (PartnerLedgerRow) -> Unit
+) {
+    val totalMonth = rows.sumOf { it.commissionMonthInr }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = stringResource(R.string.admin_ledger_summary_label),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        text = formatIndianRupees(totalMonth),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+        }
+        item {
+            Text(
+                text = stringResource(R.string.admin_ledger_note),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (unattributedOrders > 0 || unattributedBookings > 0) {
+            item {
+                Text(
+                    text = stringResource(R.string.admin_ledger_note_counts, unattributedOrders, unattributedBookings),
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        if (rows.isEmpty()) {
+            item {
+                Text(
+                    text = stringResource(R.string.admin_ledger_empty),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        } else {
+            items(rows, key = { it.key }) { row ->
+                PartnerLedgerRowCard(row = row, onEditPercent = onEditPercent, onTogglePaid = onTogglePaid)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PartnerLedgerRowCard(
+    row: PartnerLedgerRow,
+    onEditPercent: (PartnerLedgerRow) -> Unit,
+    onTogglePaid: (PartnerLedgerRow) -> Unit
+) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(row.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(
+                        text = partnerTypeLabel(row.typeCode) + "  •  " + stringResource(R.string.admin_ledger_count_value, row.attributedCount),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (row.phone.isNotBlank()) {
+                        Text(row.phone, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                if (row.duesPaid) {
+                    Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.tertiaryContainer) {
+                        Text(
+                            text = stringResource(R.string.admin_ledger_paid_chip),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.admin_ledger_percent_value, formatPercentNumber(row.commissionPercent)),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = stringResource(R.string.admin_ledger_month_amount, formatIndianRupees(row.commissionMonthInr)),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = { onEditPercent(row) }) {
+                        Text(stringResource(R.string.admin_ledger_edit_percent), fontSize = 12.sp)
+                    }
+                    TextButton(onClick = { onTogglePaid(row) }) {
+                        Text(
+                            text = stringResource(if (row.duesPaid) R.string.admin_ledger_mark_unpaid else R.string.admin_ledger_mark_paid),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PartnerCommissionDialog(
+    row: PartnerLedgerRow,
+    onDismiss: () -> Unit,
+    onSave: (Double) -> Unit
+) {
+    var percentText by remember { mutableStateOf(formatPercentNumber(row.commissionPercent)) }
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(16.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(stringResource(R.string.admin_ledger_dialog_title), fontWeight = FontWeight.Bold)
+                Text(
+                    text = row.name + "  -  " + partnerTypeLabel(row.typeCode),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = percentText,
+                    onValueChange = { percentText = it },
+                    label = { Text(stringResource(R.string.admin_ledger_dialog_label)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.admin_ledger_cancel)) }
+                    Spacer(Modifier.weight(1f))
+                    Button(
+                        onClick = {
+                            val parsed = percentText.trim().toDoubleOrNull()
+                            if (parsed != null) onSave(parsed.coerceIn(0.0, 100.0))
+                        },
+                        enabled = percentText.trim().toDoubleOrNull() != null
+                    ) {
+                        Text(stringResource(R.string.admin_ledger_save), fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+    }
 }

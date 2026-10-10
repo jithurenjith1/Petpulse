@@ -45,9 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.petpulse.app.R
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.ServiceBooking
 import java.text.SimpleDateFormat
@@ -296,6 +298,17 @@ private fun MyOrderCard(
                     )
                     Text("₹${(item.priceInr * item.quantity).toInt()}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
+            }
+
+            // Optional accident-cover add-on chosen at checkout (arranged by our team).
+            if (order.accidentCover) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = stringResource(R.string.order_accident_cover_line),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
 
             Spacer(Modifier.height(8.dp))

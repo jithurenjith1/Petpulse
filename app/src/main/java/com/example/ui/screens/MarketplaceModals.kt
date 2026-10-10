@@ -464,8 +464,9 @@ fun SecureEscrowCheckoutModal(
     customer: CustomerProfile,
     selectedCity: String,
     isExpress: Boolean,
+    petName: String = "",
     onDismiss: () -> Unit,
-    onConfirmOrder: (city: String, address: String, name: String, phone: String, paymentMethod: String) -> Unit
+    onConfirmOrder: (city: String, address: String, name: String, phone: String, paymentMethod: String, addAccidentCover: Boolean) -> Unit
 ) {
     var deliveryCity by remember { mutableStateOf(if (selectedCity == "All Kerala") "Kochi" else selectedCity) }
     var streetAddress by remember { mutableStateOf(if (customer.location.isNotBlank()) customer.location else "Door No 12/B, MG Road, Kerala") }
@@ -473,6 +474,10 @@ fun SecureEscrowCheckoutModal(
     var customerPhone by remember { mutableStateOf(customer.phone) }
     val paymentMethod = "Cash on Delivery (COD)"
     var prescriptionAttached by remember { mutableStateOf(false) }
+    // Optional accident-cover add-on. Purely opt-in and removable; the order is
+    // placed exactly as before when it is off.
+    var accidentCover by remember { mutableStateOf(false) }
+    val coverPetName = if (petName.isBlank()) stringResource(R.string.modals_cover_generic_pet) else petName
 
     val hasMedicinesWithRx = cartItems.any { it.prescriptionRequired }
     val subtotal = cartItems.sumOf { it.priceInr * it.quantity }
@@ -698,6 +703,68 @@ fun SecureEscrowCheckoutModal(
                     }
                 }
 
+                // Optional accident-cover add-on. Clearly optional and removable,
+                // and it never blocks placing the order. The cover itself is arranged
+                // by our team afterwards - no online payment or escrow is claimed.
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.modals_cover_optional),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.modals_cover_add_title, coverPetName),
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.modals_cover_price),
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                if (accidentCover) {
+                                    OutlinedButton(
+                                        onClick = { accidentCover = false },
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(stringResource(R.string.modals_cover_remove), fontSize = 12.sp)
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { accidentCover = true },
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(stringResource(R.string.modals_cover_add), fontSize = 12.sp)
+                                    }
+                                }
+                            }
+                            if (accidentCover) {
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    text = stringResource(R.string.modals_cover_note),
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Order Final Summary
                 item {
                     Surface(
@@ -705,31 +772,42 @@ fun SecureEscrowCheckoutModal(
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(stringResource(R.string.modals_total_escrow_amount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("₹${total.toInt()}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
-                                Text(
-                                    "Items ₹${subtotal.toInt()} • Delivery: " + if (deliveryFee == 0.0) "FREE" else "₹${deliveryFee.toInt()}",
-                                    fontSize = 11.sp,
-                                    color = if (deliveryFee == 0.0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            Button(
-                                onClick = {
-                                    onConfirmOrder(deliveryCity, streetAddress, customerName, customerPhone, paymentMethod)
-                                },
-                                shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(stringResource(R.string.modals_lock_place_order), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Column {
+                                    Text(stringResource(R.string.modals_total_escrow_amount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("₹${total.toInt()}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                                    Text(
+                                        "Items ₹${subtotal.toInt()} • Delivery: " + if (deliveryFee == 0.0) "FREE" else "₹${deliveryFee.toInt()}",
+                                        fontSize = 11.sp,
+                                        color = if (deliveryFee == 0.0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
+                                        onConfirmOrder(deliveryCity, streetAddress, customerName, customerPhone, paymentMethod, accidentCover)
+                                    },
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+                                ) {
+                                    Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(stringResource(R.string.modals_lock_place_order), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                }
+                            }
+                            if (accidentCover) {
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    text = stringResource(R.string.modals_cover_summary_line, coverPetName),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
                     }
@@ -1287,7 +1365,8 @@ fun DoctorBookingModal(
     defaultPetName: String,
     defaultPhone: String,
     onDismiss: () -> Unit,
-    onConfirm: (consultType: String, petName: String, phone: String, date: String, slot: String, notes: String) -> Unit
+    onConfirm: (consultType: String, petName: String, phone: String, date: String, slot: String, notes: String) -> Unit,
+    onOpenInsurance: () -> Unit = {}
 ) {
     var consultType by remember { mutableStateOf("Video Consultation") }
     var petName by remember { mutableStateOf(defaultPetName) }
@@ -1295,6 +1374,8 @@ fun DoctorBookingModal(
     var selectedDate by remember { mutableStateOf("Tomorrow") }
     var selectedSlot by remember { mutableStateOf("10:30 AM - 11:00 AM") }
     var problemNotes by remember { mutableStateOf("") }
+    // Optional wellness / OPD cover bundle - dismissible and never blocks the booking.
+    var showCoverBundle by remember { mutableStateOf(true) }
 
     val fee = if (consultType.contains("Video")) doctor.videoConsultFeeInr else doctor.inPersonConsultFeeInr
 
@@ -1459,6 +1540,46 @@ fun DoctorBookingModal(
                         shape = RoundedCornerShape(10.dp),
                         minLines = 2
                     )
+                }
+
+                // Optional wellness / OPD cover bundle. Dismissible, and its action
+                // simply opens the existing insurance screen - it never blocks booking.
+                if (showCoverBundle) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.doctor_cover_title, petName.ifBlank { defaultPetName }),
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { showCoverBundle = false }) {
+                                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.doctor_cover_dismiss))
+                                    }
+                                }
+                                Text(
+                                    text = stringResource(R.string.doctor_cover_body, petName.ifBlank { defaultPetName }),
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                TextButton(onClick = onOpenInsurance) {
+                                    Text(stringResource(R.string.doctor_cover_action), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Confirm Button

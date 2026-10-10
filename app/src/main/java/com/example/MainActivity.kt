@@ -121,6 +121,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
     val adminOrders by viewModel.adminOrders.collectAsStateWithLifecycle()
     val adminDealers by viewModel.adminDealers.collectAsStateWithLifecycle()
+    val partnerCommissions by viewModel.partnerCommissions.collectAsStateWithLifecycle()
     val shopProducts by viewModel.shopProducts.collectAsStateWithLifecycle()
     val adminBookings by viewModel.adminBookings.collectAsStateWithLifecycle()
     val myBookings by viewModel.myBookings.collectAsStateWithLifecycle()
@@ -379,7 +380,8 @@ val appCtx = LocalContext.current
                         onOpenServicePrice = { showServicePriceScreen = true },
                         onOpenHousingHelp = { showHousingHelpScreen = true },
                         onOpenConsentInfo = { showConsentInfoScreen = true },
-                        onOpenQrTag = { showPetQrScreen = true }
+                        onOpenQrTag = { showPetQrScreen = true },
+                        onOpenInsurance = { showInsuranceScreen = true }
                     )
 
                 }
@@ -623,9 +625,10 @@ val appCtx = LocalContext.current
             customer = customer,
             selectedCity = selectedKeralaCity,
             isExpress = isExpressDelivery,
+            petName = activePet.name,
             onDismiss = { showEscrowCheckoutModal = false },
-            onConfirmOrder = { city, address, name, phone, paymentMethod ->
-                val newOrder = viewModel.placeEscrowOrder(city, address, name, phone, paymentMethod)
+            onConfirmOrder = { city, address, name, phone, paymentMethod, addAccidentCover ->
+                val newOrder = viewModel.placeEscrowOrder(city, address, name, phone, paymentMethod, addAccidentCover)
                 showEscrowCheckoutModal = false
                 showMyOrdersScreen = true
                 coroutineScope.launch {
@@ -678,6 +681,9 @@ val appCtx = LocalContext.current
             onDeleteRescueReport = { id -> viewModel.adminDeleteRescueReport(id) },
             partnerApplications = adminPartnerApplications,
             onDeletePartnerApplication = { id -> viewModel.adminDeletePartnerApplication(id) },
+            partnerCommissions = partnerCommissions,
+            onSetPartnerCommission = { entry -> viewModel.setPartnerCommission(entry) },
+            onSetPartnerDuesPaid = { entry, paid -> viewModel.setPartnerDuesPaid(entry, paid) },
             onDismiss = { showAdminScreen = false }
         )
     }
@@ -899,6 +905,10 @@ val appCtx = LocalContext.current
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("📅 Booking requested! We will call $phone to confirm your ${doctor.name} appointment for $petName.")
                 }
+            },
+            onOpenInsurance = {
+                selectedDoctorForBooking = null
+                showInsuranceScreen = true
             }
         )
     }

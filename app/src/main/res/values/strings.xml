@@ -596,4 +596,49 @@
     <string name="petqr_scans_empty">No one has scanned this tag yet.</string>
     <string name="petqr_scan_line">Someone scanned %1$s\'s tag</string>
     <string name="petqr_scans_note">Scans appear here when someone opens your tag page and taps Notify the owner.</string>
+
+    <!-- Contextual insurance placements (A1/A2/A3) -->
+    <string name="insurance_nudge_title">Is your pet insured?</string>
+    <string name="insurance_nudge_body">Accident and illness cover can protect you from large vet bills. See our plans and we will help you get covered.</string>
+    <string name="insurance_nudge_see_plans">See plans</string>
+    <string name="insurance_nudge_not_now">Not now</string>
+    <string name="modals_cover_generic_pet">your pet</string>
+    <string name="modals_cover_optional">OPTIONAL ADD-ON</string>
+    <string name="modals_cover_add_title">Add accident cover for %1$s</string>
+    <string name="modals_cover_price">Rs 99 for 30 days</string>
+    <string name="modals_cover_add">Add</string>
+    <string name="modals_cover_remove">Remove</string>
+    <string name="modals_cover_note">We will contact you to activate this cover. It is arranged through our enquiry team, not an instant policy.</string>
+    <string name="modals_cover_summary_line">Accident cover add-on for %1$s added. We will contact you to activate it.</string>
+    <string name="order_accident_cover_line">Accident cover add-on: we will contact you to activate it.</string>
+    <string name="doctor_cover_title">Wellness and OPD cover for %1$s</string>
+    <string name="doctor_cover_body">While you are here, ask us about a wellness and OPD cover for %1$s. We will arrange it with our partner insurers.</string>
+    <string name="doctor_cover_action">See plans</string>
+    <string name="doctor_cover_dismiss">Dismiss</string>
+
+    <!-- Admin Partner Ledger (B) -->
+    <string name="admin_ledger_title_card">Partner Ledger</string>
+    <string name="admin_ledger_subtitle">Commission per partner</string>
+    <string name="admin_ledger_section">Partner Ledger</string>
+    <string name="admin_ledger_summary_label">Total commission owed this month</string>
+    <string name="admin_ledger_note">Commission counts only orders after a dealer is assigned and bookings after a provider is confirmed.</string>
+    <string name="admin_ledger_note_counts">%1$d orders and %2$d bookings are not yet assigned, so they are not counted.</string>
+    <string name="admin_ledger_empty">No partners yet. Dealers, vets and assigned sitters, trainers and groomers will appear here.</string>
+    <string name="admin_ledger_count_value">%1$d orders / bookings</string>
+    <string name="admin_ledger_percent_value">%1$s%% commission</string>
+    <string name="admin_ledger_month_amount">%1$s this month</string>
+    <string name="admin_ledger_paid_chip">PAID</string>
+    <string name="admin_ledger_edit_percent">Set percent</string>
+    <string name="admin_ledger_mark_paid">Mark paid</string>
+    <string name="admin_ledger_mark_unpaid">Mark unpaid</string>
+    <string name="admin_ledger_dialog_title">Set commission percent</string>
+    <string name="admin_ledger_dialog_label">Percent (0 to 100)</string>
+    <string name="admin_ledger_cancel">Cancel</string>
+    <string name="admin_ledger_save">Save</string>
+    <string name="ledger_type_dealer">Dealer</string>
+    <string name="ledger_type_vet">Vet</string>
+    <string name="ledger_type_sitter">Sitter / Walker</string>
+    <string name="ledger_type_trainer">Trainer</string>
+    <string name="ledger_type_groomer">Groomer</string>
+    <string name="ledger_type_other">Partner</string>
 </resources>
