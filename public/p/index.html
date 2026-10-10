@@ -115,6 +115,21 @@
     .status.err { color: var(--danger); }
     .center { text-align: center; color: var(--muted); font-size: 14px; }
     .privacy { margin-top: 18px; font-size: 11px; color: var(--muted); text-align: center; line-height: 1.5; }
+    /* Small, unobtrusive monospace block shown only when a load fails. */
+    .diag {
+      margin-top: 14px;
+      padding: 10px 12px;
+      background: #f4f1f7;
+      border: 1px solid var(--outline);
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--muted);
+      white-space: pre-wrap;
+      word-break: break-all;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
@@ -148,6 +163,9 @@
       </div>
 
       <div class="center" id="error" style="display:none"></div>
+
+      <!-- Diagnostics: shown only when a load fails, so the real cause is visible. -->
+      <pre class="diag" id="diag" style="display:none"></pre>
     </div>
 
     <p class="privacy">
@@ -166,14 +184,24 @@
     // owner's phone / email / address.
     //
     // "Notify the owner" creates one document in "tag_scans" (public create).
+    //
+    // On any load failure the page now prints the exact request URL, the HTTP
+    // status and the first 300 characters of the response body in a small
+    // monospace block (and to the browser console), so the real cause is visible.
     // ---------------------------------------------------------------------
 
     // Project id from app/google-services.json (project_info.project_id).
     var PROJECT_ID = "petz-58515";
 
-    // Public Firebase Web API key from app/google-services.json (client api_key).
-    // Firebase Web API keys are public client identifiers, not secrets; restrict
-    // them by HTTP referrer / API in the Google Cloud console for production.
+    // API key used for the Firestore REST call.
+    //
+    // NOTE: this is the ANDROID key copied from app/google-services.json
+    // (client[0].api_key[0].current_key). If the key is restricted in Google Cloud
+    // with an "Android apps" application restriction it will be rejected when used
+    // from a web page. In that case create a Web app in the Firebase console
+    // (Project settings -> General -> Your apps -> Add app -> Web) and paste the
+    // Web app's apiKey value here. Firebase Web API keys are public client
+    // identifiers, not secrets.
     var API_KEY = "AIzaSyB-ljDxF2bwPoD95WMnpj0CXXZwUQW5W4w";
 
     var FIRESTORE = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID +
@@ -189,10 +217,14 @@
     }
 
     function str(field) {
-      if (!field) return "";
+      if (field === null || field === undefined) return "";
+      // Tolerate a plain value too (defensive: the REST API normally wraps it).
+      if (typeof field !== "object") return String(field);
       if (field.stringValue !== undefined) return field.stringValue;
       if (field.booleanValue !== undefined) return field.booleanValue ? "true" : "false";
       if (field.integerValue !== undefined) return String(field.integerValue);
+      if (field.doubleValue !== undefined) return String(field.doubleValue);
+      if (field.timestampValue !== undefined) return String(field.timestampValue);
       return "";
     }
 
@@ -203,6 +235,28 @@
       e.textContent = msg;
       e.style.display = "block";
     }
+
+    // ---- diagnostics -----------------------------------------------------
+    function bodyPreview(text) {
+      if (text === null || text === undefined || text === "") return "(empty body)";
+      return text.length > 300 ? text.slice(0, 300) + " ... [truncated]" : text;
+    }
+
+    function showDiag(lines) {
+      var d = document.getElementById("diag");
+      if (!d) return;
+      d.textContent = lines.join("\n");
+      d.style.display = "block";
+      try {
+        console.error("[Wagmiya pet tag] " + lines.join(" | "));
+      } catch (e) { /* console may be unavailable */ }
+    }
+
+    function hideDiag() {
+      var d = document.getElementById("diag");
+      if (d) { d.style.display = "none"; d.textContent = ""; }
+    }
+    // ----------------------------------------------------------------------
 
     var currentOwnerUid = "";
 
@@ -239,25 +293,70 @@
     }
 
     function loadPet() {
+      hideDiag();
       var id = tagId();
       if (!id) { showError("This tag link is missing its id."); return; }
+
       var url = FIRESTORE + "/pet_tags/" + encodeURIComponent(id) + "?key=" + API_KEY;
-      fetch(url)
+
+      fetch(url, { method: "GET" })
         .then(function (r) {
-          if (r.status === 404) { throw new Error("notfound"); }
-          if (!r.ok) { throw new Error("http " + r.status); }
-          return r.json();
+          // Read the raw body first so we can show it in the diagnostics block.
+          return r.text().then(function (body) {
+            return { status: r.status, ok: r.ok, body: body };
+          });
         })
-        .then(function (doc) {
-          if (!doc || !doc.fields) { throw new Error("notfound"); }
+        .then(function (res) {
+          if (!res.ok) {
+            if (res.status === 404) {
+              showError("This pet tag was not found. It may have been removed.");
+            } else {
+              showError("Could not load this pet tag. Please try again.");
+            }
+            showDiag([
+              "Requested URL: " + url,
+              "HTTP status: " + res.status,
+              "Response body (first 300 chars):",
+              bodyPreview(res.body)
+            ]);
+            return;
+          }
+
+          var doc;
+          try {
+            doc = JSON.parse(res.body);
+          } catch (e) {
+            showError("Could not load this pet tag. Please try again.");
+            showDiag([
+              "Requested URL: " + url,
+              "HTTP status: " + res.status + " (response was not valid JSON)",
+              "Response body (first 300 chars):",
+              bodyPreview(res.body)
+            ]);
+            return;
+          }
+
+          if (!doc || !doc.fields) {
+            showError("This pet tag was not found. It may have been removed.");
+            showDiag([
+              "Requested URL: " + url,
+              "HTTP status: " + res.status,
+              "Response body (first 300 chars):",
+              bodyPreview(res.body)
+            ]);
+            return;
+          }
+
           renderPet(doc.fields);
         })
         .catch(function (err) {
-          if (String(err.message) === "notfound") {
-            showError("This pet tag was not found. It may have been removed.");
-          } else {
-            showError("Could not load this pet tag. Please try again.");
-          }
+          // fetch itself threw: network error, DNS, or a blocked CORS request.
+          showError("Could not load this pet tag. Please try again.");
+          showDiag([
+            "Requested URL: " + url,
+            "HTTP status: (no response - network or CORS error)",
+            "Error: " + (err && err.message ? err.message : String(err))
+          ]);
         });
     }
 
@@ -279,7 +378,11 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fields: fields })
       }).then(function (r) {
-        if (!r.ok) { throw new Error("http " + r.status); }
+        if (!r.ok) {
+          return r.text().then(function (body) {
+            throw new Error("http " + r.status + " " + bodyPreview(body));
+          });
+        }
         return r.json();
       });
     }
@@ -301,8 +404,9 @@
             setStatus("Thank you. The owner has been notified.", "ok");
             document.getElementById("note").value = "";
           })
-          .catch(function () {
+          .catch(function (err) {
             setStatus("Could not send the notification. Please try again.", "err");
+            try { console.error("[Wagmiya pet tag] notify failed: " + (err && err.message ? err.message : String(err))); } catch (e) {}
             btn.disabled = false;
           });
       };

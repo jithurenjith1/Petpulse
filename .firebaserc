@@ -1,0 +1,13 @@
+{
+  "projects": {},
+  "targets": {
+    "petz-58515": {
+      "hosting": {
+        "wagmiya": [
+          "wagmiya"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
