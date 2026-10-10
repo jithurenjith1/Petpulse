@@ -28,7 +28,8 @@ suspend fun postSosAlert(
     reward: String = "",
     alternatePhone: String = "",
     lat: Double = 0.0,
-    lng: Double = 0.0
+    lng: Double = 0.0,
+    priority: Boolean = false
 ): Boolean {
     val user = FirebaseAuth.getInstance().currentUser ?: return false
     val date = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
@@ -50,6 +51,7 @@ suspend fun postSosAlert(
                     "alternatePhone" to alternatePhone,
                     "lat" to lat,
                     "lng" to lng,
+                    "priority" to priority,
                     "date" to date
                 )
             )

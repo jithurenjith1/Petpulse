@@ -866,9 +866,23 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun calculateDeliveryFee(subtotal: Double, city: String, express: Boolean): Double {
         if (subtotal <= 0.0) return 0.0
-        // v4 model: flat ₹40 delivery under ₹500, FREE at/above ₹500 (all Kerala cities)
-        val baseFee = if (subtotal >= 500.0) 0.0 else 40.0
+        // Honest per-plan delivery: Premium is always free; Care is free only when
+        // the subtotal is above ₹500; Basic/unknown pays the standard ₹40. Express
+        // is an optional paid upgrade (+₹50) added on top of the base fee.
+        val plan = _customerProfile.value.carePlan.trim().lowercase()
+        val baseFee = when {
+            plan == "premium" -> 0.0
+            plan == "care" && subtotal > 500.0 -> 0.0
+            else -> 40.0
+        }
         return if (express) baseFee + 50.0 else baseFee
+    }
+
+    /** Plan discount percent actually applied to marketplace orders (0 / 10 / 15). */
+    private fun planDiscountPercent(): Int = when (_customerProfile.value.carePlan.trim().lowercase()) {
+        "premium" -> 15
+        "care" -> 10
+        else -> 0
     }
 
     // Escrow Order Placement
@@ -883,7 +897,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         val items = _cartItems.value
         val subtotal = items.sumOf { it.priceInr * it.quantity }
         val deliveryFee = calculateDeliveryFee(subtotal, city, _isExpressDelivery.value)
-        val total = subtotal + deliveryFee
+        // The plan discount is applied for real: Care 10%, Premium 15%, otherwise 0%.
+        val discountPercent = planDiscountPercent()
+        val discountAmount = subtotal * discountPercent / 100.0
+        val total = subtotal - discountAmount + deliveryFee
         val orderNum = (10000..99999).random()
 
         val newOrder = EscrowOrder(
@@ -891,6 +908,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             items = items,
             subtotalInr = subtotal,
             deliveryFeeInr = deliveryFee,
+            discountInr = discountAmount,
             ecoPackagingFeeInr = 0.0,
             totalInr = total,
             deliveryCity = city.ifBlank { "Kochi" },
@@ -950,6 +968,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 orderNumber = newOrder.orderId,
                 items = items.map { OrderItemSnap(it.title, it.priceInr, it.quantity) },
                 totalInr = total,
+                discountInr = discountAmount,
                 customerName = newOrder.customerName,
                 customerPhone = newOrder.customerPhone,
                 address = newOrder.deliveryAddress,

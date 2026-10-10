@@ -57,7 +57,8 @@ fun RealSosScreen(
     species: String = "",
     breed: String = "",
     ownerPhone: String = "",
-    alternatePhone: String = ""
+    alternatePhone: String = "",
+    isPriorityMember: Boolean = false
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -237,7 +238,8 @@ fun RealSosScreen(
                                 locationLink = "https://maps.google.com/?q=$currentLat,$currentLon",
                                 alternatePhone = altPhone,
                                 lat = currentLat,
-                                lng = currentLon
+                                lng = currentLon,
+                                priority = isPriorityMember
                             )
                             alertSending = false
                         }

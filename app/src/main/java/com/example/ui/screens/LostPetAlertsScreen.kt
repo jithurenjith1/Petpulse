@@ -75,8 +75,10 @@ private val DarkText = Color(0xFF241F2B)
 private val SosRed = Color(0xFFD62828)
 private val WhatsAppGreen = Color(0xFF25D366)
 
-// Wagmiya SOS helpline (same business number for WhatsApp + calls).
-private const val HelplineWhatsAppDigits = "919526632311"
+// Wagmiya SOS helpline (same business number for WhatsApp + calls). Exposed to the
+// module (not file-private) so the QR tag screen and Care screen reuse the SAME
+// helpline constant instead of hardcoding a new number.
+const val HelplineWhatsAppDigits = "919526632311"
 private const val WagmiyaPhoneDisplay = "+91 95266 32311"
 private const val WagmiyaPhoneDigits = "919526632311"
 
@@ -93,7 +95,10 @@ data class LostPetAlertItem(
     val reward: String = "",
     val contactPhone: String = "",
     val alternatePhone: String = "",
-    val date: String = ""
+    val date: String = "",
+    // True when the owner's Care/Premium plan boosted this alert. Defaulted so
+    // Firestore toObject() keeps working for documents that predate the field.
+    val priority: Boolean = false
 )
 
 /**
@@ -280,6 +285,22 @@ private fun LostPetAlertCard(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
+                if (alert.priority) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(TealAccent)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.lostpet_priority),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = alert.date,

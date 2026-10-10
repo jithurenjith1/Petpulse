@@ -99,7 +99,8 @@ fun PetQrScreen(
     tagScans: List<TagScan>,
     onEnsureTag: () -> Unit,
     onToggleLost: (Boolean) -> Unit,
-    onClose: () -> Unit = {}
+    onClose: () -> Unit = {},
+    isPremium: Boolean = false
 ) {
     val context = LocalContext.current
     val publicId = pet.qrPublicId
@@ -254,6 +255,55 @@ fun PetQrScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+
+            // Printed tag. The digital QR is already free for every pet; Premium
+            // members can request ONE free printed tag, everyone else can order one.
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.petqr_printed_tag_note),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Button(
+                        onClick = {
+                            val petLabel = pet.name.ifBlank { context.getString(R.string.mypets_add_pet_title) }
+                            val message = context.getString(
+                                if (isPremium) R.string.petqr_free_tag_message else R.string.petqr_order_tag_message,
+                                petLabel
+                            )
+                            runCatching {
+                                val encoded = java.net.URLEncoder.encode(message, "UTF-8")
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("https://wa.me/$HelplineWhatsAppDigits?text=$encoded")
+                                    )
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                if (isPremium) R.string.petqr_request_free_tag else R.string.petqr_order_printed_tag
+                            ),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
 
             // Lost / found toggle (writes the public `lost` flag on pet_tags).
             OutlinedButton(

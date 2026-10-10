@@ -55,14 +55,32 @@ fun SlideOutCartModal(
     onRemoveItem: (String) -> Unit,
     onClearCart: () -> Unit,
     onDismiss: () -> Unit,
-    onProceedToEscrowCheckout: () -> Unit
+    onProceedToEscrowCheckout: () -> Unit,
+    planKey: String = ""
 ) {
     val subtotal = cartItems.sumOf { it.priceInr * it.quantity }
-    // v4 model: flat ₹40 delivery under ₹500, FREE at/above ₹500 (all Kerala cities)
+    val plan = planKey.trim().lowercase()
+    val discountPercent = when (plan) {
+        "premium" -> 15
+        "care" -> 10
+        else -> 0
+    }
+    val discountAmount = subtotal * discountPercent / 100.0
+    // Honest per-plan delivery: Premium is always free; Care is free only above
+    // ₹500; Basic/unknown pays the standard ₹40. Express adds ₹50 on top.
     val freeThreshold = 500.0
-    val baseFee = if (subtotal >= freeThreshold) 0.0 else 40.0
+    val baseFee = when {
+        plan == "premium" -> 0.0
+        plan == "care" && subtotal > freeThreshold -> 0.0
+        else -> 40.0
+    }
     val deliveryFee = if (subtotal == 0.0) 0.0 else baseFee + if (isExpress) 50.0 else 0.0
-    val total = subtotal + deliveryFee
+    val total = subtotal - discountAmount + deliveryFee
+    val planDisplayName = when (plan) {
+        "premium" -> stringResource(R.string.modals_plan_name_premium)
+        "care" -> stringResource(R.string.modals_plan_name_care)
+        else -> ""
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -195,28 +213,33 @@ fun SlideOutCartModal(
                         }
                     }
                 } else {
-                    // Free delivery progress banner
+                    // Free-delivery status banner. Honest per plan: Premium is always
+                    // free; Care is free only above ₹500; Basic pays the standard fee.
                     val amountRemaining = (freeThreshold - subtotal).coerceAtLeast(0.0)
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    val bannerText = when {
+                        plan == "premium" -> stringResource(R.string.modals_free_delivery_every_order)
+                        plan == "care" && subtotal > freeThreshold -> stringResource(R.string.modals_free_delivery_unlocked)
+                        plan == "care" -> stringResource(R.string.modals_add_more_for_free_delivery, amountRemaining.toInt().toString())
+                        else -> ""
+                    }
+                    if (bannerText.isNotEmpty()) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
-                            Text(if (amountRemaining == 0.0) "🎉" else "🚚", fontSize = 16.sp)
-                            Text(
-                                text = if (amountRemaining == 0.0)
-                                    "You've unlocked FREE Standard Delivery in $selectedCity!"
-                                else
-                                    "Add ₹${amountRemaining.toInt()} more for FREE delivery in $selectedCity!",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (amountRemaining == 0.0) Color(0xFF2E7D32) else Color(0xFFE65100)
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = bannerText,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (deliveryFee == 0.0) Color(0xFF2E7D32) else Color(0xFFE65100)
+                                )
+                            }
                         }
                     }
 
@@ -363,13 +386,32 @@ fun SlideOutCartModal(
                                 Text(stringResource(R.string.modals_items_subtotal), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("₹${subtotal.toInt()}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
+                            if (discountAmount > 0.0) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.modals_plan_discount_line, planDisplayName, discountPercent),
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "-₹${discountAmount.toInt()}",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Delivery Fee ($selectedCity)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.modals_delivery_fee_label, selectedCity), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
-                                    if (deliveryFee == 0.0) "FREE" else "₹${deliveryFee.toInt()}",
+                                    if (deliveryFee == 0.0) stringResource(R.string.modals_free) else "₹${deliveryFee.toInt()}",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = if (deliveryFee == 0.0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurface
@@ -424,7 +466,7 @@ fun SlideOutCartModal(
                                 cartItems.forEach {
                                     appendLine("- ${it.title} x${it.quantity} - ₹${(it.priceInr * it.quantity).toInt()}")
                                 }
-                                appendLine("Order total: ₹${total.toInt()} + delivery")
+                                appendLine("Order total: ₹${total.toInt()}")
                                 appendLine("City: $selectedCity")
                                 appendLine("Please confirm my order.")
                             }
@@ -466,7 +508,8 @@ fun SecureEscrowCheckoutModal(
     isExpress: Boolean,
     petName: String = "",
     onDismiss: () -> Unit,
-    onConfirmOrder: (city: String, address: String, name: String, phone: String, paymentMethod: String, addAccidentCover: Boolean) -> Unit
+    onConfirmOrder: (city: String, address: String, name: String, phone: String, paymentMethod: String, addAccidentCover: Boolean) -> Unit,
+    planKey: String = ""
 ) {
     var deliveryCity by remember { mutableStateOf(if (selectedCity == "All Kerala") "Kochi" else selectedCity) }
     var streetAddress by remember { mutableStateOf(if (customer.location.isNotBlank()) customer.location else "Door No 12/B, MG Road, Kerala") }
@@ -481,14 +524,26 @@ fun SecureEscrowCheckoutModal(
 
     val hasMedicinesWithRx = cartItems.any { it.prescriptionRequired }
     val subtotal = cartItems.sumOf { it.priceInr * it.quantity }
-    // v4 model: flat ₹40 delivery under ₹500, FREE at/above ₹500 (all Kerala cities)
-    val freeThreshold = 500.0
-    val deliveryFee = if (subtotal >= freeThreshold) {
-        if (isExpress) 50.0 else 0.0
-    } else {
-        if (isExpress) 40.0 + 50.0 else 40.0
+    val plan = planKey.trim().lowercase()
+    val discountPercent = when (plan) {
+        "premium" -> 15
+        "care" -> 10
+        else -> 0
     }
-    val total = subtotal + deliveryFee
+    val discountAmount = subtotal * discountPercent / 100.0
+    // Honest per-plan delivery: Premium is always free; Care is free only above
+    // ₹500; Basic/unknown pays the standard ₹40. Express adds ₹50 on top.
+    val deliveryFee = when {
+        plan == "premium" -> if (isExpress) 50.0 else 0.0
+        plan == "care" && subtotal > 500.0 -> if (isExpress) 50.0 else 0.0
+        else -> if (isExpress) 40.0 + 50.0 else 40.0
+    }
+    val total = subtotal - discountAmount + deliveryFee
+    val planDisplayName = when (plan) {
+        "premium" -> stringResource(R.string.modals_plan_name_premium)
+        "care" -> stringResource(R.string.modals_plan_name_care)
+        else -> ""
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -782,10 +837,18 @@ fun SecureEscrowCheckoutModal(
                                     Text(stringResource(R.string.modals_total_escrow_amount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Text("₹${total.toInt()}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
                                     Text(
-                                        "Items ₹${subtotal.toInt()} • Delivery: " + if (deliveryFee == 0.0) "FREE" else "₹${deliveryFee.toInt()}",
+                                        "Items ₹${subtotal.toInt()} • Delivery: " + if (deliveryFee == 0.0) stringResource(R.string.modals_free) else "₹${deliveryFee.toInt()}",
                                         fontSize = 11.sp,
                                         color = if (deliveryFee == 0.0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
+                                    if (discountAmount > 0.0) {
+                                        Text(
+                                            text = stringResource(R.string.modals_plan_discount_line, planDisplayName, discountPercent) + " -₹${discountAmount.toInt()}",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
 
                                 Button(

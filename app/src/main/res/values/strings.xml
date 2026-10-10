@@ -641,4 +641,63 @@
     <string name="ledger_type_trainer">Trainer</string>
     <string name="ledger_type_groomer">Groomer</string>
     <string name="ledger_type_other">Partner</string>
+
+    <!-- Wagmiya Care plan rework -->
+    <string name="care_plan_tagline_free">Free</string>
+    <string name="care_plan_tagline_most_popular">Most Popular</string>
+    <string name="care_plan_tagline_complete_coverage">Complete coverage</string>
+    <string name="care_plan_basic_f1">Your pet\'s profile and complete health records in one place</string>
+    <string name="care_plan_basic_f2">Vaccination and deworming reminders</string>
+    <string name="care_plan_basic_f3">Unlimited AI symptom triage</string>
+    <string name="care_plan_basic_f4">Community access</string>
+    <string name="care_plan_basic_f5">Standard lost-pet alert</string>
+    <string name="care_plan_care_f1">Everything in Basic</string>
+    <string name="care_plan_care_f2">Unlimited AI photo analysis for your pet</string>
+    <string name="care_plan_care_f3" formatted="false">10% off every marketplace order</string>
+    <string name="care_plan_care_f4">Free delivery on orders above Rs 500</string>
+    <string name="care_plan_care_f5">Priority SOS - your lost-pet alert is boosted</string>
+    <string name="care_plan_care_f6">Exclusive partner deals</string>
+    <string name="care_plan_premium_f1">Everything in Care</string>
+    <string name="care_plan_premium_f2" formatted="false">15% off every marketplace order</string>
+    <string name="care_plan_premium_f3">Free delivery with no minimum order</string>
+    <string name="care_plan_premium_f4">Top-priority SOS plus a 24x7 helpline</string>
+    <string name="care_plan_premium_f5">1 free pet QR tag with your pet\'s details</string>
+    <string name="care_plan_premium_f6">Insurance claim assistance</string>
+    <string name="care_plan_premium_f7">Dedicated care support</string>
+    <string name="care_subscribe_note">Tap Subscribe and our team confirms on WhatsApp, then activates your plan.</string>
+    <string name="care_btn_subscribe">Subscribe</string>
+    <string name="care_btn_current_plan">Current Plan</string>
+    <string name="care_helpline_title">24x7 Premium Helpline</string>
+    <string name="care_helpline_desc">Premium members can reach our care team any time on WhatsApp.</string>
+    <string name="care_helpline_button">Chat on WhatsApp</string>
+    <string name="care_helpline_message">Hi Wagmiya! I am a Premium member and need help with my care plan.</string>
+    <string name="care_incl_triage_title">AI Symptom Triage</string>
+    <string name="care_incl_triage_desc">Describe your pet\'s symptoms and get instant guidance on urgency and next steps. Care and Premium add unlimited AI photo analysis for rashes, wounds and eye or ear issues.</string>
+    <string name="care_incl_market_title">Marketplace Discounts</string>
+    <string name="care_incl_market_desc" formatted="false">Automatic discounts at checkout: 10% off every order with Care, 15% with Premium.</string>
+    <string name="care_incl_delivery_title">Delivery</string>
+    <string name="care_incl_delivery_desc">Care gives free delivery on orders above Rs 500. Premium gives free delivery with no minimum order.</string>
+    <string name="care_incl_sos_title">Priority SOS</string>
+    <string name="care_incl_sos_desc">Your lost-pet alert is boosted in the Lost Pet Alerts feed. Premium adds top-priority handling and a 24x7 helpline.</string>
+    <string name="care_incl_qr_title">Pet QR Tag</string>
+    <string name="care_incl_qr_desc">Every pet gets a free digital QR tag. Premium members can also request one free printed tag with their pet\'s details.</string>
+    <string name="care_incl_reminders_title">Vaccination &amp; Deworming Reminders</string>
+    <string name="care_incl_reminders_desc">Never miss a shot or a dose - reminders are scheduled to your pet\'s calendar on every plan.</string>
+    <string name="care_incl_insurance_title">Insurance Claim Assistance</string>
+    <string name="care_incl_insurance_desc">Premium members get end-to-end help filing pet insurance claims.</string>
+    <string name="care_incl_support_title">Dedicated Care Support</string>
+    <string name="care_incl_support_desc">Premium members get a dedicated support channel for their care plan.</string>
+    <string name="modals_plan_discount_line">%1$s plan discount %2$d%%</string>
+    <string name="modals_plan_name_care">Care</string>
+    <string name="modals_plan_name_premium">Premium</string>
+    <string name="modals_delivery_fee_label">Delivery Fee (%1$s)</string>
+    <string name="modals_free_delivery_every_order">Free delivery on every order with your plan</string>
+    <string name="modals_free_delivery_unlocked">Free delivery unlocked on this order</string>
+    <string name="modals_add_more_for_free_delivery">Add ₹%1$s more for free delivery</string>
+    <string name="lostpet_priority">Priority</string>
+    <string name="petqr_request_free_tag">Request your free printed tag</string>
+    <string name="petqr_order_printed_tag">Order a printed tag</string>
+    <string name="petqr_printed_tag_note">Every pet gets a free digital QR tag. Premium members can request one free printed tag with their pet\'s details.</string>
+    <string name="petqr_free_tag_message">Hi Wagmiya! I am a Premium member and would like my free printed QR tag for %1$s.</string>
+    <string name="petqr_order_tag_message">Hi Wagmiya! I would like to order a printed QR tag for %1$s.</string>
 </resources>

@@ -118,6 +118,10 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val activePet by viewModel.activePet.collectAsStateWithLifecycle()
     val customer by viewModel.customerProfile.collectAsStateWithLifecycle()
     val isPremium by viewModel.isPremium.collectAsStateWithLifecycle()
+    // Real care-plan key and derived priority flag, threaded into checkout, SOS
+    // and the QR screen so every promised benefit is actually applied.
+    val planKey = customer.carePlan.trim().lowercase()
+    val isPriorityMember = planKey == "care" || planKey == "premium"
     val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
     val adminOrders by viewModel.adminOrders.collectAsStateWithLifecycle()
     val adminDealers by viewModel.adminDealers.collectAsStateWithLifecycle()
@@ -534,7 +538,8 @@ val appCtx = LocalContext.current
                 petName = activePet.name,
                 species = activePet.species,
                 breed = activePet.breed,
-                ownerPhone = customer.phone
+                ownerPhone = customer.phone,
+                isPriorityMember = isPriorityMember
             )
             FloatingActionButton(
                 onClick = { showSosScreen = false },
@@ -612,6 +617,7 @@ val appCtx = LocalContext.current
             onRemoveItem = { id -> viewModel.removeFromCart(id) },
             onClearCart = { viewModel.clearCart() },
             onDismiss = { showCartModal = false },
+            planKey = planKey,
             onProceedToEscrowCheckout = {
                 showCartModal = false
                 showEscrowCheckoutModal = true
@@ -626,6 +632,7 @@ val appCtx = LocalContext.current
             selectedCity = selectedKeralaCity,
             isExpress = isExpressDelivery,
             petName = activePet.name,
+            planKey = planKey,
             onDismiss = { showEscrowCheckoutModal = false },
             onConfirmOrder = { city, address, name, phone, paymentMethod, addAccidentCover ->
                 val newOrder = viewModel.placeEscrowOrder(city, address, name, phone, paymentMethod, addAccidentCover)
@@ -887,6 +894,7 @@ val appCtx = LocalContext.current
                 pet = activePet,
                 tag = activePetTag,
                 tagScans = tagScans,
+                isPremium = isPremium,
                 onEnsureTag = { viewModel.ensureActivePetQrTag() },
                 onToggleLost = { lost -> viewModel.setActivePetTagLost(lost) },
                 onClose = { showPetQrScreen = false }

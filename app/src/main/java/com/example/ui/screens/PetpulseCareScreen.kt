@@ -70,53 +70,55 @@ private enum class BillingPeriod(val label: String) {
 
 private data class PetpulsePlan(
     val name: String,
-    val tagline: String,
+    val taglineRes: Int,
     val monthlyPriceLabel: String,
     val yearlyPriceLabel: String,
-    val features: List<String>,
+    val featureRes: List<Int>,
     val isMostPopular: Boolean = false
 )
 
 private val Plans = listOf(
     PetpulsePlan(
         name = "Basic",
-        tagline = "Free",
+        taglineRes = R.string.care_plan_tagline_free,
         monthlyPriceLabel = "₹0/mo",
         yearlyPriceLabel = "₹0/mo",
-        features = listOf(
-            "Unlimited AI symptom triage",
-            "1 vet consultation/month",
-            "Community access",
-            "Vaccination reminders"
+        featureRes = listOf(
+            R.string.care_plan_basic_f1,
+            R.string.care_plan_basic_f2,
+            R.string.care_plan_basic_f3,
+            R.string.care_plan_basic_f4,
+            R.string.care_plan_basic_f5
         )
     ),
     PetpulsePlan(
         name = "Care",
-        tagline = "Most Popular",
+        taglineRes = R.string.care_plan_tagline_most_popular,
         monthlyPriceLabel = "₹299/mo",
         yearlyPriceLabel = "₹2,999/yr",
-        features = listOf(
-            "Everything in Basic",
-            "Unlimited AI triage with photo analysis",
-            "2 vet consultations/month",
-            "10% marketplace discount",
-            "Free delivery on food & medicine",
-            "Priority SOS"
+        featureRes = listOf(
+            R.string.care_plan_care_f1,
+            R.string.care_plan_care_f2,
+            R.string.care_plan_care_f3,
+            R.string.care_plan_care_f4,
+            R.string.care_plan_care_f5,
+            R.string.care_plan_care_f6
         ),
         isMostPopular = true
     ),
     PetpulsePlan(
         name = "Premium",
-        tagline = "Complete coverage",
+        taglineRes = R.string.care_plan_tagline_complete_coverage,
         monthlyPriceLabel = "₹499/mo",
         yearlyPriceLabel = "₹4,999/yr",
-        features = listOf(
-            "Everything in Care",
-            "4 vet consultations/month",
-            "15% marketplace discount",
-            "Insurance claims assistance",
-            "AI breed & health analysis",
-            "Priority vet response (<10 min)"
+        featureRes = listOf(
+            R.string.care_plan_premium_f1,
+            R.string.care_plan_premium_f2,
+            R.string.care_plan_premium_f3,
+            R.string.care_plan_premium_f4,
+            R.string.care_plan_premium_f5,
+            R.string.care_plan_premium_f6,
+            R.string.care_plan_premium_f7
         )
     )
 )
@@ -173,6 +175,8 @@ fun PetpulseCareScreen(
     // Reflect the plan actually stored on the user's profile instead of always
     // showing "Basic". Empty/unknown values fall back to the free plan.
     val currentPlan = activePlan
+    // Premium-only extras surfaced on this screen (24x7 helpline).
+    val isPremiumPlan = activePlan.trim().equals("Premium", ignoreCase = true)
 
     Scaffold(
         containerColor = palette.background,
@@ -267,11 +271,16 @@ fun PetpulseCareScreen(
             Spacer(Modifier.height(14.dp))
 
             Text(
-                text = "Tap Subscribe and our team confirms on WhatsApp, then activates your plan.",
+                text = stringResource(R.string.care_subscribe_note),
                 fontSize = 12.sp,
                 color = palette.gold,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            if (isPremiumPlan) {
+                Spacer(Modifier.height(20.dp))
+                PremiumHelplineCard(palette = palette)
+            }
 
             Spacer(Modifier.height(32.dp))
 
@@ -390,7 +399,7 @@ private fun PlanCard(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = plan.tagline,
+                            text = stringResource(plan.taglineRes),
                             color = if (plan.isMostPopular) palette.gold else palette.textSecondary,
                             fontSize = 13.sp
                         )
@@ -418,7 +427,7 @@ private fun PlanCard(
                 Spacer(Modifier.height(14.dp))
 
                 // ----- Feature list ---------------------------------------
-                plan.features.forEach { feature ->
+                plan.featureRes.forEach { featureRes ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -433,7 +442,7 @@ private fun PlanCard(
                         )
                         Spacer(Modifier.width(10.dp))
                         Text(
-                            text = feature,
+                            text = stringResource(featureRes),
                             color = palette.textPrimary,
                             fontSize = 14.sp,
                             lineHeight = 20.sp
@@ -467,7 +476,9 @@ private fun PlanCard(
                     )
                 ) {
                     Text(
-                        text = if (isCurrentPlan) "Current Plan" else "Subscribe",
+                        text = stringResource(
+                            if (isCurrentPlan) R.string.care_btn_current_plan else R.string.care_btn_subscribe
+                        ),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -495,42 +506,108 @@ private fun PlanCard(
 }
 
 // ---------------------------------------------------------------------------
+// Premium 24x7 helpline card
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun PremiumHelplineCard(palette: PetpulsePalette) {
+    val ctx = LocalContext.current
+    val helplineMessage = stringResource(R.string.care_helpline_message)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = palette.surface,
+            contentColor = palette.textPrimary
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = stringResource(R.string.care_helpline_title),
+                color = palette.textPrimary,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.care_helpline_desc),
+                color = palette.textSecondary,
+                fontSize = 13.sp,
+                lineHeight = 19.sp
+            )
+            Spacer(Modifier.height(14.dp))
+            Button(
+                onClick = {
+                    val encoded = java.net.URLEncoder.encode(helplineMessage, "UTF-8")
+                    ctx.startActivity(
+                        android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse("https://wa.me/$HelplineWhatsAppDigits?text=$encoded")
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = palette.purple,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.care_helpline_button),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // "What's included" expandable section
 // ---------------------------------------------------------------------------
 
 private data class IncludedDetail(
-    val title: String,
-    val description: String
+    val titleRes: Int,
+    val descriptionRes: Int
 )
 
 private val IncludedDetails = listOf(
     IncludedDetail(
-        title = "AI Symptom Triage",
-        description = "Describe your pet's symptoms and get instant guidance on urgency and next steps. Care and Premium plans add photo analysis for rashes, wounds and eye or ear issues."
+        titleRes = R.string.care_incl_triage_title,
+        descriptionRes = R.string.care_incl_triage_desc
     ),
     IncludedDetail(
-        title = "Vet Consultations",
-        description = "Chat or video consultations with licensed veterinarians. Monthly limits: 1 on Basic, 2 on Care, 4 on Premium."
+        titleRes = R.string.care_incl_market_title,
+        descriptionRes = R.string.care_incl_market_desc
     ),
     IncludedDetail(
-        title = "Priority SOS",
-        description = "Immediate access to emergency vet support when your pet needs urgent help. Included with Care and above."
+        titleRes = R.string.care_incl_delivery_title,
+        descriptionRes = R.string.care_incl_delivery_desc
     ),
     IncludedDetail(
-        title = "Marketplace Discounts",
-        description = "Automatic discounts on pet food, medicines and accessories across the Wagmiya marketplace: 10% with Care, 15% with Premium."
+        titleRes = R.string.care_incl_sos_title,
+        descriptionRes = R.string.care_incl_sos_desc
     ),
     IncludedDetail(
-        title = "Delivery & Insurance",
-        description = "Care includes free delivery on food and medicine orders. Premium adds end-to-end assistance with insurance claims."
+        titleRes = R.string.care_incl_qr_title,
+        descriptionRes = R.string.care_incl_qr_desc
     ),
     IncludedDetail(
-        title = "AI Breed & Health Analysis",
-        description = "Breed-aware health insights, diet suggestions and early-warning checks tailored to your pet's age and history. Premium only."
+        titleRes = R.string.care_incl_reminders_title,
+        descriptionRes = R.string.care_incl_reminders_desc
     ),
     IncludedDetail(
-        title = "Vaccination Reminders",
-        description = "Never miss a shot — reminders scheduled to your pet's vaccination calendar on every plan."
+        titleRes = R.string.care_incl_insurance_title,
+        descriptionRes = R.string.care_incl_insurance_desc
+    ),
+    IncludedDetail(
+        titleRes = R.string.care_incl_support_title,
+        descriptionRes = R.string.care_incl_support_desc
     )
 )
 
@@ -594,7 +671,7 @@ private fun WhatsIncludedSection(palette: PetpulsePalette) {
                                 )
                                 Spacer(Modifier.width(10.dp))
                                 Text(
-                                    text = detail.title,
+                                    text = stringResource(detail.titleRes),
                                     color = palette.textPrimary,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.SemiBold
@@ -602,7 +679,7 @@ private fun WhatsIncludedSection(palette: PetpulsePalette) {
                             }
                             Spacer(Modifier.height(3.dp))
                             Text(
-                                text = detail.description,
+                                text = stringResource(detail.descriptionRes),
                                 color = palette.textSecondary,
                                 fontSize = 13.sp,
                                 lineHeight = 19.sp,

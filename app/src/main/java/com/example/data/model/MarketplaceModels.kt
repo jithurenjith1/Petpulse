@@ -154,6 +154,9 @@ data class EscrowOrder(
     val items: List<CartItem>,
     val subtotalInr: Double,
     val deliveryFeeInr: Double,
+    // Plan discount actually applied to the order total (Care 10% / Premium 15%).
+    // Defaulted so existing constructions and Firestore toObject() keep working.
+    val discountInr: Double = 0.0,
     val ecoPackagingFeeInr: Double = 10.0,
     val totalInr: Double,
     val deliveryCity: String,

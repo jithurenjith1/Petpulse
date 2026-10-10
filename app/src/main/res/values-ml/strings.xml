@@ -641,4 +641,63 @@
     <string name="ledger_type_trainer">ട്രെയിനർ</string>
     <string name="ledger_type_groomer">ഗ്രൂമർ</string>
     <string name="ledger_type_other">പങ്കാളി</string>
+
+    <!-- Wagmiya Care plan rework -->
+    <string name="care_plan_tagline_free">സൗജന്യം</string>
+    <string name="care_plan_tagline_most_popular">ഏറ്റവും ജനപ്രിയം</string>
+    <string name="care_plan_tagline_complete_coverage">പൂര്ണ്ണ കവറേജ്</string>
+    <string name="care_plan_basic_f1">നിങ്ങളുടെ പെറ്റിന്റെ പ്രൊഫൈലും പൂര്ണ്ണ ആരോഗ്യ രേഖകളും ഒരിടത്ത്</string>
+    <string name="care_plan_basic_f2">വാക്സിനേഷന്, ഡിവേംമിംഗ് ഓർമ്മപ്പെടുത്തലുകള്</string>
+    <string name="care_plan_basic_f3">പരിധിയില്ലാത്ത AI ലക്ഷണ പരിശോധന</string>
+    <string name="care_plan_basic_f4">കമ്മ്യൂണിറ്റി ആക്സസ്</string>
+    <string name="care_plan_basic_f5">സാധാരണ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ്</string>
+    <string name="care_plan_care_f1">ബേസിക്കിലുള്ളതെല്ലാം</string>
+    <string name="care_plan_care_f2">നിങ്ങളുടെ പെറ്റിനായി പരിധിയില്ലാത്ത AI ഫോട്ടോ വിശകലനം</string>
+    <string name="care_plan_care_f3" formatted="false">എല്ലാ മാർക്കറ്റ്‍പ്ലേസ് ഓർഡറിനും 10% കിഴിവ്</string>
+    <string name="care_plan_care_f4">₹500-ന് മുകളിലുള്ള ഓർഡറുകള്ക് സൗജന്യ ഡെലിവറി</string>
+    <string name="care_plan_care_f5">പ്രയോറിറ്റി SOS - നിങ്ങളുടെ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ് ബൂസ്റ്റ് ചെയ്യുന്നു</string>
+    <string name="care_plan_care_f6">എക്സ്ക്ലൂസീവ് പാർട്ണർ ഡീലുകള്</string>
+    <string name="care_plan_premium_f1">കെയറിലുള്ളതെല്ലാം</string>
+    <string name="care_plan_premium_f2" formatted="false">എല്ലാ മാർക്കറ്റ്‍പ്ലേസ് ഓർഡറിനും 15% കിഴിവ്</string>
+    <string name="care_plan_premium_f3">കുറഞ്ഞ ഓർഡർ ഇല്ലാതെ സൗജന്യ ഡെലിവറി</string>
+    <string name="care_plan_premium_f4">ടോപ്പ്-പ്രയോറിറ്റി SOS കൂടാതെ 24x7 ഹെൽപ്പ്‍ലൈൻ</string>
+    <string name="care_plan_premium_f5">നിങ്ങളുടെ പെറ്റിന്റെ വിവരങ്ങളോടെ 1 സൗജന്യ പെറ്റ് QR ടാഗ്</string>
+    <string name="care_plan_premium_f6">ഇൻഷുറൻസ് ക്ലെയിം സഹായം</string>
+    <string name="care_plan_premium_f7">സമർപ്പിത കെയർ സപ്പോർട്ട്</string>
+    <string name="care_subscribe_note">Subscribe ടാപ്പ് ചെയ്യുക, ഞങ്ങളുടെ ടീം WhatsApp-ൽ സ്ഥിരീകരിച്ച് നിങ്ങളുടെ പ്ലാൻ സജീവമാക്കും.</string>
+    <string name="care_btn_subscribe">സബ്സ്ക്രൈബ് ചെയ്യുക</string>
+    <string name="care_btn_current_plan">നിലവിലെ പ്ലാൻ</string>
+    <string name="care_helpline_title">24x7 പ്രീമിയം ഹെൽപ്പ്‍ലൈൻ</string>
+    <string name="care_helpline_desc">പ്രീമിയം അംഗങ്ങള്ക്ക് എപ്പോൾ വേണമെങ്കിലും WhatsApp-ൽ ഞങ്ങളുടെ കെയർ ടീമിനെ ബന്ധപ്പെടാം.</string>
+    <string name="care_helpline_button">WhatsApp-ൽ ചാറ്റ് ചെയ്യുക</string>
+    <string name="care_helpline_message">ഹായ് വാഗ്മിയ! ഞാൻ ഒരു പ്രീമിയം അംഗമാണ്, എന്റെ കെയർ പ്ലാനിൽ സഹായം വേണം.</string>
+    <string name="care_incl_triage_title">AI ലക്ഷണ പരിശോധന</string>
+    <string name="care_incl_triage_desc">നിങ്ങളുടെ പെറ്റിന്റെ ലക്ഷണങ്ങള് വിവരിക്കുക, അടിയന്തിരതയെയും അടുത്ത നടപടികളെയും കുറിച്ച് ഉടനടി മാർഗ്ഗനിർദ്ദേശം ലഭിക്കും.</string>
+    <string name="care_incl_market_title">മാർക്കറ്റ്‍പ്ലേസ് കിഴിവുകള്</string>
+    <string name="care_incl_market_desc" formatted="false">ചെക്ക്ഔട്ടിൽ സ്വയമേവയുള്ള കിഴിവുകള്: കെയറിനൊപ്പം എല്ലാ ഓർഡറിനും 10%, പ്രീമിയത്തിനൊപ്പം 15%.</string>
+    <string name="care_incl_delivery_title">ഡെലിവറി</string>
+    <string name="care_incl_delivery_desc">കെയർ ₹500-ന് മുകളിലുള്ള ഓർഡറുകള്ക് സൗജന്യ ഡെലിവറി നൽകുന്നു.</string>
+    <string name="care_incl_sos_title">പ്രയോറിറ്റി SOS</string>
+    <string name="care_incl_sos_desc">നിങ്ങളുടെ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ് Lost Pet Alerts ഫീഡിൽ ബൂസ്റ്റ് ചെയ്യുന്നു. പ്രീമിയം ടോപ്പ്-പ്രയോറിറ്റി കൈകാര്യവും 24x7 ഹെൽപ്പ്‍ലൈനും നൽകുന്നു.</string>
+    <string name="care_incl_qr_title">പെറ്റ് QR ടാഗ്</string>
+    <string name="care_incl_qr_desc">എല്ലാ പെറ്റിനും സൗജന്യ ഡിജിറ്റൽ QR ടാഗ് ലഭിക്കും. പ്രീമിയം അംഗങ്ങള്ക്ക് പെറ്റിന്റെ വിവരങ്ങളോടെ ഒരു സൗജന്യ പ്രിന്റ് ചെയ്ത ടാഗും അഭ്യർത്ഥിക്കാം.</string>
+    <string name="care_incl_reminders_title">വാക്സിനേഷന് &amp; ഡിവേംമിംഗ് ഓർമ്മപ്പെടുത്തലുകള്</string>
+    <string name="care_incl_reminders_desc">ഒരു കുത്തിവയ്പ്പും ഒരു ഡോസും നഷ്ടപ്പെടുത്തരുത് - എല്ലാ പ്ലാനിലും നിങ്ങളുടെ പെറ്റിന്റെ കലണ്ടറിലേക്ക് ഓർമ്മപ്പെടുത്തലുകള് ഷെഡ്യൂൾ ചെയ്യുന്നു.</string>
+    <string name="care_incl_insurance_title">ഇൻഷുറൻസ് ക്ലെയിം സഹായം</string>
+    <string name="care_incl_insurance_desc">പ്രീമിയം അംഗങ്ങള്ക്ക് പെറ്റ് ഇൻഷുറൻസ് ക്ലെയിമുകള് ഫയൽ ചെയ്യാൻ എൻഡ്-ടു-എൻഡ് സഹായം ലഭിക്കും.</string>
+    <string name="care_incl_support_title">സമർപ്പിത കെയർ സപ്പോർട്ട്</string>
+    <string name="care_incl_support_desc">പ്രീമിയം അംഗങ്ങള്ക്ക് അവരുടെ കെയർ പ്ലാനിനായി ഒരു സമർപ്പിത സപ്പോർട്ട് ചാനൽ ലഭിക്കും.</string>
+    <string name="modals_plan_discount_line">%1$s പ്ലാൻ കിഴിവ് %2$d%%</string>
+    <string name="modals_plan_name_care">കെയർ</string>
+    <string name="modals_plan_name_premium">പ്രീമിയം</string>
+    <string name="modals_delivery_fee_label">ഡെലിവറി ഫീ (%1$s)</string>
+    <string name="modals_free_delivery_every_order">നിങ്ങളുടെ പ്ലാനോടെ എല്ലാ ഓർഡറിനും സൗജന്യ ഡെലിവറി</string>
+    <string name="modals_free_delivery_unlocked">ഈ ഓർഡറിൽ സൗജന്യ ഡെലിവറി ലഭിച്ചു</string>
+    <string name="modals_add_more_for_free_delivery">സൗജന്യ ഡെലിവറിക്കായി ₹%1$s കൂടി ചേർക്കുക</string>
+    <string name="lostpet_priority">പ്രയോറിറ്റി</string>
+    <string name="petqr_request_free_tag">നിങ്ങളുടെ സൗജന്യ പ്രിന്റ് ചെയ്ത ടാഗ് അഭ്യർത്ഥിക്കുക</string>
+    <string name="petqr_order_printed_tag">പ്രിന്റ് ചെയ്ത ടാഗ് ഓർഡർ ചെയ്യുക</string>
+    <string name="petqr_printed_tag_note">എല്ലാ പെറ്റിനും സൗജന്യ ഡിജിറ്റൽ QR ടാഗ് ലഭിക്കും. പ്രീമിയം അംഗങ്ങള്ക്ക് പെറ്റിന്റെ വിവരങ്ങള് സഹിതം ഒരു സൗജന്യ പ്രിന്റ് ചെയ്ത ടാഗ് അഭ്യർത്ഥിക്കാം.</string>
+    <string name="petqr_free_tag_message">ഹായ് വാഗ്മിയ! ഞാൻ ഒരു പ്രീമിയം അംഗമാണ്, %1$s-നായി എന്റെ സൗജന്യ പ്രിന്റ് ചെയ്ത QR ടാഗ് വേണം.</string>
+    <string name="petqr_order_tag_message">ഹായ് വാഗ്മിയ! %1$s-നായി ഒരു പ്രിന്റ് ചെയ്ത QR ടാഗ് ഓർഡർ ചെയ്യണം.</string>
 </resources>
