@@ -1,71 +1,197 @@
 rules_version = '2';
 
-// Petpulse — Firestore Security Rules
+// Petpulse / Wagmiya Firestore Security Rules
+// Recovery build: full v10 base PLUS pet_tags, tag_scans, partner_ledger,
+// and the corrected rules for lost_pet_alerts, found_reports, orders,
+// bookings and isAdmin().
 //
-// Data model these rules protect:
-//   users/{uid}/pets/{petId}                          private pet profiles
-//   users/{uid}/pets/{petId}/vaccinations/{docId}     private vaccination records
-//   users/{uid}/pets/{petId}/medical_reports/{docId}  private medical reports
-//   lost_pet_alerts/{alertId}                         community lost-pet feed
-//
-// Principle: your own pet & health data is visible ONLY to you.
-// Everything not explicitly matched above is denied.
+// Every rule below was checked against the fields the app actually writes
+// (app/src/main/java/com/example/... and public/p/index.html).
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ---------- Private per-user data ----------
-    match /users/{uid} {
-      // A signed-in user can read and write ONLY their own profile document.
-      allow read, write: if isOwner(uid);
-
-      match /pets/{petId} {
-        allow read, write: if isOwner(uid);
-
-        // Vaccinations and medical reports nested under each pet.
-        match /{subcollection}/{docId} {
-          allow read, write: if isOwner(uid);
-        }
-      }
-    }
-
-    // ---------- Community lost-pet alerts ----------
-    match /lost_pet_alerts/{alertId} {
-      // Any signed-in user can browse the alerts feed.
-      allow read: if isSignedIn();
-
-      // Any signed-in user can post an alert, but must own it and
-      // include the required fields (see helper below).
-      allow create: if isSignedIn() && alertIsWellFormed();
-
-      // Only the owner can edit or take down an alert. Requires the
-      // document to have an "ownerId" field equal to the writer's uid.
-      allow update, delete: if isSignedIn()
-        && resource.data.ownerId == request.auth.uid;
-    }
-
-    // ---------- Everything else: deny by default ----------
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // ---------- Helpers ----------
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwner(uid) {
-      return isSignedIn() && request.auth.uid == uid;
+    // Admins: original owner account + business email.
+    // Added a null guard on token.email and case-insensitive comparison
+    // (the app lowercases the email before using it as a doc id).
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && (
+          request.auth.token.email.lower() == 'jithurenjith1@gmail.com' ||
+          request.auth.token.email.lower() == 'itspetpulse@gmail.com'
+        );
     }
 
-    function alertIsWellFormed() {
-      return request.resource.data.keys().hasAll(
-               ['petName', 'species', 'lastSeenLocation', 'contactPhone', 'ownerId'])
+    // ---------- users: own pets, vaccinations, certificates, medical reports ----------
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+
+      match /pets/{petId} {
+        allow read, write: if isSignedIn() && request.auth.uid == uid;
+
+        match /{sub=**} {
+          allow read, write: if isSignedIn() && request.auth.uid == uid;
+        }
+      }
+    }
+
+    // ---------- admins: identity check doc, nobody writes ----------
+    // Read matched case-insensitively because the app reads admins/{email}
+    // with a lowercased email. Writes remain fully denied.
+    match /admins/{email} {
+      allow read: if isSignedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email.lower();
+      allow write: if false;
+    }
+
+    // ---------- lost pet SOS alerts ----------
+    // CHANGED: read is now signed-in only (documents hold the owner's phone
+    // numbers, so they must NOT be world-readable). CHANGED: create now
+    // requires the real field set the app writes (postSosAlert() in
+    // LostPetAlertPoster.kt and submitLostPetAlert() in
+    // FirestoreCommerceRepository.kt) and binds ownerId to the caller.
+    match /lost_pet_alerts/{alertId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['ownerId', 'petName', 'species', 'lastSeenLocation', 'contactPhone'])
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.petName is string
         && request.resource.data.species is string
         && request.resource.data.lastSeenLocation is string
         && request.resource.data.contactPhone is string;
+      // Unchanged from v10: only the admin moderates alerts (the app deletes
+      // alerts solely from the admin screen).
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- market listings (pets listed by users; admin can moderate) ----------
+    match /market_listings/{listingId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- shop products (admin managed catalogue) ----------
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- delivery dealers (admin managed) ----------
+    match /dealers/{dealerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- orders (COD marketplace orders) ----------
+    // CHANGED: create now binds ownerId to the caller (placeOrder() writes
+    // ownerId = auth.currentUser.uid).
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- service bookings (doctor / trainer / grooming) ----------
+    // CHANGED: create now binds ownerId to the caller (placeBooking() writes
+    // ownerId = auth.currentUser.uid).
+    match /bookings/{bookingId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- vet partners (admin managed) ----------
+    match /vets/{vetId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- community posts ----------
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ---------- support tickets (v8: users report problems, admin reads/resolves) ----------
+    match /support_tickets/{ticketId} {
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['category', 'subject', 'details', 'contact']);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- animal rescue reports (v8: users report, admin coordinates rescue) ----------
+    match /rescue_reports/{reportId} {
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['animalType', 'description', 'location', 'contact']);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- partner applications (v9: users apply, admin reviews) ----------
+    // Unchanged: submitPartnerApplication() writes no owner field, so create
+    // stays isSignedIn() only.
+    match /partner_applications/{appId} {
+      allow create: if isSignedIn();
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- found pet sighting reports (v10: users report, admin connects) ----------
+    // CHANGED: read is now admin-only (documents hold the finder's phone number).
+    match /found_reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin();
+      allow delete: if isAdmin();
+      allow update: if isAdmin();
+    }
+
+    // ---------- pet tags (public lost-pet tag page; ADDED) ----------
+    // Public single-document get (never list), owner-only create/update/delete.
+    // ensurePetTag() writes ownerUid; setTagLost() updates the "lost" flag.
+    match /pet_tags/{tagId} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // ---------- tag scans ("someone scanned your tag" pings; ADDED) ----------
+    // Public create from the QR web page (no sign-in) with strict field checks,
+    // owner-only read, no update or delete. Page writes:
+    // publicId, ownerUid, createdAt (+ optional message, lat, lng).
+    match /tag_scans/{scanId} {
+      allow create: if request.resource.data.keys().hasAll(['publicId', 'ownerUid', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['publicId', 'ownerUid', 'createdAt', 'message', 'lat', 'lng'])
+        && request.resource.data.publicId is string
+        && request.resource.data.ownerUid is string
+        && request.resource.data.createdAt is number
+        && request.resource.data.publicId.size() <= 128
+        && request.resource.data.ownerUid.size() <= 128
+        && (!('message' in request.resource.data)
+            || (request.resource.data.message is string
+                && request.resource.data.message.size() <= 1000));
+      allow read: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+      // No update or delete.
+    }
+
+    // ---------- partner ledger (admin commission tracking; ADDED) ----------
+    // Admin-only read and write.
+    match /partner_ledger/{entryId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------- everything else: denied (MUST stay last) ----------
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
