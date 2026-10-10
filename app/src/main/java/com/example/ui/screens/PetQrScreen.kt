@@ -58,14 +58,14 @@ import com.petpulse.app.data.model.UserPet
 
 // ---------------------------------------------------------------------------
 // Pet QR Tag — shows a large QR code that encodes a SAFE public URL of the form
-// https://wagmiya.app/p/<publicId>. The publicId is a random, non-guessable id
+// https://wagmiya.web.app/p/<publicId>. The publicId is a random, non-guessable id
 // (never the Firestore pet id and never the owner uid), so the public page can
 // not be enumerated. The QR encodes ONLY that URL — the owner's phone number is
 // never placed in the code or on the page.
 // ---------------------------------------------------------------------------
 
 /** Public scan-page base URL. The random publicId is appended. */
-private const val TagUrlPrefix = "https://wagmiya.app/p/"
+private const val TagUrlPrefix = "https://wagmiya.web.app/p/"
 
 /** Rendered QR bitmap size in pixels (also the zxing matrix size). */
 private const val QrSizePx = 640
