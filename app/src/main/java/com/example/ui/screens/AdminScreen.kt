@@ -41,6 +41,7 @@ import com.petpulse.app.data.model.FoundPetReport
 import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.data.model.PartnerCommission
+import com.petpulse.app.data.model.NewsPost
 import coil.compose.AsyncImage
 
 private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding", "Trainer")
@@ -64,6 +65,9 @@ fun AdminScreen(
     rescueReports: List<RescueReport> = emptyList(),
     partnerApplications: List<PartnerApplication> = emptyList(),
     partnerCommissions: List<PartnerCommission> = emptyList(),
+    newsPosts: List<NewsPost> = emptyList(),
+    onAddNewsPost: (String, String, String, String, String, Uri?) -> Unit = { _, _, _, _, _, _ -> },
+    onDeleteNewsPost: (String) -> Unit = {},
     onSetPartnerCommission: (PartnerCommission) -> Unit = {},
     onSetPartnerDuesPaid: (PartnerCommission, Boolean) -> Unit = { _, _ -> },
     onDeleteListing: (String) -> Unit = {},
@@ -136,6 +140,7 @@ fun AdminScreen(
                         "ACCESSORIES" to products.count { it.listType == "Accessory" },
                         "TRAINERS" to products.count { it.listType == "Trainer" },
                         "DEALERS" to dealers.size,
+                        "NEWS" to newsPosts.size,
                         "LEDGER" to partnerRows.size
                     )
                     AdminDashboard(
@@ -149,7 +154,11 @@ fun AdminScreen(
                             Text("<", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                         Text(
-                            text = if (section == "LEDGER") stringResource(R.string.admin_ledger_section) else sectionTitle(section),
+                            text = when (section) {
+                                "LEDGER" -> stringResource(R.string.admin_ledger_section)
+                                "NEWS" -> stringResource(R.string.admin_news_section)
+                                else -> sectionTitle(section)
+                            },
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -297,6 +306,7 @@ fun AdminScreen(
                             onEditPercent = { row -> editingPartner = row },
                             onTogglePaid = { row -> onSetPartnerDuesPaid(row.toCommission(), !row.duesPaid) }
                         )
+                        "NEWS" -> NewsAdminTab(posts = newsPosts, onAdd = onAddNewsPost, onDelete = onDeleteNewsPost)
                         else -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
                     }
                 }
@@ -581,7 +591,8 @@ private fun AdminDashboard(
         "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
         "PARTNERS" to ("Partner Applications" to "Business joins + featured plans"),
         "LEDGER" to (stringResource(R.string.admin_ledger_title_card) to stringResource(R.string.admin_ledger_subtitle)),
-        "DEALERS" to ("Dealers" to stringResource(R.string.admin_dealers_subtitle))
+        "DEALERS" to ("Dealers" to stringResource(R.string.admin_dealers_subtitle)),
+        "NEWS" to (stringResource(R.string.admin_news_card_title) to stringResource(R.string.admin_news_card_subtitle))
     )
     val totalPending = pendingTotal ?: pendingCounts.values.sum()
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1463,6 +1474,169 @@ private fun VetsAdminTab(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NewsAdminTab(
+    posts: List<NewsPost> = emptyList(),
+    onAdd: (String, String, String, String, String, Uri?) -> Unit = { _, _, _, _, _, _ -> },
+    onDelete: (String) -> Unit = {}
+) {
+    var title by remember { mutableStateOf("") }
+    var body by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("Pet News") }
+    var author by remember { mutableStateOf("Wagmiya") }
+    var link by remember { mutableStateOf("") }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+    var pendingDelete by remember { mutableStateOf<NewsPost?>(null) }
+    val categories = listOf("Adoption Drive", "Vaccination Drive", "Event", "Pet News")
+    val photoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri -> photoUri = uri }
+
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item { Text(stringResource(R.string.admin_news_add_title), fontWeight = FontWeight.Bold, fontSize = 14.sp) }
+        item {
+            OutlinedTextField(
+                value = title, onValueChange = { title = it },
+                label = { Text(stringResource(R.string.admin_news_title_label)) },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = body, onValueChange = { body = it },
+                label = { Text(stringResource(R.string.admin_news_body_label)) },
+                modifier = Modifier.fillMaxWidth(), minLines = 3
+            )
+        }
+        item {
+            Column {
+                Text(stringResource(R.string.admin_news_category_label), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.horizontalScroll(rememberScrollState())
+                ) {
+                    categories.forEach { c ->
+                        FilterChip(
+                            selected = category == c,
+                            onClick = { category = c },
+                            label = { Text(c, fontSize = 11.sp) }
+                        )
+                    }
+                }
+            }
+        }
+        item {
+            OutlinedTextField(
+                value = author, onValueChange = { author = it },
+                label = { Text(stringResource(R.string.admin_news_author_label)) },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = link, onValueChange = { link = it },
+                label = { Text(stringResource(R.string.admin_news_link_label)) },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        item {
+            Column {
+                Text(stringResource(R.string.admin_news_photo_label), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(6.dp))
+                Button(onClick = {
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }) {
+                    Text(if (photoUri == null) stringResource(R.string.admin_news_add_photo) else stringResource(R.string.admin_news_change_photo))
+                }
+                if (photoUri != null) {
+                    Spacer(Modifier.height(6.dp))
+                    AsyncImage(
+                        model = photoUri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
+                }
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    if (title.isNotBlank() && body.isNotBlank()) {
+                        onAdd(title.trim(), body.trim(), category, author.trim().ifBlank { "Wagmiya" }, link.trim(), photoUri)
+                        title = ""
+                        body = ""
+                        category = "Pet News"
+                        author = "Wagmiya"
+                        link = ""
+                        photoUri = null
+                    }
+                },
+                enabled = title.isNotBlank() && body.isNotBlank()
+            ) {
+                Text(stringResource(R.string.admin_news_publish))
+            }
+        }
+        item { Divider() }
+        if (posts.isEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.admin_news_empty),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+        } else {
+            items(posts) { post ->
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(post.title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            Text(
+                                "${post.category} - ${post.author}",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        TextButton(onClick = { pendingDelete = post }) {
+                            Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pendingDelete?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(R.string.admin_news_delete_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_news_delete_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete(target.id)
+                    pendingDelete = null
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(R.string.community_cancel))
+                }
+            }
+        )
     }
 }
 

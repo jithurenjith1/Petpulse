@@ -48,6 +48,7 @@ data class CommunityPost(
     val authorName: String = "",
     val petName: String = "",
     val message: String = "",
+    val photoData: String = "",
     val createdAt: Long = 0L
 )
 data class PetCertificate(
@@ -226,21 +227,20 @@ data class BoardingSitter(
     val timeSlots: List<String> = emptyList()
 )
 
-data class PetNewsItem(
-    val title: String,
-    val source: String,
-    val timeAgo: String,
-    val summary: String,
-    val fullContent: String
-)
-
-data class PetEventItem(
-    val title: String,
-    val category: String,
-    val date: String,
-    val location: String,
-    val entryStatus: String,
-    val prizePool: String
+/**
+ * A real news / events post, stored in Firestore "news_posts".
+ * Public read (auth-independent); only an admin can write. Every field is
+ * defaulted so Firestore's toObject()/map decoding never fails on old docs.
+ */
+data class NewsPost(
+    val id: String = "",
+    val title: String = "",
+    val body: String = "",
+    val category: String = "",
+    val author: String = "Wagmiya",
+    val photoData: String = "",
+    val link: String = "",
+    val createdAt: Long = 0L
 )
 
 /**

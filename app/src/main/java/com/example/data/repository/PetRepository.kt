@@ -319,39 +319,4 @@ class PetRepository(private val petDao: PetDao) {
         )
     )
 
-    fun getPetNews(): PetNewsItem = PetNewsItem(
-        title = "Heroic Indie Dog Recovery Sparks Neighbourhood Pet Safety Network",
-        source = "Global Pet Herald & Wildlife Journal",
-        timeAgo = "Today • 4 min read",
-        summary = "An indie dog rescued from the city streets helped inspire the smart 5km community alert system, uniting thousands of pet parents for lost pet recovery.",
-        fullContent = "In a heartwarming turn of events, a resilient and affectionate indie canine has become the beloved mascot for community-driven pet protection. Its playful spirit and quick mastery of commands proved that Indies and rescued animals possess remarkable loyalty and intelligence. Today, with thousands of active guardians on the Wagmiya 5km radius alert network, pet owners can instantly coordinate with nearby neighbours, grooming partners and verified sitters to ensure every furry family member stays safe, well-fed and celebrated."
-    )
-
-    fun getUpcomingEvents(): List<PetEventItem> = listOf(
-        PetEventItem(
-            title = "Annual Metro Canine Agility & Obedience Cup 2026",
-            category = "Competition",
-            date = "Oct 12, 2026 • 9:00 AM",
-            location = "Riverfront Stadium & Exhibition Grounds",
-            entryStatus = "Open for Registrations",
-            prizePool = "₹2,12,500 Trophy & Pet Care Hampers"
-        ),
-        PetEventItem(
-            title = "Mega Pet Adoption & Rescue Fair",
-            category = "Adoption Drive",
-            date = "Nov 05, 2026 • 10:30 AM",
-            location = "Central Botanical Park Lawn",
-            entryStatus = "Free Entry for All Families",
-            prizePool = "Free Starter Care Kits for Adopted Pets"
-        ),
-        PetEventItem(
-            title = "Fancy Felines & Birds Beauty Pageant",
-            category = "Showcase",
-            date = "Nov 22, 2026 • 2:00 PM",
-            location = "Civic Auditorium Hall B",
-            entryStatus = "Limited Slots (50 Entries)",
-            prizePool = "₹85,000 + Golden Ribbon"
-        )
-    )
 }
-

@@ -53,8 +53,7 @@ fun PartnersServicesScreen(
     lostPetAlerts: List<LostPetAlert>,
     petListings: List<PetListing>,
     gpsTrackers: List<ShopProduct>,
-    petNews: PetNewsItem,
-    events: List<PetEventItem>,
+    newsPosts: List<NewsPost> = emptyList(),
     onTriggerSosDialog: () -> Unit,
     onAddListingDialog: () -> Unit,
     onPartnerJoinClick: (String) -> Unit,
@@ -221,7 +220,7 @@ fun PartnersServicesScreen(
                         PartnerSubTab.PET_BOARDING -> "🏡 3. Boarding & Sitters"
                         PartnerSubTab.FIND_MY_PET -> "🚨 4. Find My Pet / GPS"
                         PartnerSubTab.SALE_AND_ADOPTION -> "🐾 5. Sale & Adoption"
-                        PartnerSubTab.NEWS_AND_EVENTS -> "📰 6. News & Events"
+                        PartnerSubTab.NEWS_AND_EVENTS -> stringResource(R.string.partners_tab_whatsnew)
                         PartnerSubTab.SUPPORT -> "🆘 7. Help & Rescue"
                         PartnerSubTab.TRAINERS -> stringResource(R.string.partners_trainers_behaviour)
                     }
@@ -458,13 +457,20 @@ fun PartnersServicesScreen(
             }
 
             PartnerSubTab.NEWS_AND_EVENTS -> {
-                // Section 6: Pet News & Competitions (Trainer On-Demand moved to Market → Training)
-                item {
-                    PetNewsAndEventsSection(
-                        news = petNews,
-                        events = events,
-                        onRegisterEvent = { event -> onActionNotification("Registered for ${event.title}") }
-                    )
+                // Real admin-created news & events from the "news_posts" collection.
+                if (newsPosts.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.whatsnew_empty_title),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                    }
+                } else {
+                    items(newsPosts) { post ->
+                        NewsPostCard(post = post, modifier = Modifier.padding(horizontal = 16.dp))
+                    }
                 }
             }
 
@@ -1311,90 +1317,6 @@ fun PetListingCard(
                     Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(stringResource(R.string.partners_contact_guardian), fontSize = 11.sp)
-                }
-            }
-        }
-    }
-}
-
-// ---------------- 6. News & Events ----------------
-@Composable
-fun PetNewsAndEventsSection(
-    news: PetNewsItem,
-    events: List<PetEventItem>,
-    onRegisterEvent: (PetEventItem) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        // Pet News Card
-        Card(
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.partners_featured_pet_story),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
-                Text(news.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
-                Text("By ${news.source} • ${news.timeAgo}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(news.fullContent, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
-            }
-        }
-
-        // Upcoming Pet Competitions & Events Calendar
-        Text(
-            text = stringResource(R.string.partners_upcoming_competitions_events_calendar),
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        events.forEach { event ->
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 2.dp,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(event.title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
-                    }
-                    Text("📅 ${event.date} • 📍 ${event.location}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Prizes: ${event.prizePool}", fontSize = 11.sp, color = AccentAmber, fontWeight = FontWeight.Bold)
-                        Button(
-                            onClick = { onRegisterEvent(event) },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                            modifier = Modifier.height(30.dp)
-                        ) {
-                            Text(stringResource(R.string.partners_add_to_calendar), fontSize = 10.sp)
-                        }
-                    }
                 }
             }
         }

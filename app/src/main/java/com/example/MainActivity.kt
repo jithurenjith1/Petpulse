@@ -37,6 +37,7 @@ import com.petpulse.app.ui.screens.MyOrdersScreen
 import com.petpulse.app.ui.screens.PetCareTipsScreen
 import com.petpulse.app.ui.screens.AiSymptomCheckerScreen
 import com.petpulse.app.ui.screens.VetTeleconsultScreen
+import com.petpulse.app.ui.screens.WhatsNewScreen
 import com.petpulse.app.ui.screens.PetpulseCareScreen
 import com.petpulse.app.ui.screens.OnboardingScreen
 import com.petpulse.app.ui.screens.HealthRecordsHubScreen
@@ -137,6 +138,7 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val activePetTag by viewModel.activePetTag.collectAsStateWithLifecycle()
     val tagScans by viewModel.tagScans.collectAsStateWithLifecycle()
     val communityPosts by viewModel.communityPosts.collectAsStateWithLifecycle()
+    val newsPosts by viewModel.newsPosts.collectAsStateWithLifecycle()
 
     val speciesList by viewModel.speciesList.collectAsStateWithLifecycle()
     val selectedSpecies by viewModel.selectedSpecies.collectAsStateWithLifecycle()
@@ -169,8 +171,6 @@ val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
 val adminFoundReports by viewModel.foundReports.collectAsStateWithLifecycle()
 val adminPartnerApplications by viewModel.partnerApplications.collectAsStateWithLifecycle()
 val appCtx = LocalContext.current
-    val petNews by viewModel.petNews.collectAsStateWithLifecycle()
-    val events by viewModel.events.collectAsStateWithLifecycle()
     val healthScore by viewModel.healthScore.collectAsStateWithLifecycle()
 
     // Kerala Marketplace states
@@ -205,6 +205,7 @@ val appCtx = LocalContext.current
     var showSosScreen by remember { mutableStateOf(false) }
     var showInsuranceScreen by remember { mutableStateOf(false) }
     var showCommunityScreen by remember { mutableStateOf(false) }
+    var showWhatsNewScreen by remember { mutableStateOf(false) }
     var showLostPetAlertsScreen by remember { mutableStateOf(false) }
     var showCareTipsScreen by remember { mutableStateOf(false) }
     var showSymptomScreen by remember { mutableStateOf(false) }
@@ -281,6 +282,7 @@ val appCtx = LocalContext.current
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                item { FeatureButton(stringResource(R.string.whatsnew_tab), MaterialTheme.colorScheme.primary) { showWhatsNewScreen = true } }
                 item { FeatureButton("Nearby", MaterialTheme.colorScheme.primary) { showMapScreen = true } }
                 item { FeatureButton("Insurance", MaterialTheme.colorScheme.primary) { showInsuranceScreen = true } }
                 item { FeatureButton("Community", MaterialTheme.colorScheme.primary) { showCommunityScreen = true } }
@@ -503,8 +505,7 @@ val appCtx = LocalContext.current
                             viewModel.placeSubscriptionBooking(title, planType, monthlyEstimate)
                         },
                         activePetName = activePet.name,
-                        petNews = petNews,
-                        events = events,
+                        newsPosts = newsPosts,
                         onTriggerSosDialog = { showSosScreen = true },
                         onAddListingDialog = { showAddListingDialog = true },
                         onPartnerJoinClick = { msg ->
@@ -682,6 +683,9 @@ val appCtx = LocalContext.current
             onDeleteFoundReport = { id -> viewModel.adminDeleteFoundReport(id) },
             onAddVet = { n, sp, c, city, ph, vf, inf, on, vfy -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf, on, vfy) },
             onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
+            newsPosts = newsPosts,
+            onAddNewsPost = { t, b, cat, a, l, uri -> viewModel.adminAddNewsPost(t, b, cat, a, l, uri) },
+            onDeleteNewsPost = { id -> viewModel.adminDeleteNewsPost(id) },
             supportTickets = adminSupportTickets,
             rescueReports = adminRescueReports,
             onDeleteSupportTicket = { id -> viewModel.adminDeleteSupportTicket(id) },
@@ -764,8 +768,8 @@ val appCtx = LocalContext.current
             PetCommunityScreen(
                 posts = communityPosts,
                 currentUid = viewModel.currentUid,
-                onAddPost = { message, petName ->
-                    viewModel.addCommunityPost(message, petName)
+                onAddPost = { message, petName, photoUri ->
+                    viewModel.addCommunityPost(message, petName, photoUri)
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar("📝 Post shared with the community!")
                     }
@@ -779,6 +783,12 @@ val appCtx = LocalContext.current
                 onOpenLostPetAlerts = { showLostPetAlertsScreen = true }
             )
             FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = MaterialTheme.colorScheme.primary) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+    if (showWhatsNewScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            WhatsNewScreen(posts = newsPosts)
+            FloatingActionButton(onClick = { showWhatsNewScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = MaterialTheme.colorScheme.primary) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
     if (showLostPetAlertsScreen) {

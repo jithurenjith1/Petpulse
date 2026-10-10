@@ -646,12 +646,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val petNews: StateFlow<PetNewsItem> = flowOf(repository.getPetNews())
-        .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getPetNews())
-
-    val events: StateFlow<List<PetEventItem>> = flowOf(repository.getUpcomingEvents())
-        .stateIn(viewModelScope, SharingStarted.Eagerly, repository.getUpcomingEvents())
-
     // Health score derived from the pet's OWN records (vaccinations, certificates
     // and medical reports). When there is not enough data the score is 0, which the
     // UI renders as an honest "Not enough data yet" state - never a fabricated 95.
@@ -1177,12 +1171,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val communityPosts: StateFlow<List<CommunityPost>> = commerceRepo.observeCommunityPosts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun addCommunityPost(message: String, petName: String) {
+    fun addCommunityPost(message: String, petName: String, photoUri: Uri? = null) {
         viewModelScope.launch {
             commerceRepo.addCommunityPost(
                 _customerProfile.value.name.ifBlank { "Pet Lover" },
                 petName,
-                message
+                message,
+                photoUri
             )
         }
     }
@@ -1190,6 +1185,39 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteCommunityPost(post: CommunityPost) {
         viewModelScope.launch {
             commerceRepo.deleteCommunityPost(post.id)
+        }
+    }
+
+    // News & Events (Firestore-backed "news_posts", public read; admin write)
+    val newsPosts: StateFlow<List<NewsPost>> = commerceRepo.observeNewsPosts()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun adminAddNewsPost(
+        title: String,
+        body: String,
+        category: String,
+        author: String,
+        link: String,
+        photoUri: Uri? = null
+    ) {
+        viewModelScope.launch {
+            val post = NewsPost(
+                id = "",
+                title = title,
+                body = body,
+                category = category,
+                author = author.ifBlank { "Wagmiya" },
+                photoData = "",
+                link = link,
+                createdAt = System.currentTimeMillis()
+            )
+            _commerceEvent.value = if (commerceRepo.addNewsPost(post, photoUri).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    fun adminDeleteNewsPost(postId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteNewsPost(postId).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
     }
 

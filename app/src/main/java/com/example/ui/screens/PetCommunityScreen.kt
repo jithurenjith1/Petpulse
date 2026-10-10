@@ -1,5 +1,11 @@
 package com.petpulse.app.ui.screens
 
+import android.net.Uri
+import android.util.Base64
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 import com.petpulse.app.data.model.CommunityPost
@@ -53,9 +59,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 
 // Wagmiya brand colors
 private val CoralPrimary = Color(0xFF6A4C93)
@@ -70,7 +78,7 @@ private val SosRed = Color(0xFFD62828)
 fun PetCommunityScreen(
     posts: List<CommunityPost>,
     currentUid: String?,
-    onAddPost: (message: String, petName: String) -> Unit,
+    onAddPost: (message: String, petName: String, photoUri: Uri?) -> Unit,
     onDeletePost: (CommunityPost) -> Unit,
     onOpenLostPetAlerts: () -> Unit = {}
 ) {
@@ -176,8 +184,8 @@ fun PetCommunityScreen(
     if (showNewPostDialog) {
         NewPostDialog(
             onDismiss = { showNewPostDialog = false },
-            onPost = { message, petName ->
-                onAddPost(message, petName)
+            onPost = { message, petName, photoUri ->
+                onAddPost(message, petName, photoUri)
                 showNewPostDialog = false
             }
         )
@@ -255,7 +263,30 @@ private fun PostCard(
                 fontSize = 15.sp,
                 lineHeight = 22.sp
             )
+            val photoBytes = remember(post.photoData) { decodeCommunityPhoto(post.photoData) }
+            if (photoBytes != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                AsyncImage(
+                    model = photoBytes,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            }
         }
+    }
+}
+
+/** Decode a stored base64 JPEG into bytes Coil can render (or null). */
+private fun decodeCommunityPhoto(photoData: String): ByteArray? {
+    if (photoData.isBlank()) return null
+    return try {
+        Base64.decode(photoData, Base64.NO_WRAP)
+    } catch (e: Exception) {
+        null
     }
 }
 
@@ -275,10 +306,14 @@ private fun timeAgoText(createdAt: Long): String {
 @Composable
 private fun NewPostDialog(
     onDismiss: () -> Unit,
-    onPost: (message: String, petName: String) -> Unit
+    onPost: (message: String, petName: String, photoUri: Uri?) -> Unit
 ) {
     var message by remember { mutableStateOf("") }
     var petName by remember { mutableStateOf("") }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+    val photoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri -> photoUri = uri }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -306,6 +341,31 @@ private fun NewPostDialog(
                     minLines = 3,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = {
+                        photoPicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(
+                        text = if (photoUri == null) stringResource(R.string.community_add_photo) else stringResource(R.string.community_change_photo),
+                        color = Color.White
+                    )
+                }
+                if (photoUri != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    AsyncImage(
+                        model = photoUri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
+                }
             }
         },
         confirmButton = {
@@ -314,7 +374,8 @@ private fun NewPostDialog(
                     if (message.isNotBlank()) {
                         onPost(
                             message.trim(),
-                            petName.trim().ifBlank { "my pet" }
+                            petName.trim().ifBlank { "my pet" },
+                            photoUri
                         )
                     }
                 },
@@ -331,4 +392,3 @@ private fun NewPostDialog(
         }
     )
 }
-

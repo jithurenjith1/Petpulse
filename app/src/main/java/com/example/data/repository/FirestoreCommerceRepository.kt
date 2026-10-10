@@ -18,6 +18,7 @@ import com.petpulse.app.data.model.FoundPetReport
 import com.petpulse.app.data.model.LostPetAlert
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.CommunityPost
+import com.petpulse.app.data.model.NewsPost
 import com.petpulse.app.data.model.PartnerApplication
 import com.petpulse.app.data.model.RescueReport
 import com.petpulse.app.data.model.SupportTicket
@@ -574,6 +575,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 authorName = getString("authorName") ?: "Pet Lover",
                 petName = getString("petName") ?: "",
                 message = getString("message") ?: return null,
+                photoData = getString("photoData") ?: "",
                 createdAt = getLong("createdAt") ?: 0L
             )
         } catch (e: Exception) {
@@ -582,14 +584,16 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         }
     }
 
-    suspend fun addCommunityPost(authorName: String, petName: String, message: String) {
+    suspend fun addCommunityPost(authorName: String, petName: String, message: String, photoUri: Uri? = null) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val photo = photoUri?.let { compressProductPhotoToBase64(it) } ?: ""
         db.collection("community_posts").add(
             mapOf(
                 "ownerId" to uid,
                 "authorName" to authorName,
                 "petName" to petName,
                 "message" to message,
+                "photoData" to photo,
                 "createdAt" to System.currentTimeMillis()
             )
         ).await()
@@ -598,6 +602,74 @@ class FirestoreCommerceRepository(private val appContext: Context) {
     suspend fun deleteCommunityPost(postId: String) {
         if (postId.isBlank()) return
         db.collection("community_posts").document(postId).delete().await()
+    }
+
+    // ---------- news & events (Firestore-backed "news_posts", public read) ----------
+
+    fun observeNewsPosts(): Flow<List<NewsPost>> = callbackFlow {
+        val sub = db.collection("news_posts")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .limit(100)
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    Log.e("FsCommerce", "news posts listen failed", err)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                trySend(
+                    snap?.documents?.mapNotNull { it.toNewsPost() } ?: emptyList()
+                )
+            }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toNewsPost(): NewsPost? {
+        return try {
+            NewsPost(
+                id = id,
+                title = getString("title") ?: return null,
+                body = getString("body") ?: "",
+                category = getString("category") ?: "",
+                author = getString("author") ?: "Wagmiya",
+                photoData = getString("photoData") ?: "",
+                link = getString("link") ?: "",
+                createdAt = getLong("createdAt") ?: 0L
+            )
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "Skipping malformed news post", e)
+            null
+        }
+    }
+
+    suspend fun addNewsPost(post: NewsPost, photoUri: Uri? = null): Result<Unit> {
+        return try {
+            auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            val photo = photoUri?.let { compressProductPhotoToBase64(it) } ?: ""
+            db.collection("news_posts").document().set(
+                mapOf(
+                    "title" to post.title,
+                    "body" to post.body,
+                    "category" to post.category,
+                    "author" to post.author.ifBlank { "Wagmiya" },
+                    "photoData" to photo,
+                    "link" to post.link,
+                    "createdAt" to System.currentTimeMillis()
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteNewsPost(postId: String): Result<Unit> {
+        return try {
+            if (postId.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_ID"))
+            db.collection("news_posts").document(postId).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     // ---------- admin: lost pet SOS alerts ----------
