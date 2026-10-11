@@ -131,21 +131,22 @@ fun AdminScreen(
                         "PARTNERS" to partnerApplications.size,
                         "LISTINGS" to listings.size
                     )
-                    // Totals for the catalogue / partner cards the admin also manages.
-                    // These are plain collection sizes (not pending work), so they
-                    // badge their card but are NOT added to the "items pending" total.
-                    val catalogueCounts = mapOf(
-                        "FOOD" to products.count { it.listType == "Food" },
-                        "MEDICINE" to products.count { it.listType == "Medicine" },
-                        "ACCESSORIES" to products.count { it.listType == "Accessory" },
-                        "TRAINERS" to products.count { it.listType == "Trainer" },
-                        "DEALERS" to dealers.size,
-                        "NEWS" to newsPosts.size,
-                        "LEDGER" to partnerRows.size
-                    )
+                    // The Partner Ledger card is actionable, so it keeps a badge:
+                    // the number of DISTINCT partners in the ledger, deduplicated
+                    // by name + phone (NOT the number of ledger rows/entries), plus
+                    // how many of those partners still have dues to settle.
+                    val ledgerPartnerCount = partnerRows
+                        .map { it.name.trim().lowercase() + "|" + normalizePhone(it.phone) }
+                        .distinct()
+                        .size
+                    val ledgerUnpaidCount = partnerRows.count { !it.duesPaid }
+                    // Catalogue cards (Food, Medicine, Accessories, Dealers, News,
+                    // Trainers) are not actionable, so they carry NO badge.
                     AdminDashboard(
-                        pendingCounts = pendingCounts + catalogueCounts,
+                        pendingCounts = pendingCounts,
                         pendingTotal = pendingCounts.values.sum(),
+                        ledgerBadge = ledgerPartnerCount,
+                        ledgerUnpaid = ledgerUnpaidCount,
                         onSelect = { section = it; showBookings = false }
                     )
                 } else {
@@ -572,6 +573,8 @@ private fun bookingTypeFor(key: String?): String = when (key) {
 private fun AdminDashboard(
     pendingCounts: Map<String, Int> = emptyMap(),
     pendingTotal: Int? = null,
+    ledgerBadge: Int = 0,
+    ledgerUnpaid: Int = 0,
     onSelect: (String) -> Unit
 ) {
     val sections = listOf(
@@ -619,8 +622,10 @@ private fun AdminDashboard(
                 row.forEach { (key, label) ->
                     AdminDashboardCard(
                         title = label.first,
-                        subtitle = label.second,
-                        badge = pendingCounts[key] ?: 0,
+                        subtitle = if (key == "LEDGER" && ledgerUnpaid > 0)
+                            stringResource(R.string.admin_ledger_subtitle_unpaid, ledgerUnpaid)
+                        else label.second,
+                        badge = if (key == "LEDGER") ledgerBadge else (pendingCounts[key] ?: 0),
                         modifier = Modifier.weight(1f),
                         onClick = { onSelect(key) }
                     )

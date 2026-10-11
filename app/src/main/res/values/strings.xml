@@ -619,6 +619,7 @@
     <!-- Admin Partner Ledger (B) -->
     <string name="admin_ledger_title_card">Partner Ledger</string>
     <string name="admin_ledger_subtitle">Commission per partner</string>
+    <string name="admin_ledger_subtitle_unpaid">%1$d partners with dues pending</string>
     <string name="admin_ledger_section">Partner Ledger</string>
     <string name="admin_ledger_summary_label">Total commission owed this month</string>
     <string name="admin_ledger_note">Commission counts only orders after a dealer is assigned and bookings after a provider is confirmed.</string>

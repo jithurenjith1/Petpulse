@@ -619,6 +619,7 @@
     <!-- Admin Partner Ledger (B) -->
     <string name="admin_ledger_title_card">പങ്കാളി ലെഡ്ജർ</string>
     <string name="admin_ledger_subtitle">ഓരോ പങ്കാളിക്കും കമ്മീഷൻ</string>
+    <string name="admin_ledger_subtitle_unpaid">%1$d പങ്കാളികളുടെ കുടിശ്ശിക ബാക്കിയുണ്ട്</string>
     <string name="admin_ledger_section">പങ്കാളി ലെഡ്ജർ</string>
     <string name="admin_ledger_summary_label">ഈ മാസം നൽകാനുള്ള ആകെ കമ്മീഷൻ</string>
     <string name="admin_ledger_note">ഒരു ഡീലർ നിയോഗിച്ചതിനുശേഷമുള്ള ഓർഡറുകളും, ഒരു സേവനദാതാവ് സ്ഥിരീകരിച്ചതിനുശേഷമുള്ള ബുക്കിംഗുകളും മാത്രമേ കമ്മീഷനിൽ കണക്കാക്കൂ.</string>
