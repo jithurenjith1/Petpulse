@@ -214,6 +214,7 @@ val appCtx = LocalContext.current
     var showSubscriptionScreen by remember { mutableStateOf(false) }
     var showHealthRecordsScreen by remember { mutableStateOf(false) }
     var showToxicFoodScreen by remember { mutableStateOf(false) }
+    var showEmergencyScreen by remember { mutableStateOf(false) }
     var showServicePriceScreen by remember { mutableStateOf(false) }
     var showHousingHelpScreen by remember { mutableStateOf(false) }
     var showConsentInfoScreen by remember { mutableStateOf(false) }
@@ -291,7 +292,7 @@ val appCtx = LocalContext.current
                 item { FeatureButton("Vet Online", Color(0xFFA87A1F)) { showVetScreen = true } }
                 item { FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true } }
                 item { FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true } }
-                item { FeatureButton(stringResource(R.string.mypets_feature_toxic_food), Color(0xFFD62828)) { showToxicFoodScreen = true } }
+                item { FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFD62828)) { showEmergencyScreen = true } }
                 item { FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary) { showServicePriceScreen = true } }
             }
             }
@@ -382,7 +383,7 @@ val appCtx = LocalContext.current
                         },
                         isPremium = isPremium,
                         onOpenAiPhoto = { showAiPhotoScreen = true },
-                        onOpenToxicFood = { showToxicFoodScreen = true },
+                        onOpenEmergency = { showEmergencyScreen = true },
                         onOpenServicePrice = { showServicePriceScreen = true },
                         onOpenHousingHelp = { showHousingHelpScreen = true },
                         onOpenConsentInfo = { showConsentInfoScreen = true },
@@ -861,6 +862,17 @@ val appCtx = LocalContext.current
             HealthRecordsHubScreen(
                 petName = activePet.name,
                 onClose = { showHealthRecordsScreen = false }
+            )
+        }
+    }
+
+    if (showEmergencyScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            EmergencyFirstAidScreen(
+                onClose = { showEmergencyScreen = false },
+                vets = adminVets,
+                savedVet = selectedDoctorForBooking,
+                onOpenToxicFood = { showToxicFoodScreen = true }
             )
         }
     }

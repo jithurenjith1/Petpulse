@@ -167,7 +167,7 @@ fun MyPetsScreen(
     onDeleteCertificate: (PetCertificate) -> Unit = {},
     isPremium: Boolean = false,
     onOpenAiPhoto: () -> Unit = {},
-    onOpenToxicFood: () -> Unit = {},
+    onOpenEmergency: () -> Unit = {},
     onOpenServicePrice: () -> Unit = {},
     onOpenHousingHelp: () -> Unit = {},
     onOpenConsentInfo: () -> Unit = {},
@@ -594,7 +594,7 @@ fun MyPetsScreen(
                         onEditPetClick = onEditPetClick,
                         onSavePetDirectly = onSavePetDirectly,
                         onShowMessage = onShowMessage,
-                        onOpenToxicFood = onOpenToxicFood,
+                        onOpenEmergency = onOpenEmergency,
                         onOpenServicePrice = onOpenServicePrice,
                         onOpenHousingHelp = onOpenHousingHelp,
                         onOpenConsentInfo = onOpenConsentInfo
@@ -1761,7 +1761,7 @@ fun HealthAndSettingsSection(
     onDeleteAccount: () -> Unit = {},
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
-    onOpenToxicFood: () -> Unit = {},
+    onOpenEmergency: () -> Unit = {},
     onOpenServicePrice: () -> Unit = {},
     onOpenHousingHelp: () -> Unit = {},
     onOpenConsentInfo: () -> Unit = {}
@@ -1840,9 +1840,9 @@ fun HealthAndSettingsSection(
             )
             HealthToolRow(
                 icon = Icons.Default.Warning,
-                title = stringResource(R.string.mypets_toxic_food_check),
-                subtitle = stringResource(R.string.mypets_toxic_food_check_note),
-                onClick = onOpenToxicFood
+                title = stringResource(R.string.mypets_emergency_first_aid),
+                subtitle = stringResource(R.string.mypets_emergency_first_aid_note),
+                onClick = onOpenEmergency
             )
             HealthToolRow(
                 icon = Icons.Default.Info,
