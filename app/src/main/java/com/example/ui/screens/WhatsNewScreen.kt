@@ -105,9 +105,11 @@ fun NewsPostCard(post: NewsPost = NewsPost(), modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val photoBytes = remember(post.photoData) { decodePhoto(post.photoData) }
-            if (photoBytes != null) {
+            // Prefer the hosted Cloudinary URL; fall back to the inline base64 bytes.
+            val photoModel: Any? = if (post.photoUrl.isNotBlank()) post.photoUrl else photoBytes
+            if (photoModel != null) {
                 AsyncImage(
-                    model = photoBytes,
+                    model = photoModel,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

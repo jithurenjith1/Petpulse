@@ -245,9 +245,11 @@ fun MyPetsScreen(
                                 .border(2.dp, BluePrimary.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
                                 .clickable { photoPickerLauncher.launch(arrayOf("image/*")) }
                         ) {
-                            if (pet.photoUri.isNotEmpty()) {
+                            // Prefer the hosted Cloudinary URL; fall back to the local photo URI.
+                            val petPhotoModel = if (pet.photoUrl.isNotBlank()) pet.photoUrl else pet.photoUri
+                            if (petPhotoModel.isNotEmpty()) {
                                 Image(
-                                    painter = rememberAsyncImagePainter(Uri.parse(pet.photoUri)),
+                                    painter = rememberAsyncImagePainter(petPhotoModel),
                                     contentDescription = "${pet.name} Photo",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
@@ -867,10 +869,12 @@ fun CertificateSubmenuSection(
                         }
 
                         // Certificate photos — tap to view full screen
-                        if (cert.photoPaths.isNotEmpty()) {
+                        // Prefer the hosted Cloudinary URLs; fall back to the local cache files.
+                        val certPhotos = if (cert.photoUrls.isNotEmpty()) cert.photoUrls else cert.photoPaths
+                        if (certPhotos.isNotEmpty()) {
                             Text("Certificate Photos", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                items(cert.photoPaths) { photoPath ->
+                                items(certPhotos) { photoPath ->
                                     AsyncImage(
                                         model = photoPath,
                                         contentDescription = "Certificate photo",

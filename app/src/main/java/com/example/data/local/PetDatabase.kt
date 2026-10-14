@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
         LostPetAlert::class,
         PetListing::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class PetDatabase : RoomDatabase() {

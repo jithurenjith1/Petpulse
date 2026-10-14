@@ -15,6 +15,7 @@ import com.petpulse.app.data.model.MedicalReport
 import com.petpulse.app.data.model.PetCertificate
 import com.petpulse.app.data.model.PetTag
 import com.petpulse.app.data.model.TagScan
+import com.petpulse.app.data.remote.CloudinaryUploader
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -326,6 +327,7 @@ class FirestorePetRepository(private val appContext: Context) {
                 val certs = snapshot?.documents?.mapNotNull { doc ->
                     try {
                         val photoData = (doc.get("photoData") as? List<*>)?.filterIsInstance<String>().orEmpty()
+                        val photoUrls = (doc.get("photoUrls") as? List<*>)?.filterIsInstance<String>().orEmpty()
                         PetCertificate(
                             id = stableIdOf(doc.id),
                             petId = petId,
@@ -336,7 +338,8 @@ class FirestorePetRepository(private val appContext: Context) {
                             photoPaths = photoData.mapIndexed { i, b64 ->
                                 certPhotoFileFor(doc.id, i, b64)
                             }.filter { it.isNotBlank() },
-                            createdAt = doc.getLong("createdAt") ?: 0L
+                            createdAt = doc.getLong("createdAt") ?: 0L,
+                            photoUrls = photoUrls
                         )
                     } catch (e: Exception) {
                         Log.e("FirestorePetRepo", "Malformed certificate doc", e)
@@ -350,7 +353,16 @@ class FirestorePetRepository(private val appContext: Context) {
 
     suspend fun addCertificate(petId: Long, cert: PetCertificate, photoUris: List<Uri>) {
         val docId = awaitDocIdFor(petId) ?: return
-        val photos = photoUris.take(CERT_MAX_PHOTOS).mapNotNull { compressCertToBase64(it) }
+        // Cloudinary first: store good-size hosted URLs. Only photos whose upload
+        // fails fall back to the old base64-in-document behaviour, so nothing
+        // breaks before the owner pastes his Cloudinary values.
+        val urls = mutableListOf<String>()
+        val photos = mutableListOf<String>()
+        for (uri in photoUris.take(CERT_MAX_PHOTOS)) {
+            val url = CloudinaryUploader.uploadImage(appContext, uri).getOrNull()
+            if (url != null) urls.add(url)
+            else compressCertToBase64(uri)?.let { photos.add(it) }
+        }
         petsRef().document(docId).collection("certificates").add(
             mapOf(
                 "title" to cert.title,
@@ -358,6 +370,7 @@ class FirestorePetRepository(private val appContext: Context) {
                 "issuedBy" to cert.issuedBy,
                 "issueDate" to cert.issueDate,
                 "photoData" to photos,
+                "photoUrls" to urls,
                 "createdAt" to System.currentTimeMillis()
             )
         ).await()
@@ -497,6 +510,7 @@ class FirestorePetRepository(private val appContext: Context) {
             "trainingMilestones" to pet.trainingMilestones,
             "avatarRes" to pet.avatarRes,
             "photoUri" to pet.photoUri,
+            "photoUrl" to pet.photoUrl,
             "notes" to pet.notes,
             "aiAnalysis" to pet.aiAnalysis,
             "qrPublicId" to pet.qrPublicId
@@ -519,14 +533,22 @@ class FirestorePetRepository(private val appContext: Context) {
         try {
             val ref = db.collection("pet_tags").document(publicId)
             val existing = ref.get().await()
-            val photo = photoBase64For(pet)
+            // Cloudinary first: reuse the already-hosted pet photo URL when present,
+            // else try to upload the pet's local photo. Base64 is the fallback.
+            val uploaded = when {
+                pet.photoUrl.isNotBlank() -> pet.photoUrl
+                pet.photoUri.isBlank() -> ""
+                else -> CloudinaryUploader.uploadImage(appContext, Uri.parse(pet.photoUri)).getOrNull() ?: ""
+            }
+            val photo = if (uploaded.isBlank()) photoBase64For(pet) else ""
             if (existing.exists()) {
                 ref.update(
                     mapOf(
                         "petName" to pet.name,
                         "species" to pet.species,
                         "breed" to pet.breed,
-                        "photoData" to photo
+                        "photoData" to photo,
+                        "photoUrl" to uploaded
                     )
                 ).await()
             } else {
@@ -537,6 +559,7 @@ class FirestorePetRepository(private val appContext: Context) {
                         "species" to pet.species,
                         "breed" to pet.breed,
                         "photoData" to photo,
+                        "photoUrl" to uploaded,
                         "lost" to false,
                         "ownerUid" to ownerUid,
                         "createdAt" to System.currentTimeMillis()

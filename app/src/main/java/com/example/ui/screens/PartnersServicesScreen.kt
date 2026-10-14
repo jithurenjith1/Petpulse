@@ -950,15 +950,17 @@ fun BoardingSitterCard(
                 }
             }
 
-            if (sitter.photoUris.isNotEmpty()) {
+            // Prefer the hosted Cloudinary URLs; fall back to the local base64 photos.
+            val placePhotos = if (sitter.photoUrls.isNotEmpty()) sitter.photoUrls else sitter.photoUris
+            if (placePhotos.isNotEmpty()) {
                 Text(
-                    "Place photos (" + sitter.photoUris.size + ")",
+                    "Place photos (" + placePhotos.size + ")",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(sitter.photoUris) { path ->
+                    items(placePhotos) { path ->
                         AsyncImage(
                             model = path,
                             contentDescription = null,

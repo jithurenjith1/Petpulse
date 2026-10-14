@@ -28,6 +28,7 @@ import com.petpulse.app.data.model.PartnerCommission
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
 import com.petpulse.app.data.model.VerifiedDoctor
+import com.petpulse.app.data.remote.CloudinaryUploader
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -82,6 +83,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         return try {
         @Suppress("UNCHECKED_CAST")
         val photoData: List<String> = (get("photoData") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+        val photoUrls: List<String> = (get("photoUrls") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
         ShopProduct(
             id = id,
             name = getString("name") ?: return null,
@@ -93,7 +95,8 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             foodType = getString("foodType") ?: "All",
             lifeStage = getString("lifeStage") ?: "All",
             verified = getBoolean("verified") ?: false,
-            photoUris = photoData.mapIndexed { i, b64 -> productPhotoFileFor(id, i, b64) }.filter { it.isNotBlank() }
+            photoUris = photoData.mapIndexed { i, b64 -> productPhotoFileFor(id, i, b64) }.filter { it.isNotBlank() },
+            photoUrls = photoUrls
         )
         } catch (e: Exception) {
             Log.e("FsCommerce", "Skipping malformed product ${id}", e)
@@ -104,7 +107,16 @@ class FirestoreCommerceRepository(private val appContext: Context) {
     suspend fun addProduct(p: ShopProduct, photoUris: List<Uri> = emptyList()): Result<Unit> {
         return try {
             auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
-            val photos = photoUris.take(3).mapNotNull { compressProductPhotoToBase64(it) }
+            // Cloudinary first: store good-size hosted URLs. Only photos whose upload
+            // fails fall back to the old base64-in-document behaviour, so nothing
+            // breaks before the owner pastes his Cloudinary values.
+            val urls = mutableListOf<String>()
+            val photos = mutableListOf<String>()
+            for (uri in photoUris.take(3)) {
+                val url = CloudinaryUploader.uploadImage(appContext, uri).getOrNull()
+                if (url != null) urls.add(url)
+                else compressProductPhotoToBase64(uri)?.let { photos.add(it) }
+            }
             db.collection("products").document().set(
                 mapOf(
                     "name" to p.name,
@@ -117,6 +129,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                     "lifeStage" to p.lifeStage,
                     "verified" to p.verified,
                     "photoData" to photos,
+                    "photoUrls" to urls,
                     "createdAt" to System.currentTimeMillis()
                 )
             ).await()
@@ -576,6 +589,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 petName = getString("petName") ?: "",
                 message = getString("message") ?: return null,
                 photoData = getString("photoData") ?: "",
+                photoUrl = getString("photoUrl") ?: "",
                 createdAt = getLong("createdAt") ?: 0L
             )
         } catch (e: Exception) {
@@ -586,7 +600,11 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     suspend fun addCommunityPost(authorName: String, petName: String, message: String, photoUri: Uri? = null) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val photo = photoUri?.let { compressProductPhotoToBase64(it) } ?: ""
+        // Cloudinary first; base64 only if the upload fails.
+        val photoUrl = photoUri?.let { CloudinaryUploader.uploadImage(appContext, it).getOrNull() } ?: ""
+        val photo = if (photoUrl.isBlank()) {
+            photoUri?.let { compressProductPhotoToBase64(it) } ?: ""
+        } else ""
         db.collection("community_posts").add(
             mapOf(
                 "ownerId" to uid,
@@ -594,6 +612,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 "petName" to petName,
                 "message" to message,
                 "photoData" to photo,
+                "photoUrl" to photoUrl,
                 "createdAt" to System.currentTimeMillis()
             )
         ).await()
@@ -632,6 +651,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 category = getString("category") ?: "",
                 author = getString("author") ?: "Wagmiya",
                 photoData = getString("photoData") ?: "",
+                photoUrl = getString("photoUrl") ?: "",
                 link = getString("link") ?: "",
                 createdAt = getLong("createdAt") ?: 0L
             )
@@ -644,7 +664,11 @@ class FirestoreCommerceRepository(private val appContext: Context) {
     suspend fun addNewsPost(post: NewsPost, photoUri: Uri? = null): Result<Unit> {
         return try {
             auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
-            val photo = photoUri?.let { compressProductPhotoToBase64(it) } ?: ""
+            // Cloudinary first; base64 only if the upload fails.
+            val photoUrl = photoUri?.let { CloudinaryUploader.uploadImage(appContext, it).getOrNull() } ?: ""
+            val photo = if (photoUrl.isBlank()) {
+                photoUri?.let { compressProductPhotoToBase64(it) } ?: ""
+            } else ""
             db.collection("news_posts").document().set(
                 mapOf(
                     "title" to post.title,
@@ -652,6 +676,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                     "category" to post.category,
                     "author" to post.author.ifBlank { "Wagmiya" },
                     "photoData" to photo,
+                    "photoUrl" to photoUrl,
                     "link" to post.link,
                     "createdAt" to System.currentTimeMillis()
                 )

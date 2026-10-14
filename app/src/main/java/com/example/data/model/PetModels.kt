@@ -38,7 +38,11 @@ data class UserPet(
     // public page cannot be enumerated. Empty until the owner opens the QR Tag
     // screen; defaulted so Room and Firestore toObject() keep working for pets
     // that predate this field.
-    val qrPublicId: String = ""
+    val qrPublicId: String = "",
+    // Cloudinary URL of the pet's profile photo. Defaulted so Room and Firestore
+    // toObject() keep working for pets that predate this field. Empty means the
+    // app falls back to the local `photoUri` (or the default avatar).
+    val photoUrl: String = ""
 )
 
 /** A real community post, stored in Firestore "community_posts". */
@@ -49,7 +53,9 @@ data class CommunityPost(
     val petName: String = "",
     val message: String = "",
     val photoData: String = "",
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    // Cloudinary URL of the post photo (empty = fall back to photoData base64).
+    val photoUrl: String = ""
 )
 data class PetCertificate(
     val id: Long = 0L,
@@ -59,7 +65,9 @@ data class PetCertificate(
     val issuedBy: String = "",
     val issueDate: String = "",
     val photoPaths: List<String> = emptyList(), // local cache files of the stored photos
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    // Cloudinary URLs of the certificate photos (empty = fall back to photoPaths).
+    val photoUrls: List<String> = emptyList()
 )
 
 @Entity(tableName = "vaccination_records")
@@ -224,7 +232,9 @@ data class BoardingSitter(
     val features: List<String>,
     val verified: Boolean = true,
     val photoUris: List<String> = emptyList(),
-    val timeSlots: List<String> = emptyList()
+    val timeSlots: List<String> = emptyList(),
+    // Cloudinary URLs of the place photos (empty = fall back to photoUris).
+    val photoUrls: List<String> = emptyList()
 )
 
 /**
@@ -240,7 +250,9 @@ data class NewsPost(
     val author: String = "Wagmiya",
     val photoData: String = "",
     val link: String = "",
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    // Cloudinary URL of the news photo (empty = fall back to photoData base64).
+    val photoUrl: String = ""
 )
 
 /**
@@ -258,7 +270,9 @@ data class PetTag(
     val photoData: String = "",   // base64 JPEG of the pet photo, or ""
     val lost: Boolean = false,
     val ownerUid: String = "",
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    // Cloudinary URL of the pet photo (empty = fall back to photoData base64).
+    val photoUrl: String = ""
 )
 
 /**

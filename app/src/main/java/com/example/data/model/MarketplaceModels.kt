@@ -80,7 +80,9 @@ data class MarketProduct(
     val petType: String = "All",
     val foodType: String = "All",
     val lifeStage: String = "All",
-    val photoUris: List<String> = emptyList()
+    val photoUris: List<String> = emptyList(),
+    // Cloudinary URLs of the product photos (empty = fall back to photoUris).
+    val photoUrls: List<String> = emptyList()
 )
 
 data class GroomingServiceItem(
@@ -205,7 +207,10 @@ data class ShopProduct(
     val lifeStage: String = "All",  // Puppy & Kitten / Adult / Senior / All
     // --- Sitter / walker trust (defaults keep Firestore toObject() working) ---
     val verified: Boolean = false,
-    val photoUris: List<String> = emptyList()
+    val photoUris: List<String> = emptyList(),
+    // Cloudinary URLs of the product / sitter-place photos
+    // (empty = fall back to photoUris).
+    val photoUrls: List<String> = emptyList()
 )
 
 fun ShopProduct.toMarketProduct() = MarketProduct(
@@ -221,7 +226,8 @@ fun ShopProduct.toMarketProduct() = MarketProduct(
     petType = petType,
     foodType = foodType,
     lifeStage = lifeStage,
-    photoUris = photoUris
+    photoUris = photoUris,
+    photoUrls = photoUrls
 )
 
 data class Dealer(

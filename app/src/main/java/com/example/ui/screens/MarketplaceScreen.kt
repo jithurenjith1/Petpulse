@@ -1116,9 +1116,11 @@ fun MarketProductCard(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (product.photoUris.isNotEmpty()) {
+                        // Prefer the hosted Cloudinary URLs; fall back to the local base64 photos.
+                        val productPhotos = if (product.photoUrls.isNotEmpty()) product.photoUrls else product.photoUris
+                        if (productPhotos.isNotEmpty()) {
                             AsyncImage(
-                                model = product.photoUris.first(),
+                                model = productPhotos.first(),
                                 contentDescription = product.name,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()

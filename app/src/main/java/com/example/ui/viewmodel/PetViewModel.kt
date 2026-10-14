@@ -22,6 +22,7 @@ import java.util.Date
 import java.util.Locale
 import com.petpulse.app.data.repository.FirestoreMarketplaceRepository
 import com.petpulse.app.data.repository.FirestoreCommerceRepository
+import com.petpulse.app.data.remote.CloudinaryUploader
 
 enum class MainNavTab {
     MY_PETS,
@@ -615,6 +616,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
                     verified = p.verified,
                     photoUris = p.photoUris,
+                    photoUrls = p.photoUrls,
                     timeSlots = if (p.category.trim() == "Pet Walker")
                         listOf("Morning 6-9", "Afternoon 12-3", "Evening 4-7") else emptyList()
                 )
@@ -641,7 +643,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     priceEstimate = "₹ ${p.priceInr.toInt()}",
                     features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
                     verified = p.verified,
-                    photoUris = p.photoUris
+                    photoUris = p.photoUris,
+                    photoUrls = p.photoUrls
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -1488,7 +1491,14 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun updatePetPhoto(photoUri: String) {
         viewModelScope.launch {
             val current = currentPetOrNull() ?: return@launch
-            val updated = current.copy(photoUri = photoUri)
+            // Cloudinary first: host a good-size copy and remember its URL. The local
+            // photoUri is kept as the offline / fallback source, so the user never
+            // sees a broken image if the upload fails.
+            val uploaded = CloudinaryUploader
+                .uploadImage(getApplication(), Uri.parse(photoUri))
+                .getOrNull()
+                .orEmpty()
+            val updated = current.copy(photoUri = photoUri, photoUrl = uploaded)
             firestoreRepo.savePet(updated)
         }
     }
