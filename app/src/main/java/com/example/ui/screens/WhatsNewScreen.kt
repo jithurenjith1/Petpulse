@@ -77,7 +77,7 @@ fun WhatsNewScreen(posts: List<NewsPost> = emptyList()) {
                 }
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(posts) { post ->
+                    items(posts, key = { it.id }) { post ->
                         NewsPostCard(post = post)
                     }
                 }

@@ -654,7 +654,7 @@ fun KeralaHeroLocationBar(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                items(cities) { city ->
+                items(cities, key = { it.id }) { city ->
                     val isSelected = selectedCity.equals(city.name, ignoreCase = true)
                     FilterChip(
                         selected = isSelected,

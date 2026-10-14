@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -237,8 +239,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val isAdmin: StateFlow<Boolean> = commerceRepo.observeIsAdmin()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    val adminOrders: StateFlow<List<AdminOrder>> = signedInUid
-        .flatMapLatest { commerceRepo.observeOrders() }
+    val adminOrders: StateFlow<List<AdminOrder>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observeOrders() }
+            else flowOf(emptyList<AdminOrder>())
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // Live orders of the signed-in customer (My Orders screen)
@@ -249,8 +254,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // Live service bookings (doctor consults + trainer requests) — admin & customer.
     // Re-binds on every auth change (same pattern as orders) so a listener created
     // before sign-in does not latch onto a permission-denied, empty-forever path.
-    val adminBookings: StateFlow<List<ServiceBooking>> = signedInUid
-        .flatMapLatest { commerceRepo.observeBookings() }
+    val adminBookings: StateFlow<List<ServiceBooking>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observeBookings() }
+            else flowOf(emptyList<ServiceBooking>())
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val myBookings: StateFlow<List<ServiceBooking>> = signedInUid
@@ -262,37 +270,59 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     // Admin commission settings per partner (Partner Ledger). Re-binds after
     // sign-in because rules only allow the admin to read this collection.
-    val partnerCommissions: StateFlow<List<PartnerCommission>> = signedInUid
-        .flatMapLatest { commerceRepo.observePartnerCommissions() }
+    val partnerCommissions: StateFlow<List<PartnerCommission>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observePartnerCommissions() }
+            else flowOf(emptyList<PartnerCommission>())
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val shopProducts: StateFlow<List<ShopProduct>> = commerceRepo.observeProducts()
+    // One shared upstream products listener for every derived catalogue below.
+    // Previously each list opened its own full-collection Firestore listener
+    // (12 duplicate listeners, ~550 wasted reads per cold start); they all now
+    // map/filter from this single shared flow.
+    private val allShopProducts: Flow<List<ShopProduct>> = commerceRepo.observeProducts()
+        .shareIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val shopProducts: StateFlow<List<ShopProduct>> = allShopProducts
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // GPS tracker collars (admin-managed products with listType = "GPS")
-    val gpsTrackers: StateFlow<List<ShopProduct>> = commerceRepo.observeProducts()
+    val gpsTrackers: StateFlow<List<ShopProduct>> = allShopProducts
         .map { remote -> remote.filter { it.listType == "GPS" } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // Help & Support tickets and animal rescue reports (admin sees all).
     // All four re-bind after sign-in (rules only allow the admin to read them).
-    val supportTickets: StateFlow<List<SupportTicket>> = signedInUid
-        .flatMapLatest { commerceRepo.observeSupportTickets() }
+    val supportTickets: StateFlow<List<SupportTicket>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observeSupportTickets() }
+            else flowOf(emptyList<SupportTicket>())
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val rescueReports: StateFlow<List<RescueReport>> = signedInUid
-        .flatMapLatest { commerceRepo.observeRescueReports() }
+    val rescueReports: StateFlow<List<RescueReport>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observeRescueReports() }
+            else flowOf(emptyList<RescueReport>())
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // "I saw this pet" sighting reports. Admin sees all details; the public SOS
     // page only checks whether a report exists for an alert (never shows the finder).
-    val foundReports: StateFlow<List<FoundPetReport>> = signedInUid
-        .flatMapLatest { commerceRepo.observeFoundReports() }
+    val foundReports: StateFlow<List<FoundPetReport>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observeFoundReports() }
+            else flowOf(emptyList<FoundPetReport>())
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     // Partner applications (business join forms + featured plan requests) - admin reviews
-    val partnerApplications: StateFlow<List<PartnerApplication>> = signedInUid
-        .flatMapLatest { commerceRepo.observePartnerApplications() }
+    val partnerApplications: StateFlow<List<PartnerApplication>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observePartnerApplications() }
+            else flowOf(emptyList<PartnerApplication>())
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val marketPets: StateFlow<List<MarketPet>> = combine(
         _marketPetsList,
@@ -312,13 +342,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val keralaCities: StateFlow<List<KeralaCity>> = flowOf(marketplaceRepo.getKeralaCities())
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getKeralaCities())
 
-    val marketFoods: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
+    val marketFoods: StateFlow<List<MarketProduct>> = allShopProducts
         .map { remote -> remote.filter { it.listType == "Food" }.map { it.toMarketProduct() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** Food list filtered by the Shop-by-pet / Food-type / Life-stage chips. */
     val marketFoodsFiltered: StateFlow<List<MarketProduct>> =
-        combine(commerceRepo.observeProducts(), _foodPetType, _foodKind, _foodStage) { prods, pet, kind, stage ->
+        combine(allShopProducts, _foodPetType, _foodKind, _foodStage) { prods, pet, kind, stage ->
             prods.filter { it.listType == "Food" }
                 .filter { pet == "All" || it.petType == pet }
                 .filter { kind == "All" || it.foodType == kind }
@@ -326,11 +356,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 .map { it.toMarketProduct() }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val marketMedicines: StateFlow<List<MarketProduct>> = commerceRepo.observeProducts()
+    val marketMedicines: StateFlow<List<MarketProduct>> = allShopProducts
         .map { remote -> remote.filter { it.listType == "Medicine" }.map { it.toMarketProduct() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val groomingServices: StateFlow<List<GroomingServiceItem>> = commerceRepo.observeProducts()
+    val groomingServices: StateFlow<List<GroomingServiceItem>> = allShopProducts
         .map { remote ->
             remote.filter { it.listType == "Grooming" }.map {
                 GroomingServiceItem(
@@ -532,7 +562,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** Grooming salons: owner-added partners only (Products with listType "Grooming"). */
-    val groomingCenters: StateFlow<List<GroomingCenter>> = commerceRepo.observeProducts()
+    val groomingCenters: StateFlow<List<GroomingCenter>> = allShopProducts
         .map { remote ->
             remote.filter { it.listType == "Grooming" }.map { p ->
                 GroomingCenter(
@@ -568,7 +598,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Accessories: owner-added products only. */
     val marketAccessories: StateFlow<List<AccessoryItem>> =
-        commerceRepo.observeProducts().map { remote ->
+        allShopProducts.map { remote ->
             remote.filter { it.listType == "Accessory" }.map { p ->
                 AccessoryItem(
                     name = p.name,
@@ -582,7 +612,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Training programs: owner-added programs only. */
     val marketTrainingGuides: StateFlow<List<TrainingGuide>> =
-        commerceRepo.observeProducts().map { remote ->
+        allShopProducts.map { remote ->
             remote.filter { it.listType == "Training" }.map { p ->
                 TrainingGuide(
                     title = p.name,
@@ -596,7 +626,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Food subscriptions: owner-added plans only. */
     val marketFoodSubscriptions: StateFlow<List<FoodSubscription>> =
-        commerceRepo.observeProducts().map { remote ->
+        allShopProducts.map { remote ->
             remote.filter { it.listType == "Subscription" }.map { p ->
                 FoodSubscription(
                     title = p.name,
@@ -611,7 +641,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Boarding & sitters: owner-added partners only. */
     val marketBoardingSitters: StateFlow<List<BoardingSitter>> =
-        commerceRepo.observeProducts().map { remote ->
+        allShopProducts.map { remote ->
             val knownSitterTypes = listOf("Full Day (24hr)", "Per Day Care", "Pet Night Care", "Feed on Time Only", "Pet Walker")
             remote.filter { it.listType == "Boarding" }.map { p ->
                 BoardingSitter(
@@ -639,7 +669,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
      * that powers boarding / sitters / walkers.
      */
     val marketTrainerPartners: StateFlow<List<BoardingSitter>> =
-        commerceRepo.observeProducts().map { remote ->
+        allShopProducts.map { remote ->
             val knownSpecialities = listOf("Trainer", "Behaviourist", "Obedience")
             remote.filter { it.listType == "Trainer" }.map { p ->
                 BoardingSitter(
@@ -1528,39 +1558,45 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
      * <=150 KB) for the cloud-side fallback copy stored in [UserPet.photoData].
      * Returns "" when the photo cannot be read or compressed.
      */
-    private fun petPhotoBase64(uri: Uri): String {
-        return try {
-            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            getApplication<Application>().contentResolver.openInputStream(uri)?.use {
-                BitmapFactory.decodeStream(it, null, bounds)
+    private suspend fun petPhotoBase64(uri: Uri): String {
+        return withContext(Dispatchers.Default) {
+            try {
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                getApplication<Application>().contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, bounds)
+                }
+                var sample = 1
+                while (maxOf(bounds.outWidth, bounds.outHeight) / sample > PET_PHOTO_MAX_DIM * 2) sample *= 2
+                val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+                val decoded = getApplication<Application>().contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, opts)
+                }
+                if (decoded == null) {
+                    ""
+                } else {
+                    val scale = minOf(1f, PET_PHOTO_MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
+                    val bmp = if (scale < 1f) {
+                        Bitmap.createScaledBitmap(
+                            decoded,
+                            (decoded.width * scale).toInt().coerceAtLeast(1),
+                            (decoded.height * scale).toInt().coerceAtLeast(1),
+                            true
+                        )
+                    } else decoded
+                    val out = ByteArrayOutputStream()
+                    var quality = 78
+                    bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+                    while (out.size() > PET_PHOTO_BUDGET_BYTES && quality > 30) {
+                        quality -= 16
+                        out.reset()
+                        bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+                    }
+                    Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "pet photo base64 failed", e)
+                ""
             }
-            var sample = 1
-            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > PET_PHOTO_MAX_DIM * 2) sample *= 2
-            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
-            val decoded = getApplication<Application>().contentResolver.openInputStream(uri)?.use {
-                BitmapFactory.decodeStream(it, null, opts)
-            } ?: return ""
-            val scale = minOf(1f, PET_PHOTO_MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
-            val bmp = if (scale < 1f) {
-                Bitmap.createScaledBitmap(
-                    decoded,
-                    (decoded.width * scale).toInt().coerceAtLeast(1),
-                    (decoded.height * scale).toInt().coerceAtLeast(1),
-                    true
-                )
-            } else decoded
-            val out = ByteArrayOutputStream()
-            var quality = 78
-            bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
-            while (out.size() > PET_PHOTO_BUDGET_BYTES && quality > 30) {
-                quality -= 16
-                out.reset()
-                bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
-            }
-            Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
-        } catch (e: Exception) {
-            android.util.Log.e("PetViewModel", "pet photo base64 failed", e)
-            ""
         }
     }
 

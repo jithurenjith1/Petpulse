@@ -533,7 +533,7 @@ private fun BookingsAdminTab(
         return
     }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(shown) { booking ->
+        items(shown, key = { it.id }) { booking ->
             AdminBookingCard(booking = booking, onAssign = onAssign, onUpdateStatus = onUpdateStatus)
         }
     }
@@ -964,7 +964,7 @@ private fun OrdersAdminTab(
         return
     }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(orders) { order ->
+        items(orders, key = { it.id }) { order ->
             AdminOrderCard(order = order, onAssign = onAssign, onUpdateStatus = onUpdateStatus)
         }
     }
@@ -1232,7 +1232,7 @@ private fun ProductsAdminTab(
                 )
             }
         } else {
-            items(shown) { p ->
+            items(shown, key = { it.id }) { p ->
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -1310,7 +1310,7 @@ private fun DealersAdminTab(
                 )
             }
         } else {
-            items(dealers) { d ->
+            items(dealers, key = { it.id }) { d ->
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -1457,7 +1457,7 @@ private fun VetsAdminTab(
                 )
             }
         } else {
-            items(vets) { vet ->
+            items(vets, key = { it.id }) { vet ->
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
                         Row(
@@ -1599,7 +1599,7 @@ private fun NewsAdminTab(
                 )
             }
         } else {
-            items(posts) { post ->
+            items(posts, key = { it.id }) { post ->
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(12.dp),

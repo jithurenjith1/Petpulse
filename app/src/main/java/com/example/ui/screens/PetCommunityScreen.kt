@@ -166,7 +166,7 @@ fun PetCommunityScreen(
                         }
                     }
                 } else {
-                    items(posts) { post ->
+                    items(posts, key = { it.id }) { post ->
                         PostCard(
                             post = post,
                             isOwnPost = post.ownerId == currentUid,

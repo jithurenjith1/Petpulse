@@ -14,6 +14,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.concurrent.Executors
@@ -169,41 +171,46 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
     }
 
     /** Downscale + JPEG-compress a picked photo, return base64 (or null). */
-    private fun compressToBase64(uri: Uri): String? {
-        return try {
-            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            appContext.contentResolver.openInputStream(uri)?.use {
-                BitmapFactory.decodeStream(it, null, bounds)
-            }
-            var sample = 1
-            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > MAX_DIM * 2) sample *= 2
-            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
-            val decoded = appContext.contentResolver.openInputStream(uri)?.use {
-                BitmapFactory.decodeStream(it, null, opts)
-            } ?: return null
+    private suspend fun compressToBase64(uri: Uri): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                appContext.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, bounds)
+                }
+                var sample = 1
+                while (maxOf(bounds.outWidth, bounds.outHeight) / sample > MAX_DIM * 2) sample *= 2
+                val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+                val decoded = appContext.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, opts)
+                }
+                if (decoded == null) {
+                    null
+                } else {
+                    val scale = minOf(1f, MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
+                    val bmp = if (scale < 1f) {
+                        Bitmap.createScaledBitmap(
+                            decoded,
+                            (decoded.width * scale).toInt().coerceAtLeast(1),
+                            (decoded.height * scale).toInt().coerceAtLeast(1),
+                            true
+                        )
+                    } else decoded
 
-            val scale = minOf(1f, MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
-            val bmp = if (scale < 1f) {
-                Bitmap.createScaledBitmap(
-                    decoded,
-                    (decoded.width * scale).toInt().coerceAtLeast(1),
-                    (decoded.height * scale).toInt().coerceAtLeast(1),
-                    true
-                )
-            } else decoded
-
-            val out = ByteArrayOutputStream()
-            var quality = 78
-            bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
-            while (out.size() > PHOTO_BUDGET_BYTES && quality > 30) {
-                quality -= 16
-                out.reset()
-                bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+                    val out = ByteArrayOutputStream()
+                    var quality = 78
+                    bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+                    while (out.size() > PHOTO_BUDGET_BYTES && quality > 30) {
+                        quality -= 16
+                        out.reset()
+                        bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+                    }
+                    Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+                }
+            } catch (e: Exception) {
+                Log.e("FsMarketRepo", "photo compress failed", e)
+                null
             }
-            Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
-        } catch (e: Exception) {
-            Log.e("FsMarketRepo", "photo compress failed", e)
-            null
         }
     }
 }

@@ -437,7 +437,7 @@ fun PartnersServicesScreen(
                     }
                 }
 
-                items(petListings) { listing ->
+                items(petListings, key = { it.id }) { listing ->
                     PetListingCard(
                         listing = listing,
                         onContact = { onActionNotification("Contacting ${listing.postedBy} at ${listing.contactNumber}") }
@@ -468,7 +468,7 @@ fun PartnersServicesScreen(
                         )
                     }
                 } else {
-                    items(newsPosts) { post ->
+                    items(newsPosts, key = { it.id }) { post ->
                         NewsPostCard(post = post, modifier = Modifier.padding(horizontal = 16.dp))
                     }
                 }
