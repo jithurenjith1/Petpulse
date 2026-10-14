@@ -15,7 +15,11 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.launch
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Base64
+import java.io.ByteArrayOutputStream
 import com.petpulse.app.R
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -49,6 +53,12 @@ enum class PartnerSubTab {
 }
 
 class PetViewModel(application: Application) : AndroidViewModel(application) {
+
+    private companion object {
+        // Cloud-side fallback pet-photo encoding: long edge ~1400 px, <=150 KB.
+        private const val PET_PHOTO_MAX_DIM = 1400
+        private const val PET_PHOTO_BUDGET_BYTES = 150_000
+    }
 
     private val repository: PetRepository
     private val marketplaceRepo: MarketplaceRepository = MarketplaceRepository()
@@ -1498,8 +1508,59 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 .uploadImage(getApplication(), Uri.parse(photoUri))
                 .getOrNull()
                 .orEmpty()
-            val updated = current.copy(photoUri = photoUri, photoUrl = uploaded)
+            // A hosted URL is the ideal cloud-side copy. When the upload yields
+            // nothing (offline, preset rejection), store the photo itself as base64
+            // in Firestore instead, so a CLOUD-SIDE copy ALWAYS exists and survives an
+            // uninstall (the device photoUri does not). The previous base64 is kept if
+            // this re-compression fails, and dropped once a hosted URL exists.
+            val photoData = if (uploaded.isBlank()) {
+                petPhotoBase64(Uri.parse(photoUri)).ifBlank { current.photoData }
+            } else {
+                ""
+            }
+            val updated = current.copy(photoUri = photoUri, photoUrl = uploaded, photoData = photoData)
             firestoreRepo.savePet(updated)
+        }
+    }
+
+    /**
+     * Downscale + JPEG-compress a picked photo to base64 (long edge ~1400 px, target
+     * <=150 KB) for the cloud-side fallback copy stored in [UserPet.photoData].
+     * Returns "" when the photo cannot be read or compressed.
+     */
+    private fun petPhotoBase64(uri: Uri): String {
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            getApplication<Application>().contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, bounds)
+            }
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > PET_PHOTO_MAX_DIM * 2) sample *= 2
+            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+            val decoded = getApplication<Application>().contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, opts)
+            } ?: return ""
+            val scale = minOf(1f, PET_PHOTO_MAX_DIM.toFloat() / maxOf(decoded.width, decoded.height, 1))
+            val bmp = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    decoded,
+                    (decoded.width * scale).toInt().coerceAtLeast(1),
+                    (decoded.height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else decoded
+            val out = ByteArrayOutputStream()
+            var quality = 78
+            bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            while (out.size() > PET_PHOTO_BUDGET_BYTES && quality > 30) {
+                quality -= 16
+                out.reset()
+                bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            }
+            Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+        } catch (e: Exception) {
+            android.util.Log.e("PetViewModel", "pet photo base64 failed", e)
+            ""
         }
     }
 

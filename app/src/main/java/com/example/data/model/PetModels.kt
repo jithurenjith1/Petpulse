@@ -42,7 +42,14 @@ data class UserPet(
     // Cloudinary URL of the pet's profile photo. Defaulted so Room and Firestore
     // toObject() keep working for pets that predate this field. Empty means the
     // app falls back to the local `photoUri` (or the default avatar).
-    val photoUrl: String = ""
+    val photoUrl: String = "",
+    // Base64 JPEG of the pet's profile photo, stored in the Firestore pet document
+    // so a CLOUD-SIDE copy of the photo always exists. The local `photoUri` is a
+    // device content:// URI that is dead after an uninstall, so when the Cloudinary
+    // upload produced no hosted URL this base64 is the only thing that lets a
+    // freshly reinstalled app restore the photo. Defaulted so Room and Firestore
+    // toObject() keep working for pets that predate this field. Empty = none.
+    val photoData: String = ""
 )
 
 /** A real community post, stored in Firestore "community_posts". */

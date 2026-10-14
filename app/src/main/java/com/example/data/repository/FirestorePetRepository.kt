@@ -7,6 +7,7 @@ import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.petpulse.app.data.model.CustomerProfile
 import com.petpulse.app.data.model.UserPet
@@ -75,7 +76,7 @@ class FirestorePetRepository(private val appContext: Context) {
             var maxId = 0L
             snapshot?.documents?.forEach { doc ->
                 try {
-                    val pet = doc.toObject(UserPet::class.java)
+                    val pet = petFromDoc(doc)
                     if (pet != null) {
                         val stableId = stableIdOf(doc.id)
                         petDocIdMap[stableId] = doc.id
@@ -105,7 +106,7 @@ class FirestorePetRepository(private val appContext: Context) {
                     if (stableId == petId) {
                         petDocIdMap[petId] = doc.id
                         val pet = try {
-                            doc.toObject(UserPet::class.java)?.copy(id = petId)
+                            petFromDoc(doc)?.copy(id = petId)
                         } catch (e: Exception) {
                             Log.e("FirestorePetRepo", "Malformed pet doc ${doc.id}", e)
                             null
@@ -132,7 +133,7 @@ class FirestorePetRepository(private val appContext: Context) {
                     return@addSnapshotListener
                 }
                 val pet = try {
-                    snapshot?.toObject(UserPet::class.java)?.copy(id = petId)
+                    snapshot?.let { petFromDoc(it) }?.copy(id = petId)
                 } catch (e: Exception) {
                     Log.e("FirestorePetRepo", "Malformed pet snapshot", e)
                     null
@@ -403,6 +404,40 @@ class FirestorePetRepository(private val appContext: Context) {
         }
     }
 
+    /** Decodes a cloud-side base64 pet photo into a cache file for Coil. */
+    private fun petPhotoFileFor(docId: String, base64Data: String): String {
+        return try {
+            val dir = File(appContext.cacheDir, "pet_photos").apply { mkdirs() }
+            // Name the file after the data so a changed photo never reuses a stale
+            // cache file, while an unchanged photo is decoded only once.
+            val f = File(dir, "${docId}_${base64Data.hashCode()}.jpg")
+            if (!f.exists()) {
+                val bytes = Base64.decode(base64Data, Base64.NO_WRAP)
+                f.writeBytes(bytes)
+            }
+            f.absolutePath
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "pet photo decode failed for $docId", e)
+            ""
+        }
+    }
+
+    /**
+     * Build a UserPet from a Firestore pet document. `photoUrl` is read explicitly
+     * and, when there is no hosted URL but the cloud-side base64 `photoData` is
+     * present, that base64 is decoded into a cache file and used as the local photo
+     * source. This is what lets a freshly reinstalled app restore the pet photo from
+     * the cloud even when the Cloudinary upload produced no hosted URL. The stored
+     * `photoUri` (a device content:// URI) is only a last-resort fallback.
+     */
+    private fun petFromDoc(doc: DocumentSnapshot): UserPet? {
+        val pet = doc.toObject(UserPet::class.java) ?: return null
+        if (pet.photoUrl.isNotBlank()) return pet
+        if (pet.photoData.isBlank()) return pet
+        val restored = petPhotoFileFor(doc.id, pet.photoData)
+        return if (restored.isBlank()) pet else pet.copy(photoUri = restored)
+    }
+
     /** Downscale + JPEG-compress a certificate photo, return base64 (or null). */
     private fun compressCertToBase64(uri: Uri): String? {
         return try {
@@ -511,6 +546,7 @@ class FirestorePetRepository(private val appContext: Context) {
             "avatarRes" to pet.avatarRes,
             "photoUri" to pet.photoUri,
             "photoUrl" to pet.photoUrl,
+            "photoData" to pet.photoData,
             "notes" to pet.notes,
             "aiAnalysis" to pet.aiAnalysis,
             "qrPublicId" to pet.qrPublicId
@@ -652,6 +688,10 @@ class FirestorePetRepository(private val appContext: Context) {
      * compressed here the same way certificate photos are.
      */
     private fun photoBase64For(pet: UserPet): String {
+        // Prefer the cloud-side base64 copy already stored on the pet document: it
+        // is the only usable source after a reinstall, when the local photoUri is a
+        // dead device URI.
+        if (pet.photoData.isNotBlank()) return pet.photoData
         val uriStr = pet.photoUri
         if (uriStr.isBlank()) return ""
         return try {

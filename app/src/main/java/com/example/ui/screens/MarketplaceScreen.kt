@@ -17,6 +17,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +40,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.petpulse.app.data.model.*
 import com.petpulse.app.ui.theme.*
 
@@ -83,6 +88,11 @@ fun MarketplaceScreen(
     modifier: Modifier = Modifier
 ) {
     var listingToDelete by remember { mutableStateOf<MarketPet?>(null) }
+
+    // Photo-viewer state is HOISTED above the LazyColumn so no remember(...) ever
+    // lives inside a lazy content lambda.
+    var productViewerPhotos by remember { mutableStateOf<List<String>>(emptyList()) }
+    var productViewerStart by remember { mutableIntStateOf(0) }
 
     LazyColumn(
         modifier = modifier
@@ -212,7 +222,11 @@ fun MarketplaceScreen(
                 items(foods, key = { it.id }) { food ->
                     MarketProductCard(
                         product = food,
-                        onAddToCart = { onAddToCart(food) }
+                        onAddToCart = { onAddToCart(food) },
+                        onViewPhotos = { photos, start ->
+                            productViewerPhotos = photos
+                            productViewerStart = start
+                        }
                     )
                 }
 
@@ -287,7 +301,11 @@ fun MarketplaceScreen(
                 items(medicines, key = { it.id }) { med ->
                     MarketProductCard(
                         product = med,
-                        onAddToCart = { onAddToCart(med) }
+                        onAddToCart = { onAddToCart(med) },
+                        onViewPhotos = { photos, start ->
+                            productViewerPhotos = photos
+                            productViewerStart = start
+                        }
                     )
                 }
             }
@@ -399,6 +417,14 @@ fun MarketplaceScreen(
                 }
             }
         }
+    }
+
+    if (productViewerPhotos.isNotEmpty()) {
+        MarketPhotoViewerDialog(
+            photos = productViewerPhotos,
+            startIndex = productViewerStart,
+            onDismiss = { productViewerPhotos = emptyList() }
+        )
     }
 
     listingToDelete?.let { pet ->
@@ -1085,7 +1111,8 @@ fun MarketPetCard(
 @Composable
 fun MarketProductCard(
     product: MarketProduct,
-    onAddToCart: () -> Unit
+    onAddToCart: () -> Unit,
+    onViewPhotos: (List<String>, Int) -> Unit = { _, _ -> }
 ) {
     Card(
         modifier = Modifier
@@ -1097,6 +1124,10 @@ fun MarketProductCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
+            // Prefer the hosted Cloudinary URLs; fall back to the local base64 photos.
+            val productPhotos = if (product.photoUrls.isNotEmpty()) product.photoUrls else product.photoUris
+            val photoCount = productPhotos.size
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1109,28 +1140,47 @@ fun MarketProductCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(50.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .size(92.dp)
+                            .clip(RoundedCornerShape(12.dp))
                             .background(
                                 MaterialTheme.colorScheme.surfaceVariant
-                            ),
+                            )
+                            .then(
+                                if (photoCount > 0) Modifier.clickable { onViewPhotos(productPhotos, 0) } else Modifier
+                            )
+                            .testTag("product_photo_${product.id}"),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Prefer the hosted Cloudinary URLs; fall back to the local base64 photos.
-                        val productPhotos = if (product.photoUrls.isNotEmpty()) product.photoUrls else product.photoUris
-                        if (productPhotos.isNotEmpty()) {
+                        if (photoCount > 0) {
                             AsyncImage(
                                 model = productPhotos.first(),
                                 contentDescription = product.name,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
+                            if (photoCount > 1) {
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color.Black.copy(alpha = 0.55f),
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(4.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.market_photo_counter, 1, photoCount),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
                         } else {
                             Icon(
                                 imageVector = if (product.isMedicine) Icons.Default.Medication else Icons.Default.ShoppingBag,
                                 contentDescription = product.name,
                                 tint = if (product.isMedicine) Color(0xFF2E7D32) else Color(0xFFE65100),
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(30.dp)
                             )
                         }
                     }
@@ -1171,6 +1221,27 @@ fun MarketProductCard(
                             fontSize = 11.sp,
                             textDecoration = TextDecoration.LineThrough,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            // Thumbnail strip for photos 2..N - mirrors the market-pet gallery strip.
+            // Each thumbnail opens the full-screen viewer at that index.
+            if (photoCount > 1) {
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    itemsIndexed(productPhotos.drop(1)) { offset, uri ->
+                        val index = offset + 1
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = product.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onViewPhotos(productPhotos, index) }
+                                .testTag("product_thumb_${product.id}_$index")
                         )
                     }
                 }
@@ -1612,3 +1683,90 @@ private fun FoodFilterRow(
         }
     }
 }
+
+/**
+ * Full-screen swipeable viewer for a product's uploaded photos.
+ *
+ * Reuses the same pager pattern as the market-pet gallery / onboarding slides:
+ * a HorizontalPager driven by rememberPagerState, a "1/N" counter and a close
+ * button. Opened by tapping the product card photo or any thumbnail. Images use
+ * ContentScale.Fit so nothing is cropped in the large view.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MarketPhotoViewerDialog(
+    photos: List<String>,
+    startIndex: Int = 0,
+    onDismiss: () -> Unit = {}
+) {
+    if (photos.isEmpty()) return
+
+    val safeStart = startIndex.coerceIn(0, photos.size - 1)
+    val pagerState = rememberPagerState(initialPage = safeStart, pageCount = { photos.size })
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.market_photo_viewer_title),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.market_close),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(320.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) { page ->
+                AsyncImage(
+                    model = photos[page],
+                    contentDescription = productPhotoDescription(page, photos.size),
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(
+                    R.string.market_photo_counter,
+                    pagerState.currentPage + 1,
+                    photos.size
+                ),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+/** Simple accessibility label for a photo page, e.g. "Photo 2 of 3". */
+private fun productPhotoDescription(page: Int, total: Int): String = "Photo " + (page + 1) + " of " + total
