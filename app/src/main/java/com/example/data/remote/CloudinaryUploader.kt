@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit
  */
 object CloudinaryUploader {
 
-    private const val CLOUD_NAME = "PASTE_YOUR_CLOUD_NAME"
-    private const val UPLOAD_PRESET = "PASTE_YOUR_PRESET_NAME"
+    private const val CLOUD_NAME = "bero8q5b"
+    private const val UPLOAD_PRESET = "wagmiya_unsigned"
 
     private const val TAG = "CloudinaryUploader"
 
