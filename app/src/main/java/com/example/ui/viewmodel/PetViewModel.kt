@@ -282,7 +282,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // (12 duplicate listeners, ~550 wasted reads per cold start); they all now
     // map/filter from this single shared flow.
     private val allShopProducts: Flow<List<ShopProduct>> = commerceRepo.observeProducts()
-        .shareIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 1)
 
     val shopProducts: StateFlow<List<ShopProduct>> = allShopProducts
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
