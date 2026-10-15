@@ -1,5 +1,8 @@
 package com.petpulse.app.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.petpulse.app.R
+import com.petpulse.app.ui.components.EmptyStateCard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -273,8 +276,19 @@ fun PetCareTipsScreen() {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item { Spacer(modifier = Modifier.height(4.dp)) }
-                    items(filteredTips) { tip ->
-                        CareTipCard(tip = tip, isMalayalam = isMalayalam)
+                    if (filteredTips.isEmpty()) {
+                        item {
+                            EmptyStateCard(
+                                title = stringResource(R.string.empty_filter_title),
+                                body = stringResource(R.string.empty_filter_body),
+                                actionLabel = stringResource(R.string.empty_show_all),
+                                onAction = { selectedCategory = null }
+                            )
+                        }
+                    } else {
+                        items(filteredTips) { tip ->
+                            CareTipCard(tip = tip, isMalayalam = isMalayalam)
+                        }
                     }
                     item { Spacer(modifier = Modifier.height(16.dp)) }
                 }

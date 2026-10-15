@@ -10,6 +10,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -107,7 +109,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null) {
     // Theme preference - collected here (not just in MainActivity's setContent scope) so the
@@ -279,21 +281,24 @@ val appCtx = LocalContext.current
             )
             // Feature buttons grid — shown ONLY in My Pet section
             if (currentTab == MainNavTab.MY_PETS) {
-            androidx.compose.foundation.lazy.LazyRow(
+            // Feature tabs - wrapped onto two rows so all 11 are visible without horizontal scrolling
+            androidx.compose.foundation.layout.FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                maxItemsInEachRow = 6
             ) {
-                item { FeatureButton(stringResource(R.string.whatsnew_tab), MaterialTheme.colorScheme.primary) { showWhatsNewScreen = true } }
-                item { FeatureButton("Nearby", MaterialTheme.colorScheme.primary) { showMapScreen = true } }
-                item { FeatureButton("Insurance", MaterialTheme.colorScheme.primary) { showInsuranceScreen = true } }
-                item { FeatureButton("Community", MaterialTheme.colorScheme.primary) { showCommunityScreen = true } }
-                item { FeatureButton("Care Tips", MaterialTheme.colorScheme.primary) { showCareTipsScreen = true } }
-                item { FeatureButton("AI Triage", Color(0xFFA87A1F)) { showSymptomScreen = true } }
-                item { FeatureButton("Vet Online", Color(0xFFA87A1F)) { showVetScreen = true } }
-                item { FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true } }
-                item { FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true } }
-                item { FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFD62828)) { showEmergencyScreen = true } }
-                item { FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary) { showServicePriceScreen = true } }
+                FeatureButton(stringResource(R.string.whatsnew_tab), MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showWhatsNewScreen = true }
+                FeatureButton("Nearby", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showMapScreen = true }
+                FeatureButton("Insurance", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showInsuranceScreen = true }
+                FeatureButton("Community", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showCommunityScreen = true }
+                FeatureButton("Care Tips", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showCareTipsScreen = true }
+                FeatureButton("AI Triage", Color(0xFFA87A1F), Modifier.weight(1f)) { showSymptomScreen = true }
+                FeatureButton("Vet Online", Color(0xFFA87A1F), Modifier.weight(1f)) { showVetScreen = true }
+                FeatureButton("Care Plan", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showSubscriptionScreen = true }
+                FeatureButton("Records", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showHealthRecordsScreen = true }
+                FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFD62828), Modifier.weight(1f)) { showEmergencyScreen = true }
+                FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showServicePriceScreen = true }
             }
             }
 
@@ -959,10 +964,10 @@ val appCtx = LocalContext.current
 }
 
 @Composable
-private fun FeatureButton(label: String, color: Color, onClick: () -> Unit) {
+private fun FeatureButton(label: String, color: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = Modifier.height(36.dp),
+        modifier = modifier.height(36.dp),
         shape = RoundedCornerShape(18.dp),
         colors = ButtonDefaults.buttonColors(containerColor = color),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp)

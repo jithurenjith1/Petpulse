@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.petpulse.app.data.model.*
 import com.petpulse.app.ui.theme.*
 import com.petpulse.app.ui.viewmodel.ExploreSubTab
+import com.petpulse.app.ui.components.EmptyStateCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -236,8 +237,20 @@ fun ExplorePetsScreen(
                 }
 
                 val filteredFood = if (foodCategory == "All") foodItems else foodItems.filter { it.subType == foodCategory }
-                items(filteredFood) { item ->
-                    FoodItemCard(item = item, onAddToList = { onItemAction("Added ${item.name} to cart/diet plan") })
+                if (filteredFood.isEmpty()) {
+                    item {
+                        EmptyStateCard(
+                            title = stringResource(R.string.empty_filter_title),
+                            body = stringResource(R.string.empty_filter_body),
+                            actionLabel = stringResource(R.string.empty_show_all),
+                            onAction = { onSelectFoodCategory("All") },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                } else {
+                    items(filteredFood) { item ->
+                        FoodItemCard(item = item, onAddToList = { onItemAction("Added ${item.name} to cart/diet plan") })
+                    }
                 }
             }
 
@@ -262,8 +275,20 @@ fun ExplorePetsScreen(
                 }
 
                 val filteredAccessories = if (accessoryCategory == "All") accessoryItems else accessoryItems.filter { it.subType == accessoryCategory }
-                items(filteredAccessories) { item ->
-                    AccessoryItemCard(item = item, onBuy = { onItemAction("Selected ${item.name} ($${item.estimatedPrice})") })
+                if (filteredAccessories.isEmpty()) {
+                    item {
+                        EmptyStateCard(
+                            title = stringResource(R.string.empty_filter_title),
+                            body = stringResource(R.string.empty_filter_body),
+                            actionLabel = stringResource(R.string.empty_show_all),
+                            onAction = { onSelectAccessoryCategory("All") },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                } else {
+                    items(filteredAccessories) { item ->
+                        AccessoryItemCard(item = item, onBuy = { onItemAction("Selected ${item.name} ($${item.estimatedPrice})") })
+                    }
                 }
             }
 

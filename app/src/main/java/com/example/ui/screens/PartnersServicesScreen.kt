@@ -38,6 +38,7 @@ import com.petpulse.app.data.model.*
 import com.petpulse.app.ui.components.IdVerifiedBadge
 import com.petpulse.app.ui.theme.*
 import com.petpulse.app.ui.viewmodel.PartnerSubTab
+import com.petpulse.app.ui.components.EmptyStateCard
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -366,11 +367,21 @@ fun PartnersServicesScreen(
                 }
 
                 val filteredSitters = boardingSitters.filter { it.sitterType == boardingType }
-                items(filteredSitters) { sitter ->
-                    BoardingSitterCard(
-                        sitter = sitter,
-                        onBook = { sitterToBook = sitter }
-                    )
+                if (filteredSitters.isEmpty()) {
+                    item {
+                        EmptyStateCard(
+                            title = stringResource(R.string.empty_filter_title),
+                            body = stringResource(R.string.empty_filter_body),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                } else {
+                    items(filteredSitters) { sitter ->
+                        BoardingSitterCard(
+                            sitter = sitter,
+                            onBook = { sitterToBook = sitter }
+                        )
+                    }
                 }
 
                 // Become a verified partner — opens the existing business/partner
@@ -514,11 +525,21 @@ fun PartnersServicesScreen(
                 }
 
                 val filteredTrainers = trainerPartners.filter { it.sitterType == trainerSpeciality }
-                items(filteredTrainers) { trainer ->
-                    BoardingSitterCard(
-                        sitter = trainer,
-                        onBook = { sitterToBook = trainer }
-                    )
+                if (filteredTrainers.isEmpty()) {
+                    item {
+                        EmptyStateCard(
+                            title = stringResource(R.string.empty_filter_title),
+                            body = stringResource(R.string.empty_filter_body),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                } else {
+                    items(filteredTrainers) { trainer ->
+                        BoardingSitterCard(
+                            sitter = trainer,
+                            onBook = { sitterToBook = trainer }
+                        )
+                    }
                 }
 
                 // Become a verified trainer / behaviourist partner — same dialog

@@ -883,4 +883,18 @@
     <string name="emerg_steps_other_4">Keep your pet away from other animals and from stairs.</string>
     <string name="emerg_steps_other_5">Call a vet and describe the signs clearly.</string>
     <string name="emerg_steps_other_6">Follow the vet\'s advice and go in if you are asked to.</string>
+
+    <!-- Empty states and fill-space cards -->
+    <string name="empty_filter_title">Nothing matches this filter</string>
+    <string name="empty_filter_body">Try a different option above to see more here.</string>
+    <string name="empty_show_all">Show all</string>
+    <string name="mypets_food_empty_title">No food likes added yet</string>
+    <string name="mypets_food_empty_body">Add the meals and treats your pet enjoys.</string>
+    <string name="mypets_plays_empty_title">No play likes added yet</string>
+    <string name="mypets_plays_empty_body">Add the toys and games your pet loves.</string>
+    <string name="mypets_add_likes">Add likes</string>
+    <string name="mypets_tip_title">Tip of the day</string>
+    <string name="mypets_tip_1">Introduce new food slowly over a week to avoid an upset stomach.</string>
+    <string name="mypets_tip_2">Keep vaccinations up to date each year to prevent serious illness.</string>
+    <string name="mypets_tip_3">A daily walk or play session helps your pet stay fit and calm.</string>
 </resources>

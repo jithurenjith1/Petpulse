@@ -883,4 +883,18 @@
     <string name="emerg_steps_other_4">മറ്റ് മൃഗങ്ങളിൽ നിന്നും കോണിപ്പടികളിൽ നിന്നും വളർത്തുമൃഗത്തെ അകറ്റുക.</string>
     <string name="emerg_steps_other_5">ഒരു വെറ്ററിനറിയെ വിളിച്ച് ലക്ഷണങ്ങൾ വ്യക്തമായി വിവരിക്കുക.</string>
     <string name="emerg_steps_other_6">വെറ്ററിനറിയുടെ ഉപദേശം പാലിക്കുക, ആവശ്യപ്പെട്ടാൽ പോകുക.</string>
+
+    <!-- Empty states and fill-space cards -->
+    <string name="empty_filter_title">ഈ ഫിൽട്ടറിന് ഫലങ്ങളില്ല</string>
+    <string name="empty_filter_body">കൂടുതൽ കാണാൻ മുകളിലെ മറ്റൊരു ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക.</string>
+    <string name="empty_show_all">എല്ലാം കാണിക്കുക</string>
+    <string name="mypets_food_empty_title">ഇഷ്ട ഭക്ഷണങ്ങൾ ഇതുവരെ ചേർത്തിട്ടില്ല</string>
+    <string name="mypets_food_empty_body">നിങ്ങളുടെ വളർത്തുമൃഗത്തിന് ഇഷ്ടമുള്ള ഭക്ഷണങ്ങളും ട്രീറ്റുകളും ചേർക്കുക.</string>
+    <string name="mypets_plays_empty_title">ഇഷ്ട കളികൾ ഇതുവരെ ചേർത്തിട്ടില്ല</string>
+    <string name="mypets_plays_empty_body">നിങ്ങളുടെ വളർത്തുമൃഗത്തിന് ഇഷ്ടമുള്ള കളിപ്പാട്ടങ്ങളും കളികളും ചേർക്കുക.</string>
+    <string name="mypets_add_likes">ഇഷ്ടങ്ങൾ ചേർക്കുക</string>
+    <string name="mypets_tip_title">ഇന്നത്തെ നുറുങ്ങ്</string>
+    <string name="mypets_tip_1">ദഹനപ്രശ്നങ്ങൾ ഒഴിവാക്കാൻ പുതിയ ഭക്ഷണം ഒരാഴ്ചയ്ക്കിടയിൽ പതിയെ പരിചയപ്പെടുത്തുക.</string>
+    <string name="mypets_tip_2">ഗുരുതരരോഗങ്ങൾ തടയാൻ ഓരോ വർഷവും വാക്സിനേഷൻ പുതുക്കുക.</string>
+    <string name="mypets_tip_3">പ്രതിദിന നടത്തം അല്ലെങ്കിൽ കളി നിങ്ങളുടെ വളർത്തുമൃഗത്തെ ആരോഗ്യത്തോടെയും ശാന്തമായും നിലനിർത്താൻ സഹായിക്കുന്നു.</string>
 </resources>

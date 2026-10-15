@@ -602,6 +602,10 @@ fun MyPetsScreen(
                 }
             }
         }
+
+        item {
+            PetCareTipCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        }
     }
 
     // Dialogs
@@ -1287,6 +1291,16 @@ fun FoodAndPlaysSubmenuSection(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(stringResource(R.string.mypets_favorite_meals_treats), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
+                if (foodsList.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.mypets_food_empty_title),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    TextButton(onClick = onAddPreferenceClick) {
+                        Text(stringResource(R.string.mypets_add_likes), fontSize = 12.sp)
+                    }
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1316,6 +1330,16 @@ fun FoodAndPlaysSubmenuSection(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(stringResource(R.string.mypets_favorite_toys_play_activities), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
+                if (playsList.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.mypets_plays_empty_title),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    TextButton(onClick = onAddPreferenceClick) {
+                        Text(stringResource(R.string.mypets_add_likes), fontSize = 12.sp)
+                    }
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1336,6 +1360,48 @@ fun FoodAndPlaysSubmenuSection(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PetCareTipCard(modifier: Modifier = Modifier) {
+    val tipResource = remember {
+        val tips = listOf(R.string.mypets_tip_1, R.string.mypets_tip_2, R.string.mypets_tip_3)
+        tips[LocalDate.now().dayOfYear % tips.size]
+    }
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.PrivacyTip,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp)
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = stringResource(R.string.mypets_tip_title),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(tipResource),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
