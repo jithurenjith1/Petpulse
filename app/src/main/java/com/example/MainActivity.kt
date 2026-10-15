@@ -288,20 +288,19 @@ val appCtx = LocalContext.current
             androidx.compose.foundation.layout.FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                maxItemsInEachRow = 6
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                FeatureButton(stringResource(R.string.whatsnew_tab), MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showWhatsNewScreen = true }
-                FeatureButton("Nearby", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showMapScreen = true }
-                FeatureButton("Insurance", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showInsuranceScreen = true }
-                FeatureButton("Community", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showCommunityScreen = true }
-                FeatureButton("Care Tips", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showCareTipsScreen = true }
-                FeatureButton("AI Triage", Color(0xFFA87A1F), Modifier.weight(1f)) { showSymptomScreen = true }
-                FeatureButton("Vet Online", Color(0xFFA87A1F), Modifier.weight(1f)) { showVetScreen = true }
-                FeatureButton("Care Plan", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showSubscriptionScreen = true }
-                FeatureButton("Records", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showHealthRecordsScreen = true }
-                FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFD62828), Modifier.weight(1f)) { showEmergencyScreen = true }
-                FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { showServicePriceScreen = true }
+                FeatureButton(stringResource(R.string.whatsnew_tab), MaterialTheme.colorScheme.primary) { showWhatsNewScreen = true }
+                FeatureButton("Nearby", MaterialTheme.colorScheme.primary) { showMapScreen = true }
+                FeatureButton("Insurance", MaterialTheme.colorScheme.primary) { showInsuranceScreen = true }
+                FeatureButton("Community", MaterialTheme.colorScheme.primary) { showCommunityScreen = true }
+                FeatureButton("Care Tips", MaterialTheme.colorScheme.primary) { showCareTipsScreen = true }
+                FeatureButton("AI Triage", Color(0xFFA87A1F)) { showSymptomScreen = true }
+                FeatureButton("Vet Online", Color(0xFFA87A1F)) { showVetScreen = true }
+                FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true }
+                FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true }
+                FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFD62828)) { showEmergencyScreen = true }
+                FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary) { showServicePriceScreen = true }
             }
             }
 
@@ -973,9 +972,9 @@ private fun FeatureButton(label: String, color: Color, modifier: Modifier = Modi
         modifier = modifier.height(36.dp),
         shape = RoundedCornerShape(18.dp),
         colors = ButtonDefaults.buttonColors(containerColor = color),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp)
     ) {
-        Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color.White)
+        Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color.White, maxLines = 1, softWrap = false)
     }
 }
 
