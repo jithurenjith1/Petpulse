@@ -269,6 +269,8 @@ val appCtx = LocalContext.current
         Column(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
+            // Pet selector row — shown ONLY in My Pet section
+            if (currentTab == MainNavTab.MY_PETS) {
             PetSwitcher(
                 pets = allPets,
                 activePetId = activePetId,
@@ -279,6 +281,7 @@ val appCtx = LocalContext.current
                     coroutineScope.launch { snackbarHostState.showSnackbar("Pet '" + pet.name + "' removed") }
                 }
             )
+            }
             // Feature buttons grid — shown ONLY in My Pet section
             if (currentTab == MainNavTab.MY_PETS) {
             // Feature tabs - wrapped onto two rows so all 11 are visible without horizontal scrolling
