@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.launch
 import coil.compose.AsyncImage
 import com.petpulse.app.data.model.*
 import com.petpulse.app.ui.theme.*
@@ -517,6 +518,11 @@ fun SecureEscrowCheckoutModal(
     var customerPhone by remember { mutableStateOf(customer.phone) }
     val paymentMethod = "Cash on Delivery (COD)"
     var prescriptionAttached by remember { mutableStateOf(false) }
+    // Duplicate-submit guard: while an order is being placed the confirm button
+    // is disabled and any further tap is ignored. The flag is set before the
+    // click is handled and cleared in a finally block.
+    var placing by remember { mutableStateOf(false) }
+    val placingScope = rememberCoroutineScope()
     // Optional accident-cover add-on. Purely opt-in and removable; the order is
     // placed exactly as before when it is off.
     var accidentCover by remember { mutableStateOf(false) }
@@ -852,8 +858,18 @@ fun SecureEscrowCheckoutModal(
                                 }
 
                                 Button(
+                                    enabled = !placing,
                                     onClick = {
-                                        onConfirmOrder(deliveryCity, streetAddress, customerName, customerPhone, paymentMethod, accidentCover)
+                                        if (!placing) {
+                                            placing = true
+                                            placingScope.launch {
+                                                try {
+                                                    onConfirmOrder(deliveryCity, streetAddress, customerName, customerPhone, paymentMethod, accidentCover)
+                                                } finally {
+                                                    placing = false
+                                                }
+                                            }
+                                        }
                                     },
                                     shape = RoundedCornerShape(10.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
@@ -1439,6 +1455,9 @@ fun DoctorBookingModal(
     var problemNotes by remember { mutableStateOf("") }
     // Optional wellness / OPD cover bundle - dismissible and never blocks the booking.
     var showCoverBundle by remember { mutableStateOf(true) }
+    // Duplicate-submit guard for the booking confirm button.
+    var placing by remember { mutableStateOf(false) }
+    val placingScope = rememberCoroutineScope()
 
     val fee = if (consultType.contains("Video")) doctor.videoConsultFeeInr else doctor.inPersonConsultFeeInr
 
@@ -1648,9 +1667,19 @@ fun DoctorBookingModal(
                 // Confirm Button
                 item {
                     Button(
+                        enabled = !placing,
                         onClick = {
-                            onConfirm(consultType, petName, customerPhone, selectedDate, selectedSlot, problemNotes)
-                            onDismiss()
+                            if (!placing) {
+                                placing = true
+                                placingScope.launch {
+                                    try {
+                                        onConfirm(consultType, petName, customerPhone, selectedDate, selectedSlot, problemNotes)
+                                        onDismiss()
+                                    } finally {
+                                        placing = false
+                                    }
+                                }
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1682,6 +1711,9 @@ fun TrainerRequestModal(
     var petName by remember { mutableStateOf(defaultPetName) }
     var customerPhone by remember { mutableStateOf(defaultPhone) }
     var trainingNeed by remember { mutableStateOf("") }
+    // Duplicate-submit guard for the booking confirm button.
+    var placing by remember { mutableStateOf(false) }
+    val placingScope = rememberCoroutineScope()
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -1740,9 +1772,19 @@ fun TrainerRequestModal(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
+                    enabled = !placing,
                     onClick = {
-                        onConfirm(petName, customerPhone, trainingNeed)
-                        onDismiss()
+                        if (!placing) {
+                            placing = true
+                            placingScope.launch {
+                                try {
+                                    onConfirm(petName, customerPhone, trainingNeed)
+                                    onDismiss()
+                                } finally {
+                                    placing = false
+                                }
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth().height(46.dp),
                     shape = RoundedCornerShape(10.dp)

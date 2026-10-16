@@ -92,19 +92,43 @@ service cloud.firestore {
     // ---------- orders (COD marketplace orders) ----------
     // CHANGED: create now binds ownerId to the caller (placeOrder() writes
     // ownerId = auth.currentUser.uid).
+    // CHANGED (audit FIX 1): the owner may NO LONGER update arbitrary fields of
+    // their own order. A customer's only legitimate change is to cancel it, so
+    // the owner may touch exactly ONE field - `status` - and only set it to
+    // "CANCELLED". Everything else (status -> ASSIGNED/DELIVERED, totalInr,
+    // discountInr, items, address, dealerName/dealerPhone, ...) is admin-only.
+    // This blocks self-marking an order DELIVERED, editing the total, or
+    // clearing the dealer assignment. Admin keeps full update.
     match /orders/{orderId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow update: if isAdmin()
+        || (isSignedIn()
+            && resource.data.ownerId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+            && request.resource.data.status == 'CANCELLED');
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
     }
 
     // ---------- service bookings (doctor / trainer / grooming) ----------
     // CHANGED: create now binds ownerId to the caller (placeBooking() writes
     // ownerId = auth.currentUser.uid).
+    // CHANGED (audit FIX 1): the owner may NO LONGER update arbitrary fields of
+    // their own booking. The only customer-side status change the app performs
+    // is markBookingReceived() -> "COMPLETED" (plus a customer cancel), so the
+    // owner may touch exactly ONE field - `status` - and only set it to
+    // "COMPLETED" or "CANCELLED". Everything else (status -> CONFIRMED,
+    // assignedName/assignedPhone, feeInr, ...) is admin-only. Admin keeps full
+    // update.
     match /bookings/{bookingId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow update: if isAdmin()
+        || (isSignedIn()
+            && resource.data.ownerId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+            && request.resource.data.status in ['COMPLETED', 'CANCELLED']);
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
     }
 
     // ---------- vet partners (admin managed) ----------

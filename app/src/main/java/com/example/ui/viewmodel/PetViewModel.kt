@@ -922,6 +922,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         else -> 0
     }
 
+    // Duplicate-submit guard for checkout / booking confirms. True while an
+    // order or booking write is in flight; the confirm buttons read this to
+    // disable themselves and ignore further taps. Cleared in a finally block.
+    private val _placing = MutableStateFlow(false)
+    val placing: StateFlow<Boolean> = _placing.asStateFlow()
+
     // Escrow Order Placement
     fun placeEscrowOrder(
         city: String,
@@ -1001,21 +1007,26 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
         // Also save the REAL order to Firestore so the owner sees it in Admin
         viewModelScope.launch {
-            val result = commerceRepo.placeOrder(
-                orderNumber = newOrder.orderId,
-                items = items.map { OrderItemSnap(it.title, it.priceInr, it.quantity) },
-                totalInr = total,
-                discountInr = discountAmount,
-                customerName = newOrder.customerName,
-                customerPhone = newOrder.customerPhone,
-                address = newOrder.deliveryAddress,
-                city = newOrder.deliveryCity,
-                accidentCover = addAccidentCover
-            )
-            _commerceEvent.value = when {
-                result.exceptionOrNull()?.message == "NOT_SIGNED_IN" -> R.string.order_sign_in_to_place
-                result.isSuccess -> R.string.order_placed_msg
-                else -> R.string.order_failed_msg
+            _placing.value = true
+            try {
+                val result = commerceRepo.placeOrder(
+                    orderNumber = newOrder.orderId,
+                    items = items.map { OrderItemSnap(it.title, it.priceInr, it.quantity) },
+                    totalInr = total,
+                    discountInr = discountAmount,
+                    customerName = newOrder.customerName,
+                    customerPhone = newOrder.customerPhone,
+                    address = newOrder.deliveryAddress,
+                    city = newOrder.deliveryCity,
+                    accidentCover = addAccidentCover
+                )
+                _commerceEvent.value = when {
+                    result.exceptionOrNull()?.message == "NOT_SIGNED_IN" -> R.string.order_sign_in_to_place
+                    result.isSuccess -> R.string.order_placed_msg
+                    else -> R.string.order_failed_msg
+                }
+            } finally {
+                _placing.value = false
             }
         }
         return newOrder
@@ -1078,7 +1089,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             createdAt = System.currentTimeMillis()
         )
         viewModelScope.launch {
-            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+            _placing.value = true
+            try {
+                _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+            } finally {
+                _placing.value = false
+            }
         }
     }
 
@@ -1100,7 +1116,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             createdAt = System.currentTimeMillis()
         )
         viewModelScope.launch {
-            _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+            _placing.value = true
+            try {
+                _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+            } finally {
+                _placing.value = false
+            }
         }
     }
 

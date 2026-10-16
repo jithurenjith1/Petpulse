@@ -1,3 +1,19 @@
+/*
+ * ============ OWNER ACTION REQUIRED: LOCK DOWN THE UNSIGNED PRESET ============
+ * This file uploads with an UNSIGNED Cloudinary preset. Anyone who extracts the
+ * preset name from the APK can upload arbitrary files to the Cloudinary account,
+ * and the app itself cannot change the preset. The real fix is in the Cloudinary
+ * dashboard. In Cloudinary go to Settings -> Upload -> open your unsigned preset
+ * (wagmiya_unsigned) -> Edit, and apply ALL of these:
+ *   1. Allowed formats: jpg, png, webp  (reject every other file type).
+ *   2. Max file size: 5 MB              (reject oversized uploads).
+ *   3. Incoming transformation: c_limit,w_1600,h_1600  (cap dimensions server-side).
+ *   4. Folder: wagmiya/uploads          (contain all uploads in one folder).
+ *   5. Keep the preset Unsigned, but add no extra unsigned capabilities.
+ * The client-side compression below only keeps the app's own uploads small; the
+ * dashboard settings are what actually contain the abuse.
+ * ==============================================================================
+ */
 package com.petpulse.app.data.remote
 
 import android.content.Context
@@ -51,6 +67,11 @@ object CloudinaryUploader {
     // Good size, not tiny: long edge ~1600 px at JPEG quality ~85.
     private const val MAX_DIM = 1600
     private const val JPEG_QUALITY = 85
+
+    // Safety cap: if the encoded JPEG is still larger than this, step the quality
+    // down (never below MIN_JPEG_QUALITY) so an unsigned-preset upload stays small.
+    private const val MAX_UPLOAD_BYTES = 1_500_000
+    private const val MIN_JPEG_QUALITY = 60
 
     private const val PLACEHOLDER_PREFIX = "PASTE_"
 
@@ -128,9 +149,18 @@ object CloudinaryUploader {
             decoded
         }
 
-        val out = ByteArrayOutputStream()
-        bmp.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, out)
-        return out.toByteArray()
+        // Encode at the preferred quality, then, only if the result is still bigger
+        // than MAX_UPLOAD_BYTES, step the quality down (never below MIN_JPEG_QUALITY).
+        // Dimensions are untouched, so the long edge stays ~MAX_DIM px.
+        var quality = JPEG_QUALITY
+        var bytes: ByteArray
+        do {
+            val out = ByteArrayOutputStream()
+            bmp.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            bytes = out.toByteArray()
+            quality -= 10
+        } while (bytes.size > MAX_UPLOAD_BYTES && quality >= MIN_JPEG_QUALITY)
+        return bytes
     }
 
     /** POST the JPEG as multipart/form-data and pull `secure_url` out of the JSON. */
