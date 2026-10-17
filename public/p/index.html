@@ -264,7 +264,10 @@
       var name = str(fields.petName);
       var species = str(fields.species);
       var breed = str(fields.breed);
-      var photo = str(fields.photoData);
+      // Prefer the Cloudinary URL (photoUrl); fall back to the legacy base64
+      // field (photoData) only when the URL is empty.
+      var photoUrl = str(fields.photoUrl);
+      var photoData = str(fields.photoData);
       var lost = fields.lost && fields.lost.booleanValue === true;
       currentOwnerUid = str(fields.ownerUid);
 
@@ -274,11 +277,19 @@
 
       var holder = document.getElementById("photoHolder");
       holder.innerHTML = "";
-      if (photo) {
-        var img = document.createElement("img");
+      var img = null;
+      if (photoUrl) {
+        img = document.createElement("img");
         img.className = "photo";
         img.alt = name ? (name + " photo") : "Pet photo";
-        img.src = "data:image/jpeg;base64," + photo;
+        img.src = photoUrl;
+      } else if (photoData) {
+        img = document.createElement("img");
+        img.className = "photo";
+        img.alt = name ? (name + " photo") : "Pet photo";
+        img.src = "data:image/jpeg;base64," + photoData;
+      }
+      if (img) {
         holder.appendChild(img);
       } else {
         var ph = document.createElement("div");

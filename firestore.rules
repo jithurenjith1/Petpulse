@@ -28,8 +28,32 @@ service cloud.firestore {
     }
 
     // ---------- users: own pets, vaccinations, certificates, medical reports ----------
+    // CHANGED (audit FIX 2 / CRITICAL): the paid-plan gating fields on the owner's
+    // own profile document (`carePlan` and `carePlanUntil`) are now ADMIN-ONLY.
+    // The owner keeps full read/write of their profile EXCEPT those two fields:
+    // an update is allowed only while both values are unchanged (the app copies
+    // the existing value straight back in saveCustomerProfile(), so ordinary
+    // profile saves still pass). A brand-new profile may be created only with the
+    // free defaults (carePlan == "" and carePlanUntil == 0). This closes the
+    // self-grant: a user can no longer write carePlan = "premium" on their own
+    // document to unlock the 15% discount / free delivery.
     match /users/{uid} {
-      allow read, write: if isSignedIn() && request.auth.uid == uid;
+      allow read: if isSignedIn() && request.auth.uid == uid;
+
+      allow create: if isSignedIn()
+        && request.auth.uid == uid
+        && (!request.resource.data.keys().hasAny(['carePlan'])
+            || request.resource.data.carePlan == '')
+        && (!request.resource.data.keys().hasAny(['carePlanUntil'])
+            || request.resource.data.carePlanUntil == 0);
+
+      allow update: if isAdmin()
+        || (isSignedIn()
+            && request.auth.uid == uid
+            && request.resource.data.get('carePlan', '') == resource.data.get('carePlan', '')
+            && request.resource.data.get('carePlanUntil', 0) == resource.data.get('carePlanUntil', 0));
+
+      allow delete: if isSignedIn() && request.auth.uid == uid;
 
       match /pets/{petId} {
         allow read, write: if isSignedIn() && request.auth.uid == uid;
@@ -71,8 +95,11 @@ service cloud.firestore {
     }
 
     // ---------- market listings (pets listed by users; admin can moderate) ----------
+    // CHANGED (audit FIX 1 / CRITICAL): read was `if true` (world-readable).
+    // Each listing carries the seller's sellerPhone / sellerName / city, so it
+    // is now signed-in only. create / update / delete are unchanged.
     match /market_listings/{listingId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update, delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
     }
@@ -196,6 +223,10 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasAll(['publicId', 'ownerUid', 'createdAt'])
         && request.resource.data.keys().hasOnly(['publicId', 'ownerUid', 'createdAt', 'message', 'lat', 'lng'])
         && request.resource.data.publicId is string
+    match /news_posts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
         && request.resource.data.ownerUid is string
         && request.resource.data.createdAt is number
         && request.resource.data.publicId.size() <= 128
@@ -219,3 +250,6 @@ service cloud.firestore {
     }
   }
 }
+grep -c news_posts firestore.rules
+
+
