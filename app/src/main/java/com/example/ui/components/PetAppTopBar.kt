@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.petpulse.app.data.model.CustomerProfile
@@ -63,11 +64,12 @@ fun PetAppTopBar(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Brand & Title
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
@@ -90,7 +92,7 @@ fun PetAppTopBar(
                         )
                     }
 
-                    Column {
+                    Column(modifier = Modifier.weight(1f, fill = false)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "Wagmiya",
@@ -98,7 +100,9 @@ fun PetAppTopBar(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 ),
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
 
                         }
@@ -109,7 +113,9 @@ fun PetAppTopBar(
                                 else -> stringResource(R.string.top_bar_guardian, customer.name)
                             },
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -134,7 +140,7 @@ fun PetAppTopBar(
                             IconButton(
                                 onClick = onCartClick,
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(40.dp)
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
                             ) {
@@ -155,7 +161,7 @@ fun PetAppTopBar(
                             containerColor = Color(0xFFD32F2F)
                         ),
                         shape = RoundedCornerShape(20.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
                         modifier = Modifier
                             .height(36.dp)
                             .testTag("sos_5km_button")
@@ -179,7 +185,7 @@ fun PetAppTopBar(
                     IconButton(
                         onClick = { onToggleDarkTheme(!darkTheme) },
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
                             .testTag("theme_toggle_button")
@@ -196,7 +202,7 @@ fun PetAppTopBar(
                     IconButton(
                         onClick = onLoginClick,
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primaryContainer)
                             .testTag("login_account_button")
