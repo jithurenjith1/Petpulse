@@ -82,7 +82,11 @@ data class MarketProduct(
     val lifeStage: String = "All",
     val photoUris: List<String> = emptyList(),
     // Cloudinary URLs of the product photos (empty = fall back to photoUris).
-    val photoUrls: List<String> = emptyList()
+    val photoUrls: List<String> = emptyList(),
+    // Sub-category chip for the Accessories section (Toys / Bed / Clothing /
+    // Bowls / Cage & Carrier / Others). Defaulted so Firestore toObject() and
+    // existing constructions keep working.
+    val subCategory: String = ""
 )
 
 data class GroomingServiceItem(
@@ -210,7 +214,10 @@ data class ShopProduct(
     val photoUris: List<String> = emptyList(),
     // Cloudinary URLs of the product / sitter-place photos
     // (empty = fall back to photoUris).
-    val photoUrls: List<String> = emptyList()
+    val photoUrls: List<String> = emptyList(),
+    // Accessories sub-category chip (see MarketProduct.subCategory).
+    // Defaulted so Firestore toObject() keeps working for older documents.
+    val subCategory: String = ""
 )
 
 fun ShopProduct.toMarketProduct() = MarketProduct(
@@ -227,7 +234,8 @@ fun ShopProduct.toMarketProduct() = MarketProduct(
     foodType = foodType,
     lifeStage = lifeStage,
     photoUris = photoUris,
-    photoUrls = photoUrls
+    photoUrls = photoUrls,
+    subCategory = subCategory
 )
 
 data class Dealer(

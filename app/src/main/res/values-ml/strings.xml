@@ -897,4 +897,27 @@
     <string name="mypets_tip_1">ദഹനപ്രശ്നങ്ങൾ ഒഴിവാക്കാൻ പുതിയ ഭക്ഷണം ഒരാഴ്ചയ്ക്കിടയിൽ പതിയെ പരിചയപ്പെടുത്തുക.</string>
     <string name="mypets_tip_2">ഗുരുതരരോഗങ്ങൾ തടയാൻ ഓരോ വർഷവും വാക്സിനേഷൻ പുതുക്കുക.</string>
     <string name="mypets_tip_3">പ്രതിദിന നടത്തം അല്ലെങ്കിൽ കളി നിങ്ങളുടെ വളർത്തുമൃഗത്തെ ആരോഗ്യത്തോടെയും ശാന്തമായും നിലനിർത്താൻ സഹായിക്കുന്നു.</string>
+    <string name="market_accessory_filter_label">തരം അനുസരിച്ച് തിരയുക</string>
+    <string name="market_filter_all">എല്ലാം</string>
+    <string name="market_accessory_sub_toys">കളിപ്പാട്ടങ്ങൾ</string>
+    <string name="market_accessory_sub_bed">കിടക്ക</string>
+    <string name="market_accessory_sub_clothing">വസ്ത്രങ്ങൾ</string>
+    <string name="market_accessory_sub_bowls">പാത്രങ്ങൾ</string>
+    <string name="market_accessory_sub_cage">കൂടും കാരിയറും</string>
+    <string name="market_accessory_sub_others">മറ്റുള്ളവ</string>
+    <string name="market_accessory_empty_filtered">ഈ ഫിൽട്ടറുമായി പൊരുത്തപ്പെടുന്ന ആക്സസറികളില്ല.</string>
+    <string name="market_product_no_photo">ഫോട്ടോയില്ല</string>
+    <string name="market_detail_back">പിന്നോട്ട്</string>
+    <string name="market_detail_description">വിവരണം</string>
+    <string name="market_detail_additional_details">അധിക വിവരങ്ങൾ</string>
+    <string name="market_detail_no_description">വിവരണം നൽകിയിട്ടില്ല.</string>
+    <string name="market_detail_brand">ബ്രാൻഡ്</string>
+    <string name="market_detail_category">വിഭാഗം</string>
+    <string name="market_detail_type">തരം</string>
+    <string name="market_detail_pet_type">വളർത്തുമൃഗത്തിന്റെ തരം</string>
+    <string name="market_detail_pack_size">പായ്ക്ക് വലുപ്പം</string>
+    <string name="market_detail_availability">ലഭ്യത</string>
+    <string name="market_detail_in_stock">സ്റ്റോക്കിൽ ഉണ്ട്</string>
+    <string name="market_detail_out_of_stock">സ്റ്റോക്കിൽ ഇല്ല</string>
+    <string name="admin_sub_category">ഉപവിഭാഗം</string>
 </resources>

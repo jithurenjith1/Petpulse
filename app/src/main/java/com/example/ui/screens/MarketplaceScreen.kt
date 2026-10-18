@@ -18,6 +18,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -70,7 +76,11 @@ fun MarketplaceScreen(
     onRequestTrainer: () -> Unit = {},
     onPetSelected: (MarketPet) -> Unit,
     guideFoods: List<FoodItem> = emptyList(),
-    accessories: List<AccessoryItem> = emptyList(),
+    // Owner-added accessories, mapped through ShopProduct.toMarketProduct() so the
+    // photos + description survive (see PetViewModel.marketAccessoriesFiltered).
+    accessoryProducts: List<MarketProduct> = emptyList(),
+    accessorySubCategory: String = "All",
+    onSelectAccessorySubCategory: (String) -> Unit = {},
     onAddAccessoryToCart: (AccessoryItem) -> Unit = {},
     onAddFoodItemToCart: (FoodItem) -> Unit = {},
     onBookHealthCare: (HealthCareItem) -> Unit = {},
@@ -93,9 +103,77 @@ fun MarketplaceScreen(
     // lives inside a lazy content lambda.
     var productViewerPhotos by remember { mutableStateOf<List<String>>(emptyList()) }
     var productViewerStart by remember { mutableIntStateOf(0) }
+    // Hoisted above the lazy containers: tapping an accessories grid cell opens
+    // the product detail page rendered as an overlay below. State is never
+    // remembered inside a lazy content lambda.
+    var detailProduct by remember { mutableStateOf<MarketProduct?>(null) }
 
+    Box(modifier = modifier.fillMaxSize()) {
+    if (currentCategory == MarketplaceCategory.ACCESSORIES) {
+        // 2-column product grid (image, name, price) keyed by product id, with a
+        // sub-category chip row - the romsnraks-style category page.
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .testTag("marketplace_accessories_grid"),
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                KeralaHeroLocationBar(
+                    selectedCity = selectedCity,
+                    onSelectCity = onSelectCity,
+                    cities = cities,
+                    cartItemCount = cartItemCount,
+                    onOpenCart = onOpenCart,
+                    onOpenOrders = onOpenOrders
+                )
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                MarketplaceQuickActionRow(onOpenListPetModal = onOpenListPetModal)
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                MarketplaceCategorySelector(
+                    selectedCategory = currentCategory,
+                    onSelectCategory = onSelectCategory
+                )
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                MarketSectionHeader(
+                    title = "Pet Accessories",
+                    subtitle = "Clothing, toys, wearables & more for your pet",
+                    icon = Icons.Default.ShoppingCart
+                )
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                AccessoryFilterRow(
+                    label = stringResource(R.string.market_accessory_filter_label),
+                    selected = accessorySubCategory,
+                    onSelect = onSelectAccessorySubCategory
+                )
+            }
+            if (accessoryProducts.isEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    EmptyMarketState(
+                        message = stringResource(R.string.market_accessory_empty_filtered),
+                        actionLabel = stringResource(R.string.market_empty_action_clear),
+                        onAction = { onSelectAccessorySubCategory("All") }
+                    )
+                }
+            }
+            gridItems(accessoryProducts, key = { it.id }) { product ->
+                MarketProductGridCell(
+                    product = product,
+                    onClick = { detailProduct = product },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+        }
+    } else {
     LazyColumn(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .testTag("kerala_marketplace_screen"),
@@ -367,31 +445,9 @@ fun MarketplaceScreen(
                 }
             }
 
-            MarketplaceCategory.ACCESSORIES -> {
-                item {
-                    MarketSectionHeader(
-                        title = "Pet Accessories",
-                        subtitle = "Clothing, toys, wearables & more for your pet",
-                        icon = Icons.Default.ShoppingCart
-                    )
-                }
-
-                if (accessories.isEmpty()) {
-                    item {
-                        EmptyMarketState(message = stringResource(R.string.market_empty_no_products))
-                    }
-                }
-
-                items(accessories, key = { "a_" + it.name }) { item ->
-                    AccessoryItemCard(
-                        item = item,
-                        onBuy = {
-                            onAddAccessoryToCart(item)
-                            onGuideItemAction("Added to cart: " + item.name)
-                        }
-                    )
-                }
-            }
+            // Rendered as the 2-column LazyVerticalGrid above (the ACCESSORIES
+            // branch at the top of this composable) - nothing to add here.
+            MarketplaceCategory.ACCESSORIES -> {}
 
             MarketplaceCategory.TRAINING -> {
                 item {
@@ -418,6 +474,24 @@ fun MarketplaceScreen(
             }
         }
     }
+    }  // end else: non-accessories LazyColumn
+
+    // Product detail overlay - opens when an accessories grid cell is tapped.
+    detailProduct?.let { product ->
+        MarketProductDetailScreen(
+            product = product,
+            onBack = { detailProduct = null },
+            onAddToCart = {
+                onAddToCart(product)
+                detailProduct = null
+            },
+            onViewPhotos = { photos, start ->
+                productViewerPhotos = photos
+                productViewerStart = start
+            }
+        )
+    }
+    }  // end Box
 
     if (productViewerPhotos.isNotEmpty()) {
         MarketPhotoViewerDialog(
@@ -1681,6 +1755,387 @@ private fun FoodFilterRow(
                 )
             }
         }
+    }
+}
+
+/**
+ * Sub-category chip row for the Accessories section. Mirrors [FoodFilterRow]
+ * (label + LazyRow of FilterChips) but keeps a canonical English value per chip
+ * so filtering still matches [MarketProduct.subCategory] while the visible label
+ * stays localisable.
+ */
+@Composable
+private fun AccessoryFilterRow(
+    label: String,
+    selected: String,
+    onSelect: (String) -> Unit
+) {
+    val options = listOf(
+        "All" to R.string.market_filter_all,
+        "Toys" to R.string.market_accessory_sub_toys,
+        "Bed" to R.string.market_accessory_sub_bed,
+        "Clothing" to R.string.market_accessory_sub_clothing,
+        "Bowls" to R.string.market_accessory_sub_bowls,
+        "Cage & Carrier" to R.string.market_accessory_sub_cage,
+        "Others" to R.string.market_accessory_sub_others
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    ) {
+        Text(
+            label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(4.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(options) { option ->
+                val value = option.first
+                val labelRes = option.second
+                FilterChip(
+                    selected = selected == value,
+                    onClick = { onSelect(value) },
+                    label = { Text(stringResource(labelRes), fontSize = 11.sp) }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * One cell of the 2-column accessories grid: square photo (fills the cell),
+ * product name (max 2 lines) and the price in bold magenta. No description here -
+ * that lives on [MarketProductDetailScreen]. A clean paw placeholder is shown
+ * when the product has no photo.
+ */
+@Composable
+fun MarketProductGridCell(
+    product: MarketProduct,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Cloudinary URL first, base64 fallback - same rule as MarketProductCard.
+    val photos = if (product.photoUrls.isNotEmpty()) product.photoUrls else product.photoUris
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .testTag("product_grid_cell_${product.id}"),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                if (photos.isNotEmpty()) {
+                    AsyncImage(
+                        model = photos.first(),
+                        contentDescription = product.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Pets,
+                        contentDescription = stringResource(R.string.market_product_no_photo),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = product.name,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "₹${product.priceInr.toInt()}",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Full product detail page (romsnraks-style): large photo + multi-photo viewer,
+ * name, price, a short line, Add to Cart, then collapsible Description and
+ * Additional Details sections.
+ */
+@Composable
+fun MarketProductDetailScreen(
+    product: MarketProduct,
+    onBack: () -> Unit,
+    onAddToCart: () -> Unit,
+    onViewPhotos: (List<String>, Int) -> Unit = { _, _ -> }
+) {
+    val photos = if (product.photoUrls.isNotEmpty()) product.photoUrls else product.photoUris
+    val emptyDescription = stringResource(R.string.market_detail_no_description)
+    var descriptionExpanded by remember { mutableStateOf(false) }
+    var detailsExpanded by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("product_detail_${product.id}"),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.market_detail_back),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Text(
+                    text = product.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(scrollState)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .then(
+                            if (photos.isNotEmpty()) Modifier.clickable { onViewPhotos(photos, 0) }
+                            else Modifier
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (photos.isNotEmpty()) {
+                        AsyncImage(
+                            model = photos.first(),
+                            contentDescription = product.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        if (photos.size > 1) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color.Black.copy(alpha = 0.55f),
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.market_photo_counter, 1, photos.size),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                                )
+                            }
+                        }
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Pets,
+                            contentDescription = stringResource(R.string.market_product_no_photo),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(56.dp)
+                        )
+                    }
+                }
+
+                if (photos.size > 1) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+                    ) {
+                        itemsIndexed(photos) { index, uri ->
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = product.name,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { onViewPhotos(photos, index) }
+                            )
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = product.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "₹${product.priceInr.toInt()}",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = product.brand + " • " + product.packSize,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Button(
+                        onClick = onAddToCart,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddShoppingCart,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(R.string.market_add_to_cart),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(Modifier.height(4.dp))
+
+                    CollapsibleDetailSection(
+                        title = stringResource(R.string.market_detail_description),
+                        expanded = descriptionExpanded,
+                        onToggle = { descriptionExpanded = !descriptionExpanded }
+                    ) {
+                        Text(
+                            text = product.description.ifBlank { emptyDescription },
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    CollapsibleDetailSection(
+                        title = stringResource(R.string.market_detail_additional_details),
+                        expanded = detailsExpanded,
+                        onToggle = { detailsExpanded = !detailsExpanded }
+                    ) {
+                        DetailRow(stringResource(R.string.market_detail_brand), product.brand)
+                        DetailRow(stringResource(R.string.market_detail_category), product.category)
+                        if (product.subCategory.isNotBlank()) {
+                            DetailRow(stringResource(R.string.market_detail_type), product.subCategory)
+                        }
+                        DetailRow(stringResource(R.string.market_detail_pet_type), product.petType)
+                        DetailRow(stringResource(R.string.market_detail_pack_size), product.packSize)
+                        DetailRow(
+                            stringResource(R.string.market_detail_availability),
+                            if (product.stockCount > 0) stringResource(R.string.market_detail_in_stock)
+                            else stringResource(R.string.market_detail_out_of_stock)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** A collapsible "Description" / "Additional Details" card with a +/- toggle. */
+@Composable
+private fun CollapsibleDetailSection(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggle() }
+                    .padding(14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.Remove else Icons.Default.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            if (expanded) {
+                Column(
+                    modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    content()
+                }
+            }
+        }
+    }
+}
+
+/** A label/value row used inside the Additional Details section. */
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            value,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 

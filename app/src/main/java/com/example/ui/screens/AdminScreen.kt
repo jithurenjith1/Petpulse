@@ -46,6 +46,17 @@ import coil.compose.AsyncImage
 
 private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding", "Trainer")
 
+// Accessories sub-category chips for the admin form. Canonical English value ->
+// localised label resource. The value is what gets stored and filtered on.
+private val accessorySubCategoryOptions = listOf(
+    "Toys" to R.string.market_accessory_sub_toys,
+    "Bed" to R.string.market_accessory_sub_bed,
+    "Clothing" to R.string.market_accessory_sub_clothing,
+    "Bowls" to R.string.market_accessory_sub_bowls,
+    "Cage & Carrier" to R.string.market_accessory_sub_cage,
+    "Others" to R.string.market_accessory_sub_others
+)
+
 /**
  * Owner-only panel: Orders -> assign dealer -> mark delivered,
  * Products (add/remove own items), Dealers (the partner shops that fulfil & deliver),
@@ -78,7 +89,7 @@ fun AdminScreen(
     onDeleteFoundReport: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
-    onAddProduct: (String, String, String, Double, String, String, String, String, List<Uri>, Boolean) -> Unit,
+    onAddProduct: (String, String, String, Double, String, String, String, String, String, List<Uri>, Boolean) -> Unit,
     onDeleteProduct: (String) -> Unit,
     onAddDealer: (String, String, String) -> Unit,
     onDeleteDealer: (String) -> Unit,
@@ -1054,13 +1065,16 @@ private fun AdminOrderCard(
 private fun ProductsAdminTab(
     products: List<ShopProduct>,
     listTypeFilter: String? = null,
-    onAdd: (String, String, String, Double, String, String, String, String, List<Uri>, Boolean) -> Unit,
+    onAdd: (String, String, String, Double, String, String, String, String, String, List<Uri>, Boolean) -> Unit,
     onDelete: (String) -> Unit
 ) {
     val shown = if (listTypeFilter != null) products.filter { it.listType == listTypeFilter } else products
     var name by remember { mutableStateOf("") }
     var listType by remember { mutableStateOf(listTypeFilter ?: "Food") }
     var category by remember { mutableStateOf("") }
+    // Accessories sub-category chip; stored as the canonical English value so the
+    // market grid's chip filter matches on it. Empty for non-accessory products.
+    var subCategory by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var petType by remember { mutableStateOf("All") }
@@ -1111,6 +1125,31 @@ private fun ProductsAdminTab(
                             onClick = { listType = lt },
                             label = { Text(lt, fontSize = 11.sp) }
                         )
+                    }
+                }
+            }
+        }
+        if (listType == "Accessory") {
+            item {
+                Column {
+                    Text(
+                        stringResource(R.string.admin_sub_category),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                    ) {
+                        accessorySubCategoryOptions.forEach { option ->
+                            val value = option.first
+                            val labelRes = option.second
+                            FilterChip(
+                                selected = subCategory == value,
+                                onClick = { subCategory = value },
+                                label = { Text(stringResource(labelRes), fontSize = 11.sp) }
+                            )
+                        }
                     }
                 }
             }
@@ -1206,12 +1245,13 @@ private fun ProductsAdminTab(
                         if (listType == "Boarding" && placePhotos.size < 3) {
                             photoError = true
                         } else {
-                            onAdd(name.trim(), listType, category.trim(), p, description.trim(), petType, foodType, lifeStage, placePhotos, verified)
+                            onAdd(name.trim(), listType, category.trim(), p, description.trim(), petType, foodType, lifeStage, subCategory, placePhotos, verified)
                             photoError = false
                             placePhotos = emptyList()
                             verified = false
                             name = ""
                             category = ""
+                            subCategory = ""
                             price = ""
                             description = ""
                         }

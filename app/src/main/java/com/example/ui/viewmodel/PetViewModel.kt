@@ -146,6 +146,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val foodKind: StateFlow<String> = _foodKind.asStateFlow()
     private val _foodStage = MutableStateFlow("All")
     val foodStage: StateFlow<String> = _foodStage.asStateFlow()
+    // Accessories sub-category chip (Toys / Bed / Clothing / Bowls /
+    // Cage & Carrier / Others). Mirrors the Food filter state above.
+    private val _accessorySubCategory = MutableStateFlow("All")
+    val accessorySubCategory: StateFlow<String> = _accessorySubCategory.asStateFlow()
 
     private val _accessoryCategory = MutableStateFlow("All")
     val accessoryCategory: StateFlow<String> = _accessoryCategory.asStateFlow()
@@ -359,6 +363,19 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val marketMedicines: StateFlow<List<MarketProduct>> = allShopProducts
         .map { remote -> remote.filter { it.listType == "Medicine" }.map { it.toMarketProduct() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /**
+     * Accessories grid: owner-added products (listType "Accessory") mapped through
+     * [ShopProduct.toMarketProduct] so the photos (photoUrls / photoUris) and the
+     * description survive the trip. Filtered by the selected sub-category chip,
+     * exactly like [marketFoodsFiltered] is filtered by the Food chips.
+     */
+    val marketAccessoriesFiltered: StateFlow<List<MarketProduct>> =
+        combine(allShopProducts, _accessorySubCategory) { prods, sub ->
+            prods.filter { it.listType == "Accessory" }
+                .filter { sub == "All" || it.subCategory == sub }
+                .map { it.toMarketProduct() }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val groomingServices: StateFlow<List<GroomingServiceItem>> = allShopProducts
         .map { remote ->
@@ -725,6 +742,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun setFoodPetType(v: String) { _foodPetType.value = v }
     fun setFoodKind(v: String) { _foodKind.value = v }
     fun setFoodStage(v: String) { _foodStage.value = v }
+    fun setAccessorySubCategory(v: String) { _accessorySubCategory.value = v }
 
     fun setAccessoryCategory(cat: String) {
         _accessoryCategory.value = cat
@@ -1308,6 +1326,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun adminAddProduct(
         name: String, listType: String, category: String, priceInr: Double, description: String,
         petType: String = "All", foodType: String = "All", lifeStage: String = "All",
+        subCategory: String = "",
         photoUris: List<Uri> = emptyList(), verified: Boolean = false
     ) {
         viewModelScope.launch {
@@ -1315,6 +1334,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 id = "", name = name, listType = listType, category = category,
                 priceInr = priceInr, description = description,
                 petType = petType, foodType = foodType, lifeStage = lifeStage,
+                subCategory = subCategory,
                 verified = verified
             )
             _commerceEvent.value = if (commerceRepo.addProduct(p, photoUris).isSuccess) R.string.admin_saved else R.string.admin_failed

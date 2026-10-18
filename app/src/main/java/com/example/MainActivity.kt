@@ -151,7 +151,8 @@ fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null
     val accessoryItems by viewModel.accessoryItems.collectAsStateWithLifecycle()
     val healthCareItems by viewModel.healthCareItems.collectAsStateWithLifecycle()
     val trainingGuides by viewModel.trainingGuides.collectAsStateWithLifecycle()
-    val marketAccessories by viewModel.marketAccessories.collectAsStateWithLifecycle()
+    val accessoryProducts by viewModel.marketAccessoriesFiltered.collectAsStateWithLifecycle()
+    val accessorySubCategory by viewModel.accessorySubCategory.collectAsStateWithLifecycle()
     val marketTrainingGuides by viewModel.marketTrainingGuides.collectAsStateWithLifecycle()
     val marketFoodSubs by viewModel.marketFoodSubscriptions.collectAsStateWithLifecycle()
     val marketBoarding by viewModel.marketBoardingSitters.collectAsStateWithLifecycle()
@@ -473,7 +474,9 @@ val appCtx = LocalContext.current
                             }
                         },
                         guideFoods = foodItems,
-                        accessories = marketAccessories,
+                        accessoryProducts = accessoryProducts,
+                        accessorySubCategory = accessorySubCategory,
+                        onSelectAccessorySubCategory = { viewModel.setAccessorySubCategory(it) },
                         healthCareItems = healthCareItems,
                         trainingGuides = marketTrainingGuides,
                         onGuideItemAction = { msg ->
@@ -676,7 +679,7 @@ val appCtx = LocalContext.current
             bookings = adminBookings,
             onAssignDealer = { id, dealer -> viewModel.adminAssignDealer(id, dealer) },
             onUpdateStatus = { id, status -> viewModel.adminUpdateOrderStatus(id, status) },
-            onAddProduct = { n, lt, c, p, d, pt, ft, ls, uris, vf -> viewModel.adminAddProduct(n, lt, c, p, d, pt, ft, ls, uris, vf) },
+            onAddProduct = { n, lt, c, p, d, pt, ft, ls, sc, uris, vf -> viewModel.adminAddProduct(n, lt, c, p, d, pt, ft, ls, sc, uris, vf) },
             onDeleteProduct = { id -> viewModel.adminDeleteProduct(id) },
             onAddDealer = { n, ph, c -> viewModel.adminAddDealer(n, ph, c) },
             onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },

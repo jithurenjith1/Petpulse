@@ -97,6 +97,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             foodType = getString("foodType") ?: "All",
             lifeStage = getString("lifeStage") ?: "All",
             verified = getBoolean("verified") ?: false,
+            subCategory = getString("subCategory") ?: "",
             photoUris = photoData.mapIndexed { i, b64 -> productPhotoFileFor(id, i, b64) }.filter { it.isNotBlank() },
             photoUrls = photoUrls
         )
@@ -130,6 +131,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                     "foodType" to p.foodType,
                     "lifeStage" to p.lifeStage,
                     "verified" to p.verified,
+                    "subCategory" to p.subCategory,
                     "photoData" to photos,
                     "photoUrls" to urls,
                     "createdAt" to System.currentTimeMillis()

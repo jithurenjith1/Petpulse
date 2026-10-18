@@ -897,4 +897,27 @@
     <string name="mypets_tip_1">Introduce new food slowly over a week to avoid an upset stomach.</string>
     <string name="mypets_tip_2">Keep vaccinations up to date each year to prevent serious illness.</string>
     <string name="mypets_tip_3">A daily walk or play session helps your pet stay fit and calm.</string>
+    <string name="market_accessory_filter_label">Shop by type</string>
+    <string name="market_filter_all">All</string>
+    <string name="market_accessory_sub_toys">Toys</string>
+    <string name="market_accessory_sub_bed">Bed</string>
+    <string name="market_accessory_sub_clothing">Clothing</string>
+    <string name="market_accessory_sub_bowls">Bowls</string>
+    <string name="market_accessory_sub_cage">Cage &amp; Carrier</string>
+    <string name="market_accessory_sub_others">Others</string>
+    <string name="market_accessory_empty_filtered">No accessories match this filter.</string>
+    <string name="market_product_no_photo">No photo</string>
+    <string name="market_detail_back">Back</string>
+    <string name="market_detail_description">Description</string>
+    <string name="market_detail_additional_details">Additional Details</string>
+    <string name="market_detail_no_description">No description provided.</string>
+    <string name="market_detail_brand">Brand</string>
+    <string name="market_detail_category">Category</string>
+    <string name="market_detail_type">Type</string>
+    <string name="market_detail_pet_type">Pet type</string>
+    <string name="market_detail_pack_size">Pack size</string>
+    <string name="market_detail_availability">Availability</string>
+    <string name="market_detail_in_stock">In stock</string>
+    <string name="market_detail_out_of_stock">Out of stock</string>
+    <string name="admin_sub_category">Sub-category</string>
 </resources>
