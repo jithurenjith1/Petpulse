@@ -127,8 +127,37 @@ service cloud.firestore {
     // This blocks self-marking an order DELIVERED, editing the total, or
     // clearing the dealer assignment. Admin keeps full update.
     match /orders/{orderId} {
+      // The buyer's REAL paid plan, read from their own profile document.
+      // `exists()` guards the get(): get() returns null for a missing document
+      // and drilling into `.data` on null makes the whole rule error out, so a
+      // missing profile document must be treated as the free plan, not an error.
+      // `.get('carePlan', '')` keeps a missing FIELD safe too.
+      function buyerPlan() {
+        return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('carePlan', '')
+          : '';
+      }
+
       allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      // create now ALSO validates the money fields against the buyer's real
+      // plan, so a modified client cannot self-grant a discount (or a bogus
+      // total). Ownership check is preserved.
+      allow create: if isSignedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.keys().hasAll(['ownerId', 'totalInr', 'discountInr'])
+        && request.resource.data.totalInr is number
+        && request.resource.data.discountInr is number
+        && request.resource.data.discountInr >= 0
+        && request.resource.data.totalInr >= 0
+        // EXACT: a discount is only ever legitimate for a real Care/Premium plan.
+        && (request.resource.data.discountInr == 0
+            || buyerPlan() in ['care', 'premium'])
+        // APPROXIMATE: the order document stores neither subtotalInr nor
+        // deliveryFeeInr, so the exact per-plan percentage (10%/15% of the
+        // subtotal) cannot be recomputed here. This is the strongest SAFE bound
+        // that uses the stored totalInr: every genuine order (0/10/15% + a
+        // non-negative fee) satisfies discountInr <= 0.18 * totalInr.
+        && request.resource.data.discountInr * 100 <= request.resource.data.totalInr * 18;
       allow update: if isAdmin()
         || (isSignedIn()
             && resource.data.ownerId == request.auth.uid
@@ -223,10 +252,6 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasAll(['publicId', 'ownerUid', 'createdAt'])
         && request.resource.data.keys().hasOnly(['publicId', 'ownerUid', 'createdAt', 'message', 'lat', 'lng'])
         && request.resource.data.publicId is string
-    match /news_posts/{postId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
         && request.resource.data.ownerUid is string
         && request.resource.data.createdAt is number
         && request.resource.data.publicId.size() <= 128
@@ -244,12 +269,19 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ---------- news posts (admin-managed announcements; ADDED) ----------
+    // Public read (news articles), admin-only write. This block had been
+    // mis-placed INSIDE the tag_scans create rule, which made the whole
+    // ruleset fail to parse; it is restored here as a top-level match, kept
+    // BEFORE the catch-all so the catch-all stays last.
+    match /news_posts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
     // ---------- everything else: denied (MUST stay last) ----------
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
-grep -c news_posts firestore.rules
-
-
