@@ -129,6 +129,10 @@ data class FoundPetReport(
     val alertId: String = "",
     val petName: String = "",
     val photoData: List<String> = emptyList(),
+    // Cloudinary URLs of the sighting photos (empty = fall back to photoData).
+    // Defaulted so Firestore toObject() keeps working for reports that predate
+    // this field.
+    val photoUrls: List<String> = emptyList(),
     val location: String = "",
     val finderPhone: String = "",
     val note: String = "",

@@ -57,6 +57,10 @@ data class MarketPet(
     val description: String,
     val temperament: String = "Playful & Healthy",
     val photoUris: List<String> = emptyList(), // multiple photos per listing
+    // Cloudinary URLs of the listing photos (empty = fall back to photoUris).
+    // Defaulted so Firestore toObject() keeps working for listings that predate
+    // this field.
+    val photoUrls: List<String> = emptyList(),
     val ownerId: String = "",
     val createdAt: Long = 0L
 )

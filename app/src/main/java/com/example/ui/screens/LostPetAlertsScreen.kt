@@ -125,6 +125,7 @@ fun lostPetAlertsFlow(
     // then subscribe to live updates via addSnapshotListener.
     val registration = db.collection("lost_pet_alerts")
         .orderBy("date", Query.Direction.DESCENDING)
+        .limit(200)
         .addSnapshotListener { snapshot, error ->
             if (error != null) {
                 trySend(LostPetUiState.Error(error.localizedMessage ?: "Unknown error"))

@@ -605,9 +605,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     // ---------- Admin Panel v2: owner-managed catalogue across categories ----------
 
-    /** ALL marketplace listings (sale + adoption), unfiltered — for the admin panel. */
-    val adminListings: StateFlow<List<MarketPet>> = firestoreMarketRepo.observeMarketPets()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    /** ALL marketplace listings (sale + adoption), unfiltered — for the admin panel.
+     *  Shares the single market_listings listener that feeds [marketPets] instead of
+     *  opening a second whole-collection listener on the same collection. */
+    val adminListings: StateFlow<List<MarketPet>> = _marketPetsList.asStateFlow()
 
     /** All lost-pet SOS alerts — for the admin panel. */
     val adminLostAlerts: StateFlow<List<AdminLostPetAlert>> = commerceRepo.observeLostPetAlerts()

@@ -46,6 +46,13 @@ class FirestoreCommerceRepository(private val appContext: Context) {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    companion object {
+        // Generous read ceiling for whole-collection listeners: large enough that a
+        // real admin/user list is never truncated, small enough that reads cannot
+        // grow without limit. community_posts / news_posts keep their own 100.
+        private const val LISTEN_LIMIT = 200
+    }
+
     // ---------- admin gate ----------
     fun observeIsAdmin(): Flow<Boolean> = callbackFlow {
         val registration = arrayOfNulls<ListenerRegistration>(1)
@@ -70,7 +77,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     // ---------- products ----------
     fun observeProducts(): Flow<List<ShopProduct>> = callbackFlow {
-        val sub = db.collection("products").addSnapshotListener { snap, err ->
+        val sub = db.collection("products").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 Log.e("FsCommerce", "products listen failed", err)
                 trySend(emptyList())
@@ -210,7 +217,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     // ---------- dealers ----------
     fun observeDealers(): Flow<List<Dealer>> = callbackFlow {
-        val sub = db.collection("dealers").addSnapshotListener { snap, err ->
+        val sub = db.collection("dealers").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 trySend(emptyList())
                 return@addSnapshotListener
@@ -257,7 +264,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     // ---------- orders ----------
     fun observeOrders(): Flow<List<AdminOrder>> = callbackFlow {
-        val sub = db.collection("orders").addSnapshotListener { snap, err ->
+        val sub = db.collection("orders").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 Log.e("FsCommerce", "orders listen failed", err)
                 trySend(emptyList())
@@ -386,7 +393,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     /** Live stream of ALL bookings (admin panel). */
     fun observeBookings(): Flow<List<ServiceBooking>> = callbackFlow {
-        val sub = db.collection("bookings").addSnapshotListener { snap, err ->
+        val sub = db.collection("bookings").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 Log.e("FsCommerce", "bookings listen failed", err)
                 trySend(emptyList())
@@ -502,7 +509,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     /** Live stream of partner vets added by the owner. */
     fun observeVets(): Flow<List<VerifiedDoctor>> = callbackFlow {
-        val sub = db.collection("vets").addSnapshotListener { snap, err ->
+        val sub = db.collection("vets").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 Log.e("FsCommerce", "vets listen failed", err)
                 trySend(emptyList())
@@ -711,6 +718,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     fun observeLostPetAlerts(): Flow<List<AdminLostPetAlert>> = callbackFlow {
         val sub = db.collection("lost_pet_alerts")
+            .limit(LISTEN_LIMIT)
             .addSnapshotListener { snap, err ->
                 if (err != null) {
                     Log.e("FsCommerce", "lost alerts listen failed", err)
@@ -748,7 +756,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     // ---------- support tickets (Help & Support) ----------
     fun observeSupportTickets(): Flow<List<SupportTicket>> = callbackFlow {
-        val sub = db.collection("support_tickets").addSnapshotListener { snap, err ->
+        val sub = db.collection("support_tickets").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 // Non-admin listeners are denied by rules - just show nothing.
                 trySend(emptyList())
@@ -802,7 +810,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     // ---------- animal rescue reports ----------
     fun observeRescueReports(): Flow<List<RescueReport>> = callbackFlow {
-        val sub = db.collection("rescue_reports").addSnapshotListener { snap, err ->
+        val sub = db.collection("rescue_reports").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 trySend(emptyList())
                 return@addSnapshotListener
@@ -855,7 +863,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     // ---------- partner applications (business join + featured plan requests) ----------
     fun observePartnerApplications(): Flow<List<PartnerApplication>> = callbackFlow {
-        val sub = db.collection("partner_applications").addSnapshotListener { snap, err ->
+        val sub = db.collection("partner_applications").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 trySend(emptyList())
                 return@addSnapshotListener
@@ -946,7 +954,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     /** Live stream of ALL sighting reports (admin sees all), newest first. */
     fun observeFoundReports(): Flow<List<FoundPetReport>> = callbackFlow {
-        val sub = db.collection("found_reports").addSnapshotListener { snap, err ->
+        val sub = db.collection("found_reports").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 Log.e("FsCommerce", "found reports listen failed", err)
                 trySend(emptyList())
@@ -965,11 +973,13 @@ class FirestoreCommerceRepository(private val appContext: Context) {
     private fun DocumentSnapshot.toFoundPetReport(): FoundPetReport? = try {
         @Suppress("UNCHECKED_CAST")
         val photoData: List<String> = (get("photoData") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+        val photoUrls: List<String> = (get("photoUrls") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
         FoundPetReport(
             id = id,
             alertId = getString("alertId") ?: "",
             petName = getString("petName") ?: "",
             photoData = photoData.mapIndexed { i, b64 -> foundPhotoFileFor(id, i, b64) }.filter { it.isNotBlank() },
+            photoUrls = photoUrls,
             location = getString("location") ?: "",
             finderPhone = getString("finderPhone") ?: "",
             note = getString("note") ?: "",
@@ -1046,12 +1056,22 @@ class FirestoreCommerceRepository(private val appContext: Context) {
     suspend fun submitFoundReport(report: FoundPetReport, photoUri: Uri?): Result<Unit> {
         return try {
             auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
-            val photos = photoUri?.let { compressFoundPhotoToBase64(it) }?.let { listOf(it) } ?: emptyList()
+            // Cloudinary first: store good-size hosted URLs. Only a photo whose
+            // upload fails falls back to the old base64-in-document behaviour, so
+            // nothing breaks before the owner pastes his Cloudinary values.
+            val urls = mutableListOf<String>()
+            val photos = mutableListOf<String>()
+            if (photoUri != null) {
+                val url = CloudinaryUploader.uploadImage(appContext, photoUri).getOrNull()
+                if (url != null) urls.add(url)
+                else compressFoundPhotoToBase64(photoUri)?.let { photos.add(it) }
+            }
             db.collection("found_reports").document().set(
                 mapOf(
                     "alertId" to report.alertId,
                     "petName" to report.petName,
                     "photoData" to photos,
+                    "photoUrls" to urls,
                     "location" to report.location,
                     "finderPhone" to report.finderPhone,
                     "note" to report.note,
@@ -1082,7 +1102,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
      * partners themselves come from the existing dealers/vets/bookings data.
      */
     fun observePartnerCommissions(): Flow<List<PartnerCommission>> = callbackFlow {
-        val sub = db.collection("partner_ledger").addSnapshotListener { snap, err ->
+        val sub = db.collection("partner_ledger").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 Log.e("FsCommerce", "partner ledger listen failed", err)
                 trySend(emptyList())

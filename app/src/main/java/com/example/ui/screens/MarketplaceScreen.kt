@@ -949,6 +949,8 @@ fun MarketPetCard(
     onClick: () -> Unit,
     onDelete: () -> Unit = {}
 ) {
+    // Cloudinary URLs first; fall back to the base64-decoded local files.
+    val petPhotos = if (pet.photoUrls.isNotEmpty()) pet.photoUrls else pet.photoUris
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -974,9 +976,9 @@ fun MarketPetCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (pet.photoUris.isNotEmpty()) {
+                    if (petPhotos.isNotEmpty()) {
                         AsyncImage(
-                            model = pet.photoUris.first(),
+                            model = petPhotos.first(),
                             contentDescription = pet.name,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
@@ -1076,10 +1078,10 @@ fun MarketPetCard(
             }
 
             // Extra photos strip (2nd onwards) — replaces single emoji avatar only
-            if (pet.photoUris.size > 1) {
+            if (petPhotos.size > 1) {
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items(pet.photoUris.drop(1)) { uri ->
+                    items(petPhotos.drop(1)) { uri ->
                         AsyncImage(
                             model = uri,
                             contentDescription = null,

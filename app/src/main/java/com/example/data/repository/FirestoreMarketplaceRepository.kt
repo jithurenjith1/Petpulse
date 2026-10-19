@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.petpulse.app.data.model.MarketPet
+import com.petpulse.app.data.remote.CloudinaryUploader
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -37,6 +38,10 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
         private const val MAX_PHOTOS = 3
         private const val MAX_DIM = 1200
         private const val PHOTO_BUDGET_BYTES = 180_000
+        // Read ceiling for the whole-collection listings listener: large enough
+        // that the marketplace is never truncated, small enough that reads cannot
+        // grow without limit.
+        private const val LISTEN_LIMIT = 200
     }
 
     // ---------- read ----------
@@ -44,6 +49,7 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
     /** Live stream of all marketplace listings, newest first. */
     fun observeMarketPets(): Flow<List<MarketPet>> = callbackFlow {
         val subscription = db.collection("market_listings")
+            .limit(LISTEN_LIMIT)
             .addSnapshotListener(bgExecutor) { snapshot, error ->
                 if (error != null) {
                     Log.e("FsMarketRepo", "Error observing listings", error)
@@ -62,6 +68,7 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
     private fun toMarketPet(doc: DocumentSnapshot): MarketPet? {
         return try {
             val photoData = (doc.get("photoData") as? List<*>)?.filterIsInstance<String>().orEmpty()
+            val photoUrls = (doc.get("photoUrls") as? List<*>)?.filterIsInstance<String>().orEmpty()
             MarketPet(
                 id = doc.id,
                 name = doc.getString("name") ?: return null,
@@ -85,6 +92,7 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
                 temperament = doc.getString("temperament") ?: "",
                 photoUris = photoData.mapIndexed { i, b64 -> photoFileFor(doc.id, i, b64) }
                     .filter { it.isNotBlank() },
+                photoUrls = photoUrls,
                 ownerId = doc.getString("ownerId") ?: "",
                 createdAt = doc.getLong("createdAt") ?: 0L
             )
@@ -121,7 +129,16 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
             val uid = auth.currentUser?.uid
                 ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
 
-            val photos = photoUris.take(MAX_PHOTOS).mapNotNull { compressToBase64(it) }
+            // Cloudinary first: store good-size hosted URLs. Only photos whose
+            // upload fails fall back to the old base64-in-document behaviour, so
+            // nothing breaks before the owner pastes his Cloudinary values.
+            val urls = mutableListOf<String>()
+            val photos = mutableListOf<String>()
+            for (uri in photoUris.take(MAX_PHOTOS)) {
+                val url = CloudinaryUploader.uploadImage(appContext, uri).getOrNull()
+                if (url != null) urls.add(url)
+                else compressToBase64(uri)?.let { photos.add(it) }
+            }
             val docRef = db.collection("market_listings").document()
 
             docRef.set(
@@ -146,6 +163,7 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
                     "description" to pet.description,
                     "temperament" to pet.temperament,
                     "photoData" to photos,
+                    "photoUrls" to urls,
                     "ownerId" to uid,
                     "createdAt" to System.currentTimeMillis()
                 )

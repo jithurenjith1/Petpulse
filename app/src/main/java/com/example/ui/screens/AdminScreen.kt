@@ -806,7 +806,8 @@ private fun FoundReportsAdminTab(reports: List<FoundPetReport>, onDelete: (Strin
             val context = LocalContext.current
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    val photo = report.photoData.firstOrNull()
+                    val photos = if (report.photoUrls.isNotEmpty()) report.photoUrls else report.photoData
+                    val photo = photos.firstOrNull()
                     if (!photo.isNullOrBlank()) {
                         AsyncImage(
                             model = photo,
