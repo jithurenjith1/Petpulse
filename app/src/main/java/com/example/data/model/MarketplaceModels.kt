@@ -75,8 +75,8 @@ data class MarketProduct(
     val packSize: String, // "3 kg", "100 ml", "10 Tablets"
     val priceInr: Double,
     val originalPriceInr: Double,
-    val rating: Double = 4.8,
-    val reviewsCount: Int = 124,
+    val rating: Double = 0.0,
+    val reviewsCount: Int = 0,
     val stockCount: Int = 25,
     val description: String,
     val keyBenefits: List<String> = emptyList(),
@@ -349,4 +349,22 @@ data class PartnerCommission(
     val commissionPercent: Double = 10.0,
     val duesPaid: Boolean = false,
     val updatedAt: Long = 0L
+)
+
+/**
+ * A customer review for a product or a dealer / service provider.
+ * Stored in the Firestore "reviews" collection. Every field carries a default so
+ * Firestore toObject() keeps working for documents that predate a field.
+ * productId is set for product reviews, dealerName for dealer reviews.
+ */
+data class Review(
+    val id: String = "",
+    val productId: String = "",
+    val dealerName: String = "",
+    val ownerId: String = "",
+    val authorName: String = "",
+    val rating: Int = 0,
+    val text: String = "",
+    val orderId: String = "",
+    val createdAt: Long = 0L
 )

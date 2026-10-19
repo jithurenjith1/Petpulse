@@ -182,8 +182,6 @@ class MarketplaceRepository {
             packSize = "4 kg Pack",
             priceInr = 2950.0,
             originalPriceInr = 3250.0,
-            rating = 4.9,
-            reviewsCount = 340,
             description = "Tailored nutrition for large breed puppies (adult weight 26-44kg) up to 15 months. Supports immune defenses and digestive balance.",
             keyBenefits = listOf("Digestive health with prebiotics", "Moderate energy for long growth period", "Immune system support")
         ),
@@ -196,8 +194,6 @@ class MarketplaceRepository {
             packSize = "2.5 kg Pack",
             priceInr = 3400.0,
             originalPriceInr = 3800.0,
-            rating = 4.9,
-            reviewsCount = 189,
             description = "Ultra-premium Italian formulation with 96% protein of animal origin. Perfect for sensitive stomachs and shiny coats.",
             keyBenefits = listOf("Grain-Free & Low Glycemic index", "Rich in natural antioxidants", "Hypoallergenic lamb formula")
         ),
@@ -210,8 +206,6 @@ class MarketplaceRepository {
             packSize = "3 kg Pack",
             priceInr = 1450.0,
             originalPriceInr = 1650.0,
-            rating = 4.7,
-            reviewsCount = 420,
             description = "High protein and energy density for active working and energetic family dogs. Fortified with glucosamine for joints.",
             keyBenefits = listOf("28% High Crude Protein", "Omega fatty acids for alertness", "Zinc for healthy skin")
         ),
@@ -224,8 +218,6 @@ class MarketplaceRepository {
             packSize = "1 kg Vacuum Sealed",
             priceInr = 280.0,
             originalPriceInr = 320.0,
-            rating = 4.9,
-            reviewsCount = 512,
             description = "100% human-grade fresh Kerala chicken, liver, and bone broth paste. Flash frozen for instant raw feeding or boiling.",
             keyBenefits = listOf("Zero preservatives", "Delivered in temperature-controlled bag", "High natural moisture & taurine")
         ),
@@ -238,8 +230,6 @@ class MarketplaceRepository {
             packSize = "4 kg Pack",
             priceInr = 1850.0,
             originalPriceInr = 2100.0,
-            rating = 4.6,
-            reviewsCount = 280,
             description = "Real chicken kibble with no wheat, corn, or soya. Formulated with DHA for brain functioning.",
             keyBenefits = listOf("No fillers or corn", "Glucosamine & Chondroitin", "Optimal digestion")
         ),
@@ -252,8 +242,6 @@ class MarketplaceRepository {
             packSize = "Pack of 12 (85g each)",
             priceInr = 600.0,
             originalPriceInr = 720.0,
-            rating = 4.8,
-            reviewsCount = 610,
             description = "Delicious fish chunks bathed in nutritious gravy. Hydrates cats and provides balanced minerals for urinary care.",
             keyBenefits = listOf("Prevents urinary tract issues", "Shiny coat with Omega 6", "Lickable tender chunks")
         )
@@ -270,8 +258,6 @@ class MarketplaceRepository {
             packSize = "1 Chewable Tab (12-Week Protection)",
             priceInr = 1850.0,
             originalPriceInr = 2100.0,
-            rating = 4.9,
-            reviewsCount = 480,
             description = "The gold-standard single oral chew providing 12 full weeks of continuous protection against ticks and fleas in humid Kerala weather.",
             keyBenefits = listOf("12 Weeks single dose protection", "Tasty pork flavor chew", "Starts killing ticks in 8 hours"),
             dosageOrUsage = "1 tablet every 12 weeks for dogs 10-20kg"
@@ -286,8 +272,6 @@ class MarketplaceRepository {
             packSize = "Strip of 4 Tablets",
             priceInr = 380.0,
             originalPriceInr = 440.0,
-            rating = 4.8,
-            reviewsCount = 390,
             description = "Broad spectrum dewormer effective against tapeworms, roundworms, hookworms, and whipworms in dogs.",
             keyBenefits = listOf("Treats all major intestinal worms", "Easy to administer scored tablet", "Vet recommended safe formula"),
             dosageOrUsage = "1 tablet per 10 kg body weight every 3 months"
@@ -302,8 +286,6 @@ class MarketplaceRepository {
             packSize = "Strip of 10 Tablets",
             priceInr = 320.0,
             originalPriceInr = 370.0,
-            rating = 4.7,
-            reviewsCount = 145,
             description = "Cephalexin oral antibiotic prescribed for skin infections, deep pyoderma, wound healing, and soft tissue infections.",
             keyBenefits = listOf("Fast action against bacterial skin infections", "Trusted veterinary grade"),
             dosageOrUsage = "As prescribed by registered Kerala veterinary doctor"
@@ -318,8 +300,6 @@ class MarketplaceRepository {
             packSize = "200 ml Bottle",
             priceInr = 245.0,
             originalPriceInr = 290.0,
-            rating = 4.8,
-            reviewsCount = 310,
             description = "Essential vitamin complex with Taurine and L-Carnitine for appetite boosting, post-illness recovery, and overall vitality.",
             keyBenefits = listOf("Boosts immunity & appetite", "Glossy coat and skin health", "Pleasant palatable flavor"),
             dosageOrUsage = "5ml daily for small pets, 10ml for medium/large dogs"
@@ -334,8 +314,6 @@ class MarketplaceRepository {
             packSize = "1.34 ml Pipette",
             priceInr = 420.0,
             originalPriceInr = 480.0,
-            rating = 4.7,
-            reviewsCount = 275,
             description = "Fipronil & (S)-Methoprene topical spot-on breaking the flea life cycle (eggs, larvae, adults) and killing brown dog ticks.",
             keyBenefits = listOf("Fast spot-on neck application", "Waterproof after 24 hours", "Prevents re-infestation for 30 days"),
             dosageOrUsage = "Apply 1 pipette directly on skin at back of neck"
@@ -350,8 +328,6 @@ class MarketplaceRepository {
             packSize = "Pack of 30 Tablets",
             priceInr = 1650.0,
             originalPriceInr = 1900.0,
-            rating = 4.9,
-            reviewsCount = 160,
             description = "Contains Glucosamine, Chondroitin, and Dexahan (purified Krill oil) for dogs with arthritis, hip dysplasia, or senior joint stiffness.",
             keyBenefits = listOf("Clinically proven mobility improvement", "Soothes stiff joints and limping", "Rich in Omega 3 EFA"),
             dosageOrUsage = "1 tablet daily with food"

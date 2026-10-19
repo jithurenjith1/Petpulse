@@ -48,6 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.petpulse.app.data.model.*
+import com.petpulse.app.ui.components.StarRow
+import com.petpulse.app.ui.components.WriteReviewDialog
+import com.petpulse.app.ui.components.formatRating
+import com.petpulse.app.ui.components.formatReviewDate
 import com.petpulse.app.ui.theme.*
 
 @Composable
@@ -95,6 +99,9 @@ fun MarketplaceScreen(
     onSelectFoodKind: (String) -> Unit = {},
     foodStage: String = "All",
     onSelectFoodStage: (String) -> Unit = {},
+    reviews: List<Review> = emptyList(),
+    myOrders: List<AdminOrder> = emptyList(),
+    onSubmitReview: (MarketProduct, Int, String, String) -> Unit = { _, _, _, _ -> },
     modifier: Modifier = Modifier
 ) {
     var listingToDelete by remember { mutableStateOf<MarketPet?>(null) }
@@ -107,6 +114,11 @@ fun MarketplaceScreen(
     // the product detail page rendered as an overlay below. State is never
     // remembered inside a lazy content lambda.
     var detailProduct by remember { mutableStateOf<MarketProduct?>(null) }
+    // Real review aggregates (average + count) keyed by productId, and the
+    // customer's DELIVERED orders. Both are computed once HERE - above the lazy
+    // containers - so no remember(...) ever lives inside a lazy content lambda.
+    val reviewStats = remember(reviews) { buildReviewStats(reviews) }
+    val myDeliveredOrders = remember(myOrders) { myOrders.filter { it.status == "DELIVERED" } }
 
     Box(modifier = modifier.fillMaxSize()) {
     if (currentCategory == MarketplaceCategory.ACCESSORIES) {
@@ -164,8 +176,11 @@ fun MarketplaceScreen(
                 }
             }
             gridItems(accessoryProducts, key = { it.id }) { product ->
+                val stat = reviewStats[product.id]
                 MarketProductGridCell(
                     product = product,
+                    reviewAverage = stat?.average ?: 0.0,
+                    reviewCount = stat?.count ?: 0,
                     onClick = { detailProduct = product },
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
@@ -298,8 +313,11 @@ fun MarketplaceScreen(
                 }
 
                 items(foods, key = { it.id }) { food ->
+                    val stat = reviewStats[food.id]
                     MarketProductCard(
                         product = food,
+                        reviewAverage = stat?.average ?: 0.0,
+                        reviewCount = stat?.count ?: 0,
                         onAddToCart = { onAddToCart(food) },
                         onViewPhotos = { photos, start ->
                             productViewerPhotos = photos
@@ -377,8 +395,11 @@ fun MarketplaceScreen(
                 }
 
                 items(medicines, key = { it.id }) { med ->
+                    val stat = reviewStats[med.id]
                     MarketProductCard(
                         product = med,
+                        reviewAverage = stat?.average ?: 0.0,
+                        reviewCount = stat?.count ?: 0,
                         onAddToCart = { onAddToCart(med) },
                         onViewPhotos = { photos, start ->
                             productViewerPhotos = photos
@@ -478,8 +499,23 @@ fun MarketplaceScreen(
 
     // Product detail overlay - opens when an accessories grid cell is tapped.
     detailProduct?.let { product ->
+        val productReviews = reviews.filter { it.productId == product.id }
+        val productStat = reviewStats[product.id]
+        // Delivered-only gate: the customer may review this product ONLY if one of
+        // their own orders with status DELIVERED contains this product. Order line
+        // items carry the product NAME (see placeOrder), so match on the name.
+        val matchingDeliveredOrder = myDeliveredOrders.firstOrNull { order ->
+            order.items.any { it.name.trim().equals(product.name.trim(), ignoreCase = true) }
+        }
         MarketProductDetailScreen(
             product = product,
+            reviews = productReviews,
+            reviewAverage = productStat?.average ?: 0.0,
+            reviewCount = productStat?.count ?: 0,
+            canReview = matchingDeliveredOrder != null,
+            onSubmitReview = { rating, text ->
+                onSubmitReview(product, rating, text, matchingDeliveredOrder?.id ?: "")
+            },
             onBack = { detailProduct = null },
             onAddToCart = {
                 onAddToCart(product)
@@ -1188,6 +1224,8 @@ fun MarketPetCard(
 fun MarketProductCard(
     product: MarketProduct,
     onAddToCart: () -> Unit,
+    reviewAverage: Double = 0.0,
+    reviewCount: Int = 0,
     onViewPhotos: (List<String>, Int) -> Unit = { _, _ -> }
 ) {
     Card(
@@ -1277,10 +1315,33 @@ fun MarketProductCard(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "${product.packSize} • ⭐ ${product.rating} (${product.reviewsCount})",
+                            text = product.packSize,
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        if (reviewCount > 0) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = null,
+                                    tint = Color(0xFFA87A1F),
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Spacer(Modifier.width(2.dp))
+                                Text(
+                                    text = stringResource(R.string.review_card_summary, formatRating(reviewAverage), reviewCount),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = stringResource(R.string.review_new_badge),
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
@@ -1817,6 +1878,8 @@ private fun AccessoryFilterRow(
 fun MarketProductGridCell(
     product: MarketProduct,
     onClick: () -> Unit,
+    reviewAverage: Double = 0.0,
+    reviewCount: Int = 0,
     modifier: Modifier = Modifier
 ) {
     // Cloudinary URL first, base64 fallback - same rule as MarketProductCard.
@@ -1874,6 +1937,28 @@ fun MarketProductGridCell(
                     fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
+                if (reviewCount > 0) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color(0xFFA87A1F),
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(Modifier.width(2.dp))
+                        Text(
+                            text = stringResource(R.string.review_card_summary, formatRating(reviewAverage), reviewCount),
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    Text(
+                        text = stringResource(R.string.review_new_badge),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -1889,13 +1974,30 @@ fun MarketProductDetailScreen(
     product: MarketProduct,
     onBack: () -> Unit,
     onAddToCart: () -> Unit,
+    reviews: List<Review> = emptyList(),
+    reviewAverage: Double = 0.0,
+    reviewCount: Int = 0,
+    canReview: Boolean = false,
+    onSubmitReview: (Int, String) -> Unit = { _, _ -> },
     onViewPhotos: (List<String>, Int) -> Unit = { _, _ -> }
 ) {
     val photos = if (product.photoUrls.isNotEmpty()) product.photoUrls else product.photoUris
     val emptyDescription = stringResource(R.string.market_detail_no_description)
     var descriptionExpanded by remember { mutableStateOf(false) }
     var detailsExpanded by remember { mutableStateOf(false) }
+    var showReviewDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+
+    if (showReviewDialog) {
+        WriteReviewDialog(
+            title = stringResource(R.string.review_dialog_title),
+            onDismiss = { showReviewDialog = false },
+            onSubmit = { rating, text ->
+                onSubmitReview(rating, text)
+                showReviewDialog = false
+            }
+        )
+    }
 
     Surface(
         modifier = Modifier
@@ -2070,6 +2172,16 @@ fun MarketProductDetailScreen(
                             else stringResource(R.string.market_detail_out_of_stock)
                         )
                     }
+
+                    Spacer(Modifier.height(4.dp))
+
+                    RatingsAndReviewsSection(
+                        reviews = reviews,
+                        average = reviewAverage,
+                        count = reviewCount,
+                        canReview = canReview,
+                        onWriteReview = { showReviewDialog = true }
+                    )
                 }
             }
         }
@@ -2227,3 +2339,126 @@ fun MarketPhotoViewerDialog(
 
 /** Simple accessibility label for a photo page, e.g. "Photo 2 of 3". */
 private fun productPhotoDescription(page: Int, total: Int): String = "Photo " + (page + 1) + " of " + total
+
+/** Aggregated star rating for one product id. */
+private data class ReviewStat(val average: Double = 0.0, val count: Int = 0)
+
+/** Groups reviews by productId into an average + count map (ratings clamped 1..5). */
+private fun buildReviewStats(reviews: List<Review>): Map<String, ReviewStat> {
+    val grouped = reviews.filter { it.productId.isNotBlank() }.groupBy { it.productId }
+    return grouped.mapValues { (_, list) ->
+        val valid = list.filter { it.rating in 1..5 }
+        if (valid.isEmpty()) ReviewStat() else ReviewStat(valid.map { it.rating }.average(), valid.size)
+    }
+}
+
+/**
+ * "Ratings & Reviews" card for the product detail page: average stars + count at
+ * the top, a write action when the customer has a DELIVERED order for the product
+ * (read-only otherwise), then the individual reviews or an honest empty state.
+ */
+@Composable
+private fun RatingsAndReviewsSection(
+    reviews: List<Review>,
+    average: Double,
+    count: Int,
+    canReview: Boolean,
+    onWriteReview: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.review_section_title),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (count > 0) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    StarRow(rating = average.toInt(), starSize = 16)
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.review_summary, formatRating(average), count),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            if (canReview) {
+                Button(
+                    onClick = onWriteReview,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(
+                        text = stringResource(R.string.review_write_action),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.review_verified_only),
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (reviews.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.review_empty),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                reviews.forEach { review ->
+                    ReviewRow(review = review)
+                }
+            }
+        }
+    }
+}
+
+/** One review: author, star row, optional text and date. */
+@Composable
+private fun ReviewRow(review: Review) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = review.authorName.ifBlank { stringResource(R.string.review_anonymous) },
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = formatReviewDate(review.createdAt),
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        StarRow(rating = review.rating, starSize = 12)
+        if (review.text.isNotBlank()) {
+            Text(
+                text = review.text,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}

@@ -930,4 +930,31 @@
     <string name="profile_customize_default_pet">ഈ അക്കൗണ്ടിന്റെ സ്ഥിരം വളർത്തുമൃഗത്തിന്റെ പേരും വിവരങ്ങളും ക്രമീകരിക്കുക:</string>
     <string name="partners_grooming_studio_banner">വാഗ്മിയ ഗ്രൂമിംഗ് സ്റ്റുഡിയോ ബാനർ</string>
     <string name="dialogs_lost_pet_description_default">നീല കോളറും വാഗ്മിയ ടാഗും ധരിച്ചിരിക്കുന്നു. വിസിൽ കേൾക്കുമ്പോൾ സൗഹൃദത്തോടെ പ്രതികരിക്കും.</string>
+    <!-- Ratings & Reviews (products + dealers) -->
+    <string name="review_section_title">റേറ്റിംഗും അവലോകനങ്ങളും</string>
+    <string name="review_summary">%1$s (%2$d അവലോകനങ്ങൾ)</string>
+    <string name="review_card_summary">%1$s (%2$d)</string>
+    <string name="review_new_badge">പുതിയത്</string>
+    <string name="review_empty">ഇതുവരെ അവലോകനങ്ങളില്ല. ആദ്യം അവലോകനം നൽകൂ.</string>
+    <string name="review_write_action">ഒരു അവലോകനം എഴുതുക</string>
+    <string name="review_verified_only">ഡെലിവറി ചെയ്ത ഓർഡറിൽ ഈ ഉൽപ്പന്നം ലഭിച്ച ഉപഭോക്താക്കൾക്ക് മാത്രമേ അവലോകനം നൽകാൻ കഴിയൂ.</string>
+    <string name="review_dialog_title">ഒരു അവലോകനം എഴുതുക</string>
+    <string name="review_rating_label">നിങ്ങളുടെ റേറ്റിംഗ്</string>
+    <string name="review_text_label">നിങ്ങളുടെ അവലോകനം (ഓപ്ഷണൽ)</string>
+    <string name="review_submit">അവലോകനം സമർപ്പിക്കുക</string>
+    <string name="review_submitted">നന്ദി! നിങ്ങളുടെ അവലോകനം സമർപ്പിച്ചു.</string>
+    <string name="review_failed">നിങ്ങളുടെ അവലോകനം സമർപ്പിക്കാനായില്ല. വീണ്ടും ശ്രമിക്കുക.</string>
+    <string name="review_star_content_description">%1$d സ്റ്റാറുകൾ</string>
+    <string name="review_anonymous">വളർത്തുമൃഗ സ്നേഹി</string>
+    <string name="review_dealer_partner_label">ഡെലിവറി പങ്കാളി: %1$s</string>
+    <string name="review_dealer_summary">%1$s (%2$d അവലോകനങ്ങൾ)</string>
+    <string name="review_dealer_action">ഡെലിവറി പങ്കാളിയെ റേറ്റ് ചെയ്യുക</string>
+    <string name="review_dealer_dialog_title">ഡെലിവറി പങ്കാളിയെ റേറ്റ് ചെയ്യുക</string>
+    <string name="admin_reviews_card_title">അവലോകനങ്ങൾ</string>
+    <string name="admin_reviews_card_subtitle">ഉപഭോക്തൃ റേറ്റിംഗും അവലോകനങ്ങളും</string>
+    <string name="admin_reviews_empty">ഇതുവരെ അവലോകനങ്ങളില്ല. ഉപഭോക്തൃ അവലോകനങ്ങൾ ഇവിടെ കാണാം.</string>
+    <string name="admin_review_target_label">ഇതിനായി: %1$s</string>
+    <string name="admin_review_delete_title">അവലോകനം ഡിലീറ്റ് ചെയ്യുക</string>
+    <string name="admin_review_delete_body">ഈ അവലോകനം ഡിലീറ്റ് ചെയ്യണോ? ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
 </resources>
+

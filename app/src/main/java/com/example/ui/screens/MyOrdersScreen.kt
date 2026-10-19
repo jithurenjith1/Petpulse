@@ -52,10 +52,14 @@ import androidx.compose.ui.unit.sp
 import com.petpulse.app.R
 import com.petpulse.app.data.model.AdminOrder
 import com.petpulse.app.data.model.ServiceBooking
+import com.petpulse.app.data.model.Review
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.MaterialTheme
+import com.petpulse.app.ui.components.StarRow
+import com.petpulse.app.ui.components.WriteReviewDialog
+import com.petpulse.app.ui.components.formatRating
 
 // ---- App palette ----
 private val CoralPrimary = Color(0xFF6A4C93)
@@ -83,6 +87,8 @@ private val CancelledLight = Color(0xFFF7DCD9)
 fun MyOrdersScreen(
     orders: List<AdminOrder>,
     bookings: List<ServiceBooking> = emptyList(),
+    dealerReviews: List<Review> = emptyList(),
+    onSubmitDealerReview: (String, Int, String, String) -> Unit = { _, _, _, _ -> },
     onConfirmReceived: (String) -> Unit = {},
     onBuyAgain: (AdminOrder) -> Unit,
     onClose: () -> Unit
@@ -168,6 +174,8 @@ fun MyOrdersScreen(
                         items(orders, key = { it.id }) { order ->
                             MyOrderCard(
                                 order = order,
+                                dealerReviews = dealerReviews,
+                                onSubmitDealerReview = onSubmitDealerReview,
                                 onBuyAgain = { onBuyAgain(order) },
                                 onCallDealer = { phone ->
                                     if (phone.isNotBlank()) {
@@ -245,12 +253,15 @@ private fun EmptyState(icon: @Composable () -> Unit, title: String, message: Str
 @Composable
 private fun MyOrderCard(
     order: AdminOrder,
+    dealerReviews: List<Review> = emptyList(),
+    onSubmitDealerReview: (String, Int, String, String) -> Unit = { _, _, _, _ -> },
     onBuyAgain: () -> Unit,
     onCallDealer: (String) -> Unit
 ) {
     val dateText = if (order.createdAt > 0) {
         SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(order.createdAt))
     } else ""
+    var showDealerReview by remember { mutableStateOf(false) }
 
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -368,7 +379,72 @@ private fun MyOrderCard(
                 Spacer(Modifier.width(6.dp))
                 Text("Buy Again", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
+
+            // Dealer / delivery-partner review - only after the order is DELIVERED.
+            // The partner that fulfilled the order is order.dealerName; a customer
+            // may rate them once (and only once) the order shows DELIVERED.
+            if (order.status == "DELIVERED" && order.dealerName.isNotBlank()) {
+                val dealerRatings = dealerReviews.filter { it.dealerName == order.dealerName }
+                val dealerAverage = if (dealerRatings.isEmpty()) 0.0 else dealerRatings.map { it.rating }.average()
+                Spacer(Modifier.height(12.dp))
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = TealLight,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text(
+                            text = stringResource(R.string.review_dealer_partner_label, order.dealerName),
+                            color = TealAccent,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                        if (dealerRatings.isNotEmpty()) {
+                            Spacer(Modifier.height(4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                StarRow(rating = dealerAverage.toInt(), starSize = 13)
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    text = stringResource(
+                                        R.string.review_dealer_summary,
+                                        formatRating(dealerAverage),
+                                        dealerRatings.size
+                                    ),
+                                    color = TextGray,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Button(
+                            onClick = { showDealerReview = true },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = TealAccent),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            modifier = Modifier.height(34.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.review_dealer_action),
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    if (showDealerReview) {
+        WriteReviewDialog(
+            title = stringResource(R.string.review_dealer_dialog_title),
+            onDismiss = { showDealerReview = false },
+            onSubmit = { rating, text ->
+                onSubmitDealerReview(order.dealerName, rating, text, order.id)
+                showDealerReview = false
+            }
+        )
     }
 }
 

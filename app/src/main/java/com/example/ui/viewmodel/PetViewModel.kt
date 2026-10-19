@@ -270,6 +270,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         .flatMapLatest { commerceRepo.observeMyBookings() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    // Customer reviews for products + dealers (public read, signed-in create).
+    val reviews: StateFlow<List<Review>> = commerceRepo.observeReviews()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     val adminDealers: StateFlow<List<Dealer>> = commerceRepo.observeDealers()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -1062,6 +1066,49 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun adminUpdateOrderStatus(orderId: String, status: String) {
         viewModelScope.launch {
             _commerceEvent.value = if (commerceRepo.updateOrderStatus(orderId, status).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Customer submits a product review (reachable only for a DELIVERED order). */
+    fun submitProductReview(productId: String, rating: Int, text: String, orderId: String) {
+        viewModelScope.launch {
+            val review = Review(
+                id = "",
+                productId = productId,
+                dealerName = "",
+                ownerId = "",
+                authorName = _customerProfile.value.name.ifBlank { "Pet Lover" },
+                rating = rating,
+                text = text,
+                orderId = orderId,
+                createdAt = 0L
+            )
+            _commerceEvent.value = if (commerceRepo.addReview(review).isSuccess) R.string.review_submitted else R.string.review_failed
+        }
+    }
+
+    /** Customer submits a dealer / delivery-partner review after a DELIVERED order. */
+    fun submitDealerReview(dealerName: String, rating: Int, text: String, orderId: String) {
+        viewModelScope.launch {
+            val review = Review(
+                id = "",
+                productId = "",
+                dealerName = dealerName,
+                ownerId = "",
+                authorName = _customerProfile.value.name.ifBlank { "Pet Lover" },
+                rating = rating,
+                text = text,
+                orderId = orderId,
+                createdAt = 0L
+            )
+            _commerceEvent.value = if (commerceRepo.addReview(review).isSuccess) R.string.review_submitted else R.string.review_failed
+        }
+    }
+
+    /** Admin deletes an abusive review (rules enforce owner-only delete). */
+    fun adminDeleteReview(reviewId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteReview(reviewId).isSuccess) R.string.admin_saved else R.string.admin_failed
         }
     }
 

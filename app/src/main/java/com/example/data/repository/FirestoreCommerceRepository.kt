@@ -25,6 +25,7 @@ import com.petpulse.app.data.model.SupportTicket
 import com.petpulse.app.data.model.Dealer
 import com.petpulse.app.data.model.OrderItemSnap
 import com.petpulse.app.data.model.PartnerCommission
+import com.petpulse.app.data.model.Review
 import com.petpulse.app.data.model.ServiceBooking
 import com.petpulse.app.data.model.ShopProduct
 import com.petpulse.app.data.model.VerifiedDoctor
@@ -1152,4 +1153,75 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             Result.failure(e)
         }
     }
+
+    // ---------- reviews (product + dealer ratings, public read) ----------
+
+    /** Live stream of every review (product + dealer). Public read. */
+    fun observeReviews(): Flow<List<Review>> = callbackFlow {
+        val sub = db.collection("reviews").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
+            if (err != null) {
+                Log.e("FsCommerce", "reviews listen failed", err)
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(
+                snap?.documents
+                    ?.mapNotNull { it.toReview() }
+                    ?.sortedByDescending { it.createdAt }
+                    ?: emptyList()
+            )
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toReview(): Review? = try {
+        Review(
+            id = id,
+            productId = getString("productId") ?: "",
+            dealerName = getString("dealerName") ?: "",
+            ownerId = getString("ownerId") ?: "",
+            authorName = getString("authorName") ?: "",
+            rating = (getLong("rating") ?: 0L).toInt(),
+            text = getString("text") ?: "",
+            orderId = getString("orderId") ?: "",
+            createdAt = getLong("createdAt") ?: 0L
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed review ${id}", e)
+        null
+    }
+
+    /**
+     * Persists a review. ownerId is always forced to the signed-in uid so it
+     * matches the security rule (request.auth.uid == ownerId).
+     */
+    suspend fun addReview(review: Review): Result<Unit> {
+        return try {
+            val user = auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            db.collection("reviews").document().set(
+                mapOf(
+                    "productId" to review.productId,
+                    "dealerName" to review.dealerName,
+                    "ownerId" to user.uid,
+                    "authorName" to review.authorName,
+                    "rating" to review.rating,
+                    "text" to review.text,
+                    "orderId" to review.orderId,
+                    "createdAt" to System.currentTimeMillis()
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "addReview failed", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteReview(reviewId: String): Result<Unit> = try {
+        db.collection("reviews").document(reviewId).delete().await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
 }

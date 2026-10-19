@@ -930,4 +930,31 @@
     <string name="profile_customize_default_pet">Customize the default pet name and details for this account:</string>
     <string name="partners_grooming_studio_banner">Wagmiya Grooming Studio Banner</string>
     <string name="dialogs_lost_pet_description_default">Wearing a blue collar with Wagmiya tag. Responds to whistle and friendly.</string>
+    <!-- Ratings & Reviews (products + dealers) -->
+    <string name="review_section_title">Ratings &amp; Reviews</string>
+    <string name="review_summary">%1$s (%2$d reviews)</string>
+    <string name="review_card_summary">%1$s (%2$d)</string>
+    <string name="review_new_badge">New</string>
+    <string name="review_empty">No reviews yet. Be the first to review this product.</string>
+    <string name="review_write_action">Write a review</string>
+    <string name="review_verified_only">Only customers who received this product in a delivered order can review it.</string>
+    <string name="review_dialog_title">Write a review</string>
+    <string name="review_rating_label">Your rating</string>
+    <string name="review_text_label">Your review (optional)</string>
+    <string name="review_submit">Submit review</string>
+    <string name="review_submitted">Thanks! Your review was submitted.</string>
+    <string name="review_failed">Could not submit your review. Please try again.</string>
+    <string name="review_star_content_description">%1$d stars</string>
+    <string name="review_anonymous">Pet Lover</string>
+    <string name="review_dealer_partner_label">Delivery partner: %1$s</string>
+    <string name="review_dealer_summary">%1$s (%2$d reviews)</string>
+    <string name="review_dealer_action">Rate the delivery partner</string>
+    <string name="review_dealer_dialog_title">Rate the delivery partner</string>
+    <string name="admin_reviews_card_title">Reviews</string>
+    <string name="admin_reviews_card_subtitle">Customer ratings &amp; reviews</string>
+    <string name="admin_reviews_empty">No reviews yet. Customer reviews will appear here.</string>
+    <string name="admin_review_target_label">For: %1$s</string>
+    <string name="admin_review_delete_title">Delete review</string>
+    <string name="admin_review_delete_body">Delete this review? This cannot be undone.</string>
 </resources>
+

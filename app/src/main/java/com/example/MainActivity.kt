@@ -187,6 +187,7 @@ val appCtx = LocalContext.current
     val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
     val escrowOrders by viewModel.escrowOrders.collectAsStateWithLifecycle()
     val myOrders by viewModel.myOrders.collectAsStateWithLifecycle()
+    val reviews by viewModel.reviews.collectAsStateWithLifecycle()
 
     val filteredMarketPets by viewModel.filteredMarketPets.collectAsStateWithLifecycle()
     val marketFoods by viewModel.marketFoodsFiltered.collectAsStateWithLifecycle()
@@ -481,6 +482,11 @@ val appCtx = LocalContext.current
                         trainingGuides = marketTrainingGuides,
                         onGuideItemAction = { msg ->
                             coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
+                        },
+                        reviews = reviews,
+                        myOrders = myOrders,
+                        onSubmitReview = { product, rating, text, orderId ->
+                            viewModel.submitProductReview(product.id, rating, text, orderId)
                         }
                     )
                 }
@@ -661,6 +667,10 @@ val appCtx = LocalContext.current
         MyOrdersScreen(
             orders = myOrders,
             bookings = myBookings,
+            dealerReviews = reviews,
+            onSubmitDealerReview = { name, rating, text, orderId ->
+                viewModel.submitDealerReview(name, rating, text, orderId)
+            },
             onConfirmReceived = { id -> viewModel.markBookingReceived(id) },
             onBuyAgain = { order ->
                 viewModel.reorderFromOrder(order)
@@ -697,6 +707,8 @@ val appCtx = LocalContext.current
             newsPosts = newsPosts,
             onAddNewsPost = { t, b, cat, a, l, uri -> viewModel.adminAddNewsPost(t, b, cat, a, l, uri) },
             onDeleteNewsPost = { id -> viewModel.adminDeleteNewsPost(id) },
+            reviews = reviews,
+            onDeleteReview = { id -> viewModel.adminDeleteReview(id) },
             supportTickets = adminSupportTickets,
             rescueReports = adminRescueReports,
             onDeleteSupportTicket = { id -> viewModel.adminDeleteSupportTicket(id) },

@@ -42,6 +42,9 @@ import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.data.model.PartnerCommission
 import com.petpulse.app.data.model.NewsPost
+import com.petpulse.app.data.model.Review
+import com.petpulse.app.ui.components.StarRow
+import com.petpulse.app.ui.components.formatReviewDate
 import coil.compose.AsyncImage
 
 private val adminListTypes = listOf("Food", "Medicine", "Grooming", "Accessory", "Training", "Subscription", "Boarding", "Trainer")
@@ -77,6 +80,8 @@ fun AdminScreen(
     partnerApplications: List<PartnerApplication> = emptyList(),
     partnerCommissions: List<PartnerCommission> = emptyList(),
     newsPosts: List<NewsPost> = emptyList(),
+    reviews: List<Review> = emptyList(),
+    onDeleteReview: (String) -> Unit = {},
     onAddNewsPost: (String, String, String, String, String, Uri?) -> Unit = { _, _, _, _, _, _ -> },
     onDeleteNewsPost: (String) -> Unit = {},
     onSetPartnerCommission: (PartnerCommission) -> Unit = {},
@@ -319,6 +324,7 @@ fun AdminScreen(
                             onTogglePaid = { row -> onSetPartnerDuesPaid(row.toCommission(), !row.duesPaid) }
                         )
                         "NEWS" -> NewsAdminTab(posts = newsPosts, onAdd = onAddNewsPost, onDelete = onDeleteNewsPost)
+                        "REVIEWS" -> ReviewsAdminTab(reviews = reviews, onDelete = onDeleteReview)
                         else -> DealersAdminTab(dealers = dealers, onAdd = onAddDealer, onDelete = onDeleteDealer)
                     }
                 }
@@ -568,6 +574,7 @@ private fun sectionTitle(key: String?): String = when (key) {
     "PARTNERS" -> "🤝 Partner Applications"
     "DEALERS" -> "🚚 Dealers"
     "LEDGER" -> "Partner Ledger"
+    "REVIEWS" -> "Reviews"
     else -> "Admin"
 }
 
@@ -606,7 +613,8 @@ private fun AdminDashboard(
         "PARTNERS" to ("Partner Applications" to "Business joins + featured plans"),
         "LEDGER" to (stringResource(R.string.admin_ledger_title_card) to stringResource(R.string.admin_ledger_subtitle)),
         "DEALERS" to ("Dealers" to stringResource(R.string.admin_dealers_subtitle)),
-        "NEWS" to (stringResource(R.string.admin_news_card_title) to stringResource(R.string.admin_news_card_subtitle))
+        "NEWS" to (stringResource(R.string.admin_news_card_title) to stringResource(R.string.admin_news_card_subtitle)),
+        "REVIEWS" to (stringResource(R.string.admin_reviews_card_title) to stringResource(R.string.admin_reviews_card_subtitle))
     )
     val totalPending = pendingTotal ?: pendingCounts.values.sum()
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1753,6 +1761,75 @@ private fun RescueReportsAdminTab(reports: List<RescueReport>, onDelete: (String
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ReviewsAdminTab(reviews: List<Review> = emptyList(), onDelete: (String) -> Unit = {}) {
+    var pendingDelete by remember { mutableStateOf<Review?>(null) }
+    if (reviews.isEmpty()) {
+        Text(stringResource(R.string.admin_reviews_empty), fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(reviews, key = { it.id }) { review ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            review.authorName.ifBlank { stringResource(R.string.review_anonymous) },
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            formatReviewDate(review.createdAt),
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    StarRow(rating = review.rating, starSize = 13)
+                    val target = if (review.productId.isNotBlank()) review.productId else review.dealerName
+                    if (target.isNotBlank()) {
+                        Text(
+                            stringResource(R.string.admin_review_target_label, target),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (review.text.isNotBlank()) {
+                        Text(review.text, fontSize = 12.sp)
+                    }
+                    TextButton(onClick = { pendingDelete = review }) {
+                        Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        }
+    }
+    pendingDelete?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(R.string.admin_review_delete_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_review_delete_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete(target.id)
+                    pendingDelete = null
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(R.string.community_cancel))
+                }
+            }
+        )
     }
 }
 
