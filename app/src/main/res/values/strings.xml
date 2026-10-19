@@ -926,4 +926,8 @@
     <string name="fcm_default_title">Wagmiya</string>
     <string name="fcm_default_body">You have a new notification.</string>
     <string name="fcm_default_channel_id">wagmiya_default_channel</string>
+    <!-- Account cleanup: strings edited when the old demo naming was removed. -->
+    <string name="profile_customize_default_pet">Customize the default pet name and details for this account:</string>
+    <string name="partners_grooming_studio_banner">Wagmiya Grooming Studio Banner</string>
+    <string name="dialogs_lost_pet_description_default">Wearing a blue collar with Wagmiya tag. Responds to whistle and friendly.</string>
 </resources>

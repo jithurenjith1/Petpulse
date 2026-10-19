@@ -812,45 +812,89 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     /**
-     * Account deletion (Google Play requirement): removes ALL user data from
-     * Firestore (pets + subcollections, profile, posts, listings, orders,
-     * bookings) and finally deletes the Firebase Auth account itself.
-     * Returns success when the Firestore data was removed (auth deletion is
-     * best-effort because Firebase may require a recent login).
+     * Account deletion (Google Play requirement): removes ALL of the signed-in
+     * user's OWN data from Firestore and then deletes the Firebase Auth account.
+     *
+     * Owner fields verified in the app AND in firestore.rules:
+     *   pets (+ vaccinations / certificates / medical_reports) -> users/{uid}/...
+     *   users/{uid}                 -> the profile document itself
+     *   community_posts             -> ownerId
+     *   market_listings             -> ownerId
+     *   orders                      -> ownerId
+     *   bookings                    -> ownerId
+     *   pet_tags                    -> ownerUid  (deleted by its KNOWN document id)
+     *
+     * NOT deleted here, because the security rules forbid an owner delete (the
+     * exact rule change each one needs is written at the step below): tag_scans
+     * (ownerUid) and lost_pet_alerts (ownerId). Only the user's OWN documents are
+     * ever touched - never another user's.
+     *
+     * Returns success only when every step succeeded. A failure anywhere -
+     * including the Auth-account deletion - is reported as a failure so the UI
+     * never claims success when part of the deletion failed.
      */
     suspend fun deleteAllUserData(): Result<Unit> {
         val currentUid = auth.currentUser?.uid
             ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
         return try {
             val userRoot = db.collection("users").document(currentUid)
-            // 1. pets + their subcollections
+            // 1. pets + their subcollections + their PUBLIC pet_tags documents
             val pets = userRoot.collection("pets").get().await()
             for (petDoc in pets.documents) {
                 for (sub in listOf("vaccinations", "certificates", "medical_reports")) {
                     val subDocs = petDoc.reference.collection(sub).get().await()
                     for (d in subDocs.documents) d.reference.delete().await()
                 }
+                // The pet's public QR tag lives at "pet_tags/{qrPublicId}" with
+                // ownerUid == me. pet_tags allows an OWNER DELETE but NOT a list
+                // (allow list: if false), so it is deleted by its KNOWN document
+                // id (read off the pet document) - a whereEqualTo() query would be
+                // denied. Guarded with a get() because deleting a NON-EXISTENT
+                // document makes the rules evaluate resource.data on null and the
+                // delete would be denied.
+                val publicId = petDoc.getString("qrPublicId") ?: ""
+                if (publicId.isNotBlank()) {
+                    val tagRef = db.collection("pet_tags").document(publicId)
+                    if (tagRef.get().await().exists()) {
+                        tagRef.delete().await()
+                    }
+                }
                 petDoc.reference.delete().await()
             }
             // 2. user profile document
             userRoot.delete().await()
-            // 3. own community posts
+            // 3. own community posts (ownerId)
             val posts = db.collection("community_posts").whereEqualTo("ownerId", currentUid).get().await()
             for (d in posts.documents) d.reference.delete().await()
-            // 4. own market listings
+            // 4. own market listings (ownerId)
             val listings = db.collection("market_listings").whereEqualTo("ownerId", currentUid).get().await()
             for (d in listings.documents) d.reference.delete().await()
-            // 5. own orders + bookings
+            // 5. own orders + bookings (ownerId)
             val orders = db.collection("orders").whereEqualTo("ownerId", currentUid).get().await()
             for (d in orders.documents) d.reference.delete().await()
             val bookings = db.collection("bookings").whereEqualTo("ownerId", currentUid).get().await()
             for (d in bookings.documents) d.reference.delete().await()
-            // 6. the Firebase Auth account (best-effort)
-            try {
-                auth.currentUser?.delete()?.await()
-            } catch (e: Exception) {
-                Log.e("FirestorePetRepo", "Auth account delete failed (data already removed)", e)
+            // 6. own tag_scans (ownerUid) - NOT deleted: the tag_scans rules allow
+            //    an owner READ but provide NO delete rule, so a client delete is
+            //    denied. Deliberately left to a rules change (NOT applied here,
+            //    because widening delete access is out of scope for this task):
+            //      match /tag_scans/{scanId} {
+            //        allow delete: if isSignedIn()
+            //          && resource.data.ownerUid == request.auth.uid;
+            //      }
+            // 7. own lost_pet_alerts (ownerId) - NOT deleted: the lost_pet_alerts
+            //    rules allow delete only for the admin, so an owner delete is
+            //    denied. Deliberately left to a rules change (NOT applied here):
+            //      allow delete: if isAdmin()
+            //        || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+            // 8. the Firebase Auth account itself. Required for a complete deletion,
+            //    so a failure here is reported honestly (Firebase may demand a
+            //    recent login) instead of being swallowed.
+            val user = auth.currentUser
+            if (user == null) {
+                return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
             }
+            user.delete().await()
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e("FirestorePetRepo", "deleteAllUserData failed", e)

@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                         onExit = { finish() }
                     )
                 } else if (authState.isAuthenticated && authState.user != null) {
-                JaneAndPalsApp(viewModel = viewModel, authViewModel = authViewModel)
+                WagmiyaApp(viewModel = viewModel, authViewModel = authViewModel)
                 } else {
                     LoginScreen(authViewModel = authViewModel, onAuthSuccess = { })
                 }
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun JaneAndPalsApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null) {
+fun WagmiyaApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null) {
     // Theme preference - collected here (not just in MainActivity's setContent scope) so the
     // Settings switch recomposes this composable and MyPetsScreen reactively.
     val darkTheme by viewModel.darkTheme.collectAsStateWithLifecycle()

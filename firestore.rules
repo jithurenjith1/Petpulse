@@ -15,16 +15,21 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Admins: original owner account + business email.
-    // Added a null guard on token.email and case-insensitive comparison
-    // (the app lowercases the email before using it as a doc id).
+    // Admins: SINGLE source of truth - the `admins/{email}` identity document.
+    // This mirrors exactly what the app reads in
+    // FirestoreCommerceRepository.observeIsAdmin() (db.collection("admins")
+    // .document(email)). The previous hard-coded email allow-list
+    // ('jithurenjith1@gmail.com' / 'itspetpulse@gmail.com') was a SECOND,
+    // competing definition of "admin" and has been removed so the two can never
+    // drift. This is NOT a weakening: writes to `admins/*` are fully denied
+    // below (allow write: if false), so the admin set can only be changed from
+    // the Firebase console - the same trust boundary as before. The null guard
+    // and case-insensitive match are kept (the app lowercases the email before
+    // using it as a doc id).
     function isAdmin() {
       return isSignedIn()
         && request.auth.token.email != null
-        && (
-          request.auth.token.email.lower() == 'jithurenjith1@gmail.com' ||
-          request.auth.token.email.lower() == 'itspetpulse@gmail.com'
-        );
+        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()));
     }
 
     // ---------- users: own pets, vaccinations, certificates, medical reports ----------

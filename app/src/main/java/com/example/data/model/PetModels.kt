@@ -10,26 +10,32 @@ data class UserPet(
     // replacing an existing row) and FirestorePetRepository.savePet creates a new
     // document. Existing pets carry their real (non-zero) id.
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
-    val name: String = "Jane",
-    val species: String = "Dog",
-    val breed: String = "Indie",
-    val gender: String = "Female",
-    val ageYears: Int = 1,
-    val ageMonths: Int = 8,
-    val weightKg: Double = 14.5,
-    val microchipNumber: String = "IND-9842-JANE",
-    val hasCertificate: Boolean = true,
-    val certificateNumber: String = "CERT-KC-884210",
-    val certificateIssuedBy: String = "Kennel Club & Pet Registry Council",
-    val certificateDate: String = "Jan 15, 2025",
+    // NOTE: every field below defaults to an EMPTY / neutral value. There is no
+    // invented demo pet identity (name, microchip, weight, certificate, ...) any
+    // more: a UserPet built with defaults represents "no pet yet", and the UI
+    // shows the real empty state for it (id 0). Defaults are still mandatory so
+    // Room and Firestore toObject() keep working for documents that predate a
+    // field.
+    val name: String = "",
+    val species: String = "",
+    val breed: String = "",
+    val gender: String = "",
+    val ageYears: Int = 0,
+    val ageMonths: Int = 0,
+    val weightKg: Double = 0.0,
+    val microchipNumber: String = "",
+    val hasCertificate: Boolean = false,
+    val certificateNumber: String = "",
+    val certificateIssuedBy: String = "",
+    val certificateDate: String = "",
     val favoriteFoods: String = "",
     val favoritePlays: String = "",
-    val trainingStatus: String = "Basic Completed (Sit, Stay, Paw, Heel)",
-    val trainingLevel: String = "Basic", // Basic, Advanced, In Progress, Blank
-    val trainingMilestones: String = "Sit, Stay (30s), Paw / High Five, Heel Walk, Emergency Recall",
-    val avatarRes: String = "img_dog_jane",
+    val trainingStatus: String = "",
+    val trainingLevel: String = "", // Basic, Advanced, In Progress, Blank
+    val trainingMilestones: String = "",
+    val avatarRes: String = "",
     val photoUri: String = "",
-    val notes: String = "Very energetic, friendly with children, loves morning park walks.",
+    val notes: String = "",
     // Free-text result of the Premium "AI Pet Photo Analysis" feature. Defaulted so
     // both Room and Firestore toObject() keep working for existing documents.
     val aiAnalysis: String = "",

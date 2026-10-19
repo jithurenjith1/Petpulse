@@ -183,10 +183,10 @@ fun MyPetsScreen(
     var certificatePhotoViewer by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // The demo placeholder pet (UserPet() with id 0L) is shown only when the
-    // account has no real saved pet yet. Its "Jane" / "IND-9842-JANE" / 14.5 kg
-    // values are fake defaults, so present a genuine "no pets yet" empty state
-    // instead of them (and never pretend they belong to the user).
+    // The placeholder pet (UserPet() with id 0L) is shown only when the account
+    // has no real saved pet yet. Its fields are all blank defaults now, so present
+    // a genuine "no pets yet" empty state instead of them (and never pretend they
+    // belong to the user).
     val isPlaceholderPet = pet.id <= 0L
     val hasPetDetails = !isPlaceholderPet && pet.name.isNotBlank()
     val petTitle = when {
@@ -202,7 +202,7 @@ fun MyPetsScreen(
             .testTag("my_pets_screen"),
         contentPadding = PaddingValues(bottom = 90.dp, top = 8.dp)
     ) {
-        // 2. Jane's Hero Profile Card
+        // 2. Pet Hero Profile Card
         item {
             Card(
                 modifier = Modifier

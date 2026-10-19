@@ -682,8 +682,8 @@ fun GroomingCenterCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            // Show studio photo for Jane's Grooming Studio
-            if (center.name.contains("Jane's")) {
+            // Show studio photo for Wagmiya's Grooming Studio
+            if (center.name.contains("Wagmiya's")) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -692,7 +692,7 @@ fun GroomingCenterCard(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.img_grooming_studio),
-                        contentDescription = "Jane's Grooming Studio Banner",
+                        contentDescription = stringResource(R.string.partners_grooming_studio_banner),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )

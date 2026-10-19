@@ -29,7 +29,7 @@ jobs:
           keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android 2>/dev/null | grep SHA1
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon -x test
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

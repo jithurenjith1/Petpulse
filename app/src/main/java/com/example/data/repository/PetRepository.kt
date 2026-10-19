@@ -224,7 +224,7 @@ class PetRepository(private val petDao: PetDao) {
     // Partner Businesses
     fun getFeaturedGroomingCenters(): List<GroomingCenter> = listOf(
         GroomingCenter(
-            name = "Jane's Grooming Studio",
+            name = "Wagmiya's Grooming Studio",
             tagLine = "Luxury Spa & Styling Center for Dogs, Cats & Small Pets",
             address = "742 Blue Ridge Ave, Metro Pet District",
             distance = "1.2 km away",

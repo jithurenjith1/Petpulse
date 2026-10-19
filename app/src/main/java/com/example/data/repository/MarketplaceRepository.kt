@@ -562,7 +562,7 @@ class MarketplaceRepository {
             timeline = listOf(
                 OrderTimelineEvent(
                     title = "Order Placed & Escrow Secured",
-                    description = "₹4,810 held securely in Jane & Pals Escrow vault.",
+                    description = "₹4,810 held securely in Wagmiya Escrow vault.",
                     timestamp = "11:15 AM",
                     isCompleted = true
                 ),
@@ -603,7 +603,7 @@ class MarketplaceRepository {
             clinicName = "Cochin Pet Specialty Hospital",
             city = "Kochi",
             consultType = "Video Consultation",
-            petName = "Jane",
+            petName = "",
             date = "Tomorrow",
             timeSlot = "04:30 PM - 05:00 PM",
             feeInr = 399.0,

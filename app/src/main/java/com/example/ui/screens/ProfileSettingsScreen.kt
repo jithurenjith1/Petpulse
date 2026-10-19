@@ -268,7 +268,7 @@ fun ProfileSettingsScreen(
             }
         }
 
-        // 3. Settings Menu: Rename Jane & Configure Default Pet
+        // 3. Settings Menu: Rename & Configure Default Pet
         item {
             Card(
                 modifier = Modifier
@@ -297,7 +297,7 @@ fun ProfileSettingsScreen(
                     }
 
                     Text(
-                        text = "Customize the default inbuilt pet name (Jane) and details for this account:",
+                        text = stringResource(R.string.profile_customize_default_pet),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

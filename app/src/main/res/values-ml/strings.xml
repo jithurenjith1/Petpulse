@@ -926,4 +926,8 @@
     <string name="fcm_default_title">വാഗ്മിയ</string>
     <string name="fcm_default_body">നിങ്ങൾക്ക് ഒരു പുതിയ അറിയിപ്പ് ഉണ്ട്.</string>
     <string name="fcm_default_channel_id">wagmiya_default_channel</string>
+    <!-- Account cleanup: strings edited when the old demo naming was removed. -->
+    <string name="profile_customize_default_pet">ഈ അക്കൗണ്ടിന്റെ സ്ഥിരം വളർത്തുമൃഗത്തിന്റെ പേരും വിവരങ്ങളും ക്രമീകരിക്കുക:</string>
+    <string name="partners_grooming_studio_banner">വാഗ്മിയ ഗ്രൂമിംഗ് സ്റ്റുഡിയോ ബാനർ</string>
+    <string name="dialogs_lost_pet_description_default">നീല കോളറും വാഗ്മിയ ടാഗും ധരിച്ചിരിക്കുന്നു. വിസിൽ കേൾക്കുമ്പോൾ സൗഹൃദത്തോടെ പ്രതികരിക്കും.</string>
 </resources>

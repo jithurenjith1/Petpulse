@@ -1880,7 +1880,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 trainingStatus = "",
                 trainingLevel = "",
                 trainingMilestones = "",
-                avatarRes = "img_dog_jane",
+                avatarRes = "",
                 photoUri = "",
                 notes = "",
                 aiAnalysis = ""
@@ -1991,7 +1991,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 trainingStatus = "",
                 trainingLevel = "Basic",
                 trainingMilestones = "",
-                avatarRes = "img_dog_jane",
+                avatarRes = "",
                 notes = ""
             )
             try {

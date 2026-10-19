@@ -469,7 +469,8 @@ fun LostPetSosDialog(
     var location by remember { mutableStateOf("Marine Drive, Kochi") }
     var reward by remember { mutableStateOf("₹21,250") }
     var phone by remember { mutableStateOf("+91 98470 11223") }
-    var description by remember { mutableStateOf("Wearing a blue collar with Jane tag. Responds to whistle and friendly.") }
+    val defaultDescription = stringResource(R.string.dialogs_lost_pet_description_default)
+    var description by remember { mutableStateOf(defaultDescription) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
