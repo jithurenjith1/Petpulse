@@ -126,6 +126,9 @@ dependencies {
   // Firebase Crashlytics: crash and non-fatal reporting. Auto-initialises via
   // the Google Services plugin, so no manual initialisation is required.
   implementation(libs.firebase.crashlytics)
+  // Firebase Cloud Messaging: receive SOS / care notifications. Version is
+  // managed by the Firebase BOM above - do NOT pin a version here.
+  implementation(libs.firebase.messaging)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.logging.interceptor)

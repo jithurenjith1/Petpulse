@@ -1,0 +1,74 @@
+name: Send Lost Pet SOS Notifications
+
+# ---------------------------------------------------------------------------
+# OWNER SETUP (do this once, then leave it alone):
+#
+#   1. Create a repository secret named FIREBASE_SERVICE_ACCOUNT:
+#        GitHub -> your repo -> Settings -> Secrets and variables -> Actions
+#        -> New repository secret -> Name: FIREBASE_SERVICE_ACCOUNT
+#        -> Secret: paste the FULL contents of your Firebase service-account
+#        JSON key file (the whole file, including the outer { } braces).
+#
+#   2. Keep this repository PRIVATE. The secret itself is never exposed, but
+#      the app code should stay private anyway.
+#
+#   3. This workflow runs automatically every 5 minutes and can also be run
+#      by hand: Actions tab -> "Send Lost Pet SOS Notifications" -> Run workflow.
+#
+# See FCM-SETUP.md at the repo root for the full walkthrough.
+#
+# The service-account key is NEVER written into this file. It is read only
+# from the FIREBASE_SERVICE_ACCOUNT secret at run time, written to a temporary
+# file, and deleted again at the end of the job. It is never printed.
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    # Every 5 minutes (GitHub's minimum interval). Runs are best-effort and can
+    # be delayed a few minutes during busy periods - this is not instant.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+# Never let two runs overlap and notify the same alert twice.
+concurrency:
+  group: send-sos-notifications
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Firebase Admin SDK
+        run: npm install --no-save --no-package-lock firebase-admin@12
+
+      - name: Write service account to a temporary file
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "ERROR: the FIREBASE_SERVICE_ACCOUNT repository secret is not set."
+            echo "See FCM-SETUP.md at the repo root, then re-run this workflow."
+            exit 1
+          fi
+          CREDS_FILE="$RUNNER_TEMP/firebase-service-account.json"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$CREDS_FILE"
+          chmod 600 "$CREDS_FILE"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$CREDS_FILE" >> "$GITHUB_ENV"
+
+      - name: Send lost-pet SOS notifications
+        run: node .github/scripts/send-sos-notifications.js
+
+      - name: Delete temporary credentials
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-service-account.json"

@@ -9,6 +9,7 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.petpulse.app.data.model.CustomerProfile
 import com.petpulse.app.data.model.UserPet
 import com.petpulse.app.data.model.VaccinationRecord
@@ -783,11 +784,30 @@ class FirestorePetRepository(private val appContext: Context) {
                     "isLoggedIn" to profile.isLoggedIn,
                     "memberSince" to profile.memberSince,
                     "carePlan" to profile.carePlan,
-                    "carePlanUntil" to profile.carePlanUntil
+                    "carePlanUntil" to profile.carePlanUntil,
+                    "fcmToken" to profile.fcmToken
                 )
             ).await()
         } catch (e: Exception) {
             Log.e("FirestorePetRepo", "saveCustomerProfile failed", e)
+        }
+    }
+
+    /**
+     * Persist ONLY the FCM registration token on users/{uid}. Uses a merge write
+     * so the rest of the profile document is left untouched. Called from
+     * WagmiyaMessagingService.onNewToken and after sign-in. Silently no-ops when
+     * nobody is signed in (the token is saved on the next sign-in instead).
+     */
+    suspend fun saveFcmToken(token: String) {
+        if (token.isBlank()) return
+        val currentUid = auth.currentUser?.uid ?: return
+        try {
+            db.collection("users").document(currentUid)
+                .set(mapOf("fcmToken" to token), SetOptions.merge())
+                .await()
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "saveFcmToken failed", e)
         }
     }
 

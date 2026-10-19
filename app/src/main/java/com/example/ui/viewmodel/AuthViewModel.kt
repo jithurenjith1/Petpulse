@@ -10,6 +10,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,6 +40,7 @@ class AuthViewModel : ViewModel() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 _authState.value = AuthState(isLoading = false, user = result.user, isAuthenticated = true)
+                syncFcmToken()
             }
             .addOnFailureListener { exception ->
                 _authState.value = _authState.value.copy(isLoading = false, error = exception.localizedMessage ?: "Sign-in failed")
@@ -48,6 +52,7 @@ class AuthViewModel : ViewModel() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 _authState.value = AuthState(isLoading = false, user = result.user, isAuthenticated = true)
+                syncFcmToken()
             }
             .addOnFailureListener { exception ->
                 _authState.value = _authState.value.copy(isLoading = false, error = exception.localizedMessage ?: "Sign-up failed")
@@ -78,9 +83,27 @@ class AuthViewModel : ViewModel() {
         auth.signInWithCredential(credential)
             .addOnSuccessListener { result ->
                 _authState.value = AuthState(isLoading = false, user = result.user, isAuthenticated = true)
+                syncFcmToken()
             }
             .addOnFailureListener { exception ->
                 _authState.value = _authState.value.copy(isLoading = false, error = exception.localizedMessage ?: "Google sign-in failed")
+            }
+    }
+
+    /**
+     * Fetch the current FCM registration token and write it to users/{uid}.fcmToken
+     * after a successful sign-in, so a token that arrived (onNewToken) before the
+     * user signed in is not lost. Best-effort: failures are ignored.
+     */
+    private fun syncFcmToken() {
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+                val uid = auth.currentUser?.uid
+                if (uid.isNullOrBlank() || token.isBlank()) return@addOnSuccessListener
+                FirebaseFirestore.getInstance()
+                    .collection("users").document(uid)
+                    .set(mapOf("fcmToken" to token), SetOptions.merge())
+                    .addOnFailureListener { }
             }
     }
 

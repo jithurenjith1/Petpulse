@@ -166,7 +166,11 @@ data class CustomerProfile(
     // Firestore toObject() keeps working for documents that predate this field.
     val carePlan: String = "",
     // Optional plan expiry as an epoch-millis timestamp (0 = no expiry).
-    val carePlanUntil: Long = 0L
+    val carePlanUntil: Long = 0L,
+    // Firebase Cloud Messaging registration token for this user's device. Empty
+    // until the app registers with FCM (onNewToken) or after sign-in. Defaulted
+    // so Firestore toObject() keeps working for documents that predate this field.
+    val fcmToken: String = ""
 )
 
 data class SpeciesCategory(

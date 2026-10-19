@@ -120,7 +120,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     phone = remote.phone.takeIf { it.isNotBlank() } ?: current.phone,
                     location = remote.location.takeIf { it.isNotBlank() } ?: current.location,
                     carePlan = remote.carePlan,
-                    carePlanUntil = remote.carePlanUntil
+                    carePlanUntil = remote.carePlanUntil,
+                    fcmToken = remote.fcmToken.takeIf { it.isNotBlank() } ?: current.fcmToken
                 )
             }
         }
@@ -1818,7 +1819,9 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             isLoggedIn = true,
             memberSince = _customerProfile.value.memberSince,
             carePlan = existingPlan,
-            carePlanUntil = existingUntil
+            carePlanUntil = existingUntil,
+            // Preserve the FCM token so a profile save never wipes it.
+            fcmToken = _customerProfile.value.fcmToken
         )
         _customerProfile.value = updated
         // Persist the profile (including the carePlan gating fields) so the

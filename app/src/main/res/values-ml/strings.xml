@@ -920,4 +920,10 @@
     <string name="market_detail_in_stock">സ്റ്റോക്കിൽ ഉണ്ട്</string>
     <string name="market_detail_out_of_stock">സ്റ്റോക്കിൽ ഇല്ല</string>
     <string name="admin_sub_category">ഉപവിഭാഗം</string>
+
+    <!-- Firebase Cloud Messaging notifications -->
+    <string name="fcm_channel_name">വാഗ്മിയ അറിയിപ്പുകൾ</string>
+    <string name="fcm_default_title">വാഗ്മിയ</string>
+    <string name="fcm_default_body">നിങ്ങൾക്ക് ഒരു പുതിയ അറിയിപ്പ് ഉണ്ട്.</string>
+    <string name="fcm_default_channel_id">wagmiya_default_channel</string>
 </resources>

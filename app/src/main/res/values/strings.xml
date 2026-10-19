@@ -920,4 +920,10 @@
     <string name="market_detail_in_stock">In stock</string>
     <string name="market_detail_out_of_stock">Out of stock</string>
     <string name="admin_sub_category">Sub-category</string>
+
+    <!-- Firebase Cloud Messaging notifications -->
+    <string name="fcm_channel_name">Wagmiya Notifications</string>
+    <string name="fcm_default_title">Wagmiya</string>
+    <string name="fcm_default_body">You have a new notification.</string>
+    <string name="fcm_default_channel_id">wagmiya_default_channel</string>
 </resources>

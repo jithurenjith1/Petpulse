@@ -30,6 +30,21 @@
             </intent-filter>
         </activity>
 
+        <!-- Firebase Cloud Messaging: receives FCM token + message events and
+             shows the notification. No custom channel beyond the default one. -->
+        <service
+            android:name=".data.remote.WagmiyaMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Default channel for FCM notification-payload messages. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/fcm_default_channel_id" />
+
         <!-- Stores the user's in-app language choice on Android < 13 -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
