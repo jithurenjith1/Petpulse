@@ -41,7 +41,7 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
         // Read ceiling for the whole-collection listings listener: large enough
         // that the marketplace is never truncated, small enough that reads cannot
         // grow without limit.
-        private const val LISTEN_LIMIT = 200
+        private const val LISTEN_LIMIT = 200L
     }
 
     // ---------- read ----------

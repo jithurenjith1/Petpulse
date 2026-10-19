@@ -50,7 +50,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         // Generous read ceiling for whole-collection listeners: large enough that a
         // real admin/user list is never truncated, small enough that reads cannot
         // grow without limit. community_posts / news_posts keep their own 100.
-        private const val LISTEN_LIMIT = 200
+        private const val LISTEN_LIMIT = 200L
     }
 
     // ---------- admin gate ----------
