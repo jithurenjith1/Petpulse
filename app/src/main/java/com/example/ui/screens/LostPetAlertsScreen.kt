@@ -43,7 +43,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,13 +56,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.petpulse.app.data.model.FoundPetReport
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 // Wagmiya brand colors
@@ -110,42 +106,9 @@ sealed interface LostPetUiState {
     data class Error(val message: String) : LostPetUiState
 }
 
-/**
- * Listens to the "lost_pet_alerts" Firestore collection, ordered by date descending,
- * and emits [LostPetUiState] values as a cold Flow built with callbackFlow.
- *
- * The auth instance is accepted so the caller can scope queries to the signed-in
- * user when needed; here it is retained for context but the collection is public.
- */
-fun lostPetAlertsFlow(
-    db: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    @Suppress("UNUSED_PARAMETER") auth: FirebaseAuth = FirebaseAuth.getInstance()
-) = callbackFlow {
-    // Try an initial await-backed fetch so the first emission is available quickly,
-    // then subscribe to live updates via addSnapshotListener.
-    val registration = db.collection("lost_pet_alerts")
-        .orderBy("date", Query.Direction.DESCENDING)
-        .limit(200)
-        .addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                trySend(LostPetUiState.Error(error.localizedMessage ?: "Unknown error"))
-                return@addSnapshotListener
-            }
-            if (snapshot == null) {
-                trySend(LostPetUiState.Error("No data received"))
-                return@addSnapshotListener
-            }
-            val alerts = snapshot.documents.mapNotNull { doc ->
-                doc.toObject<LostPetAlertItem>()?.copy(id = doc.id)
-            }
-            trySend(LostPetUiState.Success(alerts))
-        }
-
-    // Keep the await import meaningful: an explicit one-shot read could also be
-    // performed with .get().await() before subscribing. The listener above is the
-    // primary source; awaitClose tears it down when the flow collector cancels.
-    awaitClose { registration.remove() }
-}
+// The live "lost_pet_alerts" feed is owned by PetViewModel (lostAlertsSource ->
+// lostPetAlertsUiState). The screen no longer opens its own listener, so only
+// one Firestore listener is ever open on this collection.
 
 /**
  * A one-shot variant demonstrating kotlinx.coroutines.tasks.await usage.
@@ -164,13 +127,12 @@ suspend fun fetchLostPetAlertsOnce(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LostPetAlertsScreen(
+    uiState: LostPetUiState = LostPetUiState.Loading,
     foundReports: List<FoundPetReport> = emptyList(),
     onSubmitFoundReport: (FoundPetReport, Uri?) -> Unit = { _, _ -> }
 ) {
-    // Collect the Firestore-backed flow. Falls back to sample data so the screen
-    // is previewable without a live Firebase project.
-    val flow = remember { lostPetAlertsFlow() }
-    val uiState by flow.collectAsState(initial = LostPetUiState.Loading)
+    // The alerts come from the ViewModel's single shared listener (see
+    // PetViewModel.lostPetAlertsUiState) instead of a screen-owned listener.
     var reportingAlert by remember { mutableStateOf<LostPetAlertItem?>(null) }
 
     MaterialTheme {

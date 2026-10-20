@@ -2,12 +2,15 @@ package com.petpulse.app.data.remote
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.petpulse.app.MainActivity
 import com.petpulse.app.R
 import com.petpulse.app.data.repository.FirestorePetRepository
 import kotlinx.coroutines.CoroutineScope
@@ -55,7 +58,13 @@ class WagmiyaMessagingService : FirebaseMessagingService() {
         val body = message.data["body"]
             ?: message.notification?.body
             ?: getString(R.string.fcm_default_body)
-        showNotification(title, body)
+        // Stable per-alert id so multiple SOS alerts stack instead of replacing
+        // each other and each alert's tap intent is its own.
+        val alertId = message.data["alertId"]
+            ?: message.data["sosId"]
+            ?: message.messageId
+            ?: (title + "|" + body)
+        showNotification(title, body, alertId)
     }
 
     override fun onDestroy() {
@@ -63,8 +72,8 @@ class WagmiyaMessagingService : FirebaseMessagingService() {
         serviceScope.cancel()
     }
 
-    /** Post a minimal notification using the app's existing launcher icon. */
-    private fun showNotification(title: String, body: String) {
+    /** Post a notification using the app's existing launcher icon. */
+    private fun showNotification(title: String, body: String, alertId: String) {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -74,15 +83,33 @@ class WagmiyaMessagingService : FirebaseMessagingService() {
             )
             manager.createNotificationChannel(channel)
         }
+        // Tapping the alert opens MainActivity. The PendingIntent request code is
+        // derived from the alert id so each alert gets its own tap intent instead
+        // of the first one being reused.
+        val contentIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(EXTRA_ALERT_ID, alertId)
+        }
+        val pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT or
+            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val contentPendingIntent = PendingIntent.getActivity(
+            this,
+            alertId.hashCode(),
+            contentIntent,
+            pendingFlags
+        )
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
             .build()
         try {
-            manager.notify(NOTIFICATION_ID, notification)
+            // Unique id per alert so a second SOS alert is added to the shade
+            // rather than silently overwriting the first.
+            manager.notify(alertId.hashCode(), notification)
         } catch (e: SecurityException) {
             // POST_NOTIFICATIONS not granted on Android 13+ - ignore quietly.
             Log.e(TAG, "Notification not permitted", e)
@@ -92,6 +119,6 @@ class WagmiyaMessagingService : FirebaseMessagingService() {
     companion object {
         private const val TAG = "WagmiyaMessaging"
         private const val CHANNEL_ID = "wagmiya_default_channel"
-        private const val NOTIFICATION_ID = 9001
+        private const val EXTRA_ALERT_ID = "extra_alert_id"
     }
 }

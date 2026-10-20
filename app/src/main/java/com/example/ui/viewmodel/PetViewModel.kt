@@ -29,6 +29,8 @@ import java.util.Locale
 import com.petpulse.app.data.repository.FirestoreMarketplaceRepository
 import com.petpulse.app.data.repository.FirestoreCommerceRepository
 import com.petpulse.app.data.remote.CloudinaryUploader
+import com.petpulse.app.ui.screens.LostPetAlertItem
+import com.petpulse.app.ui.screens.LostPetUiState
 
 enum class MainNavTab {
     MY_PETS,
@@ -518,7 +520,21 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // model. The old Room-backed table was never written (broadcastLostPet is not
     // called anywhere), so this feed was permanently empty even when real SOS
     // alerts existed in Firestore.
-    val lostPetAlerts: StateFlow<List<LostPetAlert>> = commerceRepo.observeLostPetAlerts()
+    //
+    // SINGLE source of truth: this is the ONE Firestore listener on
+    // lost_pet_alerts. The public feed (lostPetAlerts), the screen state
+    // (lostPetAlertsUiState) and the admin panel (adminLostAlerts) all derive
+    // from it, so they can never disagree and only one listener is ever open.
+    // Ordered by date descending - the same order the screen always used.
+    private val lostAlertsSource: StateFlow<List<AdminLostPetAlert>> =
+        commerceRepo.observeLostPetAlerts()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
+    val lostPetAlerts: StateFlow<List<LostPetAlert>> = lostAlertsSource
         .map { alerts ->
             alerts.map { a ->
                 LostPetAlert(
@@ -539,6 +555,34 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
+        )
+
+    // UI state for the Lost Pet Alerts screen, derived from the SAME single
+    // listener above, so the screen and the admin feed always show identical
+    // data. Maps the Firestore fields straight across - nothing else changes.
+    val lostPetAlertsUiState: StateFlow<LostPetUiState> = lostAlertsSource
+        .map { alerts ->
+            LostPetUiState.Success(
+                alerts.map { a ->
+                    LostPetAlertItem(
+                        id = a.id,
+                        petName = a.petName,
+                        species = a.species,
+                        breed = a.breed,
+                        lastSeenLocation = a.location,
+                        reward = a.reward,
+                        contactPhone = a.contactPhone,
+                        alternatePhone = a.alternatePhone,
+                        date = a.date,
+                        priority = a.priority
+                    )
+                }
+            )
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LostPetUiState.Loading
         )
 
     // Sale & Adoption feed now mirrors the SAME Firestore market_listings the Market
@@ -615,9 +659,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
      *  opening a second whole-collection listener on the same collection. */
     val adminListings: StateFlow<List<MarketPet>> = _marketPetsList.asStateFlow()
 
-    /** All lost-pet SOS alerts — for the admin panel. */
-    val adminLostAlerts: StateFlow<List<AdminLostPetAlert>> = commerceRepo.observeLostPetAlerts()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    /** All lost-pet SOS alerts — for the admin panel. Shares the single
+     *  lost_pet_alerts listener that feeds the public feed (lostAlertsSource)
+     *  instead of opening a second whole-collection listener on the same data. */
+    val adminLostAlerts: StateFlow<List<AdminLostPetAlert>> = lostAlertsSource
 
     /** Accessories: owner-added products only. */
     val marketAccessories: StateFlow<List<AccessoryItem>> =

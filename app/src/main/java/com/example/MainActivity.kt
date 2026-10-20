@@ -167,6 +167,7 @@ fun WagmiyaApp(viewModel: PetViewModel, authViewModel: AuthViewModel? = null) {
     val foodSubscriptions by viewModel.foodSubscriptions.collectAsStateWithLifecycle()
     val boardingSitters by viewModel.boardingSitters.collectAsStateWithLifecycle()
     val lostAlerts by viewModel.lostPetAlerts.collectAsStateWithLifecycle()
+    val lostAlertsUiState by viewModel.lostPetAlertsUiState.collectAsStateWithLifecycle()
     val petListings by viewModel.petListings.collectAsStateWithLifecycle()
 val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
 val adminSupportTickets by viewModel.supportTickets.collectAsStateWithLifecycle()
@@ -825,6 +826,7 @@ val appCtx = LocalContext.current
     if (showLostPetAlertsScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
             LostPetAlertsScreen(
+                uiState = lostAlertsUiState,
                 foundReports = adminFoundReports,
                 onSubmitFoundReport = { report, photoUri -> viewModel.submitFoundReport(report, photoUri) }
             )

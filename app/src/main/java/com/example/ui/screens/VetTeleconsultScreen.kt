@@ -425,9 +425,15 @@ private fun VetCard(
 
             Spacer(Modifier.height(6.dp))
 
-            // Experience + rating + consult count
+            // Experience, plus a real rating and consult count ONLY when the vet
+            // actually has reviews. With no real review data we show neither a
+            // rating nor a consult count - never an invented one.
             Text(
-                text = "${vet.experienceYears} yrs exp  •  ★ ${vet.rating}  •  ${vet.consultCount} consults",
+                text = if (vet.consultCount > 0) {
+                    "${vet.experienceYears} yrs exp  •  ★ ${vet.rating}  •  ${vet.consultCount} consults"
+                } else {
+                    "${vet.experienceYears} yrs exp"
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.concurrent.Executors
 
 /**
  * Commerce backend: owner-added products, customer orders, and dealers.
@@ -46,6 +47,10 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    // Single background thread for the products listener, so the base64 photo
+    // decode + cache-file write in toShopProduct() never runs on the main
+    // thread. Mirrors FirestoreMarketplaceRepository.bgExecutor.
+    private val bgExecutor = Executors.newSingleThreadExecutor()
 
     companion object {
         // Generous read ceiling for whole-collection listeners: large enough that a
@@ -78,7 +83,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     // ---------- products ----------
     fun observeProducts(): Flow<List<ShopProduct>> = callbackFlow {
-        val sub = db.collection("products").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
+        val sub = db.collection("products").limit(LISTEN_LIMIT).addSnapshotListener(bgExecutor) { snap, err ->
             if (err != null) {
                 Log.e("FsCommerce", "products listen failed", err)
                 trySend(emptyList())
@@ -796,6 +801,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     fun observeLostPetAlerts(): Flow<List<AdminLostPetAlert>> = callbackFlow {
         val sub = db.collection("lost_pet_alerts")
+            .orderBy("date", Query.Direction.DESCENDING)
             .limit(LISTEN_LIMIT)
             .addSnapshotListener { snap, err ->
                 if (err != null) {
@@ -815,7 +821,8 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                                 reward = doc.getString("reward") ?: "",
                                 contactPhone = doc.getString("contactPhone") ?: "",
                                 alternatePhone = doc.getString("alternatePhone") ?: "",
-                                date = doc.getString("date") ?: ""
+                                date = doc.getString("date") ?: "",
+                                priority = doc.getBoolean("priority") ?: false
                             )
                         } catch (e: Exception) {
                             Log.e("FsCommerce", "Skipping malformed lost alert", e)

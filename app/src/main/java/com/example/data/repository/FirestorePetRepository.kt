@@ -727,49 +727,15 @@ class FirestorePetRepository(private val appContext: Context) {
                     null
                 }
                 val base = profile ?: CustomerProfile()
-                if (base.carePlan.isNotBlank()) {
-                    trySend(base)
-                } else {
-                    // The plan may have been set on an email-keyed document instead of
-                    // users/{uid}. Try users/{email}, then admins/{email}.
-                    lookupCarePlan { plan, until ->
-                        trySend(
-                            if (plan.isBlank()) base
-                            else base.copy(carePlan = plan, carePlanUntil = until)
-                        )
-                    }
-                }
+                // The care plan lives ONLY on the caller's own users/{uid} document,
+                // read above. The old fallback tried users/{email} then
+                // admins/{email}, but firestore.rules allows a users/{uid} read only
+                // when request.auth.uid == uid, so users/{email} was always denied and
+                // the fallback silently did nothing. Removed instead of weakened -
+                // the users/{uid} read above is the one that actually works.
+                trySend(base)
             }
         awaitClose { subscription.remove() }
-    }
-
-    /**
-     * Fallback lookup for carePlan / carePlanUntil. Checks the email-keyed documents
-     * (users/{email} then admins/{email}) so the premium flag is found wherever the
-     * owner set it.
-     */
-    private fun lookupCarePlan(onResult: (String, Long) -> Unit) {
-        val email = com.google.firebase.auth.FirebaseAuth.getInstance()
-            .currentUser?.email
-        if (email.isNullOrBlank()) { onResult("", 0L); return }
-        val candidates = listOf(
-            db.collection("users").document(email),
-            db.collection("admins").document(email)
-        )
-        fun tryAt(i: Int) {
-            if (i >= candidates.size) { onResult("", 0L); return }
-            candidates[i].get()
-                .addOnSuccessListener { snap ->
-                    val plan = snap.getString("carePlan") ?: ""
-                    if (plan.isNotBlank()) {
-                        onResult(plan, snap.getLong("carePlanUntil") ?: 0L)
-                    } else {
-                        tryAt(i + 1)
-                    }
-                }
-                .addOnFailureListener { tryAt(i + 1) }
-        }
-        tryAt(0)
     }
 
     /** Persists the customer profile, including the `carePlan` / `carePlanUntil` gating fields. */

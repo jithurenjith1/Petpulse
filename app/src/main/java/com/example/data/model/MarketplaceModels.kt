@@ -32,7 +32,10 @@ data class AdminLostPetAlert(
     val contactPhone: String = "",
     // Owner's alternate contact number (Firestore: "alternatePhone").
     val alternatePhone: String = "",
-    val date: String = ""
+    val date: String = "",
+    // True when the owner's Care/Premium plan boosted this alert. Defaulted so
+    // Firestore reads keep working for documents that predate the field.
+    val priority: Boolean = false
 )
 
 data class MarketPet(

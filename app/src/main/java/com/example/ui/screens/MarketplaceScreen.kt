@@ -318,6 +318,7 @@ fun MarketplaceScreen(
                         product = food,
                         reviewAverage = stat?.average ?: 0.0,
                         reviewCount = stat?.count ?: 0,
+                        onClick = { detailProduct = food },
                         onAddToCart = { onAddToCart(food) },
                         onViewPhotos = { photos, start ->
                             productViewerPhotos = photos
@@ -400,6 +401,7 @@ fun MarketplaceScreen(
                         product = med,
                         reviewAverage = stat?.average ?: 0.0,
                         reviewCount = stat?.count ?: 0,
+                        onClick = { detailProduct = med },
                         onAddToCart = { onAddToCart(med) },
                         onViewPhotos = { photos, start ->
                             productViewerPhotos = photos
@@ -1224,6 +1226,7 @@ fun MarketPetCard(
 fun MarketProductCard(
     product: MarketProduct,
     onAddToCart: () -> Unit,
+    onClick: () -> Unit = {},
     reviewAverage: Double = 0.0,
     reviewCount: Int = 0,
     onViewPhotos: (List<String>, Int) -> Unit = { _, _ -> }
@@ -1232,6 +1235,7 @@ fun MarketProductCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clickable { onClick() }
             .testTag("product_card_${product.id}"),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -1619,13 +1623,15 @@ fun VerifiedDoctorCard(
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(
-                                imageVector = Icons.Default.Verified,
-                                contentDescription = "KSVC Verified",
-                                tint = Color(0xFF0288D1),
-                                modifier = Modifier.size(16.dp)
-                            )
+                            if (doctor.isVerified) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Verified,
+                                    contentDescription = "KSVC Verified",
+                                    tint = Color(0xFF0288D1),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                         }
                         Text(
                             text = "${doctor.degrees} • ${doctor.experienceYears}+ yrs exp",
