@@ -55,7 +55,7 @@ data class MarketPet(
     val isMicrochipped: Boolean = true,
     val certificationDetails: String = "Kerala Kennel / Quarantine Verified",
     val sellerName: String,
-    val sellerPhone: String = "+91 98470 12345",
+    val sellerPhone: String = "",
     val isVerifiedBreeder: Boolean = true,
     val description: String,
     val temperament: String = "Playful & Healthy",
@@ -125,7 +125,7 @@ data class VerifiedDoctor(
     val rating: Double = 0.0,
     val reviewsCount: Int = 0,
     val availableDays: String = "Mon - Sat (9:00 AM - 7:00 PM)",
-    val phone: String = "+91 94471 88200",
+    val phone: String = "",
     val isEmergencyAvailable: Boolean = true,
     val isOnline: Boolean = false,
     // Admin-controlled ID-verification. Defaults to false: a vet is shown as

@@ -297,7 +297,7 @@
     <string name="care_petpulse_care">Wagmiya Care</string>
     <string name="care_save_2_months">Save 2 months</string>
     <string name="care_what_s_included">What\'s included</string>
-    <string name="profile_s14_walks_completed_18_2_km">14 Walks Completed (18.2 km)</string>
+    <string name="profile_s14_walks_completed_18_2_km">Not tracked yet</string>
     <string name="profile_s5km_radius_lost_pet_alerts">5km Radius Lost Pet Alerts</string>
     <string name="profile_age_years">Age (Years)</string>
     <string name="profile_breed_default_indie">Breed (Default: Indie)</string>
@@ -973,5 +973,7 @@
     <string name="booking_delete_title">Delete this booking?</string>
     <string name="booking_delete_body">This booking will be permanently removed from your list. This cannot be undone.</string>
     <string name="booking_delete_action">Delete booking</string>
+    <string name="partners_connecting_helpline">Connecting to 24/7 Pet Helpline +%1$s</string>
+    <string name="profile_est_monthly_na">Not available</string>
 </resources>
 

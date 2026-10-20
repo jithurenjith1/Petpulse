@@ -517,9 +517,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Live SOS alerts come from Firestore (lost_pet_alerts), mapped to the local
-    // model. The old Room-backed table was never written (broadcastLostPet is not
-    // called anywhere), so this feed was permanently empty even when real SOS
-    // alerts existed in Firestore.
+    // model. The old Room-backed table was never written, so this feed was
+    // permanently empty even when real SOS alerts existed in Firestore.
     //
     // SINGLE source of truth: this is the ONE Firestore listener on
     // lost_pet_alerts. The public feed (lostPetAlerts), the screen state
@@ -1897,32 +1896,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 prescription = prescription
             )
             firestoreRepo.addMedicalReport(petId, report)
-        }
-    }
-
-    fun broadcastLostPet(
-        petName: String,
-        species: String,
-        breed: String,
-        location: String,
-        reward: String,
-        phone: String,
-        description: String
-    ) {
-        viewModelScope.launch {
-            val alert = LostPetAlert(
-                petName = petName,
-                species = species,
-                breed = breed,
-                lastSeenLocation = location,
-                distanceKm = 0.4,
-                rewardAmount = reward.ifEmpty { "₹5,000" },
-                contactHelpline = phone.ifEmpty { "+91 (800) 555-KERALA" },
-                reportedTime = "Just now",
-                isResolved = false,
-                description = description
-            )
-            repository.reportLostPet(alert)
         }
     }
 

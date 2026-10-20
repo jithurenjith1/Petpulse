@@ -297,7 +297,7 @@
     <string name="care_petpulse_care">വാഗ്മിയ കെയർ</string>
     <string name="care_save_2_months">2 മാസം സേവ് ചെയ്യുക</string>
     <string name="care_what_s_included">എന്തൊക്കെയാണ് ഉൾപ്പെടുത്തിയിരിക്കുന്നത്</string>
-    <string name="profile_s14_walks_completed_18_2_km">14 നടത്തം പൂർത്തിയാക്കി (18.2 km)</string>
+    <string name="profile_s14_walks_completed_18_2_km">ഇതുവരെ ട്രാക്ക് ചെയ്തിട്ടില്ല</string>
     <string name="profile_s5km_radius_lost_pet_alerts">5km ചുറ്റളവിൽ നഷ്ടപ്പെട്ട വളർത്തുമൃഗങ്ങൾക്കുള്ള അലർട്ടുകൾ</string>
     <string name="profile_age_years">പ്രായം (വർഷങ്ങൾ)</string>
     <string name="profile_breed_default_indie">ഇനം (ഡിഫോൾട്ട്: ഇൻഡി)</string>
@@ -973,5 +973,7 @@
     <string name="booking_delete_title">ഈ ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യണോ?</string>
     <string name="booking_delete_body">ഈ ബുക്കിംഗ് നിങ്ങളുടെ ലിസ്റ്റിൽ നിന്ന് ശാശ്വതമായി നീക്കം ചെയ്യും. ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
     <string name="booking_delete_action">ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യുക</string>
+    <string name="partners_connecting_helpline">24/7 പെറ്റ് ഹെൽപ്പ്‌ലൈനിലേക്ക് ബന്ധിപ്പിക്കുന്നു +%1$s</string>
+    <string name="profile_est_monthly_na">ലഭ്യമല്ല</string>
 </resources>
 

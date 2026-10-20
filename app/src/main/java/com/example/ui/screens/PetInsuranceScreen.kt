@@ -79,7 +79,7 @@ private val insurancePlans = listOf(
             "Accident coverage up to ₹50,000",
             "Outpatient consultations",
             "Diagnostics & lab tests",
-            "Cashless at 500+ clinics"
+            "Cashless at partner clinics"
         )
     ),
     InsurancePlan(
@@ -91,7 +91,7 @@ private val insurancePlans = listOf(
             "Accident + illness coverage up to ₹1,50,000",
             "Surgeries & hospitalization",
             "Specialist consultations",
-            "Cashless at 2,000+ clinics",
+            "Cashless at partner clinics",
             "Annual wellness checkup"
         )
     ),
@@ -104,7 +104,7 @@ private val insurancePlans = listOf(
             "Comprehensive coverage up to ₹5,00,000",
             "Surgeries, ICU & chronic care",
             "Dental & grooming included",
-            "Cashless at 4,000+ clinics",
+            "Cashless at partner clinics",
             "Quarterly wellness checkups",
             "24x7 tele-vet support"
         )

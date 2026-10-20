@@ -450,181 +450,6 @@ fun EditPetProfileDialog(
 }
 
 @Composable
-fun LostPetSosDialog(
-    defaultPetName: String,
-    onDismiss: () -> Unit,
-    onBroadcast: (
-        petName: String,
-        species: String,
-        breed: String,
-        location: String,
-        reward: String,
-        phone: String,
-        description: String
-    ) -> Unit
-) {
-    var petName by remember { mutableStateOf(defaultPetName) }
-    var species by remember { mutableStateOf("Dog") }
-    var breed by remember { mutableStateOf("Indie") }
-    var location by remember { mutableStateOf("Marine Drive, Kochi") }
-    var reward by remember { mutableStateOf("₹21,250") }
-    var phone by remember { mutableStateOf("+91 98470 11223") }
-    val defaultDescription = stringResource(R.string.dialogs_lost_pet_description_default)
-    var description by remember { mutableStateOf(defaultDescription) }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-                .testTag("lost_pet_sos_dialog")
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "SOS",
-                        tint = Color(0xFFD32F2F),
-                        modifier = Modifier.size(30.dp)
-                    )
-                    Column {
-                        Text(
-                            text = stringResource(R.string.dialogs_find_my_pet_5km_broadcast),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFD32F2F)
-                        )
-                        Text(
-                            text = "Instantly alert all app users & partner vets within 5 km",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Divider()
-
-                OutlinedTextField(
-                    value = petName,
-                    onValueChange = { petName = it },
-                    label = { Text(stringResource(R.string.dialogs_lost_pet_name)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().testTag("sos_pet_name")
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = species,
-                        onValueChange = { species = it },
-                        label = { Text(stringResource(R.string.dialogs_species)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    OutlinedTextField(
-                        value = breed,
-                        onValueChange = { breed = it },
-                        label = { Text(stringResource(R.string.dialogs_breed)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = location,
-                    onValueChange = { location = it },
-                    label = { Text(stringResource(R.string.dialogs_last_seen_location_cross_streets)) },
-                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth().testTag("sos_location")
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = reward,
-                        onValueChange = { reward = it },
-                        label = { Text(stringResource(R.string.dialogs_reward_amount)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = { phone = it },
-                        label = { Text(stringResource(R.string.dialogs_emergency_contact)) },
-                        modifier = Modifier.weight(1.3f)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text(stringResource(R.string.dialogs_description_distinguishing_features)) },
-                    maxLines = 3,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.NotificationsActive,
-                            contentDescription = null,
-                            tint = Color(0xFFD32F2F),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = "Push notifications and live map pins will be broadcasted to all guardians within 5km radius.",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.dialogs_cancel))
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            onBroadcast(petName, species, breed, location, reward, phone, description)
-                            onDismiss()
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
-                        modifier = Modifier.testTag("broadcast_sos_submit_button")
-                    ) {
-                        Text(stringResource(R.string.dialogs_send_5km_broadcast))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun AddPetListingDialog(
     onDismiss: () -> Unit,
     onSubmit: (
@@ -640,14 +465,14 @@ fun AddPetListingDialog(
     ) -> Unit
 ) {
     var petName by remember { mutableStateOf("") }
-    var species by remember { mutableStateOf("Dog") }
-    var breed by remember { mutableStateOf("Indie Pup") }
-    var age by remember { mutableStateOf("4 Months") }
-    var location by remember { mutableStateOf("Marine Drive, Kochi") }
+    var species by remember { mutableStateOf("") }
+    var breed by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
     var listingType by remember { mutableStateOf("Adoption") }
-    var price by remember { mutableStateOf("₹0") }
-    var description by remember { mutableStateOf("Loving, playful, vaccinated, looking for a caring home.") }
-    var phone by remember { mutableStateOf("+91 98470 12345") }
+    var price by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(

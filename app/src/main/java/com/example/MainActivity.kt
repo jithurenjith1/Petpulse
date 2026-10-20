@@ -584,7 +584,7 @@ val appCtx = LocalContext.current
             },
             onLogout = {
                 authViewModel!!.signOut()
-                viewModel.updateCustomerProfile("Guest Customer", "guest@wagmiya.app", "+91 98470 00000")
+                viewModel.updateCustomerProfile("Guest Customer", "guest@wagmiya.app", "")
                 coroutineScope.launch { snackbarHostState.showSnackbar("Signed out successfully.") }
             }
         )

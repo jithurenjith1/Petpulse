@@ -1188,14 +1188,14 @@ fun ListPetFormModal(
     var petName by remember { mutableStateOf("") }
     var species by remember { mutableStateOf("Dog") }
     var breed by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("3 Months") }
+    var age by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("Male") }
     var city by remember { mutableStateOf("Kochi") }
     var isExotic by remember { mutableStateOf(false) }
     var listingType by remember { mutableStateOf("Sale") }
-    var priceText by remember { mutableStateOf("15000") }
+    var priceText by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("+91 98470 00000") }
+    var phone by remember { mutableStateOf("") }
     var photoUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     val photoPickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia(maxItems = 3)

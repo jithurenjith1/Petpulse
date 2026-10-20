@@ -405,7 +405,7 @@ fun PartnersServicesScreen(
                         lostAlerts = lostPetAlerts,
                         gpsTrackers = gpsTrackers,
                         onBroadcastClick = onTriggerSosDialog,
-                        onCallHelpline = { onActionNotification("Connecting to 24/7 Pet Helpline +91 98 555-PET-SOS") }
+                        onCallHelpline = { onActionNotification(stringResource(R.string.partners_connecting_helpline, HelplineWhatsAppDigits)) }
                     )
                 }
             }
