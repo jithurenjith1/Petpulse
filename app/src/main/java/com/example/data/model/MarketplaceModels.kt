@@ -122,16 +122,17 @@ data class VerifiedDoctor(
     val clinicAddress: String,
     val videoConsultFeeInr: Double = 399.0,
     val inPersonConsultFeeInr: Double = 599.0,
-    val rating: Double = 4.9,
-    val reviewsCount: Int = 210,
+    val rating: Double = 0.0,
+    val reviewsCount: Int = 0,
     val availableDays: String = "Mon - Sat (9:00 AM - 7:00 PM)",
     val phone: String = "+91 94471 88200",
     val isEmergencyAvailable: Boolean = true,
     val isOnline: Boolean = false,
-    // Admin-controlled ID-verification. Defaults to true so existing partner-vet
-    // documents (and Firestore toObject for docs without the field) stay verified,
-    // preserving the current behaviour. Defaults are mandatory for toObject().
-    val isVerified: Boolean = true
+    // Admin-controlled ID-verification. Defaults to false: a vet is shown as
+    // ID-verified ONLY when the admin has actually set isVerified on the
+    // document - never from a fabricated default. Defaults are mandatory for
+    // Firestore toObject().
+    val isVerified: Boolean = false
 )
 
 data class CartItem(

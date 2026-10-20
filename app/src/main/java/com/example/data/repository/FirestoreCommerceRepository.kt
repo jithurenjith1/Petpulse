@@ -623,7 +623,10 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 videoConsultFeeInr = getDouble("videoConsultFeeInr") ?: 349.0,
                 inPersonConsultFeeInr = getDouble("inPersonConsultFeeInr") ?: 499.0,
                 phone = getString("phone") ?: "",
-                isOnline = getBoolean("isOnline") ?: false
+                isOnline = getBoolean("isOnline") ?: false,
+                // Read the admin-set verification flag instead of relying on the
+                // model default, so an unverified vet is never shown as verified.
+                isVerified = getBoolean("isVerified") ?: false
             )
         } catch (e: Exception) {
             Log.e("FsCommerce", "Skipping malformed vet ${id}", e)
@@ -646,6 +649,8 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 "inPersonConsultFeeInr" to vet.inPersonConsultFeeInr,
                 "phone" to vet.phone,
                 "isOnline" to vet.isOnline,
+                // Persist the admin-set verification flag so it survives a reload.
+                "isVerified" to vet.isVerified,
                 "createdAt" to System.currentTimeMillis()
             )
         ).await()
