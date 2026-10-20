@@ -9,8 +9,23 @@ import androidx.compose.ui.graphics.Color
 
 // ============================================================
 // Wagmiya Material3 theme — light + dark schemes.
-// Both schemes share the SAME magenta identity so the app looks
-// coherent whichever mode the user picks.
+// Both schemes share the SAME calm-plum identity (approved redesign)
+// so the app looks coherent whichever mode the user picks.
+//
+// The approved palette is applied here through the colour tokens in
+// Color.kt that the two schemes below reference:
+//   primary            = #6D4C8A  muted plum (was magenta #C724B1)
+//   primaryContainer   = #EFE9F5  primary tint (selected chip / quick tiles / nav highlight)
+//   surfaceVariant     = #F7F4FA  light neutral header band (was pink #FDF2F8)
+//   background         = #FDFCFB  warm off-white body (was cream #FFF8F0)
+//   surface            = #FFFFFF  cards
+//   onBackground/onSurface = #2B2530  text dark
+//   onSurfaceVariant   = #8A8291  text muted
+//   outline            = #D9CCE6  hairline borders
+//   error              = #B0605A  muted brick (emergency outline, was bright red)
+//   tertiary/TealAccent = #3E8E5A soft green (positive / reminder), tint #EAF3EE
+// The dark scheme uses sensible equivalents (light plum #B79BD6 on a warm
+// near-black #141118) so dark mode keeps working and stays readable.
 // ============================================================
 
 private val WagmiyaLightColors = lightColorScheme(

@@ -13,6 +13,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Emergency
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -20,6 +27,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
@@ -287,24 +295,35 @@ val appCtx = LocalContext.current
             }
             // Feature buttons grid — shown ONLY in My Pet section
             if (currentTab == MainNavTab.MY_PETS) {
-            // Feature tabs - wrapped onto two rows so all 11 are visible without horizontal scrolling
+            // Feature tabs - wrapped so all 11 are visible without horizontal scrolling.
+            // Every chip is now an OUTLINE chip (light/transparent fill, coloured border
+            // and coloured text) with generous 16dp outer padding and 8dp gaps, so nothing
+            // is cramped. A chip fills with the primary ONLY while it is the selected one.
             androidx.compose.foundation.layout.FlowRow(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 FeatureButton(stringResource(R.string.whatsnew_tab), MaterialTheme.colorScheme.primary) { showWhatsNewScreen = true }
                 FeatureButton("Nearby", MaterialTheme.colorScheme.primary) { showMapScreen = true }
                 FeatureButton("Insurance", MaterialTheme.colorScheme.primary) { showInsuranceScreen = true }
                 FeatureButton("Community", MaterialTheme.colorScheme.primary) { showCommunityScreen = true }
                 FeatureButton("Care Tips", MaterialTheme.colorScheme.primary) { showCareTipsScreen = true }
-                FeatureButton("AI Triage", Color(0xFFA87A1F)) { showSymptomScreen = true }
-                FeatureButton("Vet Online", Color(0xFFA87A1F)) { showVetScreen = true }
+                FeatureButton("AI Triage", MaterialTheme.colorScheme.primary) { showSymptomScreen = true }
+                FeatureButton("Vet Online", MaterialTheme.colorScheme.primary) { showVetScreen = true }
                 FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true }
                 FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true }
-                FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFD62828)) { showEmergencyScreen = true }
+                FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFB0605A)) { showEmergencyScreen = true }
                 FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary) { showServicePriceScreen = true }
             }
+            // Quick actions - fills the empty gap directly under the tab chips. Each tile
+            // reuses the SAME action its matching tab already triggers.
+            QuickActionsRow(
+                onAddPet = { showAddPetDialog = true },
+                onRecords = { showHealthRecordsScreen = true },
+                onEmergency = { showEmergencyScreen = true },
+                onCarePlan = { showSubscriptionScreen = true }
+            )
             }
 
         Crossfade(
@@ -312,7 +331,6 @@ val appCtx = LocalContext.current
             label = "ScreenTransition",
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
         ) { tab ->
             when (tab) {
                 MainNavTab.MY_PETS -> {
@@ -990,16 +1008,114 @@ val appCtx = LocalContext.current
     }
 }
 
+/**
+ * A tab chip. Outline by default: a light/transparent fill with a coloured border and
+ * coloured text. When [selected] is true it is filled with the primary colour instead.
+ * The chip is sized to its content (no fixed width, no weight) with compact but readable
+ * padding, and the label stays at 11sp so it never becomes unreadable.
+ */
 @Composable
-private fun FeatureButton(label: String, color: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.height(36.dp),
-        shape = RoundedCornerShape(18.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = color),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+private fun FeatureButton(
+    label: String,
+    color: Color,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    outlined: Boolean = true,
+    onClick: () -> Unit
+) {
+    if (outlined && !selected) {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = modifier.height(36.dp),
+            shape = RoundedCornerShape(18.dp),
+            border = BorderStroke(1.dp, color),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = color
+            ),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+        ) {
+            Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = color, maxLines = 1, softWrap = false)
+        }
+    } else {
+        Button(
+            onClick = onClick,
+            modifier = modifier.height(36.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = color),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+        ) {
+            Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color.White, maxLines = 1, softWrap = false)
+        }
+    }
+}
+
+/**
+ * Compact "Quick actions" row shown under the tab chips on the My Pet screen.
+ * Four small icon+label tiles in the primary tint. Each tile is wired to the SAME
+ * existing action its matching tab already triggers (no new behaviour is invented).
+ */
+@Composable
+private fun QuickActionsRow(
+    onAddPet: () -> Unit = {},
+    onRecords: () -> Unit = {},
+    onEmergency: () -> Unit = {},
+    onCarePlan: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text(
+            text = stringResource(R.string.mypets_quick_actions_title),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            QuickActionTile(Icons.Default.Add, stringResource(R.string.mypets_quick_add_pet), onAddPet, Modifier.weight(1f))
+            QuickActionTile(Icons.Default.Folder, stringResource(R.string.mypets_quick_records), onRecords, Modifier.weight(1f))
+            QuickActionTile(Icons.Default.Emergency, stringResource(R.string.mypets_quick_emergency), onEmergency, Modifier.weight(1f))
+            QuickActionTile(Icons.Default.Favorite, stringResource(R.string.mypets_quick_care_plan), onCarePlan, Modifier.weight(1f))
+        }
+    }
+}
+
+/** One small quick-action tile: an icon above a label on the primary tint. */
+@Composable
+private fun QuickActionTile(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
-        Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color.White, maxLines = 1, softWrap = false)
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp)
+            )
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
+        }
     }
 }
 

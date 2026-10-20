@@ -998,5 +998,16 @@
     <string name="admin_no_matching_bookings">No bookings match your search or filter.</string>
     <string name="admin_booking_status_confirmed">Confirmed</string>
     <string name="admin_booking_status_completed">Completed</string>
+    <string name="mypets_quick_actions_title">Quick actions</string>
+    <string name="mypets_quick_add_pet">Add Pet</string>
+    <string name="mypets_quick_records">Records</string>
+    <string name="mypets_quick_emergency">Emergency</string>
+    <string name="mypets_quick_care_plan">Care Plan</string>
+    <string name="mypets_reminder_title">Your pet\'s next reminder</string>
+    <string name="mypets_reminder_none">No vaccination reminder saved yet. Add a vaccination to see your pet\'s next due date.</string>
+    <string name="mypets_reminder_vaccination">Vaccination</string>
+    <string name="mypets_reminder_due">Next due %1$s</string>
+    <string name="mypets_reminder_on_track">On track</string>
+    <string name="mypets_reminder_overdue">Overdue</string>
 </resources>
 

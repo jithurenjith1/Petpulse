@@ -516,9 +516,15 @@ fun MyPetsScreen(
                             .padding(end = 8.dp)
                             .testTag("tab_${submenu.name.lowercase()}"),
                         text = {
+                            // Outline chip treatment: only the SELECTED chip is filled with the
+                            // primary; the others are transparent with a hairline border.
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.surfaceVariant,
+                                color = if (isSelected) BluePrimary else Color.Transparent,
+                                border = androidx.compose.foundation.BorderStroke(
+                                    1.dp,
+                                    if (isSelected) BluePrimary else MaterialTheme.colorScheme.outline
+                                ),
                                 modifier = Modifier.padding(vertical = 4.dp)
                             ) {
                                 Text(
@@ -605,6 +611,14 @@ fun MyPetsScreen(
 
         item {
             PetCareTipCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        }
+
+        // Second gap fill: a small "next reminder" card directly under the Tip of the day card.
+        item {
+            PetNextReminderCard(
+                vaccinations = vaccinations,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
         }
     }
 
@@ -1404,6 +1418,95 @@ private fun PetCareTipCard(modifier: Modifier = Modifier) {
                 )
             }
         }
+    }
+}
+
+// ---------------- Next reminder card ----------------
+
+/**
+ * "Your pet's next reminder" card, shown under the Tip of the day card. It reads the
+ * REAL vaccination records and shows the soonest upcoming (non-completed) next-due
+ * date with a soft green "On track" pill (or an honest "Overdue" pill when that date
+ * has already passed). When there is no readable reminder it shows an honest empty
+ * line rather than an invented date.
+ */
+@Composable
+private fun PetNextReminderCard(
+    vaccinations: List<VaccinationRecord> = emptyList(),
+    modifier: Modifier = Modifier
+) {
+    val nextReminder = vaccinations
+        .filter { it.status != "Completed" }
+        .mapNotNull { record -> parseVaccineDate(record.nextDueDate)?.let { due -> record to due } }
+        .minByOrNull { it.second }
+
+    Card(
+        modifier = modifier.fillMaxWidth().testTag("pet_next_reminder_card"),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.mypets_reminder_title),
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (nextReminder == null) {
+                Text(
+                    text = stringResource(R.string.mypets_reminder_none),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                val (record, due) = nextReminder
+                val overdue = due.isBefore(LocalDate.now())
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = record.vaccineName.ifBlank { stringResource(R.string.mypets_reminder_vaccination) },
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.mypets_reminder_due, record.nextDueDate),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    ReminderStatusPill(overdue = overdue)
+                }
+            }
+        }
+    }
+}
+
+/** Small pill: soft green "On track", or a muted brick "Overdue" when the date has passed. */
+@Composable
+private fun ReminderStatusPill(overdue: Boolean = false) {
+    val accent = if (overdue) Color(0xFFB0605A) else Color(0xFF3E8E5A)
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = accent.copy(alpha = 0.15f)
+    ) {
+        Text(
+            text = stringResource(
+                if (overdue) R.string.mypets_reminder_overdue else R.string.mypets_reminder_on_track
+            ),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = accent,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+        )
     }
 }
 

@@ -55,12 +55,12 @@ fun PetAppTopBar(
                     Brush.verticalGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                            MaterialTheme.colorScheme.surface
+                            MaterialTheme.colorScheme.surfaceVariant
                         )
                     )
                 )
                 .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -130,7 +130,7 @@ fun PetAppTopBar(
                         BadgedBox(
                             badge = {
                                 Badge(
-                                    containerColor = Color(0xFFD32F2F),
+                                    containerColor = Color(0xFFC0392B),
                                     contentColor = Color.White
                                 ) {
                                     Text("$cartItemCount")
@@ -158,7 +158,7 @@ fun PetAppTopBar(
                     Button(
                         onClick = onSosClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFD32F2F)
+                            containerColor = Color(0xFFC0392B)
                         ),
                         shape = RoundedCornerShape(20.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
