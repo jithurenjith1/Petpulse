@@ -975,5 +975,28 @@
     <string name="booking_delete_action">ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യുക</string>
     <string name="partners_connecting_helpline">24/7 പെറ്റ് ഹെൽപ്പ്‌ലൈനിലേക്ക് ബന്ധിപ്പിക്കുന്നു +%1$s</string>
     <string name="profile_est_monthly_na">ലഭ്യമല്ല</string>
+    <string name="admin_search_orders_hint">ഓർഡർ നമ്പർ, പേര്, ഫോൺ, നഗരം തിരയുക</string>
+    <string name="admin_filter_all">എല്ലാം</string>
+    <string name="admin_no_matching_orders">നിങ്ങളുടെ തിരയലിനോ ഫിൽട്ടറിനോ ഓർഡറുകളൊന്നും പൊരുത്തപ്പെടുന്നില്ല.</string>
+    <string name="admin_share_orders_csv">ഓർഡറുകൾ CSV ആയി പങ്കിടുക</string>
+    <string name="admin_orders_csv_subject">വാഗ്മിയ ഓർഡറുകൾ CSV</string>
+    <string name="admin_orders_csv_header">ഓർഡർ നമ്പർ,തീയതി,ഉപഭോക്താവ്,ഫോൺ,നഗരം,ഇനങ്ങൾ,ആകെ,നില,ഡീലർ</string>
+    <string name="admin_sales_summary_title">വിൽപ്പന സംഗ്രഹം</string>
+    <string name="admin_summary_today">ഇന്ന്</string>
+    <string name="admin_summary_week">ഈ ആഴ്ച</string>
+    <string name="admin_summary_month">ഈ മാസം</string>
+    <string name="admin_summary_pending">ബാക്കിയുള്ളത്</string>
+    <string name="admin_summary_orders_count">%1$d ഓർഡറുകൾ</string>
+    <string name="admin_summary_pending_sub">NEW അല്ലെങ്കിൽ ASSIGNED</string>
+    <string name="admin_customers_section">ഉപഭോക്താക്കൾ</string>
+    <string name="admin_customers_card_title">ഉപഭോക്താക്കൾ</string>
+    <string name="admin_customers_card_subtitle">ആവർത്തന വാങ്ങുന്നവരും ചെലവും</string>
+    <string name="admin_no_customers">ഇതുവരെ ഉപഭോക്താക്കളില്ല. ഓർഡറുകൾ വന്നാൽ ഇവിടെ കാണാം.</string>
+    <string name="admin_customer_summary">%1$d ഓർഡറുകൾ - %2$s ചെലവഴിച്ചു</string>
+    <string name="admin_customer_unknown">ഉപഭോക്താവ്</string>
+    <string name="admin_search_bookings_hint">പേര്, ഫോൺ, വളർത്തുമൃഗം തിരയുക</string>
+    <string name="admin_no_matching_bookings">നിങ്ങളുടെ തിരയലിനോ ഫിൽട്ടറിനോ ബുക്കിംഗുകളൊന്നും പൊരുത്തപ്പെടുന്നില്ല.</string>
+    <string name="admin_booking_status_confirmed">സ്ഥിരീകരിച്ചു</string>
+    <string name="admin_booking_status_completed">പൂർത്തിയായി</string>
 </resources>
 

@@ -975,5 +975,28 @@
     <string name="booking_delete_action">Delete booking</string>
     <string name="partners_connecting_helpline">Connecting to 24/7 Pet Helpline +%1$s</string>
     <string name="profile_est_monthly_na">Not available</string>
+    <string name="admin_search_orders_hint">Search order no, name, phone, city</string>
+    <string name="admin_filter_all">All</string>
+    <string name="admin_no_matching_orders">No orders match your search or filter.</string>
+    <string name="admin_share_orders_csv">Share orders as CSV</string>
+    <string name="admin_orders_csv_subject">Wagmiya orders CSV</string>
+    <string name="admin_orders_csv_header">Order Number,Date,Customer,Phone,City,Items,Total,Status,Dealer</string>
+    <string name="admin_sales_summary_title">Sales summary</string>
+    <string name="admin_summary_today">Today</string>
+    <string name="admin_summary_week">This week</string>
+    <string name="admin_summary_month">This month</string>
+    <string name="admin_summary_pending">Pending</string>
+    <string name="admin_summary_orders_count">%1$d orders</string>
+    <string name="admin_summary_pending_sub">NEW or ASSIGNED</string>
+    <string name="admin_customers_section">Customers</string>
+    <string name="admin_customers_card_title">Customers</string>
+    <string name="admin_customers_card_subtitle">Repeat buyers &amp; spend</string>
+    <string name="admin_no_customers">No customers yet. They appear here once orders come in.</string>
+    <string name="admin_customer_summary">%1$d orders - %2$s spent</string>
+    <string name="admin_customer_unknown">Customer</string>
+    <string name="admin_search_bookings_hint">Search name, phone, pet</string>
+    <string name="admin_no_matching_bookings">No bookings match your search or filter.</string>
+    <string name="admin_booking_status_confirmed">Confirmed</string>
+    <string name="admin_booking_status_completed">Completed</string>
 </resources>
 

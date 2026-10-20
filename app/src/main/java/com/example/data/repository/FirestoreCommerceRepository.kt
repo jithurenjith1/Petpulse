@@ -333,7 +333,8 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             dealerName = getString("dealerName") ?: "",
             dealerPhone = getString("dealerPhone") ?: "",
             createdAt = getLong("createdAt") ?: 0L,
-            accidentCover = getBoolean("accidentCover") ?: false
+            accidentCover = getBoolean("accidentCover") ?: false,
+            ownerId = getString("ownerId") ?: ""
         )
     } catch (e: Exception) {
         Log.e("FsCommerce", "Skipping malformed order ${id}", e)

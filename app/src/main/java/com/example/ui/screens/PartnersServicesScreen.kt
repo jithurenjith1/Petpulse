@@ -401,11 +401,12 @@ fun PartnersServicesScreen(
             PartnerSubTab.FIND_MY_PET -> {
                 // Section 4: Find My Pet (5km SOS alert & GPS Tag)
                 item {
+                    val connectingHelplineText = stringResource(R.string.partners_connecting_helpline, HelplineWhatsAppDigits)
                     FindMyPetSection(
                         lostAlerts = lostPetAlerts,
                         gpsTrackers = gpsTrackers,
                         onBroadcastClick = onTriggerSosDialog,
-                        onCallHelpline = { onActionNotification(stringResource(R.string.partners_connecting_helpline, HelplineWhatsAppDigits)) }
+                        onCallHelpline = { onActionNotification(connectingHelplineText) }
                     )
                 }
             }

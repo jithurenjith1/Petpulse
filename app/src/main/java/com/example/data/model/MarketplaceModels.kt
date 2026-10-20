@@ -276,7 +276,12 @@ data class AdminOrder(
     // document ("accidentCover") so the team can follow up and activate it via the
     // existing enquiry. Defaulted so Firestore toObject() keeps working for orders
     // that predate this field.
-    val accidentCover: Boolean = false
+    val accidentCover: Boolean = false,
+    // The signed-in customer's uid that placed the order (Firestore: "ownerId").
+    // Used by the admin Customers list to group orders per real customer.
+    // Defaulted so Firestore toObject() keeps working for documents that predate
+    // this field.
+    val ownerId: String = ""
 )
 
 /**

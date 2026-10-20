@@ -178,6 +178,7 @@ fun AdminScreen(
                             text = when (section) {
                                 "LEDGER" -> stringResource(R.string.admin_ledger_section)
                                 "NEWS" -> stringResource(R.string.admin_news_section)
+                                "CUSTOMERS" -> stringResource(R.string.admin_customers_section)
                                 else -> sectionTitle(section)
                             },
                             fontWeight = FontWeight.Bold,
@@ -224,6 +225,7 @@ fun AdminScreen(
                             onDelete = onDeleteOrder,
                             onClearFinished = onDeleteOrders
                         )
+                        "CUSTOMERS" -> CustomersAdminTab(orders = orders)
                         "FOOD" -> ProductsAdminTab(products = products, listTypeFilter = "Food", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "MEDICINE" -> ProductsAdminTab(products = products, listTypeFilter = "Medicine", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "ACCESSORIES" -> ProductsAdminTab(products = products, listTypeFilter = "Accessory", onAdd = onAddProduct, onDelete = onDeleteProduct)
@@ -560,13 +562,37 @@ private fun BookingsAdminTab(
 ) {
     var pendingDelete by remember { mutableStateOf<ServiceBooking?>(null) }
     var pendingClear by remember { mutableStateOf(false) }
-    val shown = if (typeFilter != null) bookings.filter { it.type == typeFilter } else bookings
+    // Search + status filter state is hoisted ABOVE the list, never inside items{}.
+    var query by remember { mutableStateOf("") }
+    var statusFilter by remember { mutableStateOf("ALL") }
+    val typeScoped = if (typeFilter != null) bookings.filter { it.type == typeFilter } else bookings
+    val shown = remember(typeScoped, query, statusFilter) { filterBookings(typeScoped, query, statusFilter) }
     val finished = shown.filter { it.status == "COMPLETED" || it.status == "CANCELLED" }
-    if (shown.isEmpty()) {
+    if (typeScoped.isEmpty()) {
         Text("No bookings yet. New requests will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
         return
     }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                label = { Text(stringResource(R.string.admin_search_bookings_hint), fontSize = 12.sp) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        item {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(bookingStatusFilterKeys) { key ->
+                    FilterChip(
+                        selected = statusFilter == key,
+                        onClick = { statusFilter = key },
+                        label = { Text(bookingStatusFilterLabel(key), fontSize = 11.sp) }
+                    )
+                }
+            }
+        }
         if (finished.isNotEmpty()) {
             item {
                 Row(
@@ -581,6 +607,15 @@ private fun BookingsAdminTab(
                         )
                     }
                 }
+            }
+        }
+        if (shown.isEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.admin_no_matching_bookings),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
         items(shown, key = { it.id }) { booking ->
@@ -675,6 +710,7 @@ private fun AdminDashboard(
 ) {
     val sections = listOf(
         "ORDERS" to ("Orders" to stringResource(R.string.admin_orders_subtitle)),
+        "CUSTOMERS" to (stringResource(R.string.admin_customers_card_title) to stringResource(R.string.admin_customers_card_subtitle)),
         "FOOD" to ("Food" to "Pet food catalogue"),
         "MEDICINE" to ("Medicine" to "Pharmacy catalogue"),
         "GROOMING" to ("Grooming" to "Services & bookings"),
@@ -1067,18 +1103,65 @@ private fun OrdersAdminTab(
 ) {
     var pendingDelete by remember { mutableStateOf<AdminOrder?>(null) }
     var pendingClear by remember { mutableStateOf(false) }
-    val finished = orders.filter { it.status == "DELIVERED" || it.status == "CANCELLED" }
+    // Search + status filter state is hoisted ABOVE the list, never inside items{}.
+    var query by remember { mutableStateOf("") }
+    var statusFilter by remember { mutableStateOf("ALL") }
+    val context = LocalContext.current
+    // Strings for the CSV share are resolved here (composable scope) because the
+    // TextButton onClick lambda below is NOT a composable and cannot call
+    // stringResource.
+    val csvHeader = stringResource(R.string.admin_orders_csv_header)
+    val csvSubject = stringResource(R.string.admin_orders_csv_subject)
+    val summary = remember(orders) { computeAdminSalesSummary(orders) }
+    val shown = remember(orders, query, statusFilter) { filterAdminOrders(orders, query, statusFilter) }
+    val finished = shown.filter { it.status == "DELIVERED" || it.status == "CANCELLED" }
     if (orders.isEmpty()) {
-        Text(stringResource(R.string.admin_no_orders), fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            item { AdminSalesSummaryCard(summary = summary) }
+            item {
+                Text(stringResource(R.string.admin_no_orders), fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+            }
+        }
         return
     }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (finished.isNotEmpty()) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
+        item { AdminSalesSummaryCard(summary = summary) }
+        item {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                label = { Text(stringResource(R.string.admin_search_orders_hint), fontSize = 12.sp) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        item {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(orderStatusFilterKeys) { key ->
+                    FilterChip(
+                        selected = statusFilter == key,
+                        onClick = { statusFilter = key },
+                        label = { Text(orderStatusFilterLabel(key), fontSize = 11.sp) }
+                    )
+                }
+            }
+        }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = {
+                    shareOrdersCsv(
+                        context = context,
+                        csv = buildOrdersCsv(orders, csvHeader),
+                        subject = csvSubject
+                    )
+                }) {
+                    Text(stringResource(R.string.admin_share_orders_csv), fontSize = 12.sp, color = Color(0xFF1976D2))
+                }
+                if (finished.isNotEmpty()) {
                     OutlinedButton(onClick = { pendingClear = true }) {
                         Text(
                             stringResource(R.string.admin_reset_finished, finished.size),
@@ -1089,7 +1172,16 @@ private fun OrdersAdminTab(
                 }
             }
         }
-        items(orders, key = { it.id }) { order ->
+        if (shown.isEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.admin_no_matching_orders),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
+        items(shown, key = { it.id }) { order ->
             AdminOrderCard(
                 order = order,
                 onAssign = onAssign,
@@ -1138,6 +1230,340 @@ private fun OrdersAdminTab(
             }
         )
     }
+}
+
+// ===================== Admin orders: search, filter, summary, customers, export =====================
+
+/** Status chips shown above the orders list. ALL is the neutral default. */
+private val orderStatusFilterKeys = listOf("ALL", "NEW", "ASSIGNED", "DELIVERED", "CANCELLED")
+
+/** Status chips shown above a bookings list (doctor / grooming / training / boarding). */
+private val bookingStatusFilterKeys = listOf("ALL", "NEW", "CONFIRMED", "COMPLETED", "CANCELLED")
+
+@Composable
+private fun orderStatusFilterLabel(key: String = "ALL"): String = when (key) {
+    "NEW" -> stringResource(R.string.admin_status_new)
+    "ASSIGNED" -> stringResource(R.string.admin_status_assigned)
+    "DELIVERED" -> stringResource(R.string.admin_status_delivered)
+    "CANCELLED" -> stringResource(R.string.admin_status_cancelled)
+    else -> stringResource(R.string.admin_filter_all)
+}
+
+@Composable
+private fun bookingStatusFilterLabel(key: String = "ALL"): String = when (key) {
+    "NEW" -> stringResource(R.string.admin_status_new)
+    "CONFIRMED" -> stringResource(R.string.admin_booking_status_confirmed)
+    "COMPLETED" -> stringResource(R.string.admin_booking_status_completed)
+    "CANCELLED" -> stringResource(R.string.admin_status_cancelled)
+    else -> stringResource(R.string.admin_filter_all)
+}
+
+/**
+ * Filters the admin orders list by a free-text query (order number, customer name,
+ * customer phone or city, case-insensitive) and by an exact status. ALL keeps every
+ * status. Nothing beyond what the admin typed is filtered out.
+ */
+private fun filterAdminOrders(orders: List<AdminOrder> = emptyList(), query: String = "", status: String = "ALL"): List<AdminOrder> {
+    val q = query.trim().lowercase()
+    return orders.filter { order ->
+        (status == "ALL" || order.status == status) &&
+            (q.isEmpty() ||
+                order.orderNumber.lowercase().contains(q) ||
+                order.customerName.lowercase().contains(q) ||
+                order.customerPhone.lowercase().contains(q) ||
+                order.city.lowercase().contains(q))
+    }
+}
+
+/** Same idea as filterAdminOrders, for service bookings. */
+private fun filterBookings(bookings: List<ServiceBooking> = emptyList(), query: String = "", status: String = "ALL"): List<ServiceBooking> {
+    val q = query.trim().lowercase()
+    return bookings.filter { booking ->
+        (status == "ALL" || booking.status == status) &&
+            (q.isEmpty() ||
+                booking.customerName.lowercase().contains(q) ||
+                booking.customerPhone.lowercase().contains(q) ||
+                booking.petName.lowercase().contains(q) ||
+                booking.serviceInfo.lowercase().contains(q) ||
+                booking.providerName.lowercase().contains(q))
+    }
+}
+
+/** Epoch millis of 00:00 today (device timezone). */
+private fun startOfTodayMillis(): Long {
+    val cal = java.util.Calendar.getInstance()
+    cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+    cal.set(java.util.Calendar.MINUTE, 0)
+    cal.set(java.util.Calendar.SECOND, 0)
+    cal.set(java.util.Calendar.MILLISECOND, 0)
+    return cal.timeInMillis
+}
+
+/** Epoch millis of 00:00 on Monday of the current week (device timezone). */
+private fun startOfWeekMillis(): Long {
+    val cal = java.util.Calendar.getInstance()
+    cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+    cal.set(java.util.Calendar.MINUTE, 0)
+    cal.set(java.util.Calendar.SECOND, 0)
+    cal.set(java.util.Calendar.MILLISECOND, 0)
+    val dayOfWeek = cal.get(java.util.Calendar.DAY_OF_WEEK)
+    val daysSinceMonday = (dayOfWeek + 5) % 7
+    cal.add(java.util.Calendar.DAY_OF_MONTH, -daysSinceMonday)
+    return cal.timeInMillis
+}
+
+/**
+ * Compact sales figures computed ONLY from the orders already loaded by the admin
+ * panel. Every number is a real count or a real sum of AdminOrder.totalInr grouped
+ * by the order's createdAt (epoch millis). An order with createdAt = 0 (unknown
+ * date) is never counted as today / this week / this month. Pending = NEW or ASSIGNED.
+ */
+private data class AdminSalesSummary(
+    val todayCount: Int = 0,
+    val todayTotal: Double = 0.0,
+    val weekCount: Int = 0,
+    val weekTotal: Double = 0.0,
+    val monthCount: Int = 0,
+    val monthTotal: Double = 0.0,
+    val pendingCount: Int = 0
+)
+
+private fun computeAdminSalesSummary(orders: List<AdminOrder>): AdminSalesSummary {
+    val todayStart = startOfTodayMillis()
+    val weekStart = startOfWeekMillis()
+    val monthStart = startOfCurrentMonthMillis()
+    val today = orders.filter { it.createdAt >= todayStart }
+    val week = orders.filter { it.createdAt >= weekStart }
+    val month = orders.filter { it.createdAt >= monthStart }
+    return AdminSalesSummary(
+        todayCount = today.size,
+        todayTotal = today.sumOf { it.totalInr },
+        weekCount = week.size,
+        weekTotal = week.sumOf { it.totalInr },
+        monthCount = month.size,
+        monthTotal = month.sumOf { it.totalInr },
+        pendingCount = orders.count { it.status == "NEW" || it.status == "ASSIGNED" }
+    )
+}
+
+@Composable
+private fun AdminSalesSummaryCard(summary: AdminSalesSummary = AdminSalesSummary()) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.admin_sales_summary_title), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AdminStatTile(
+                    label = stringResource(R.string.admin_summary_today),
+                    value = stringResource(R.string.admin_summary_orders_count, summary.todayCount),
+                    sub = formatIndianRupees(summary.todayTotal),
+                    modifier = Modifier.weight(1f)
+                )
+                AdminStatTile(
+                    label = stringResource(R.string.admin_summary_week),
+                    value = stringResource(R.string.admin_summary_orders_count, summary.weekCount),
+                    sub = formatIndianRupees(summary.weekTotal),
+                    modifier = Modifier.weight(1f)
+                )
+                AdminStatTile(
+                    label = stringResource(R.string.admin_summary_month),
+                    value = stringResource(R.string.admin_summary_orders_count, summary.monthCount),
+                    sub = formatIndianRupees(summary.monthTotal),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            AdminStatTile(
+                label = stringResource(R.string.admin_summary_pending),
+                value = stringResource(R.string.admin_summary_orders_count, summary.pendingCount),
+                sub = stringResource(R.string.admin_summary_pending_sub),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun AdminStatTile(label: String = "", value: String = "", sub: String = "", modifier: Modifier = Modifier) {
+    Surface(shape = RoundedCornerShape(10.dp), color = MaterialTheme.colorScheme.surface, modifier = modifier) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Text(label, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            Text(value, fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+            if (sub.isNotBlank()) {
+                Text(sub, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            }
+        }
+    }
+}
+
+/** One customer derived from the real orders. No invented fields. */
+private data class AdminCustomerRow(
+    val key: String = "",
+    val name: String = "",
+    val phone: String = "",
+    val city: String = "",
+    val orderCount: Int = 0,
+    val totalSpent: Double = 0.0
+)
+
+/**
+ * Groups orders by their real ownerId when present, otherwise by a normalised
+ * phone number, otherwise by lowercased name. Never invents a customer.
+ */
+private fun customerKeyFor(order: AdminOrder): String {
+    if (order.ownerId.isNotBlank()) return "uid:" + order.ownerId
+    val phone = normalizePhone(order.customerPhone)
+    if (phone.isNotBlank()) return "phone:" + phone
+    val name = order.customerName.trim().lowercase()
+    if (name.isNotBlank()) return "name:" + name
+    return "unknown"
+}
+
+private fun buildCustomerRows(orders: List<AdminOrder> = emptyList()): List<AdminCustomerRow> {
+    val byKey = LinkedHashMap<String, AdminCustomerRow>()
+    orders.forEach { order ->
+        val key = customerKeyFor(order)
+        val existing = byKey[key]
+        if (existing == null) {
+            byKey[key] = AdminCustomerRow(
+                key = key,
+                name = order.customerName,
+                phone = order.customerPhone,
+                city = order.city,
+                orderCount = 1,
+                totalSpent = order.totalInr
+            )
+        } else {
+            byKey[key] = existing.copy(
+                name = if (existing.name.isBlank()) order.customerName else existing.name,
+                phone = if (existing.phone.isBlank()) order.customerPhone else existing.phone,
+                city = if (existing.city.isBlank()) order.city else existing.city,
+                orderCount = existing.orderCount + 1,
+                totalSpent = existing.totalSpent + order.totalInr
+            )
+        }
+    }
+    return byKey.values.toList()
+}
+
+@Composable
+private fun CustomersAdminTab(orders: List<AdminOrder> = emptyList()) {
+    var expandedKey by remember { mutableStateOf<String?>(null) }
+    val customers = remember(orders) { buildCustomerRows(orders) }
+    if (customers.isEmpty()) {
+        Text(stringResource(R.string.admin_no_customers), fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(customers, key = { it.key }) { row ->
+            AdminCustomerCard(row = row, onClick = { expandedKey = row.key })
+        }
+    }
+    expandedKey?.let { key ->
+        val row = customers.firstOrNull { it.key == key }
+        val theirOrders = orders.filter { customerKeyFor(it) == key }
+        Dialog(onDismissRequest = { expandedKey = null }) {
+            Surface(shape = RoundedCornerShape(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .heightIn(max = 420.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        row?.name?.takeIf { it.isNotBlank() } ?: stringResource(R.string.admin_customer_unknown),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                    if (row != null && row.phone.isNotBlank()) {
+                        Text(row.phone, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    if (theirOrders.isEmpty()) {
+                        Text(stringResource(R.string.admin_no_orders), fontSize = 13.sp)
+                    } else {
+                        theirOrders.forEach { order ->
+                            Text(
+                                "#" + order.orderNumber + " - " + formatIndianRupees(order.totalInr) + " - " + order.status,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(formatTimestamp(order.createdAt), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AdminCustomerCard(row: AdminCustomerRow = AdminCustomerRow(), onClick: () -> Unit = {}) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                row.name.takeIf { it.isNotBlank() } ?: stringResource(R.string.admin_customer_unknown),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
+            if (row.phone.isNotBlank()) {
+                Text(row.phone, fontSize = 12.sp, color = Color(0xFF1976D2))
+            }
+            if (row.city.isNotBlank()) {
+                Text(row.city, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text(
+                stringResource(R.string.admin_customer_summary, row.orderCount, formatIndianRupees(row.totalSpent)),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+/** Escapes a single CSV field: quote it only when it contains a comma, quote or newline. */
+private fun csvCell(value: String): String {
+    val needsQuote = value.contains(',') || value.contains('"') || value.contains('\n') || value.contains('\r')
+    if (!needsQuote) return value
+    return "\"" + value.replace("\"", "\"\"") + "\""
+}
+
+/** Builds a CSV of the orders passed in (header + one row per order). Nothing invented. */
+private fun buildOrdersCsv(orders: List<AdminOrder> = emptyList(), header: String = ""): String {
+    val sb = StringBuilder()
+    sb.append(header).append('\n')
+    orders.forEach { order ->
+        val items = order.items.joinToString("; ") { it.name + " x" + it.quantity }
+        sb.append(csvCell(order.orderNumber)).append(',')
+        sb.append(csvCell(formatTimestamp(order.createdAt))).append(',')
+        sb.append(csvCell(order.customerName)).append(',')
+        sb.append(csvCell(order.customerPhone)).append(',')
+        sb.append(csvCell(order.city)).append(',')
+        sb.append(csvCell(items)).append(',')
+        sb.append(csvCell(order.totalInr.toInt().toString())).append(',')
+        sb.append(csvCell(order.status)).append(',')
+        sb.append(csvCell(order.dealerName))
+        sb.append('\n')
+    }
+    return sb.toString()
+}
+
+/**
+ * Opens the Android share sheet with the CSV as plain text (Intent.ACTION_SEND +
+ * EXTRA_TEXT). No file is written and no permission is required.
+ */
+private fun shareOrdersCsv(context: android.content.Context, csv: String, subject: String) {
+    try {
+        val sendIntent = Intent(Intent.ACTION_SEND)
+        sendIntent.type = "text/plain"
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
+        sendIntent.putExtra(Intent.EXTRA_TEXT, csv)
+        context.startActivity(Intent.createChooser(sendIntent, subject))
+    } catch (_: Exception) { }
 }
 
 @Composable
