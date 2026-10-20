@@ -956,5 +956,22 @@
     <string name="admin_review_target_label">For: %1$s</string>
     <string name="admin_review_delete_title">Delete review</string>
     <string name="admin_review_delete_body">Delete this review? This cannot be undone.</string>
+    <string name="admin_cancel">Cancel</string>
+    <string name="admin_deleted">Deleted!</string>
+    <string name="admin_delete_failed">Could not delete - check connection.</string>
+    <string name="admin_delete_order_title">Delete this order?</string>
+    <string name="admin_delete_order_body">This order will be permanently deleted. This cannot be undone.</string>
+    <string name="admin_delete_booking_title">Delete this booking?</string>
+    <string name="admin_delete_booking_body">This booking will be permanently deleted. This cannot be undone.</string>
+    <string name="admin_reset_title">Clear finished items?</string>
+    <string name="admin_reset_finished">Clear finished (%1$d)</string>
+    <string name="admin_reset_orders_body">Delete %1$d completed orders? This cannot be undone.</string>
+    <string name="admin_reset_bookings_body">Delete %1$d completed bookings? This cannot be undone.</string>
+    <string name="order_delete_title">Delete this order?</string>
+    <string name="order_delete_body">This order will be permanently removed from your list. This cannot be undone.</string>
+    <string name="order_delete_action">Delete order</string>
+    <string name="booking_delete_title">Delete this booking?</string>
+    <string name="booking_delete_body">This booking will be permanently removed from your list. This cannot be undone.</string>
+    <string name="booking_delete_action">Delete booking</string>
 </resources>
 

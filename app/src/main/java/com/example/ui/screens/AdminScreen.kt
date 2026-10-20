@@ -100,6 +100,10 @@ fun AdminScreen(
     onDeleteDealer: (String) -> Unit,
     onAssignBooking: (String, String, String) -> Unit = { _, _, _ -> },
     onUpdateBookingStatus: (String, String) -> Unit = { _, _ -> },
+    onDeleteOrder: (String) -> Unit = {},
+    onDeleteBooking: (String) -> Unit = {},
+    onDeleteOrders: (List<String>) -> Unit = {},
+    onDeleteBookings: (List<String>) -> Unit = {},
     onAddVet: (String, String, String, String, String, Double, Double, Boolean, Boolean) -> Unit = { _, _, _, _, _, _, _, _, _ -> },
     onDeleteVet: (String) -> Unit = {},
     onDismiss: () -> Unit
@@ -201,7 +205,9 @@ fun AdminScreen(
                                     bookings = bookings,
                                     onAssign = { booking -> assigningBooking = booking },
                                     onUpdateStatus = onUpdateBookingStatus,
-                                    typeFilter = bookingTypeFor(section)
+                                    typeFilter = bookingTypeFor(section),
+                                    onDelete = onDeleteBooking,
+                                    onClearFinished = onDeleteBookings
                                 )
                             } else {
                                 when (section) {
@@ -214,7 +220,9 @@ fun AdminScreen(
                         "ORDERS" -> OrdersAdminTab(
                             orders = orders,
                             onAssign = { order -> assigningOrder = order },
-                            onUpdateStatus = onUpdateStatus
+                            onUpdateStatus = onUpdateStatus,
+                            onDelete = onDeleteOrder,
+                            onClearFinished = onDeleteOrders
                         )
                         "FOOD" -> ProductsAdminTab(products = products, listTypeFilter = "Food", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "MEDICINE" -> ProductsAdminTab(products = products, listTypeFilter = "Medicine", onAdd = onAddProduct, onDelete = onDeleteProduct)
@@ -238,7 +246,9 @@ fun AdminScreen(
                                     bookings = bookings,
                                     onAssign = { booking -> assigningBooking = booking },
                                     onUpdateStatus = onUpdateBookingStatus,
-                                    typeFilter = "SUBSCRIPTION"
+                                    typeFilter = "SUBSCRIPTION",
+                                    onDelete = onDeleteBooking,
+                                    onClearFinished = onDeleteBookings
                                 )
                             } else {
                                 ProductsAdminTab(products = products, listTypeFilter = "Subscription", onAdd = onAddProduct, onDelete = onDeleteProduct)
@@ -263,7 +273,9 @@ fun AdminScreen(
                                     bookings = bookings,
                                     onAssign = { booking -> assigningBooking = booking },
                                     onUpdateStatus = onUpdateBookingStatus,
-                                    typeFilter = "BOARDING"
+                                    typeFilter = "BOARDING",
+                                    onDelete = onDeleteBooking,
+                                    onClearFinished = onDeleteBookings
                                 )
                             } else {
                                 ProductsAdminTab(products = products, listTypeFilter = "Boarding", onAdd = onAddProduct, onDelete = onDeleteProduct)
@@ -542,17 +554,83 @@ private fun BookingsAdminTab(
     bookings: List<ServiceBooking>,
     onAssign: (ServiceBooking) -> Unit,
     onUpdateStatus: (String, String) -> Unit,
-    typeFilter: String? = null
+    typeFilter: String? = null,
+    onDelete: (String) -> Unit = {},
+    onClearFinished: (List<String>) -> Unit = {}
 ) {
+    var pendingDelete by remember { mutableStateOf<ServiceBooking?>(null) }
+    var pendingClear by remember { mutableStateOf(false) }
     val shown = if (typeFilter != null) bookings.filter { it.type == typeFilter } else bookings
+    val finished = shown.filter { it.status == "COMPLETED" || it.status == "CANCELLED" }
     if (shown.isEmpty()) {
         Text("No bookings yet. New requests will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
         return
     }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(shown, key = { it.id }) { booking ->
-            AdminBookingCard(booking = booking, onAssign = onAssign, onUpdateStatus = onUpdateStatus)
+        if (finished.isNotEmpty()) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    OutlinedButton(onClick = { pendingClear = true }) {
+                        Text(
+                            stringResource(R.string.admin_reset_finished, finished.size),
+                            fontSize = 12.sp,
+                            color = Color(0xFFD32F2F)
+                        )
+                    }
+                }
+            }
         }
+        items(shown, key = { it.id }) { booking ->
+            AdminBookingCard(
+                booking = booking,
+                onAssign = onAssign,
+                onUpdateStatus = onUpdateStatus,
+                onRequestDelete = { pendingDelete = booking }
+            )
+        }
+    }
+    pendingDelete?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(R.string.admin_delete_booking_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_delete_booking_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete(target.id)
+                    pendingDelete = null
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
+    }
+    if (pendingClear) {
+        AlertDialog(
+            onDismissRequest = { pendingClear = false },
+            title = { Text(stringResource(R.string.admin_reset_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_reset_bookings_body, finished.size)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onClearFinished(finished.map { it.id })
+                    pendingClear = false
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingClear = false }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
     }
 }
 
@@ -868,7 +946,8 @@ private fun FoundReportsAdminTab(reports: List<FoundPetReport>, onDelete: (Strin
 private fun AdminBookingCard(
     booking: ServiceBooking,
     onAssign: (ServiceBooking) -> Unit,
-    onUpdateStatus: (String, String) -> Unit
+    onUpdateStatus: (String, String) -> Unit,
+    onRequestDelete: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val statusColor = when (booking.status) {
@@ -968,6 +1047,11 @@ private fun AdminBookingCard(
                         Text("Call Customer", fontSize = 12.sp, color = Color(0xFF1976D2))
                     }
                 }
+                if (booking.status == "COMPLETED" || booking.status == "CANCELLED") {
+                    TextButton(onClick = onRequestDelete) {
+                        Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
             }
         }
     }
@@ -977,16 +1061,82 @@ private fun AdminBookingCard(
 private fun OrdersAdminTab(
     orders: List<AdminOrder>,
     onAssign: (AdminOrder) -> Unit,
-    onUpdateStatus: (String, String) -> Unit
+    onUpdateStatus: (String, String) -> Unit,
+    onDelete: (String) -> Unit = {},
+    onClearFinished: (List<String>) -> Unit = {}
 ) {
+    var pendingDelete by remember { mutableStateOf<AdminOrder?>(null) }
+    var pendingClear by remember { mutableStateOf(false) }
+    val finished = orders.filter { it.status == "DELIVERED" || it.status == "CANCELLED" }
     if (orders.isEmpty()) {
         Text(stringResource(R.string.admin_no_orders), fontSize = 14.sp, modifier = Modifier.padding(16.dp))
         return
     }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(orders, key = { it.id }) { order ->
-            AdminOrderCard(order = order, onAssign = onAssign, onUpdateStatus = onUpdateStatus)
+        if (finished.isNotEmpty()) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    OutlinedButton(onClick = { pendingClear = true }) {
+                        Text(
+                            stringResource(R.string.admin_reset_finished, finished.size),
+                            fontSize = 12.sp,
+                            color = Color(0xFFD32F2F)
+                        )
+                    }
+                }
+            }
         }
+        items(orders, key = { it.id }) { order ->
+            AdminOrderCard(
+                order = order,
+                onAssign = onAssign,
+                onUpdateStatus = onUpdateStatus,
+                onRequestDelete = { pendingDelete = order }
+            )
+        }
+    }
+    pendingDelete?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(R.string.admin_delete_order_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_delete_order_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete(target.id)
+                    pendingDelete = null
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
+    }
+    if (pendingClear) {
+        AlertDialog(
+            onDismissRequest = { pendingClear = false },
+            title = { Text(stringResource(R.string.admin_reset_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_reset_orders_body, finished.size)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onClearFinished(finished.map { it.id })
+                    pendingClear = false
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingClear = false }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
     }
 }
 
@@ -994,7 +1144,8 @@ private fun OrdersAdminTab(
 private fun AdminOrderCard(
     order: AdminOrder,
     onAssign: (AdminOrder) -> Unit,
-    onUpdateStatus: (String, String) -> Unit
+    onUpdateStatus: (String, String) -> Unit,
+    onRequestDelete: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val statusColor = when (order.status) {
@@ -1063,6 +1214,11 @@ private fun AdminOrderCard(
                         } catch (_: Exception) { }
                     }) {
                         Text(stringResource(R.string.admin_send_job_dealer), fontSize = 12.sp, color = Color(0xFF25D366))
+                    }
+                }
+                if (order.status == "DELIVERED" || order.status == "CANCELLED") {
+                    TextButton(onClick = onRequestDelete) {
+                        Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
                     }
                 }
             }

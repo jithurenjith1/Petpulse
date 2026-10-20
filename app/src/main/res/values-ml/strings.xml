@@ -956,5 +956,22 @@
     <string name="admin_review_target_label">ഇതിനായി: %1$s</string>
     <string name="admin_review_delete_title">അവലോകനം ഡിലീറ്റ് ചെയ്യുക</string>
     <string name="admin_review_delete_body">ഈ അവലോകനം ഡിലീറ്റ് ചെയ്യണോ? ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="admin_cancel">റദ്ദാക്കുക</string>
+    <string name="admin_deleted">ഡിലീറ്റ് ചെയ്തു!</string>
+    <string name="admin_delete_failed">ഡിലീറ്റ് ചെയ്യാനായില്ല - കണക്ഷൻ പരിശോധിക്കുക.</string>
+    <string name="admin_delete_order_title">ഈ ഓർഡർ ഡിലീറ്റ് ചെയ്യണോ?</string>
+    <string name="admin_delete_order_body">ഈ ഓർഡർ ശാശ്വതമായി ഡിലീറ്റ് ചെയ്യും. ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="admin_delete_booking_title">ഈ ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യണോ?</string>
+    <string name="admin_delete_booking_body">ഈ ബുക്കിംഗ് ശാശ്വതമായി ഡിലീറ്റ് ചെയ്യും. ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="admin_reset_title">പൂർത്തിയായ ഇനങ്ങൾ മായ്ക്കണോ?</string>
+    <string name="admin_reset_finished">പൂർത്തിയായവ മായ്ക്കുക (%1$d)</string>
+    <string name="admin_reset_orders_body">%1$d പൂർത്തിയായ ഓർഡറുകൾ ഡിലീറ്റ് ചെയ്യണോ? ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="admin_reset_bookings_body">%1$d പൂർത്തിയായ ബുക്കിംഗുകൾ ഡിലീറ്റ് ചെയ്യണോ? ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="order_delete_title">ഈ ഓർഡർ ഡിലീറ്റ് ചെയ്യണോ?</string>
+    <string name="order_delete_body">ഈ ഓർഡർ നിങ്ങളുടെ ലിസ്റ്റിൽ നിന്ന് ശാശ്വതമായി നീക്കം ചെയ്യും. ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="order_delete_action">ഓർഡർ ഡിലീറ്റ് ചെയ്യുക</string>
+    <string name="booking_delete_title">ഈ ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യണോ?</string>
+    <string name="booking_delete_body">ഈ ബുക്കിംഗ് നിങ്ങളുടെ ലിസ്റ്റിൽ നിന്ന് ശാശ്വതമായി നീക്കം ചെയ്യും. ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="booking_delete_action">ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യുക</string>
 </resources>
 

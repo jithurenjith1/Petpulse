@@ -672,6 +672,10 @@ val appCtx = LocalContext.current
                 viewModel.submitDealerReview(name, rating, text, orderId)
             },
             onConfirmReceived = { id -> viewModel.markBookingReceived(id) },
+            onDeleteOrder = { id -> viewModel.deleteMyOrder(id) },
+            onDeleteBooking = { id -> viewModel.deleteMyBooking(id) },
+            onDeleteOrders = { ids -> viewModel.deleteMyOrders(ids) },
+            onDeleteBookings = { ids -> viewModel.deleteMyBookings(ids) },
             onBuyAgain = { order ->
                 viewModel.reorderFromOrder(order)
                 showMyOrdersScreen = false
@@ -695,6 +699,10 @@ val appCtx = LocalContext.current
             onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },
             onAssignBooking = { id, name, phone -> viewModel.adminAssignBooking(id, name, phone) },
             onUpdateBookingStatus = { id, status -> viewModel.adminUpdateBookingStatus(id, status) },
+            onDeleteOrder = { id -> viewModel.adminDeleteOrder(id) },
+            onDeleteBooking = { id -> viewModel.adminDeleteBooking(id) },
+            onDeleteOrders = { ids -> viewModel.adminDeleteOrders(ids) },
+            onDeleteBookings = { ids -> viewModel.adminDeleteBookings(ids) },
             vets = adminVets,
             listings = adminListings,
             lostAlerts = adminLostAlerts,

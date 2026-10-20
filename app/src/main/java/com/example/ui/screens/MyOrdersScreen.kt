@@ -28,14 +28,17 @@ import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -90,11 +93,21 @@ fun MyOrdersScreen(
     dealerReviews: List<Review> = emptyList(),
     onSubmitDealerReview: (String, Int, String, String) -> Unit = { _, _, _, _ -> },
     onConfirmReceived: (String) -> Unit = {},
+    onDeleteOrder: (String) -> Unit = {},
+    onDeleteBooking: (String) -> Unit = {},
+    onDeleteOrders: (List<String>) -> Unit = {},
+    onDeleteBookings: (List<String>) -> Unit = {},
     onBuyAgain: (AdminOrder) -> Unit,
     onClose: () -> Unit
 ) {
     val context = LocalContext.current
     var selectedTab by remember { mutableStateOf(0) } // 0 = Orders, 1 = Bookings
+    var pendingDeleteOrder by remember { mutableStateOf<AdminOrder?>(null) }
+    var pendingDeleteBooking by remember { mutableStateOf<ServiceBooking?>(null) }
+    var pendingClearOrders by remember { mutableStateOf(false) }
+    var pendingClearBookings by remember { mutableStateOf(false) }
+    val finishedOrders = orders.filter { it.status == "DELIVERED" || it.status == "CANCELLED" }
+    val finishedBookings = bookings.filter { it.status == "COMPLETED" || it.status == "CANCELLED" }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -171,12 +184,29 @@ fun MyOrdersScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
                     ) {
+                        if (finishedOrders.isNotEmpty()) {
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    OutlinedButton(onClick = { pendingClearOrders = true }) {
+                                        Text(
+                                            stringResource(R.string.admin_reset_finished, finishedOrders.size),
+                                            fontSize = 12.sp,
+                                            color = CancelledRed
+                                        )
+                                    }
+                                }
+                            }
+                        }
                         items(orders, key = { it.id }) { order ->
                             MyOrderCard(
                                 order = order,
                                 dealerReviews = dealerReviews,
                                 onSubmitDealerReview = onSubmitDealerReview,
                                 onBuyAgain = { onBuyAgain(order) },
+                                onRequestDelete = { pendingDeleteOrder = order },
                                 onCallDealer = { phone ->
                                     if (phone.isNotBlank()) {
                                         try {
@@ -206,10 +236,27 @@ fun MyOrdersScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
                     ) {
+                        if (finishedBookings.isNotEmpty()) {
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    OutlinedButton(onClick = { pendingClearBookings = true }) {
+                                        Text(
+                                            stringResource(R.string.admin_reset_finished, finishedBookings.size),
+                                            fontSize = 12.sp,
+                                            color = CancelledRed
+                                        )
+                                    }
+                                }
+                            }
+                        }
                         items(bookings, key = { it.id }) { booking ->
                             MyBookingCard(
                                 booking = booking,
                                 onConfirmReceived = { onConfirmReceived(booking.id) },
+                                onRequestDelete = { pendingDeleteBooking = booking },
                                 onCall = { phone ->
                                     if (phone.isNotBlank()) {
                                         try {
@@ -225,6 +272,86 @@ fun MyOrdersScreen(
                 }
             }
         }
+    }
+    pendingDeleteOrder?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingDeleteOrder = null },
+            title = { Text(stringResource(R.string.order_delete_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.order_delete_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteOrder(target.id)
+                    pendingDeleteOrder = null
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = CancelledRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDeleteOrder = null }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
+    }
+    pendingDeleteBooking?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingDeleteBooking = null },
+            title = { Text(stringResource(R.string.booking_delete_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.booking_delete_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteBooking(target.id)
+                    pendingDeleteBooking = null
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = CancelledRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDeleteBooking = null }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
+    }
+    if (pendingClearOrders) {
+        AlertDialog(
+            onDismissRequest = { pendingClearOrders = false },
+            title = { Text(stringResource(R.string.admin_reset_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_reset_orders_body, finishedOrders.size)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteOrders(finishedOrders.map { it.id })
+                    pendingClearOrders = false
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = CancelledRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingClearOrders = false }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
+    }
+    if (pendingClearBookings) {
+        AlertDialog(
+            onDismissRequest = { pendingClearBookings = false },
+            title = { Text(stringResource(R.string.admin_reset_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_reset_bookings_body, finishedBookings.size)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteBookings(finishedBookings.map { it.id })
+                    pendingClearBookings = false
+                }) {
+                    Text(stringResource(R.string.admin_delete), color = CancelledRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingClearBookings = false }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
     }
 }
 
@@ -256,7 +383,8 @@ private fun MyOrderCard(
     dealerReviews: List<Review> = emptyList(),
     onSubmitDealerReview: (String, Int, String, String) -> Unit = { _, _, _, _ -> },
     onBuyAgain: () -> Unit,
-    onCallDealer: (String) -> Unit
+    onCallDealer: (String) -> Unit,
+    onRequestDelete: () -> Unit = {}
 ) {
     val dateText = if (order.createdAt > 0) {
         SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(order.createdAt))
@@ -380,6 +508,23 @@ private fun MyOrderCard(
                 Text("Buy Again", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
 
+            // Delete is offered only for a FINISHED order (DELIVERED / CANCELLED).
+            if (order.status == "DELIVERED" || order.status == "CANCELLED") {
+                Spacer(Modifier.height(10.dp))
+                OutlinedButton(
+                    onClick = onRequestDelete,
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth().height(40.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.order_delete_action),
+                        color = CancelledRed,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
             // Dealer / delivery-partner review - only after the order is DELIVERED.
             // The partner that fulfilled the order is order.dealerName; a customer
             // may rate them once (and only once) the order shows DELIVERED.
@@ -452,7 +597,8 @@ private fun MyOrderCard(
 private fun MyBookingCard(
     booking: ServiceBooking,
     onConfirmReceived: () -> Unit,
-    onCall: (String) -> Unit
+    onCall: (String) -> Unit,
+    onRequestDelete: () -> Unit = {}
 ) {
     val dateText = if (booking.createdAt > 0) {
         SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(booking.createdAt))
@@ -602,6 +748,23 @@ private fun MyBookingCard(
                     color = TextGray, fontSize = 10.sp,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+            }
+
+            // Delete is offered only for a FINISHED booking (COMPLETED / CANCELLED).
+            if (booking.status == "COMPLETED" || booking.status == "CANCELLED") {
+                Spacer(Modifier.height(10.dp))
+                OutlinedButton(
+                    onClick = onRequestDelete,
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth().height(40.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.booking_delete_action),
+                        color = CancelledRed,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

@@ -1069,6 +1069,34 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Admin removes one finished order from the Orders tab. */
+    fun adminDeleteOrder(orderId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteOrder(orderId).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
+    }
+
+    /** Admin removes several finished orders at once (Reset / clear-finished). */
+    fun adminDeleteOrders(orderIds: List<String>) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteOrders(orderIds).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
+    }
+
+    /** Customer removes one of their own finished orders (My Orders tab). */
+    fun deleteMyOrder(orderId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteOrder(orderId).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
+    }
+
+    /** Customer clears all of their own finished orders at once. */
+    fun deleteMyOrders(orderIds: List<String>) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteOrders(orderIds).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
+    }
+
     /** Customer submits a product review (reachable only for a DELIVERED order). */
     fun submitProductReview(productId: String, rating: Int, text: String, orderId: String) {
         viewModelScope.launch {
@@ -1369,6 +1397,34 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun adminUpdateBookingStatus(bookingId: String, status: String) {
         viewModelScope.launch {
             _commerceEvent.value = if (commerceRepo.updateBookingStatus(bookingId, status).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
+    /** Admin removes one finished booking from a bookings tab. */
+    fun adminDeleteBooking(bookingId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteBooking(bookingId).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
+    }
+
+    /** Admin removes several finished bookings at once (Reset / clear-finished). */
+    fun adminDeleteBookings(bookingIds: List<String>) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteBookings(bookingIds).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
+    }
+
+    /** Customer removes one of their own finished bookings (My Bookings tab). */
+    fun deleteMyBooking(bookingId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteBooking(bookingId).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
+    }
+
+    /** Customer clears all of their own finished bookings at once. */
+    fun deleteMyBookings(bookingIds: List<String>) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteBookings(bookingIds).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
         }
     }
 

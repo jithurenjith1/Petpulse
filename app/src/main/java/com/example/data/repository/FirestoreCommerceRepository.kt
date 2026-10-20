@@ -390,6 +390,45 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         Result.failure(e)
     }
 
+    /**
+     * Delete a single order. Allowed by firestore.rules for an admin OR the
+     * order's own owner (resource.data.ownerId == request.auth.uid).
+     */
+    suspend fun deleteOrder(orderId: String): Result<Unit> {
+        return try {
+            if (orderId.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_ID"))
+            db.collection("orders").document(orderId).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "deleteOrder failed for $orderId", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Delete several orders in one go (Reset / clear-finished). Every id is
+     * attempted; the call reports failure if ANY delete failed so the UI can
+     * show a real error instead of silently claiming success.
+     */
+    suspend fun deleteOrders(orderIds: List<String>): Result<Unit> {
+        return try {
+            var firstError: Exception? = null
+            orderIds.filter { it.isNotBlank() }.forEach { id ->
+                try {
+                    db.collection("orders").document(id).delete().await()
+                } catch (e: Exception) {
+                    Log.e("FsCommerce", "deleteOrders failed for $id", e)
+                    if (firstError == null) firstError = e
+                }
+            }
+            val err = firstError
+            if (err != null) Result.failure(err) else Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "deleteOrders failed", e)
+            Result.failure(e)
+        }
+    }
+
     // ---------- bookings (doctor consults + trainer on-demand) ----------
 
     /** Live stream of ALL bookings (admin panel). */
@@ -504,6 +543,44 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)
+    }
+
+    /**
+     * Delete a single booking. Allowed by firestore.rules for an admin OR the
+     * booking's own owner (resource.data.ownerId == request.auth.uid).
+     */
+    suspend fun deleteBooking(bookingId: String): Result<Unit> {
+        return try {
+            if (bookingId.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_ID"))
+            db.collection("bookings").document(bookingId).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "deleteBooking failed for $bookingId", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Delete several bookings in one go (Reset / clear-finished). Every id is
+     * attempted; the call reports failure if ANY delete failed.
+     */
+    suspend fun deleteBookings(bookingIds: List<String>): Result<Unit> {
+        return try {
+            var firstError: Exception? = null
+            bookingIds.filter { it.isNotBlank() }.forEach { id ->
+                try {
+                    db.collection("bookings").document(id).delete().await()
+                } catch (e: Exception) {
+                    Log.e("FsCommerce", "deleteBookings failed for $id", e)
+                    if (firstError == null) firstError = e
+                }
+            }
+            val err = firstError
+            if (err != null) Result.failure(err) else Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "deleteBookings failed", e)
+            Result.failure(e)
+        }
     }
 
     // ---------- partner vets (admin-managed, public browse) ----------
