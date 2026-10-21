@@ -1563,6 +1563,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Admin: toggle ONE partner vet's online/offline availability from the list. */
+    fun adminSetVetOnline(vetId: String, isOnline: Boolean) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.setVetOnline(vetId, isOnline).isSuccess) R.string.admin_saved else R.string.admin_failed
+        }
+    }
+
     // Doctor Consultation Booking
     fun bookDoctorAppointment(
         doctor: VerifiedDoctor,

@@ -731,6 +731,7 @@ val appCtx = LocalContext.current
             onDeleteFoundReport = { id -> viewModel.adminDeleteFoundReport(id) },
             onAddVet = { n, sp, c, city, ph, vf, inf, on, vfy -> viewModel.adminAddVet(n, sp, c, city, ph, vf, inf, on, vfy) },
             onDeleteVet = { id -> viewModel.adminDeleteVet(id) },
+            onSetVetOnline = { id, isOnline -> viewModel.adminSetVetOnline(id, isOnline) },
             newsPosts = newsPosts,
             onAddNewsPost = { t, b, cat, a, l, uri -> viewModel.adminAddNewsPost(t, b, cat, a, l, uri) },
             onDeleteNewsPost = { id -> viewModel.adminDeleteNewsPost(id) },

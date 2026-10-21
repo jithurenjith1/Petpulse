@@ -337,6 +337,11 @@
     <string name="vet_consultation_booked">Consultation Booked</string>
     <string name="vet_enter_your_pet_s_name">Enter your pet\'s name</string>
     <string name="vet_got_it">Got it</string>
+    <string name="vet_online_now">Online now</string>
+    <string name="vet_offline">Offline</string>
+    <string name="vet_by_appointment">By appointment</string>
+    <string name="vet_offline_try_later">Currently offline - try later</string>
+    <string name="admin_vet_availability">Availability</string>
     <string name="vet_pet_name">Pet name</string>
     <string name="vet_vet_teleconsultation">Vet Teleconsultation</string>
     <string name="triage_disclaimer">Guidance only — not a veterinary diagnosis. Always consult a registered vet.</string>

@@ -1695,16 +1695,32 @@ fun VerifiedDoctorCard(
                     )
                 }
 
-                Button(
-                    onClick = onBook,
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Button(
+                        onClick = onBook,
+                        enabled = doctor.isOnline,
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.market_book_slot),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     Text(
-                        text = stringResource(R.string.market_book_slot),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        text = stringResource(if (doctor.isOnline) R.string.vet_online_now else R.string.vet_offline),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (doctor.isOnline) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    if (!doctor.isOnline) {
+                        Text(
+                            text = stringResource(R.string.vet_offline_try_later),
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }

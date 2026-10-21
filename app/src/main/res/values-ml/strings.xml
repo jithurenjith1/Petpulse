@@ -337,6 +337,11 @@
     <string name="vet_consultation_booked">കൺസൾട്ടേഷൻ ബുക്ക് ചെയ്തു</string>
     <string name="vet_enter_your_pet_s_name">നിങ്ങളുടെ പെറ്റിന്റെ പേര് നൽകുക</string>
     <string name="vet_got_it">മനസ്സിലായി</string>
+    <string name="vet_online_now">ഇപ്പോൾ ഓൺലൈൻ</string>
+    <string name="vet_offline">ഓഫ്‌ലൈൻ</string>
+    <string name="vet_by_appointment">അപ്പോയിന്റ്മെന്റ് പ്രകാരം</string>
+    <string name="vet_offline_try_later">ഇപ്പോൾ ഓഫ്‌ലൈൻ - പിന്നീട് ശ്രമിക്കുക</string>
+    <string name="admin_vet_availability">ലഭ്യത</string>
     <string name="vet_pet_name">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
     <string name="vet_vet_teleconsultation">വെറ്റ് ടെലി കൺസൾട്ടേഷൻ</string>
     <string name="triage_disclaimer">മാർഗ്ഗനിർദേശം മാത്രം — ഇത് വെറ്ററിനറി രോഗനിർണയമല്ല. എപ്പോഴും രേജിസ്റ്റർ ചെയ്ത വെറ്ററിനറി ഡോക്ടറെയെ കാണുക.</string>

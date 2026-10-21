@@ -667,6 +667,23 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         Result.failure(e)
     }
 
+    /**
+     * Admin: flip ONE partner vet's online/offline availability. Updates only
+     * that vet's document (the `isOnline` field) so the customer side reflects
+     * it live through observeVets(). Fails (rather than silently no-oping) when
+     * the id is blank or the write is rejected.
+     */
+    suspend fun setVetOnline(vetId: String, isOnline: Boolean): Result<Unit> {
+        if (vetId.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_VET_ID"))
+        return try {
+            db.collection("vets").document(vetId).update("isOnline", isOnline).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "setVetOnline failed for $vetId", e)
+            Result.failure(e)
+        }
+    }
+
     // ---------- community posts (Firestore-backed) ----------
 
     fun observeCommunityPosts(): Flow<List<CommunityPost>> = callbackFlow {

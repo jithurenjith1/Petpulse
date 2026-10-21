@@ -455,18 +455,29 @@ private fun VetCard(
                     fontSize = 16.sp,
                     color = Gold
                 )
-                Button(
-                    onClick = onBook,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.vet_book_consultation),
-                        fontWeight = FontWeight.SemiBold
-                    )
+                Column(horizontalAlignment = Alignment.End) {
+                    Button(
+                        onClick = onBook,
+                        enabled = vet.status == OnlineStatus.ONLINE,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.vet_book_consultation),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    if (vet.status != OnlineStatus.ONLINE) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.vet_offline_try_later),
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
@@ -478,28 +489,31 @@ private fun VetCard(
 // ---------------------------------------------------------------------------
 @Composable
 private fun OnlineChip(status: OnlineStatus) {
-    val (container, content, label) = when (status) {
-        OnlineStatus.ONLINE -> Triple(
-            OnlineGreen,
-            Color.White,
-            "Online now"
-        )
-        OnlineStatus.OFFLINE -> Triple(
-            ScheduledGrey,
-            Color.White,
-            "Offline"
-        )
-        OnlineStatus.SCHEDULED -> Triple(
-            ScheduledGrey,
-            Color.White,
-            "By appointment"
-        )
+    val container: Color
+    val content: Color
+    val labelRes: Int
+    when (status) {
+        OnlineStatus.ONLINE -> {
+            container = OnlineGreen
+            content = Color.White
+            labelRes = R.string.vet_online_now
+        }
+        OnlineStatus.OFFLINE -> {
+            container = ScheduledGrey
+            content = Color.White
+            labelRes = R.string.vet_offline
+        }
+        OnlineStatus.SCHEDULED -> {
+            container = ScheduledGrey
+            content = Color.White
+            labelRes = R.string.vet_by_appointment
+        }
     }
     AssistChip(
         onClick = {},
         label = {
             Text(
-                text = label,
+                text = stringResource(labelRes),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium
             )

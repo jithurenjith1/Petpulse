@@ -106,6 +106,7 @@ fun AdminScreen(
     onDeleteBookings: (List<String>) -> Unit = {},
     onAddVet: (String, String, String, String, String, Double, Double, Boolean, Boolean) -> Unit = { _, _, _, _, _, _, _, _, _ -> },
     onDeleteVet: (String) -> Unit = {},
+    onSetVetOnline: (String, Boolean) -> Unit = { _, _ -> },
     onDismiss: () -> Unit
 ) {
     var section by remember { mutableStateOf<String?>(null) }
@@ -212,7 +213,7 @@ fun AdminScreen(
                                 )
                             } else {
                                 when (section) {
-                                    "DOCTOR" -> VetsAdminTab(vets = vets, onAdd = onAddVet, onDelete = onDeleteVet)
+                                    "DOCTOR" -> VetsAdminTab(vets = vets, onAdd = onAddVet, onDelete = onDeleteVet, onToggleOnline = onSetVetOnline)
                                     "TRAINING" -> ProductsAdminTab(products = products, listTypeFilter = "Training", onAdd = onAddProduct, onDelete = onDeleteProduct)
                                     else -> ProductsAdminTab(products = products, listTypeFilter = "Grooming", onAdd = onAddProduct, onDelete = onDeleteProduct)
                                 }
@@ -1966,7 +1967,8 @@ private fun DealersAdminTab(
 private fun VetsAdminTab(
     vets: List<VerifiedDoctor>,
     onAdd: (String, String, String, String, String, Double, Double, Boolean, Boolean) -> Unit,
-    onDelete: (String) -> Unit
+    onDelete: (String) -> Unit,
+    onToggleOnline: (String, Boolean) -> Unit = { _, _ -> }
 ) {
     var name by remember { mutableStateOf("") }
     var specialization by remember { mutableStateOf("") }
@@ -2035,7 +2037,7 @@ private fun VetsAdminTab(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Switch(checked = isOnline, onCheckedChange = { isOnline = it })
-                Text("Online now", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.vet_online_now), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
         }
         item {
@@ -2106,6 +2108,31 @@ private fun VetsAdminTab(
                             "Video ₹${vet.videoConsultFeeInr.toInt()} • Clinic ₹${vet.inPersonConsultFeeInr.toInt()} • ${vet.phone}",
                             fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                stringResource(R.string.admin_vet_availability),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    stringResource(if (vet.isOnline) R.string.vet_online_now else R.string.vet_offline),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = if (vet.isOnline) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Switch(
+                                    checked = vet.isOnline,
+                                    onCheckedChange = { onToggleOnline(vet.id, it) }
+                                )
+                            }
+                        }
                     }
                 }
             }
