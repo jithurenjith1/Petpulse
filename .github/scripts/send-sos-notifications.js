@@ -29,11 +29,38 @@ const admin = require('firebase-admin');
 const RECENT_WINDOW_MINUTES = parseInt(process.env.SOS_RECENT_WINDOW_MINUTES || '60', 10);
 // How many of the newest alerts to inspect per run.
 const MAX_ALERTS_PER_RUN = parseInt(process.env.SOS_MAX_ALERTS || '200', 10);
+// Only notify users whose last known location is within this radius (km) of the
+// alert. Defaults to 5 km; override with the SOS_RADIUS_KM repository variable.
+const SOS_RADIUS_KM = parseFloat(process.env.SOS_RADIUS_KM || '5');
 // FCM multicast accepts at most 500 tokens per call.
 const FCM_BATCH_SIZE = 500;
 // The app writes "date" in device-local time. The user base is in India, so
 // legacy/unparsable string dates are interpreted as IST (UTC+05:30).
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+const EARTH_RADIUS_KM = 6371;
+
+/** Great-circle distance between two coordinates, in kilometres. */
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS_KM * c;
+}
+
+/**
+ * True when a pair of coordinates is usable for a distance check: both are
+ * finite numbers and they are not the 0,0 "never recorded" sentinel.
+ */
+function hasUsableCoords(lat, lng) {
+  if (typeof lat !== 'number' || typeof lng !== 'number') return false;
+  if (!isFinite(lat) || !isFinite(lng)) return false;
+  return !(lat === 0 && lng === 0);
+}
 
 // FCM error codes that mean the token is dead and should be removed.
 const DEAD_TOKEN_CODES = new Set([
@@ -98,7 +125,14 @@ async function loadTokenHolders() {
     snap.forEach((doc) => {
       const token = doc.get('fcmToken');
       if (typeof token === 'string' && token.trim() !== '') {
-        holders.push({ id: doc.id, ref: doc.ref, token: token.trim(), uid: doc.get('uid') || null });
+        holders.push({
+          id: doc.id,
+          ref: doc.ref,
+          token: token.trim(),
+          uid: doc.get('uid') || null,
+          lastLat: doc.get('lastLat'),
+          lastLng: doc.get('lastLng'),
+        });
       }
     });
   };
@@ -200,7 +234,36 @@ async function main() {
   for (const alert of alerts) {
     try {
       const ownerId = alert.data.ownerId;
-      const targets = holders.filter((h) => !isOwner(h, ownerId));
+      const nonOwnerHolders = holders.filter((h) => !isOwner(h, ownerId));
+
+      // 5 km radius filter. An alert without usable coordinates keeps the old
+      // "notify everyone" behaviour; an alert WITH coordinates skips users who
+      // have no saved coordinates (they cannot be placed on the map).
+      let targets;
+      const alertHasCoords = hasUsableCoords(alert.data.lat, alert.data.lng);
+      if (!alertHasCoords) {
+        targets = nonOwnerHolders;
+        console.log(
+          'Alert ' + alert.id +
+            ': no usable coordinates; notifying all ' + targets.length + ' non-owner holders.'
+        );
+      } else {
+        targets = nonOwnerHolders.filter((h) => {
+          if (!hasUsableCoords(h.lastLat, h.lastLng)) {
+            console.log(
+              'Alert ' + alert.id + ': skipping user ' + h.id + ' (no saved coordinates).'
+            );
+            return false;
+          }
+          const distanceKm = haversineKm(alert.data.lat, alert.data.lng, h.lastLat, h.lastLng);
+          return distanceKm <= SOS_RADIUS_KM;
+        });
+        console.log(
+          'Alert ' + alert.id +
+            ': ' + targets.length + ' of ' + nonOwnerHolders.length +
+            ' non-owner holders within ' + SOS_RADIUS_KM + ' km.'
+        );
+      }
 
       if (targets.length === 0) {
         console.log('Alert ' + alert.id + ': no recipients; marking notified.');

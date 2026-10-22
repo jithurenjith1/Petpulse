@@ -130,7 +130,7 @@
     <string name="partners_veterinary_doctors_clinics">Veterinary Doctors &amp; Clinics</string>
     <string name="partners_upcoming_competitions_events_calendar">🏆 Upcoming Competitions &amp; Events Calendar</string>
     <string name="partners_featured_pet_story">📰 FEATURED PET STORY</string>
-    <string name="triage_ai_symptom_checker">AI Pet Health Guide</string>
+    <string name="triage_ai_symptom_checker">Symptom Guide</string>
     <string name="triage_analyze">Analyze</string>
     <string name="triage_book_vet_consultation">Book Vet Consultation</string>
     <string name="triage_select_species">Select species</string>
@@ -654,7 +654,7 @@
     <string name="care_plan_tagline_complete_coverage">Complete coverage</string>
     <string name="care_plan_basic_f1">Your pet\'s profile and complete health records in one place</string>
     <string name="care_plan_basic_f2">Vaccination and deworming reminders</string>
-    <string name="care_plan_basic_f3">Unlimited AI symptom triage</string>
+    <string name="care_plan_basic_f3">Unlimited symptom triage</string>
     <string name="care_plan_basic_f4">Community access</string>
     <string name="care_plan_basic_f5">Standard lost-pet alert</string>
     <string name="care_plan_care_f1">Everything in Basic</string>
@@ -677,7 +677,7 @@
     <string name="care_helpline_desc">Premium members can reach our care team any time on WhatsApp.</string>
     <string name="care_helpline_button">Chat on WhatsApp</string>
     <string name="care_helpline_message">Hi Wagmiya! I am a Premium member and need help with my care plan.</string>
-    <string name="care_incl_triage_title">AI Symptom Triage</string>
+    <string name="care_incl_triage_title">Symptom Triage</string>
     <string name="care_incl_triage_desc">Describe your pet\'s symptoms and get instant guidance on urgency and next steps. Care and Premium add unlimited AI photo analysis for rashes, wounds and eye or ear issues.</string>
     <string name="care_incl_market_title">Marketplace Discounts</string>
     <string name="care_incl_market_desc" formatted="false">Automatic discounts at checkout: 10% off every order with Care, 15% with Premium.</string>
@@ -1014,5 +1014,17 @@
     <string name="mypets_reminder_due">Next due %1$s</string>
     <string name="mypets_reminder_on_track">On track</string>
     <string name="mypets_reminder_overdue">Overdue</string>
+
+    <!-- Top bar profile / settings gear -->
+    <string name="topbar_profile_settings">Profile and settings</string>
+    <!-- Market product search -->
+    <string name="market_search_placeholder">Search products</string>
+    <string name="market_search_clear">Clear</string>
+    <string name="market_search_no_results">No products match your search</string>
+    <!-- My Pet feature chip: the symptom guide (formerly "AI Triage") -->
+    <string name="mypets_feature_symptom_guide">Symptom Guide</string>
+    <!-- Vaccination reminders tile in the Health Tools list -->
+    <string name="mypets_vaccination_reminders">Vaccination Reminders</string>
+    <string name="mypets_vaccination_reminders_note">Track due and overdue vaccines for your pet</string>
 </resources>
 

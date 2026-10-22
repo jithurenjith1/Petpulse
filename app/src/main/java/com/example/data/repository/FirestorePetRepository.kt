@@ -727,6 +727,9 @@ class FirestorePetRepository(private val appContext: Context) {
                     null
                 }
                 val base = profile ?: CustomerProfile()
+                // lastLat / lastLng are mapped straight off the document by
+                // toObject(), so the saved coordinates survive every profile read
+                // and are never dropped by a profile save.
                 // The care plan lives ONLY on the caller's own users/{uid} document,
                 // read above. The old fallback tried users/{email} then
                 // admins/{email}, but firestore.rules allows a users/{uid} read only
@@ -751,7 +754,11 @@ class FirestorePetRepository(private val appContext: Context) {
                     "memberSince" to profile.memberSince,
                     "carePlan" to profile.carePlan,
                     "carePlanUntil" to profile.carePlanUntil,
-                    "fcmToken" to profile.fcmToken
+                    "fcmToken" to profile.fcmToken,
+                    // Preserve the saved coordinates so a profile save (a full
+                    // overwrite, not a merge) never wipes the last known location.
+                    "lastLat" to profile.lastLat,
+                    "lastLng" to profile.lastLng
                 )
             ).await()
         } catch (e: Exception) {
@@ -778,6 +785,26 @@ class FirestorePetRepository(private val appContext: Context) {
     }
 
     /**
+     * Persist the caller's last known coordinates on users/{uid} with a MERGE
+     * write so the rest of the profile document is left untouched. Silently
+     * no-ops when nobody is signed in or the coordinates are unusable (not a
+     * finite number, 0,0, or out of range). Never throws.
+     */
+    suspend fun saveLastLocation(lat: Double, lng: Double) {
+        if (lat.isNaN() || lng.isNaN()) return
+        if (lat == 0.0 && lng == 0.0) return
+        if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) return
+        val currentUid = auth.currentUser?.uid ?: return
+        try {
+            db.collection("users").document(currentUid)
+                .set(mapOf("lastLat" to lat, "lastLng" to lng), SetOptions.merge())
+                .await()
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "saveLastLocation failed", e)
+        }
+    }
+
+    /**
      * Account deletion (Google Play requirement): removes ALL of the signed-in
      * user's OWN data from Firestore and then deletes the Firebase Auth account.
      *
@@ -789,11 +816,10 @@ class FirestorePetRepository(private val appContext: Context) {
      *   orders                      -> ownerId
      *   bookings                    -> ownerId
      *   pet_tags                    -> ownerUid  (deleted by its KNOWN document id)
+     *   tag_scans                   -> ownerUid  (queried by ownerUid)
+     *   lost_pet_alerts             -> ownerId   (queried by ownerId)
      *
-     * NOT deleted here, because the security rules forbid an owner delete (the
-     * exact rule change each one needs is written at the step below): tag_scans
-     * (ownerUid) and lost_pet_alerts (ownerId). Only the user's OWN documents are
-     * ever touched - never another user's.
+     * Only the user's OWN documents are ever touched - never another user's.
      *
      * Returns success only when every step succeeded. A failure anywhere -
      * including the Auth-account deletion - is reported as a failure so the UI
@@ -840,19 +866,12 @@ class FirestorePetRepository(private val appContext: Context) {
             for (d in orders.documents) d.reference.delete().await()
             val bookings = db.collection("bookings").whereEqualTo("ownerId", currentUid).get().await()
             for (d in bookings.documents) d.reference.delete().await()
-            // 6. own tag_scans (ownerUid) - NOT deleted: the tag_scans rules allow
-            //    an owner READ but provide NO delete rule, so a client delete is
-            //    denied. Deliberately left to a rules change (NOT applied here,
-            //    because widening delete access is out of scope for this task):
-            //      match /tag_scans/{scanId} {
-            //        allow delete: if isSignedIn()
-            //          && resource.data.ownerUid == request.auth.uid;
-            //      }
-            // 7. own lost_pet_alerts (ownerId) - NOT deleted: the lost_pet_alerts
-            //    rules allow delete only for the admin, so an owner delete is
-            //    denied. Deliberately left to a rules change (NOT applied here):
-            //      allow delete: if isAdmin()
-            //        || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+            // 6. own tag_scans (ownerUid)
+            val tagScans = db.collection("tag_scans").whereEqualTo("ownerUid", currentUid).get().await()
+            for (d in tagScans.documents) d.reference.delete().await()
+            // 7. own lost_pet_alerts (ownerId)
+            val lostPetAlerts = db.collection("lost_pet_alerts").whereEqualTo("ownerId", currentUid).get().await()
+            for (d in lostPetAlerts.documents) d.reference.delete().await()
             // 8. the Firebase Auth account itself. Required for a complete deletion,
             //    so a failure here is reported honestly (Firebase may demand a
             //    recent login) instead of being swallowed.

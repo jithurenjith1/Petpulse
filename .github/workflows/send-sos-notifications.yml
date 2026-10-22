@@ -67,6 +67,8 @@ jobs:
           echo "GOOGLE_APPLICATION_CREDENTIALS=$CREDS_FILE" >> "$GITHUB_ENV"
 
       - name: Send lost-pet SOS notifications
+        env:
+          SOS_RADIUS_KM: ${{ vars.SOS_RADIUS_KM }}
         run: node .github/scripts/send-sos-notifications.js
 
       - name: Delete temporary credentials

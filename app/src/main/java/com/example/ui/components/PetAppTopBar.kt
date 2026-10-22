@@ -36,6 +36,7 @@ fun PetAppTopBar(
     onCartClick: () -> Unit = {},
     onSosClick: () -> Unit,
     onLoginClick: () -> Unit,
+    onProfileClick: () -> Unit = {},
     darkTheme: Boolean = false,
     onToggleDarkTheme: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
@@ -193,6 +194,24 @@ fun PetAppTopBar(
                         Icon(
                             imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = if (darkTheme) "Switch to light theme" else "Switch to dark theme",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    // Profile / Settings gear — opens the ProfileSettingsScreen overlay
+                    // (the screen was previously unreachable from the UI).
+                    IconButton(
+                        onClick = onProfileClick,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                            .testTag("profile_settings_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.topbar_profile_settings),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )

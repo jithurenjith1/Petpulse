@@ -1241,7 +1241,7 @@ fun FindMyPetSection(
 
         // Active Nearby Lost Pet Alerts
         Text(
-            text = "Active Lost Pet Alerts in Your Area (Within 5 km)",
+            text = "Active Lost Pet Alerts in Your Area",
             fontWeight = FontWeight.Bold,
             fontSize = 13.sp,
             color = MaterialTheme.colorScheme.primary

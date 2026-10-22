@@ -232,6 +232,8 @@ val appCtx = LocalContext.current
     var showHousingHelpScreen by remember { mutableStateOf(false) }
     var showConsentInfoScreen by remember { mutableStateOf(false) }
     var showPetQrScreen by remember { mutableStateOf(false) }
+    var showProfileSettingsScreen by remember { mutableStateOf(false) }
+    var showVaccinationRemindersScreen by remember { mutableStateOf(false) }
     var exploreSubTabUnused by remember { mutableStateOf(0) } // sub-tabs removed
     var showAddPetDialog by remember { mutableStateOf(false) }
 
@@ -256,6 +258,7 @@ val appCtx = LocalContext.current
                 onCartClick = { showCartModal = true },
                 onSosClick = { showSosScreen = true },
                 onLoginClick = { showLoginDialog = true },
+                onProfileClick = { showProfileSettingsScreen = true },
                 darkTheme = darkTheme,
                 onToggleDarkTheme = { viewModel.setDarkTheme(it) }
             )
@@ -309,7 +312,7 @@ val appCtx = LocalContext.current
                 FeatureButton("Insurance", MaterialTheme.colorScheme.primary) { showInsuranceScreen = true }
                 FeatureButton("Community", MaterialTheme.colorScheme.primary) { showCommunityScreen = true }
                 FeatureButton("Care Tips", MaterialTheme.colorScheme.primary) { showCareTipsScreen = true }
-                FeatureButton("AI Triage", MaterialTheme.colorScheme.primary) { showSymptomScreen = true }
+                FeatureButton(stringResource(R.string.mypets_feature_symptom_guide), MaterialTheme.colorScheme.primary) { showSymptomScreen = true }
                 FeatureButton("Vet Online", MaterialTheme.colorScheme.primary) { showVetScreen = true }
                 FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true }
                 FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true }
@@ -416,7 +419,8 @@ val appCtx = LocalContext.current
                         onOpenHousingHelp = { showHousingHelpScreen = true },
                         onOpenConsentInfo = { showConsentInfoScreen = true },
                         onOpenQrTag = { showPetQrScreen = true },
-                        onOpenInsurance = { showInsuranceScreen = true }
+                        onOpenInsurance = { showInsuranceScreen = true },
+                        onOpenVaccinationReminders = { showVaccinationRemindersScreen = true }
                     )
 
                 }
@@ -560,7 +564,7 @@ val appCtx = LocalContext.current
 
     if (showMapScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
-            MapScreen()
+            MapScreen(onLocation = { lat, lng -> viewModel.saveLastLocation(lat, lng) })
             FloatingActionButton(
                 onClick = { showMapScreen = false },
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
@@ -576,7 +580,8 @@ val appCtx = LocalContext.current
                 species = activePet.species,
                 breed = activePet.breed,
                 ownerPhone = customer.phone,
-                isPriorityMember = isPriorityMember
+                isPriorityMember = isPriorityMember,
+                onLocation = { lat, lng -> viewModel.saveLastLocation(lat, lng) }
             )
             FloatingActionButton(
                 onClick = { showSosScreen = false },
@@ -972,6 +977,41 @@ val appCtx = LocalContext.current
                 onToggleLost = { lost -> viewModel.setActivePetTagLost(lost) },
                 onClose = { showPetQrScreen = false }
             )
+        }
+    }
+
+    if (showProfileSettingsScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ProfileSettingsScreen(
+                customer = customer,
+                pet = activePet,
+                vaccinations = vaccinations,
+                healthScore = healthScore,
+                onEditPetClick = { showEditPetDialog = true },
+                onLoginClick = { showLoginDialog = true },
+                onSavePetDirectly = { newName, newBreed, newAge, newGender ->
+                    viewModel.renameAndConfigurePet(newName, newBreed, newAge, newGender)
+                },
+                onShowMessage = { msg ->
+                    coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
+                }
+            )
+            FloatingActionButton(
+                onClick = { showProfileSettingsScreen = false },
+                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
+        }
+    }
+
+    if (showVaccinationRemindersScreen) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            VaccinationRemindersScreen()
+            FloatingActionButton(
+                onClick = { showVaccinationRemindersScreen = false },
+                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
 

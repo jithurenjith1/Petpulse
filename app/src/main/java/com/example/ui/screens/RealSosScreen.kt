@@ -58,10 +58,15 @@ fun RealSosScreen(
     breed: String = "",
     ownerPhone: String = "",
     alternatePhone: String = "",
-    isPriorityMember: Boolean = false
+    isPriorityMember: Boolean = false,
+    onLocation: (Double, Double) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    // Report the live location upward (used to save the user's coordinates for
+    // the 5 km lost-pet SOS). rememberUpdatedState keeps the callback current
+    // inside the remembered LocationCallback without re-registering it.
+    val currentOnLocation by rememberUpdatedState(onLocation)
 
     var currentLat by remember { mutableDoubleStateOf(0.0) }
     var currentLon by remember { mutableDoubleStateOf(0.0) }
@@ -82,6 +87,7 @@ fun RealSosScreen(
                     currentLat = loc.latitude
                     currentLon = loc.longitude
                     hasLocation = true
+                    currentOnLocation(loc.latitude, loc.longitude)
                     val point = GeoPoint(loc.latitude, loc.longitude)
                     locationHistory = locationHistory + point
 

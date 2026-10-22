@@ -130,7 +130,7 @@
     <string name="partners_veterinary_doctors_clinics">വെറ്ററിനറി ഡോക്ടർമാരും ക്ലിനിക്കുകളും</string>
     <string name="partners_upcoming_competitions_events_calendar">🏆 വരാനിരിക്കുന്ന മത്സരങ്ങളും ഇവന്റ് കലണ്ടറും</string>
     <string name="partners_featured_pet_story">📰 ഫീച്ചർ ചെയ്ത പെറ്റ് സ്റ്റോറി</string>
-    <string name="triage_ai_symptom_checker">AI പെറ്റ് ഹെൽത്ത് ഗൈഡ്</string>
+    <string name="triage_ai_symptom_checker">ലക്ഷണ ഗൈഡ്</string>
     <string name="triage_analyze">വിശകലനം ചെയ്യുക</string>
     <string name="triage_book_vet_consultation">വെറ്ററിനറി കൺസൾട്ടേഷൻ ബുക്ക് ചെയ്യുക</string>
     <string name="triage_select_species">സ്പീഷീസ് തിരഞ്ഞെടുക്കുക</string>
@@ -654,7 +654,7 @@
     <string name="care_plan_tagline_complete_coverage">പൂര്ണ്ണ കവറേജ്</string>
     <string name="care_plan_basic_f1">നിങ്ങളുടെ പെറ്റിന്റെ പ്രൊഫൈലും പൂര്ണ്ണ ആരോഗ്യ രേഖകളും ഒരിടത്ത്</string>
     <string name="care_plan_basic_f2">വാക്സിനേഷന്, ഡിവേംമിംഗ് ഓർമ്മപ്പെടുത്തലുകള്</string>
-    <string name="care_plan_basic_f3">പരിധിയില്ലാത്ത AI ലക്ഷണ പരിശോധന</string>
+    <string name="care_plan_basic_f3">പരിധിയില്ലാത്ത ലക്ഷണ പരിശോധന</string>
     <string name="care_plan_basic_f4">കമ്മ്യൂണിറ്റി ആക്സസ്</string>
     <string name="care_plan_basic_f5">സാധാരണ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ്</string>
     <string name="care_plan_care_f1">ബേസിക്കിലുള്ളതെല്ലാം</string>
@@ -677,7 +677,7 @@
     <string name="care_helpline_desc">പ്രീമിയം അംഗങ്ങള്ക്ക് എപ്പോൾ വേണമെങ്കിലും WhatsApp-ൽ ഞങ്ങളുടെ കെയർ ടീമിനെ ബന്ധപ്പെടാം.</string>
     <string name="care_helpline_button">WhatsApp-ൽ ചാറ്റ് ചെയ്യുക</string>
     <string name="care_helpline_message">ഹായ് വാഗ്മിയ! ഞാൻ ഒരു പ്രീമിയം അംഗമാണ്, എന്റെ കെയർ പ്ലാനിൽ സഹായം വേണം.</string>
-    <string name="care_incl_triage_title">AI ലക്ഷണ പരിശോധന</string>
+    <string name="care_incl_triage_title">ലക്ഷണ പരിശോധന</string>
     <string name="care_incl_triage_desc">നിങ്ങളുടെ പെറ്റിന്റെ ലക്ഷണങ്ങള് വിവരിക്കുക, അടിയന്തിരതയെയും അടുത്ത നടപടികളെയും കുറിച്ച് ഉടനടി മാർഗ്ഗനിർദ്ദേശം ലഭിക്കും.</string>
     <string name="care_incl_market_title">മാർക്കറ്റ്‍പ്ലേസ് കിഴിവുകള്</string>
     <string name="care_incl_market_desc" formatted="false">ചെക്ക്ഔട്ടിൽ സ്വയമേവയുള്ള കിഴിവുകള്: കെയറിനൊപ്പം എല്ലാ ഓർഡറിനും 10%, പ്രീമിയത്തിനൊപ്പം 15%.</string>
@@ -1014,5 +1014,17 @@
     <string name="mypets_reminder_due">അടുത്ത തീയതി %1$s</string>
     <string name="mypets_reminder_on_track">കൃത്യസമയത്ത്</string>
     <string name="mypets_reminder_overdue">കാലതാമസം</string>
+
+    <!-- Top bar profile / settings gear -->
+    <string name="topbar_profile_settings">പ്രൊഫൈലും ക്രമീകരണങ്ങളും</string>
+    <!-- Market product search -->
+    <string name="market_search_placeholder">ഉൽപ്പന്നങ്ങൾ തിരയുക</string>
+    <string name="market_search_clear">മായ്ക്കുക</string>
+    <string name="market_search_no_results">നിങ്ങളുടെ തിരയലുമായി പൊരുത്തപ്പെടുന്ന ഉൽപ്പന്നങ്ങളില്ല</string>
+    <!-- My Pet feature chip: the symptom guide (formerly "AI Triage") -->
+    <string name="mypets_feature_symptom_guide">ലക്ഷണ ഗൈഡ്</string>
+    <!-- Vaccination reminders tile in the Health Tools list -->
+    <string name="mypets_vaccination_reminders">വാക്സിനേഷൻ ഓർമ്മപ്പെടുത്തലുകൾ</string>
+    <string name="mypets_vaccination_reminders_note">നിങ്ങളുടെ പെറ്റിന്റെ അടുത്തതും കാലതാമസമുള്ളതുമായ വാക്സിനുകൾ ട്രാക്ക് ചെയ്യുക</string>
 </resources>
 

@@ -96,9 +96,15 @@ private fun markerDot(ctx: android.content.Context, type: String): GradientDrawa
 }
 
 @Composable
-fun MapScreen() {
+fun MapScreen(
+    onLocation: (Double, Double) -> Unit = { _, _ -> }
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    // Report the device location upward (used to save the user's coordinates for
+    // the 5 km lost-pet SOS). rememberUpdatedState keeps the callback current
+    // without restarting the effect that captures it.
+    val currentOnLocation by rememberUpdatedState(onLocation)
 
     var userLat by remember { mutableDoubleStateOf(0.0) }
     var userLon by remember { mutableDoubleStateOf(0.0) }
@@ -119,6 +125,7 @@ fun MapScreen() {
                 userLat = lat
                 userLon = lon
                 hasLocation = true
+                currentOnLocation(lat, lon)
                 scope.launch { loadNearbyPlaces(lat, lon, selectedFilter) { places = it } }
             }
         }
@@ -133,6 +140,7 @@ fun MapScreen() {
                 userLat = lat
                 userLon = lon
                 hasLocation = true
+                currentOnLocation(lat, lon)
                 scope.launch { loadNearbyPlaces(lat, lon, selectedFilter) { places = it } }
             }
         } else {

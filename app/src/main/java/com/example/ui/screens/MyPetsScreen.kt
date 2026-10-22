@@ -173,6 +173,7 @@ fun MyPetsScreen(
     onOpenConsentInfo: () -> Unit = {},
     onOpenQrTag: () -> Unit = {},
     onOpenInsurance: () -> Unit = {},
+    onOpenVaccinationReminders: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedSubmenu by remember { mutableStateOf(PetDetailSubmenu.CERTIFICATE) }
@@ -603,7 +604,8 @@ fun MyPetsScreen(
                         onOpenEmergency = onOpenEmergency,
                         onOpenServicePrice = onOpenServicePrice,
                         onOpenHousingHelp = onOpenHousingHelp,
-                        onOpenConsentInfo = onOpenConsentInfo
+                        onOpenConsentInfo = onOpenConsentInfo,
+                        onOpenVaccinationReminders = onOpenVaccinationReminders
                     )
                 }
             }
@@ -1933,7 +1935,8 @@ fun HealthAndSettingsSection(
     onOpenEmergency: () -> Unit = {},
     onOpenServicePrice: () -> Unit = {},
     onOpenHousingHelp: () -> Unit = {},
-    onOpenConsentInfo: () -> Unit = {}
+    onOpenConsentInfo: () -> Unit = {},
+    onOpenVaccinationReminders: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
@@ -2006,6 +2009,12 @@ fun HealthAndSettingsSection(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
+            )
+            HealthToolRow(
+                icon = Icons.Default.Notifications,
+                title = stringResource(R.string.mypets_vaccination_reminders),
+                subtitle = stringResource(R.string.mypets_vaccination_reminders_note),
+                onClick = onOpenVaccinationReminders
             )
             HealthToolRow(
                 icon = Icons.Default.Warning,

@@ -176,7 +176,12 @@ data class CustomerProfile(
     // Firebase Cloud Messaging registration token for this user's device. Empty
     // until the app registers with FCM (onNewToken) or after sign-in. Defaulted
     // so Firestore toObject() keeps working for documents that predate this field.
-    val fcmToken: String = ""
+    val fcmToken: String = "",
+    // Last known device coordinates, used by the 5 km lost-pet SOS push to only
+    // notify nearby users. 0.0 means "never recorded" (no location saved yet).
+    // Defaulted so Firestore toObject() keeps working for older documents.
+    val lastLat: Double = 0.0,
+    val lastLng: Double = 0.0
 )
 
 data class SpeciesCategory(

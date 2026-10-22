@@ -54,6 +54,55 @@ import com.petpulse.app.ui.components.formatRating
 import com.petpulse.app.ui.components.formatReviewDate
 import com.petpulse.app.ui.theme.*
 
+/**
+ * Case-insensitive client-side product search across the food, medicine and
+ * accessories lists. Matches on name, category, brand, subCategory or
+ * description. A blank query returns the list unchanged.
+ */
+private fun filterMarketProducts(products: List<MarketProduct>, query: String): List<MarketProduct> {
+    val q = query.trim()
+    if (q.isEmpty()) return products
+    return products.filter { p ->
+        p.name.contains(q, ignoreCase = true) ||
+            p.category.contains(q, ignoreCase = true) ||
+            p.brand.contains(q, ignoreCase = true) ||
+            p.subCategory.contains(q, ignoreCase = true) ||
+            p.description.contains(q, ignoreCase = true)
+    }
+}
+
+/**
+ * The Market product search field. The query is owned by the caller (hoisted
+ * above the lazy containers) so no remember(...) ever lives inside a lazy
+ * content lambda. A trailing clear button appears while a query is active.
+ */
+@Composable
+private fun MarketProductSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .testTag("market_product_search_field"),
+        placeholder = { Text(stringResource(R.string.market_search_placeholder), fontSize = 13.sp) },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.market_search_clear))
+                }
+            }
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp)
+    )
+}
+
 @Composable
 fun MarketplaceScreen(
     selectedCity: String,
@@ -119,6 +168,15 @@ fun MarketplaceScreen(
     // containers - so no remember(...) ever lives inside a lazy content lambda.
     val reviewStats = remember(reviews) { buildReviewStats(reviews) }
     val myDeliveredOrders = remember(myOrders) { myOrders.filter { it.status == "DELIVERED" } }
+    // Market product search. The query and the derived filtered lists are HOISTED
+    // here, above the lazy containers, so no remember(...) ever lives inside a
+    // lazy content lambda. The filter covers the food, medicine and accessories
+    // product lists.
+    var marketSearchQuery by remember { mutableStateOf("") }
+    val isMarketSearchActive = marketSearchQuery.trim().isNotEmpty()
+    val filteredFoods = remember(foods, marketSearchQuery) { filterMarketProducts(foods, marketSearchQuery) }
+    val filteredMedicines = remember(medicines, marketSearchQuery) { filterMarketProducts(medicines, marketSearchQuery) }
+    val filteredAccessories = remember(accessoryProducts, marketSearchQuery) { filterMarketProducts(accessoryProducts, marketSearchQuery) }
 
     Box(modifier = modifier.fillMaxSize()) {
     if (currentCategory == MarketplaceCategory.ACCESSORIES) {
@@ -166,7 +224,21 @@ fun MarketplaceScreen(
                     onSelect = onSelectAccessorySubCategory
                 )
             }
-            if (accessoryProducts.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                MarketProductSearchField(
+                    query = marketSearchQuery,
+                    onQueryChange = { marketSearchQuery = it }
+                )
+            }
+            if (isMarketSearchActive && filteredAccessories.isEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    EmptyMarketState(
+                        message = stringResource(R.string.market_search_no_results),
+                        actionLabel = stringResource(R.string.market_search_clear),
+                        onAction = { marketSearchQuery = "" }
+                    )
+                }
+            } else if (accessoryProducts.isEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     EmptyMarketState(
                         message = stringResource(R.string.market_accessory_empty_filtered),
@@ -175,7 +247,7 @@ fun MarketplaceScreen(
                     )
                 }
             }
-            gridItems(accessoryProducts, key = { it.id }) { product ->
+            gridItems(filteredAccessories, key = { it.id }) { product ->
                 val stat = reviewStats[product.id]
                 MarketProductGridCell(
                     product = product,
@@ -219,6 +291,17 @@ fun MarketplaceScreen(
                 selectedCategory = currentCategory,
                 onSelectCategory = onSelectCategory
             )
+        }
+
+        // Product search — filters the food and medicine product lists. Hidden for
+        // the categories it does not apply to (the accessories grid has its own).
+        if (currentCategory == MarketplaceCategory.FOOD || currentCategory == MarketplaceCategory.MEDICINES) {
+            item {
+                MarketProductSearchField(
+                    query = marketSearchQuery,
+                    onQueryChange = { marketSearchQuery = it }
+                )
+            }
         }
 
         // 4. Dynamic Content based on selected Category
@@ -298,7 +381,15 @@ fun MarketplaceScreen(
                     )
                 }
 
-                if (foods.isEmpty()) {
+                if (isMarketSearchActive && filteredFoods.isEmpty()) {
+                    item {
+                        EmptyMarketState(
+                            message = stringResource(R.string.market_search_no_results),
+                            actionLabel = stringResource(R.string.market_search_clear),
+                            onAction = { marketSearchQuery = "" }
+                        )
+                    }
+                } else if (foods.isEmpty()) {
                     item {
                         EmptyMarketState(
                             message = "No food products match these filters.",
@@ -312,7 +403,7 @@ fun MarketplaceScreen(
                     }
                 }
 
-                items(foods, key = { it.id }) { food ->
+                items(filteredFoods, key = { it.id }) { food ->
                     val stat = reviewStats[food.id]
                     MarketProductCard(
                         product = food,
@@ -327,15 +418,18 @@ fun MarketplaceScreen(
                     )
                 }
 
-                // Guide food items — combined into the same Food section
-                items(guideFoods, key = { "g_" + it.name }) { item ->
-                    FoodItemCard(
-                        item = item,
-                        onAddToList = {
-                            onAddFoodItemToCart(item)
-                            onGuideItemAction("Added " + item.name + " to cart")
-                        }
-                    )
+                // Guide food items — combined into the same Food section. Hidden
+                // while a search query is active so the results stay honest.
+                if (!isMarketSearchActive) {
+                    items(guideFoods, key = { "g_" + it.name }) { item ->
+                        FoodItemCard(
+                            item = item,
+                            onAddToList = {
+                                onAddFoodItemToCart(item)
+                                onGuideItemAction("Added " + item.name + " to cart")
+                            }
+                        )
+                    }
                 }
             }
 
@@ -389,13 +483,21 @@ fun MarketplaceScreen(
                     }
                 }
 
-                if (medicines.isEmpty()) {
+                if (isMarketSearchActive && filteredMedicines.isEmpty()) {
+                    item {
+                        EmptyMarketState(
+                            message = stringResource(R.string.market_search_no_results),
+                            actionLabel = stringResource(R.string.market_search_clear),
+                            onAction = { marketSearchQuery = "" }
+                        )
+                    }
+                } else if (medicines.isEmpty()) {
                     item {
                         EmptyMarketState(message = stringResource(R.string.market_empty_no_products))
                     }
                 }
 
-                items(medicines, key = { it.id }) { med ->
+                items(filteredMedicines, key = { it.id }) { med ->
                     val stat = reviewStats[med.id]
                     MarketProductCard(
                         product = med,

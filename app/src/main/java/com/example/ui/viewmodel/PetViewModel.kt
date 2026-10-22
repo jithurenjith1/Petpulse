@@ -1949,7 +1949,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             carePlan = existingPlan,
             carePlanUntil = existingUntil,
             // Preserve the FCM token so a profile save never wipes it.
-            fcmToken = _customerProfile.value.fcmToken
+            fcmToken = _customerProfile.value.fcmToken,
+            // Preserve the last known coordinates so a profile save never wipes them.
+            lastLat = _customerProfile.value.lastLat,
+            lastLng = _customerProfile.value.lastLng
         )
         _customerProfile.value = updated
         // Persist the profile (including the carePlan gating fields) so the
@@ -1959,6 +1962,26 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 firestoreRepo.saveCustomerProfile(updated)
             } catch (e: Exception) {
                 android.util.Log.e("PetViewModel", "saveCustomerProfile failed", e)
+            }
+        }
+    }
+
+    /**
+     * Persist the last known device coordinates so the 5 km lost-pet SOS push can
+     * target only nearby users. Unusable values (0,0, out of range or NaN) are
+     * ignored. The in-memory profile is updated too so the value is not lost
+     * before the next read. Failures are swallowed by the repository.
+     */
+    fun saveLastLocation(lat: Double, lng: Double) {
+        if (lat.isNaN() || lng.isNaN()) return
+        if (lat == 0.0 && lng == 0.0) return
+        if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) return
+        _customerProfile.value = _customerProfile.value.copy(lastLat = lat, lastLng = lng)
+        viewModelScope.launch {
+            try {
+                firestoreRepo.saveLastLocation(lat, lng)
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "saveLastLocation failed", e)
             }
         }
     }
