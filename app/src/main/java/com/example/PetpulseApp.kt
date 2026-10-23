@@ -1,6 +1,10 @@
 package com.petpulse.app
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -21,6 +25,10 @@ class PetpulseApp : Application() {
     override fun onCreate() {
         super.onCreate()
         installAppCheck()
+        // Create the FCM notification channel BEFORE any message can arrive, so a
+        // background / notification-payload push is never dropped for a missing
+        // channel.
+        createNotificationChannel()
         FirebaseFirestore.getInstance().firestoreSettings =
             FirebaseFirestoreSettings.Builder()
                 .setLocalCacheSettings(PersistentCacheSettings.newBuilder().build())
@@ -31,6 +39,27 @@ class PetpulseApp : Application() {
             ExistingPeriodicWorkPolicy.KEEP,
             request
         )
+    }
+
+    /**
+     * Create the default FCM notification channel as early as possible (API 26+).
+     *
+     * The manifest declares this channel id via
+     * `com.google.firebase.messaging.default_notification_channel_id`, and
+     * WagmiyaMessagingService uses the same id, so a background /
+     * notification-payload push is delivered into a channel that already exists
+     * instead of being silently dropped. Creating an existing channel again is a
+     * no-op, so the service keeps its own creation as a harmless safety net.
+     */
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            getString(R.string.fcm_default_channel_id),
+            getString(R.string.fcm_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        manager.createNotificationChannel(channel)
     }
 
     /**

@@ -123,7 +123,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     location = remote.location.takeIf { it.isNotBlank() } ?: current.location,
                     carePlan = remote.carePlan,
                     carePlanUntil = remote.carePlanUntil,
-                    fcmToken = remote.fcmToken.takeIf { it.isNotBlank() } ?: current.fcmToken
+                    fcmToken = remote.fcmToken.takeIf { it.isNotBlank() } ?: current.fcmToken,
+                    // Persisted SOS-radius preference; a missing field decodes to
+                    // the default (true) so existing users keep receiving alerts.
+                    sosRadiusEnabled = remote.sosRadiusEnabled
                 )
             }
         }
@@ -635,7 +638,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     tagLine = p.description.take(60),
                     address = p.category.ifBlank { "Kerala" },
                     distance = "",
-                    rating = 4.5,
                     reviewCount = 0,
                     packages = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
                     startingPrice = "₹ ${p.priceInr.toInt()}",
@@ -718,7 +720,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     sitterType = p.category.trim().takeIf { it in knownSitterTypes } ?: "Full Day (24hr)",
                     tagline = p.description.take(60),
                     experience = "Verified partner",
-                    rating = 4.5,
                     priceEstimate = "₹ ${p.priceInr.toInt()}",
                     features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
                     verified = p.verified,
@@ -746,7 +747,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     sitterType = p.category.trim().takeIf { it in knownSpecialities } ?: "Trainer",
                     tagline = p.description.take(60),
                     experience = "Verified partner",
-                    rating = 4.5,
                     priceEstimate = "₹ ${p.priceInr.toInt()}",
                     features = p.description.split("|").map { it.trim() }.filter { it.isNotEmpty() },
                     verified = p.verified,
@@ -1952,7 +1952,9 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             fcmToken = _customerProfile.value.fcmToken,
             // Preserve the last known coordinates so a profile save never wipes them.
             lastLat = _customerProfile.value.lastLat,
-            lastLng = _customerProfile.value.lastLng
+            lastLng = _customerProfile.value.lastLng,
+            // Preserve the SOS-radius preference so a profile save never wipes it.
+            sosRadiusEnabled = _customerProfile.value.sosRadiusEnabled
         )
         _customerProfile.value = updated
         // Persist the profile (including the carePlan gating fields) so the
@@ -1982,6 +1984,23 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 firestoreRepo.saveLastLocation(lat, lng)
             } catch (e: Exception) {
                 android.util.Log.e("PetViewModel", "saveLastLocation failed", e)
+            }
+        }
+    }
+
+    /**
+     * Persist the owner's choice for the 5 km lost-pet SOS alerts. When false the
+     * sender skips this user's device, so they stop receiving nearby SOS pushes.
+     * The in-memory profile updates immediately and the value is written to
+     * users/{uid} (the existing owner-update rule already permits this field).
+     */
+    fun setSosRadiusEnabled(enabled: Boolean = true) {
+        _customerProfile.value = _customerProfile.value.copy(sosRadiusEnabled = enabled)
+        viewModelScope.launch {
+            try {
+                firestoreRepo.saveCustomerProfile(_customerProfile.value)
+            } catch (e: Exception) {
+                android.util.Log.e("PetViewModel", "saveCustomerProfile (sosRadius) failed", e)
             }
         }
     }

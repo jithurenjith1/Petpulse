@@ -46,6 +46,8 @@ fun ProfileSettingsScreen(
     onLoginClick: () -> Unit,
     onSavePetDirectly: (newName: String, newBreed: String, newAgeYears: Int, newGender: String) -> Unit,
     onShowMessage: (String) -> Unit,
+    sosRadiusEnabled: Boolean = true,
+    onSosRadiusToggle: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var petNameInput by remember(pet.name) { mutableStateOf(pet.name) }
@@ -378,9 +380,6 @@ fun ProfileSettingsScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
 
-                    var notifyLostPets by remember { mutableStateOf(true) }
-                    var notifyVaccines by remember { mutableStateOf(true) }
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -391,26 +390,8 @@ fun ProfileSettingsScreen(
                             Text("Receive emergency notifications when a pet is lost nearby", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(
-                            checked = notifyLostPets,
-                            onCheckedChange = { notifyLostPets = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary)
-                        )
-                    }
-
-                    Divider()
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.profile_vaccination_medication_due_reminders), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Automatic calendar reminders 7 days before due date", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(
-                            checked = notifyVaccines,
-                            onCheckedChange = { notifyVaccines = it },
+                            checked = sosRadiusEnabled,
+                            onCheckedChange = { onSosRadiusToggle(it) },
                             colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary)
                         )
                     }

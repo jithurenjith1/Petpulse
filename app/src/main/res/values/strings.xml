@@ -320,6 +320,9 @@
     <string name="sos_current_location">Current Location</string>
     <string name="sos_share_sos">SHARE SOS</string>
     <string name="sos_waiting_for_location">Waiting for location...</string>
+    <string name="sos_send_alert_nearby">Send SOS alert to nearby pet parents</string>
+    <string name="sos_sending_alert">Sending alert...</string>
+    <string name="sos_alert_sent_nearby">Alert sent! Nearby pet parents within 5 km can see it in Community &gt; Lost Pet Alerts (live).</string>
     <string name="training_training_videos">Training Videos</string>
     <string name="vaxrem_add_reminder">Add Reminder</string>
     <string name="vaxrem_add_vaccination_reminder">Add Vaccination Reminder</string>

@@ -320,6 +320,9 @@
     <string name="sos_current_location">നിലവിലെ സ്ഥാനം</string>
     <string name="sos_share_sos">SOS ഷെയർ ചെയ്യുക</string>
     <string name="sos_waiting_for_location">ലൊക്കേഷനായി കാത്തിരിക്കുന്നു...</string>
+    <string name="sos_send_alert_nearby">സമീപത്തുള്ള പെറ്റ് പേരന്റുകൾക്ക് SOS അലർട്ട് അയയ്ക്കുക</string>
+    <string name="sos_sending_alert">അലർട്ട് അയയ്ക്കുന്നു...</string>
+    <string name="sos_alert_sent_nearby">അലർട്ട് അയച്ചു! 5 കി.മീ പരിധിയിലുള്ള സമീപത്തുള്ള പെറ്റ് പേരന്റുകൾക്ക് Community &gt; Lost Pet Alerts (ലൈവ്) ൽ ഇത് കാണാം.</string>
     <string name="training_training_videos">പരിശീലന വീഡിയോകൾ</string>
     <string name="vaxrem_add_reminder">റിമൈൻഡർ ചേർക്കുക</string>
     <string name="vaxrem_add_vaccination_reminder">വാക്സിനേഷൻ റിമൈൻഡർ ചേർക്കുക</string>

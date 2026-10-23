@@ -758,7 +758,11 @@ class FirestorePetRepository(private val appContext: Context) {
                     // Preserve the saved coordinates so a profile save (a full
                     // overwrite, not a merge) never wipes the last known location.
                     "lastLat" to profile.lastLat,
-                    "lastLng" to profile.lastLng
+                    "lastLng" to profile.lastLng,
+                    // The 5 km SOS-alert opt-out. The users/{uid} owner-update rule
+                    // only pins carePlan / carePlanUntil, so this ordinary profile
+                    // field is already allowed - no rules change needed.
+                    "sosRadiusEnabled" to profile.sosRadiusEnabled
                 )
             ).await()
         } catch (e: Exception) {

@@ -218,7 +218,8 @@ fun RealSosScreen(
             }
         }
 
-        // Community SOS alert — posts to Firestore lost_pet_alerts so ALL app users see it live
+        // Community SOS alert — posts to Firestore lost_pet_alerts and pushes to
+        // nearby pet parents (within 5 km with saved coordinates), not all users.
         if (hasLocation && !alertSent) {
             OutlinedTextField(
                 value = altPhone,
@@ -259,7 +260,8 @@ fun RealSosScreen(
                 Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    if (alertSending) "SENDING ALERT..." else "SEND ALERT TO ALL APP USERS",
+                    if (alertSending) stringResource(R.string.sos_sending_alert)
+                    else stringResource(R.string.sos_send_alert_nearby),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
@@ -267,7 +269,7 @@ fun RealSosScreen(
         }
         if (alertSent) {
             Text(
-                "\u2713 Alert sent! All app users can see it in Community > Lost Pet Alerts (live).",
+                stringResource(R.string.sos_alert_sent_nearby),
                 color = TealAccent,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,

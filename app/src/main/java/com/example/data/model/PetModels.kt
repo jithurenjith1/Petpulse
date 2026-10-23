@@ -181,7 +181,12 @@ data class CustomerProfile(
     // notify nearby users. 0.0 means "never recorded" (no location saved yet).
     // Defaulted so Firestore toObject() keeps working for older documents.
     val lastLat: Double = 0.0,
-    val lastLng: Double = 0.0
+    val lastLng: Double = 0.0,
+    // The owner's own choice for the 5 km lost-pet SOS alerts. Defaults to true
+    // so existing users keep receiving nearby alerts; when false the sender
+    // skips this user's device. Defaulted so Firestore toObject() keeps working
+    // for documents that predate this field.
+    val sosRadiusEnabled: Boolean = true
 )
 
 data class SpeciesCategory(
@@ -229,7 +234,9 @@ data class GroomingCenter(
     val tagLine: String,
     val address: String,
     val distance: String,
-    val rating: Double,
+    // No rating is stored on a partner: it stays at the default and the partner
+    // card shows no stars until the partner genuinely has reviews.
+    val rating: Double = 0.0,
     val reviewCount: Int,
     val packages: List<String>,
     val startingPrice: String,
@@ -253,7 +260,9 @@ data class BoardingSitter(
     val sitterType: String, // "Full Day (24hr)", "Per Day Care", "Pet Night Care", "Feed on Time Only"
     val tagline: String,
     val experience: String,
-    val rating: Double,
+    // No rating is stored on a partner: it stays at the default and the partner
+    // card shows no stars until the partner genuinely has reviews.
+    val rating: Double = 0.0,
     val priceEstimate: String,
     val features: List<String>,
     val verified: Boolean = true,

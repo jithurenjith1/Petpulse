@@ -21,6 +21,9 @@
  *     notifiedAt- added by this script (Timestamp)
  *   users/{uid}
  *     fcmToken  - the device token (String); deleted here when it goes dead
+ *     lastLat / lastLng - last known coordinates (Number)
+ *     sosRadiusEnabled  - the user's own 5 km SOS opt-out (Boolean, default true);
+ *                         an explicit false skips this user
  */
 
 const admin = require('firebase-admin');
@@ -132,6 +135,7 @@ async function loadTokenHolders() {
           uid: doc.get('uid') || null,
           lastLat: doc.get('lastLat'),
           lastLng: doc.get('lastLng'),
+          sosRadiusEnabled: doc.get('sosRadiusEnabled'),
         });
       }
     });
@@ -154,6 +158,14 @@ async function loadTokenHolders() {
 function isOwner(holder, ownerId) {
   if (!ownerId) return false;
   return holder.id === ownerId || holder.uid === ownerId;
+}
+
+/**
+ * True when the user still wants nearby SOS alerts. The field defaults to true,
+ * so only an explicit `false` opts a user out.
+ */
+function wantsSosAlerts(holder) {
+  return holder.sosRadiusEnabled !== false;
 }
 
 /** Send one alert to the given holders; return counts and any dead tokens. */
@@ -234,7 +246,9 @@ async function main() {
   for (const alert of alerts) {
     try {
       const ownerId = alert.data.ownerId;
-      const nonOwnerHolders = holders.filter((h) => !isOwner(h, ownerId));
+      // Respect each user's own opt-out: a user who turned the 5 km alerts off
+      // is skipped even when they are within the radius.
+      const nonOwnerHolders = holders.filter((h) => !isOwner(h, ownerId) && wantsSosAlerts(h));
 
       // 5 km radius filter. An alert without usable coordinates keeps the old
       // "notify everyone" behaviour; an alert WITH coordinates skips users who

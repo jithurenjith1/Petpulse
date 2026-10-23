@@ -994,7 +994,9 @@ val appCtx = LocalContext.current
                 },
                 onShowMessage = { msg ->
                     coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
-                }
+                },
+                sosRadiusEnabled = customer.sosRadiusEnabled,
+                onSosRadiusToggle = { enabled -> viewModel.setSosRadiusEnabled(enabled) }
             )
             FloatingActionButton(
                 onClick = { showProfileSettingsScreen = false },

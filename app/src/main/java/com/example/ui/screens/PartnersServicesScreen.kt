@@ -741,11 +741,6 @@ fun GroomingCenterCard(
                     }
                     Text(center.tagLine, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = AccentAmber, modifier = Modifier.size(16.dp))
-                    Text("${center.rating}", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                    Text("(${center.reviewCount})", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
             }
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -920,10 +915,6 @@ fun BoardingSitterCard(
                     }
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = AccentAmber, modifier = Modifier.size(16.dp))
-                    Text("${sitter.rating}", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
             }
 
             Text(sitter.tagline, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
