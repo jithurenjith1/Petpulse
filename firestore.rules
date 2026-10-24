@@ -94,9 +94,12 @@ service cloud.firestore {
         && request.resource.data.species is string
         && request.resource.data.lastSeenLocation is string
         && request.resource.data.contactPhone is string;
-      // Unchanged from v10: only the admin moderates alerts (the app deletes
-      // alerts solely from the admin screen).
-      allow update, delete: if isAdmin();
+      // Admin moderates alerts (the app moderates alerts solely from the admin
+      // screen). The owner may also DELETE their own alert: deleteAllUserData()
+      // in FirestorePetRepository queries lost_pet_alerts by ownerId and deletes
+      // each match, so account deletion fails without this owner-delete rule.
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
     }
 
     // ---------- market listings (pets listed by users; admin can moderate) ----------
@@ -251,7 +254,7 @@ service cloud.firestore {
 
     // ---------- tag scans ("someone scanned your tag" pings; ADDED) ----------
     // Public create from the QR web page (no sign-in) with strict field checks,
-    // owner-only read, no update or delete. Page writes:
+    // owner-only read and owner-only delete, no update. Page writes:
     // publicId, ownerUid, createdAt (+ optional message, lat, lng).
     match /tag_scans/{scanId} {
       allow create: if request.resource.data.keys().hasAll(['publicId', 'ownerUid', 'createdAt'])
@@ -265,7 +268,9 @@ service cloud.firestore {
             || (request.resource.data.message is string
                 && request.resource.data.message.size() <= 1000));
       allow read: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
-      // No update or delete.
+      // Owner may DELETE their own scans: deleteAllUserData() queries tag_scans
+      // by ownerUid and deletes each match. There is no update.
+      allow delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
     }
 
     // ---------- partner ledger (admin commission tracking; ADDED) ----------
@@ -282,6 +287,26 @@ service cloud.firestore {
     match /news_posts/{postId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
+    }
+
+    // ---------- reviews (product + dealer ratings) ----------
+    // Public read (the ratings UI lists every review). A signed-in user may
+    // create ONE review carrying exactly the field set addReview() writes
+    // (FirestoreCommerceRepository.addReview()) with ownerId bound to the
+    // caller and rating an integer 1..5. Only an admin may delete a review
+    // (AdminScreen ReviewsAdminTab -> deleteReview). Reviews are immutable:
+    // there is no update. This block was MISSING before, so the catch-all
+    // denied the whole ratings feature.
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['productId','dealerName','ownerId','authorName','rating','text','orderId','createdAt'])
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+      allow delete: if isAdmin();
+      allow update: if false;
     }
 
     // ---------- everything else: denied (MUST stay last) ----------
