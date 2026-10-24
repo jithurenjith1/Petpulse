@@ -845,7 +845,11 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                                 contactPhone = doc.getString("contactPhone") ?: "",
                                 alternatePhone = doc.getString("alternatePhone") ?: "",
                                 date = doc.getString("date") ?: "",
-                                priority = doc.getBoolean("priority") ?: false
+                                priority = doc.getBoolean("priority") ?: false,
+                                // Alert coordinates; absent / malformed decodes to 0.0
+                                // ("no usable coordinates"), never a fabricated value.
+                                lat = doc.getDouble("lat") ?: 0.0,
+                                lng = doc.getDouble("lng") ?: 0.0
                             )
                         } catch (e: Exception) {
                             Log.e("FsCommerce", "Skipping malformed lost alert", e)

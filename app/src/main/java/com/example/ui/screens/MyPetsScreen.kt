@@ -1756,11 +1756,13 @@ fun AddVaccinationRecordDialog(
     onDismiss: () -> Unit,
     onSave: (name: String, date: String, nextDue: String, status: String, doctor: String) -> Unit
 ) {
-    var vaccineName by remember { mutableStateOf("Rabies Booster") }
-    var dateGiven by remember { mutableStateOf("Aug 25, 2026") }
-    var nextDueDate by remember { mutableStateOf("Aug 25, 2027") }
+    // The form starts EMPTY - no invented vaccine name, date, clinic or vet.
+    // The field labels act as hints; nothing here is pre-filled with demo data.
+    var vaccineName by remember { mutableStateOf("") }
+    var dateGiven by remember { mutableStateOf("") }
+    var nextDueDate by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Completed") }
-    var doctor by remember { mutableStateOf("Dr. Sarah Adams") }
+    var doctor by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -2128,7 +2130,7 @@ fun HealthAndSettingsSection(
 
 /** Date formats users may have typed into the free-text Next-Due field. */
 private val vaccineDateFormats = listOf(
-    "MMM d, yyyy",   // Aug 25, 2027 style (dialog default)
+    "MMM d, yyyy",   // e.g. Aug 25, 2027
     "MMM d yyyy",
     "d MMMM yyyy",
     "dd/MM/yyyy",

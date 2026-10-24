@@ -1024,5 +1024,22 @@
     <!-- Vaccination reminders tile in the Health Tools list -->
     <string name="mypets_vaccination_reminders">Vaccination Reminders</string>
     <string name="mypets_vaccination_reminders_note">Track due and overdue vaccines for your pet</string>
+
+    <!-- Vaccination Reminders screen: real records + honest empty state -->
+    <string name="vaxrem_empty">No vaccination records yet. Add a vaccination for your pet in My Pets to see reminders here.</string>
+    <string name="vaxrem_status_overdue">Overdue</string>
+    <string name="vaxrem_status_upcoming">Upcoming</string>
+    <string name="vaxrem_status_completed">Completed</string>
+    <string name="vaxrem_due_label">Due: %1$s</string>
+    <string name="vaxrem_vet_label">Vet: %1$s</string>
+    <string name="vaxrem_done">Done</string>
+    <string name="vaxrem_due_today">Due today</string>
+    <string name="vaxrem_one_day_overdue">1 day overdue</string>
+    <string name="vaxrem_days_overdue">%1$d days overdue</string>
+    <string name="vaxrem_in_one_day">in 1 day</string>
+    <string name="vaxrem_in_days">in %1$d days</string>
+    <!-- Find My Pet: active lost-pet alerts heading + real distance -->
+    <string name="partners_lost_alerts_title">Active Lost Pet Alerts</string>
+    <string name="partners_km_away">%1$.1f km away</string>
 </resources>
 

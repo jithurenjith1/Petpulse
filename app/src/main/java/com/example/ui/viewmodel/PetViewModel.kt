@@ -124,6 +124,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     carePlan = remote.carePlan,
                     carePlanUntil = remote.carePlanUntil,
                     fcmToken = remote.fcmToken.takeIf { it.isNotBlank() } ?: current.fcmToken,
+                    // Last known coordinates read straight back from users/{uid} so a
+                    // later profile save (updateCustomerProfile / setSosRadiusEnabled)
+                    // copies the real values instead of writing 0.0 over them. A
+                    // document with no saved coordinates decodes to the default 0.0.
+                    lastLat = remote.lastLat,
+                    lastLng = remote.lastLng,
                     // Persisted SOS-radius preference; a missing field decodes to
                     // the default (true) so existing users keep receiving alerts.
                     sosRadiusEnabled = remote.sosRadiusEnabled
@@ -536,23 +542,34 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 initialValue = emptyList()
             )
 
-    val lostPetAlerts: StateFlow<List<LostPetAlert>> = lostAlertsSource
-        .map { alerts ->
-            alerts.map { a ->
-                LostPetAlert(
-                    petName = a.petName,
-                    species = a.species,
-                    breed = a.breed,
-                    lastSeenLocation = a.location,
-                    distanceKm = 0.0,
-                    rewardAmount = a.reward,
-                    contactHelpline = a.contactPhone,
-                    reportedTime = a.date,
-                    description = "",
-                    alternatePhone = a.alternatePhone
-                )
+    val lostPetAlerts: StateFlow<List<LostPetAlert>> = combine(
+        lostAlertsSource,
+        customerProfile
+    ) { alerts, profile ->
+        // A distance is shown only when BOTH the alert and the signed-in user
+        // have usable coordinates. Otherwise 0.0 is the sentinel for "unknown"
+        // and the UI omits the distance line entirely - never a fabricated value.
+        val userHasCoords = hasUsableCoords(profile.lastLat, profile.lastLng)
+        alerts.map { a ->
+            val distanceKm = if (userHasCoords && hasUsableCoords(a.lat, a.lng)) {
+                haversineKm(a.lat, a.lng, profile.lastLat, profile.lastLng)
+            } else {
+                0.0
             }
+            LostPetAlert(
+                petName = a.petName,
+                species = a.species,
+                breed = a.breed,
+                lastSeenLocation = a.location,
+                distanceKm = distanceKm,
+                rewardAmount = a.reward,
+                contactHelpline = a.contactPhone,
+                reportedTime = a.date,
+                description = "",
+                alternatePhone = a.alternatePhone
+            )
         }
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -1975,9 +1992,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
      * before the next read. Failures are swallowed by the repository.
      */
     fun saveLastLocation(lat: Double, lng: Double) {
-        if (lat.isNaN() || lng.isNaN()) return
-        if (lat == 0.0 && lng == 0.0) return
-        if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) return
+        if (!hasUsableCoords(lat, lng)) return
         _customerProfile.value = _customerProfile.value.copy(lastLat = lat, lastLng = lng)
         viewModelScope.launch {
             try {
@@ -1986,6 +2001,34 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 android.util.Log.e("PetViewModel", "saveLastLocation failed", e)
             }
         }
+    }
+
+    /**
+     * True when a coordinate pair is usable: not NaN, not the 0,0 sentinel and
+     * within valid latitude / longitude bounds. Shared by saveLastLocation and
+     * the lost-pet distance calculation so both agree on "no coordinates".
+     */
+    private fun hasUsableCoords(lat: Double, lng: Double): Boolean {
+        if (lat.isNaN() || lng.isNaN()) return false
+        if (lat == 0.0 && lng == 0.0) return false
+        if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) return false
+        return true
+    }
+
+    /**
+     * Great-circle distance between two coordinates in kilometres. Mirrors the
+     * haversineKm() helper in the sender script (.github/scripts/send-sos-notifications.js)
+     * so the in-app distance matches the 5 km SOS radius the push uses.
+     */
+    private fun haversineKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val earthRadiusKm = 6371.0
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return earthRadiusKm * c
     }
 
     /**

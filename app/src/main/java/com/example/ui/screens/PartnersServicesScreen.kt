@@ -1230,9 +1230,10 @@ fun FindMyPetSection(
         }
         }
 
-        // Active Nearby Lost Pet Alerts
+        // Active Lost Pet Alerts. The feed is NOT location-filtered (it lists every
+        // alert in lost_pet_alerts), so the heading no longer claims "in Your Area".
         Text(
-            text = "Active Lost Pet Alerts in Your Area",
+            text = stringResource(R.string.partners_lost_alerts_title),
             fontWeight = FontWeight.Bold,
             fontSize = 13.sp,
             color = MaterialTheme.colorScheme.primary
@@ -1251,7 +1252,17 @@ fun FindMyPetSection(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("${alert.petName} (${alert.breed})", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFD32F2F))
-                        Text("${alert.distanceKm} km away", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        // Show the distance only when it is known (> 0.0). A real
+                        // alert is never 0.0 km away, so 0.0 is the "unknown" sentinel
+                        // and the line is omitted rather than showing a fake value.
+                        if (alert.distanceKm > 0.0) {
+                            Text(
+                                text = stringResource(R.string.partners_km_away, alert.distanceKm),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                     Text("Last seen: ${alert.lastSeenLocation} • ${alert.reportedTime}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(alert.description, fontSize = 12.sp)

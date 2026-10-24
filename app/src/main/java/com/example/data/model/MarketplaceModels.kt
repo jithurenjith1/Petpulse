@@ -35,7 +35,12 @@ data class AdminLostPetAlert(
     val date: String = "",
     // True when the owner's Care/Premium plan boosted this alert. Defaulted so
     // Firestore reads keep working for documents that predate the field.
-    val priority: Boolean = false
+    val priority: Boolean = false,
+    // Alert coordinates written by postSosAlert() (Firestore: "lat" / "lng").
+    // Defaulted to 0.0 so Firestore reads keep working for older documents that
+    // predate the field; 0.0 means "no usable coordinates".
+    val lat: Double = 0.0,
+    val lng: Double = 0.0
 )
 
 data class MarketPet(

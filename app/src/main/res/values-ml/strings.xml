@@ -1024,5 +1024,22 @@
     <!-- Vaccination reminders tile in the Health Tools list -->
     <string name="mypets_vaccination_reminders">വാക്സിനേഷൻ ഓർമ്മപ്പെടുത്തലുകൾ</string>
     <string name="mypets_vaccination_reminders_note">നിങ്ങളുടെ പെറ്റിന്റെ അടുത്തതും കാലതാമസമുള്ളതുമായ വാക്സിനുകൾ ട്രാക്ക് ചെയ്യുക</string>
+
+    <!-- Vaccination Reminders screen: real records + honest empty state -->
+    <string name="vaxrem_empty">ഇതുവരെ വാക്സിനേഷൻ രേഖകളില്ല. ഓർമ്മപ്പെടുത്തലുകൾ കാണാൻ എന്റെ പെറ്റ്സിൽ നിങ്ങളുടെ പെറ്റിന് ഒരു വാക്സിനേഷൻ ചേർക്കുക.</string>
+    <string name="vaxrem_status_overdue">കാലതാമസം</string>
+    <string name="vaxrem_status_upcoming">വരാനിരിക്കുന്നത്</string>
+    <string name="vaxrem_status_completed">പൂർത്തിയായി</string>
+    <string name="vaxrem_due_label">അവസാന തീയതി: %1$s</string>
+    <string name="vaxrem_vet_label">വെറ്ററിനറി: %1$s</string>
+    <string name="vaxrem_done">പൂർത്തിയായി</string>
+    <string name="vaxrem_due_today">ഇന്ന് തീയതിയാണ്</string>
+    <string name="vaxrem_one_day_overdue">1 ദിവസം കാലതാമസം</string>
+    <string name="vaxrem_days_overdue">%1$d ദിവസം കാലതാമസം</string>
+    <string name="vaxrem_in_one_day">1 ദിവസത്തിൽ</string>
+    <string name="vaxrem_in_days">%1$d ദിവസത്തിൽ</string>
+    <!-- Find My Pet: active lost-pet alerts heading + real distance -->
+    <string name="partners_lost_alerts_title">സജീവമായ നഷ്ടപ്പെട്ട പെറ്റ് അലേർട്ടുകൾ</string>
+    <string name="partners_km_away">%1$.1f കി.മീ അകലെ</string>
 </resources>
 

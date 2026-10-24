@@ -993,7 +993,7 @@ val appCtx = LocalContext.current
 
     if (showVaccinationRemindersScreen) {
         Box(modifier = Modifier.fillMaxSize()) {
-            VaccinationRemindersScreen()
+            VaccinationRemindersScreen(vaccinations = vaccinations)
             FloatingActionButton(
                 onClick = { showVaccinationRemindersScreen = false },
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),

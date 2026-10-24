@@ -1,12 +1,10 @@
 package com.petpulse.app.ui.screens
 
-import androidx.compose.ui.res.stringResource
-import com.petpulse.app.R
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,57 +13,37 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.petpulse.app.R
+import com.petpulse.app.data.model.VaccinationRecord
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import androidx.compose.material3.MaterialTheme
+import java.util.Locale
 
-// ---- App palette ----
-private val CoralPrimary = Color(0xFF6A4C93)
-private val CoralLight = Color(0xFFEDE3F8)
-private val CreamBg = Color(0xFFFBF6F0)
-private val TealAccent = Color(0xFF1D7A6E)
-private val DarkText = Color(0xFF241F2B)
-
-// Status accent colors
+// ---- Status accent colors ----
 private val OverdueRed = Color(0xFFD62828)
 private val UpcomingOrange = Color(0xFF6A4C93)
 private val CompletedGreen = Color(0xFF1D7A6E)
@@ -73,44 +51,72 @@ private val CompletedGreen = Color(0xFF1D7A6E)
 // ---- Model ----
 enum class VaccineStatus { Upcoming, Overdue, Completed }
 
+/**
+ * A vaccination reminder built from the active pet's REAL records
+ * (users/{uid}/pets/{petId}/vaccinations). Nothing here is seeded or demo data:
+ * an account with no saved vaccinations renders the honest empty state.
+ */
 data class VaccinationReminder(
-    val id: Int,
-    val vaccineName: String,
-    val dueDate: LocalDate,
-    val veterinarian: String,
-    val status: VaccineStatus
+    val id: Long = 0L,
+    val vaccineName: String = "",
+    // Parsed next-due date. Null when the stored next-due string is missing or
+    // uses an unrecognised format; [rawDueDate] is then shown verbatim instead.
+    val dueDate: LocalDate? = null,
+    val rawDueDate: String = "",
+    val veterinarian: String = "",
+    val status: VaccineStatus = VaccineStatus.Upcoming
 )
 
-/**
- * Computes the display status for a reminder that has not been explicitly completed:
- * dates before today are Overdue, otherwise Upcoming.
- */
-private fun computeStatus(dueDate: LocalDate, completed: Boolean): VaccineStatus =
-    if (completed) VaccineStatus.Completed
-    else if (dueDate.isBefore(LocalDate.now())) VaccineStatus.Overdue
-    else VaccineStatus.Upcoming
+private val DisplayDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
 
 /**
- * Seed data for the active pet's upcoming vaccination reminders.
- * Uses a simple in-memory list — no Firestore / persistence layer required.
+ * Best-effort parse of the free-text next-due date, mirroring the formats the
+ * VaccinationReminderWorker accepts. Returns null when none of them match.
  */
-private fun seedReminders(): List<VaccinationReminder> {
-    val today = LocalDate.now()
-    return listOf(
-        VaccinationReminder(1, "Rabies Booster", today.minusDays(6), "Dr. Meera Rao", VaccineStatus.Overdue),
-        VaccinationReminder(2, "DHPP (Distemper)", today.plusDays(10), "Dr. Meera Rao", VaccineStatus.Upcoming),
-        VaccinationReminder(3, "Bordetella", today.plusDays(28), "Dr. Arjun Nair", VaccineStatus.Upcoming),
-        VaccinationReminder(4, "Leptospirosis", today.minusDays(40), "Dr. Meera Rao", VaccineStatus.Completed),
-        VaccinationReminder(5, "Lyme Disease", today.plusDays(55), "Dr. Arjun Nair", VaccineStatus.Upcoming)
+private fun parseVaccinationDate(raw: String): LocalDate? {
+    val formats = listOf(
+        "MMM d, yyyy", "MMM d yyyy", "d MMMM yyyy",
+        "dd/MM/yyyy", "dd-MM-yyyy", "dd/MM/yy", "yyyy-MM-dd"
+    )
+    for (f in formats) {
+        try {
+            return LocalDate.parse(raw.trim(), DateTimeFormatter.ofPattern(f, Locale.ENGLISH))
+        } catch (_: Exception) {
+        }
+    }
+    return null
+}
+
+/**
+ * Maps a real VaccinationRecord to a display reminder. Status is derived from the
+ * record's own status plus its next-due date: a record already marked Completed
+ * stays Completed, an uncompleted record whose due date has passed is Overdue,
+ * otherwise Upcoming. No value is invented.
+ */
+private fun toReminder(record: VaccinationRecord): VaccinationReminder {
+    val completed = record.status.equals("Completed", ignoreCase = true)
+    val due = parseVaccinationDate(record.nextDueDate)
+    val status = when {
+        completed -> VaccineStatus.Completed
+        due != null && due.isBefore(LocalDate.now()) -> VaccineStatus.Overdue
+        else -> VaccineStatus.Upcoming
+    }
+    return VaccinationReminder(
+        id = record.id,
+        vaccineName = record.vaccineName,
+        dueDate = due,
+        rawDueDate = record.nextDueDate,
+        veterinarian = record.veterinarian,
+        status = status
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VaccinationRemindersScreen() {
-    // In-memory mutable list of reminders for the active pet.
-    val reminders = remember { mutableStateListOf<VaccinationReminder>().apply { addAll(seedReminders()) } }
-    var showAddDialog by remember { mutableStateOf(false) }
+fun VaccinationRemindersScreen(vaccinations: List<VaccinationRecord>) {
+    // Built straight from the active pet's Firestore records; recomputed whenever
+    // the list changes. Hoisted above the LazyColumn, never inside its lambda.
+    val reminders = remember(vaccinations) { vaccinations.map { toReminder(it) } }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -125,74 +131,79 @@ fun VaccinationRemindersScreen() {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Reminder")
-            }
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
-        ) {
-            items(reminders, key = { it.id }) { reminder ->
-                VaccinationReminderCard(reminder = reminder)
+        if (reminders.isEmpty()) {
+            // Honest empty state: no invented reminders, no demo cards.
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.vaxrem_empty),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 16.dp)
+            ) {
+                items(reminders, key = { it.id }) { reminder ->
+                    VaccinationReminderCard(reminder = reminder)
+                }
             }
         }
-    }
-
-    if (showAddDialog) {
-        AddReminderDialog(
-            onDismiss = { showAddDialog = false },
-            onAdd = { name, date, vet ->
-                val nextId = (reminders.maxOfOrNull { it.id } ?: 0) + 1
-                val parsedDate = runCatching {
-                    LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                }.getOrElse { LocalDate.now().plusMonths(1) }
-                val status = computeStatus(parsedDate, completed = false)
-                reminders.add(
-                    VaccinationReminder(
-                        id = nextId,
-                        vaccineName = name,
-                        dueDate = parsedDate,
-                        veterinarian = vet,
-                        status = status
-                    )
-                )
-                showAddDialog = false
-            }
-        )
     }
 }
 
 @Composable
 private fun VaccinationReminderCard(reminder: VaccinationReminder) {
-    val (statusColor, statusLabel) = when (reminder.status) {
-        VaccineStatus.Overdue -> OverdueRed to "Overdue"
-        VaccineStatus.Upcoming -> UpcomingOrange to "Upcoming"
-        VaccineStatus.Completed -> CompletedGreen to "Completed"
+    val statusColor = when (reminder.status) {
+        VaccineStatus.Overdue -> OverdueRed
+        VaccineStatus.Upcoming -> UpcomingOrange
+        VaccineStatus.Completed -> CompletedGreen
+    }
+    val statusLabel = when (reminder.status) {
+        VaccineStatus.Overdue -> stringResource(R.string.vaxrem_status_overdue)
+        VaccineStatus.Upcoming -> stringResource(R.string.vaxrem_status_upcoming)
+        VaccineStatus.Completed -> stringResource(R.string.vaxrem_status_completed)
     }
 
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMM yyyy") }
+    val due = reminder.dueDate
     val today = LocalDate.now()
-    val daysText = when (reminder.status) {
-        VaccineStatus.Completed -> "Done"
-        VaccineStatus.Overdue -> {
-            val days = ChronoUnit.DAYS.between(reminder.dueDate, today)
-            if (days == 0L) "Due today" else "$days day${if (days == 1L) "" else "s"} overdue"
+    val dueLine = when {
+        due != null -> stringResource(R.string.vaxrem_due_label, due.format(DisplayDateFormatter))
+        reminder.rawDueDate.isNotBlank() -> stringResource(R.string.vaxrem_due_label, reminder.rawDueDate)
+        else -> null
+    }
+    val daysText: String? = when {
+        reminder.status == VaccineStatus.Completed -> stringResource(R.string.vaxrem_done)
+        due == null -> null
+        reminder.status == VaccineStatus.Overdue -> {
+            val days = ChronoUnit.DAYS.between(due, today)
+            when {
+                days == 0L -> stringResource(R.string.vaxrem_due_today)
+                days == 1L -> stringResource(R.string.vaxrem_one_day_overdue)
+                else -> stringResource(R.string.vaxrem_days_overdue, days)
+            }
         }
-        VaccineStatus.Upcoming -> {
-            val days = ChronoUnit.DAYS.between(today, reminder.dueDate)
-            if (days == 0L) "Due today" else "in $days day${if (days == 1L) "" else "s"}"
+        else -> {
+            val days = ChronoUnit.DAYS.between(today, due)
+            when {
+                days == 0L -> stringResource(R.string.vaxrem_due_today)
+                days == 1L -> stringResource(R.string.vaxrem_in_one_day)
+                else -> stringResource(R.string.vaxrem_in_days, days)
+            }
         }
     }
 
@@ -225,17 +236,21 @@ private fun VaccinationReminderCard(reminder: VaccinationReminder) {
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = "Due: ${reminder.dueDate.format(dateFormatter)}",
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    fontSize = 13.sp
-                )
-                Text(
-                    text = "Vet: ${reminder.veterinarian}",
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    fontSize = 13.sp
-                )
+                if (dueLine != null) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = dueLine,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        fontSize = 13.sp
+                    )
+                }
+                if (reminder.veterinarian.isNotBlank()) {
+                    Text(
+                        text = stringResource(R.string.vaxrem_vet_label, reminder.veterinarian),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        fontSize = 13.sp
+                    )
+                }
             }
 
             Column(horizontalAlignment = Alignment.End) {
@@ -252,116 +267,16 @@ private fun VaccinationReminderCard(reminder: VaccinationReminder) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = daysText,
-                    color = statusColor,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                if (daysText != null) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = daysText,
+                        color = statusColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }
 }
-
-@Composable
-private fun AddReminderDialog(
-    onDismiss: () -> Unit,
-    onAdd: (vaccineName: String, date: String, veterinarian: String) -> Unit
-) {
-    var vaccineName by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
-    var veterinarian by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.vaxrem_add_vaccination_reminder),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold
-                )
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "Close",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = vaccineName,
-                    onValueChange = { vaccineName = it },
-                    label = { Text(stringResource(R.string.vaxrem_vaccine_name)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = { date = it },
-                    label = { Text(stringResource(R.string.vaxrem_due_date_dd_mm_yyyy)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-                OutlinedTextField(
-                    value = veterinarian,
-                    onValueChange = { veterinarian = it },
-                    label = { Text(stringResource(R.string.vaxrem_veterinarian)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (vaccineName.isNotBlank()) {
-                        onAdd(vaccineName.trim(), date.trim(), veterinarian.trim().ifBlank { "—" })
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.White
-                ),
-                enabled = vaccineName.isNotBlank()
-            ) {
-                Text(stringResource(R.string.vaxrem_add_reminder))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.vaxrem_cancel), color = DarkText.copy(alpha = 0.7f))
-            }
-        }
-    )
-}
-
