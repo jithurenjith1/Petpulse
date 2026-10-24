@@ -1006,11 +1006,6 @@
     <string name="admin_no_matching_bookings">നിങ്ങളുടെ തിരയലിനോ ഫിൽട്ടറിനോ ബുക്കിംഗുകളൊന്നും പൊരുത്തപ്പെടുന്നില്ല.</string>
     <string name="admin_booking_status_confirmed">സ്ഥിരീകരിച്ചു</string>
     <string name="admin_booking_status_completed">പൂർത്തിയായി</string>
-    <string name="mypets_quick_actions_title">വേഗ പ്രവർത്തനങ്ങൾ</string>
-    <string name="mypets_quick_add_pet">വളർത്തുമൃഗത്തെ ചേർക്കുക</string>
-    <string name="mypets_quick_records">രേഖകൾ</string>
-    <string name="mypets_quick_emergency">അടിയന്തിരം</string>
-    <string name="mypets_quick_care_plan">കെയർ പ്ലാൻ</string>
     <string name="mypets_reminder_title">നിങ്ങളുടെ വളർത്തുമൃഗത്തിന്റെ അടുത്ത ഓർമ്മപ്പെടുത്തൽ</string>
     <string name="mypets_reminder_none">ഇതുവരെ വാക്സിനേഷൻ ഓർമ്മപ്പെടുത്തൽ സേവ് ചെയ്തിട്ടില്ല. അടുത്ത തീയതി കാണാൻ ഒരു വാക്സിനേഷൻ ചേർക്കുക.</string>
     <string name="mypets_reminder_vaccination">വാക്സിനേഷൻ</string>

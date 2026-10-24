@@ -49,7 +49,7 @@ fun PetSwitcher(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(pets) { pet ->

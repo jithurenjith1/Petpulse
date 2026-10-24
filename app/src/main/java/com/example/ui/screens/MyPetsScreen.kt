@@ -201,7 +201,7 @@ fun MyPetsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .testTag("my_pets_screen"),
-        contentPadding = PaddingValues(bottom = 90.dp, top = 8.dp)
+        contentPadding = PaddingValues(bottom = 90.dp)
     ) {
         // 2. Pet Hero Profile Card
         item {
