@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.petpulse.app.data.model.*
+import com.petpulse.app.ui.components.ReportDialog
 import com.petpulse.app.ui.components.StarRow
 import com.petpulse.app.ui.components.WriteReviewDialog
 import com.petpulse.app.ui.components.formatRating
@@ -142,6 +143,7 @@ fun MarketplaceScreen(
     onGuideItemAction: (String) -> Unit = {},
     currentUid: String? = null,
     onDeleteListing: (MarketPet) -> Unit = {},
+    onReportListing: (String, String) -> Unit = { _, _ -> },
     foodPetType: String = "All",
     onSelectFoodPetType: (String) -> Unit = {},
     foodKind: String = "All",
@@ -154,6 +156,9 @@ fun MarketplaceScreen(
     modifier: Modifier = Modifier
 ) {
     var listingToDelete by remember { mutableStateOf<MarketPet?>(null) }
+    // Listing awaiting a report (state is hoisted above the LazyColumn, never
+    // inside a lazy content lambda).
+    var reportingListing by remember { mutableStateOf<MarketPet?>(null) }
 
     // Photo-viewer state is HOISTED above the LazyColumn so no remember(...) ever
     // lives inside a lazy content lambda.
@@ -341,7 +346,8 @@ fun MarketplaceScreen(
                             pet = pet,
                             isOwner = currentUid != null && pet.ownerId == currentUid,
                             onClick = { onPetSelected(pet) },
-                            onDelete = { listingToDelete = pet }
+                            onDelete = { listingToDelete = pet },
+                            onReport = { reportingListing = pet }
                         )
                     }
                 }
@@ -657,6 +663,16 @@ fun MarketplaceScreen(
             },
             dismissButton = {
                 TextButton(onClick = { listingToDelete = null }) { Text("Cancel") }
+            }
+        )
+    }
+
+    reportingListing?.let { target ->
+        ReportDialog(
+            onDismiss = { reportingListing = null },
+            onSubmit = { reason ->
+                onReportListing(target.id, reason)
+                reportingListing = null
             }
         )
     }
@@ -1087,7 +1103,8 @@ fun MarketPetCard(
     pet: MarketPet,
     isOwner: Boolean = false,
     onClick: () -> Unit,
-    onDelete: () -> Unit = {}
+    onDelete: () -> Unit = {},
+    onReport: () -> Unit = {}
 ) {
     // Cloudinary URLs first; fall back to the base64-decoded local files.
     val petPhotos = if (pet.photoUrls.isNotEmpty()) pet.photoUrls else pet.photoUris
@@ -1306,6 +1323,17 @@ fun MarketPetCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )
+
+                if (!isOwner) {
+                    TextButton(onClick = onReport) {
+                        Text(
+                            text = stringResource(R.string.report_action),
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
 
                 Button(
                     onClick = onClick,

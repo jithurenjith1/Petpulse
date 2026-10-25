@@ -346,6 +346,24 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    // Admin audit log (soft-archive history). Non-admins are denied by rules and
+    // simply see an empty list.
+    val adminLog: StateFlow<List<AdminLogEntry>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observeAdminLog() }
+            else flowOf(emptyList<AdminLogEntry>())
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    // User-submitted content reports (community posts / market listings / found
+    // reports). Admin-only read per rules; non-admins see an empty list.
+    val contentReports: StateFlow<List<ContentReport>> = isAdmin
+        .flatMapLatest { admin ->
+            if (admin) signedInUid.flatMapLatest { commerceRepo.observeReports() }
+            else flowOf(emptyList<ContentReport>())
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     // Partner applications (business join forms + featured plan requests) - admin reviews
     val partnerApplications: StateFlow<List<PartnerApplication>> = isAdmin
         .flatMapLatest { admin ->
@@ -1143,17 +1161,28 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Admin removes one finished order from the Orders tab. */
-    fun adminDeleteOrder(orderId: String) {
+    /** Admin SOFT-ARCHIVES one finished order (hidden from every list, NOT deleted). */
+    fun adminArchiveOrder(orderId: String) {
         viewModelScope.launch {
-            _commerceEvent.value = if (commerceRepo.deleteOrder(orderId).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+            _commerceEvent.value = if (commerceRepo.archiveOrder(orderId).isSuccess) R.string.admin_archived else R.string.admin_archive_failed
         }
     }
 
-    /** Admin removes several finished orders at once (Reset / clear-finished). */
-    fun adminDeleteOrders(orderIds: List<String>) {
+    /** Admin SOFT-ARCHIVES several finished orders at once (Clear finished). */
+    fun adminArchiveOrders(orderIds: List<String>) {
         viewModelScope.launch {
-            _commerceEvent.value = if (commerceRepo.deleteOrders(orderIds).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+            _commerceEvent.value = if (commerceRepo.archiveOrders(orderIds).isSuccess) R.string.admin_archived else R.string.admin_archive_failed
+        }
+    }
+
+    /**
+     * Customer cancels their OWN order while it is still at the "NEW" (Order
+     * Placed) status. The result is checked and reported back so a real error is
+     * shown if the cancel fails (e.g. the order was already assigned).
+     */
+    fun cancelMyOrder(orderId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.cancelOrder(orderId).isSuccess) R.string.order_cancel_success else R.string.order_cancel_failed
         }
     }
 
@@ -1479,17 +1508,17 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Admin removes one finished booking from a bookings tab. */
-    fun adminDeleteBooking(bookingId: String) {
+    /** Admin SOFT-ARCHIVES one finished booking (hidden from every list, NOT deleted). */
+    fun adminArchiveBooking(bookingId: String) {
         viewModelScope.launch {
-            _commerceEvent.value = if (commerceRepo.deleteBooking(bookingId).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+            _commerceEvent.value = if (commerceRepo.archiveBooking(bookingId).isSuccess) R.string.admin_archived else R.string.admin_archive_failed
         }
     }
 
-    /** Admin removes several finished bookings at once (Reset / clear-finished). */
-    fun adminDeleteBookings(bookingIds: List<String>) {
+    /** Admin SOFT-ARCHIVES several finished bookings at once (Clear finished). */
+    fun adminArchiveBookings(bookingIds: List<String>) {
         viewModelScope.launch {
-            _commerceEvent.value = if (commerceRepo.deleteBookings(bookingIds).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+            _commerceEvent.value = if (commerceRepo.archiveBookings(bookingIds).isSuccess) R.string.admin_archived else R.string.admin_archive_failed
         }
     }
 
@@ -2202,6 +2231,24 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun adminDeleteFoundReport(id: String) {
         viewModelScope.launch { commerceRepo.deleteFoundReport(id) }
+    }
+
+    /**
+     * Any signed-in user reports a community post / market listing / found report.
+     * targetType is one of "community_post", "market_listing", "found_report".
+     * The result is reported back so a real error is shown on failure.
+     */
+    fun submitContentReport(targetType: String, targetId: String, reason: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.submitReport(targetType, targetId, reason).isSuccess) R.string.report_submitted else R.string.report_failed
+        }
+    }
+
+    /** Admin removes a report from the Reports list. */
+    fun adminDeleteContentReport(reportId: String) {
+        viewModelScope.launch {
+            _commerceEvent.value = if (commerceRepo.deleteReport(reportId).isSuccess) R.string.admin_deleted else R.string.admin_delete_failed
+        }
     }
 
     fun switchPet(petId: Long) {

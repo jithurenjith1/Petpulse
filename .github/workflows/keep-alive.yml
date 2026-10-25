@@ -1,0 +1,73 @@
+name: Keep SOS Schedule Alive
+
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS
+#
+# GitHub automatically DISABLES a repository's scheduled workflows after 60 days
+# of repository inactivity (no new commits). The "Send Lost Pet SOS
+# Notifications" workflow runs on a 5-minute schedule, so it is exactly the kind
+# of workflow GitHub will silently switch off after a quiet 60 days.
+#
+# THE FIX (chosen approach): a tiny SEPARATE monthly job that makes ONE trivial
+# commit. A commit counts as repository activity and resets GitHub's 60-day
+# inactivity timer, so no scheduled workflow is ever disabled. This is the
+# simplest reliable option because:
+#   * it needs no third-party action and no extra secret (uses the built-in
+#     GITHUB_TOKEN), and
+#   * it does not touch the SOS workflow at all - the SOS sending behaviour is
+#     completely unchanged (that was an explicit requirement).
+#
+# It is self-sustaining: the monthly commit keeps the repo active, which keeps
+# THIS workflow enabled too.
+#
+# Belt and braces: if the SOS workflow had ALREADY been disabled before this
+# workflow was added, a commit alone would not re-enable it, so the last step
+# also asks GitHub to re-enable it by name. That step is best-effort
+# (continue-on-error) and never fails the job.
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    # 00:10 UTC on the 1st of every month. Well inside the 60-day window.
+    - cron: '10 0 1 * *'
+  workflow_dispatch:
+
+# Never let two keep-alive runs overlap.
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # needed to push the trivial heartbeat commit
+  actions: write    # needed to re-enable the SOS workflow if it was disabled
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Write heartbeat file
+        run: date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/keep-alive.txt
+
+      - name: Commit and push (trivial - resets the 60-day inactivity timer)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/keep-alive.txt
+          if git diff --staged --quiet; then
+            echo "Heartbeat unchanged; nothing to commit."
+          else
+            git commit -m "chore: keep-alive heartbeat (keeps scheduled workflows enabled)"
+            git push
+          fi
+
+      - name: Re-enable the SOS workflow if GitHub disabled it
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow enable send-sos-notifications.yml \
+            && echo "SOS workflow is enabled." \
+            || echo "Could not re-enable automatically - enable it manually in the Actions tab."

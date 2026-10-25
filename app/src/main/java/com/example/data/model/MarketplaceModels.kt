@@ -286,7 +286,14 @@ data class AdminOrder(
     // Used by the admin Customers list to group orders per real customer.
     // Defaulted so Firestore toObject() keeps working for documents that predate
     // this field.
-    val ownerId: String = ""
+    val ownerId: String = "",
+    // SOFT-ARCHIVE flag (Firestore: "archived"). When true the order is hidden
+    // from every order list - the admin tabs AND the customer's My Orders -
+    // instead of being hard-deleted. Defaulted so Firestore toObject() keeps
+    // working for documents that predate this field.
+    val archived: Boolean = false,
+    // Epoch millis the order was archived (0 = never archived). Defaulted.
+    val archivedAt: Long = 0L
 )
 
 /**
@@ -309,7 +316,14 @@ data class ServiceBooking(
     val status: String = "NEW", // NEW | CONFIRMED | COMPLETED | CANCELLED
     val assignedName: String = "",
     val assignedPhone: String = "",
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    // SOFT-ARCHIVE flag (Firestore: "archived"). When true the booking is hidden
+    // from every booking list - the admin tabs AND the customer's My Orders -
+    // instead of being hard-deleted. Defaulted so Firestore toObject() keeps
+    // working for documents that predate this field.
+    val archived: Boolean = false,
+    // Epoch millis the booking was archived (0 = never archived). Defaulted.
+    val archivedAt: Long = 0L
 )
 
 // Help & Support ticket submitted by a user (admin reads/resolves in panel).
@@ -380,5 +394,36 @@ data class Review(
     val rating: Int = 0,
     val text: String = "",
     val orderId: String = "",
+    val createdAt: Long = 0L
+)
+
+/**
+ * One admin action recorded in the Firestore "adminLog" collection. Written every
+ * time an admin archives (or deletes) an order / booking. Every field carries a
+ * default so Firestore toObject() keeps working. Admin-only read/write per rules.
+ */
+data class AdminLogEntry(
+    val id: String = "",
+    val actorUid: String = "",
+    val actorEmail: String = "",
+    val action: String = "",      // e.g. ARCHIVE_ORDER, ARCHIVE_BOOKING
+    val targetType: String = "",  // e.g. order, booking
+    val targetId: String = "",
+    val at: Long = 0L             // epoch millis
+)
+
+/**
+ * A user-submitted report about a community post, market listing or found report.
+ * Stored in the Firestore "reports" collection under a DETERMINISTIC document id
+ * "{targetType}_{targetId}_{reporterUid}" so one report per user per target is
+ * enforced simply (a repeat write lands on the same document and is denied by
+ * rules). Every field carries a default so Firestore toObject() keeps working.
+ */
+data class ContentReport(
+    val id: String = "",
+    val reporterUid: String = "",
+    val targetType: String = "",  // community_post | market_listing | found_report
+    val targetId: String = "",
+    val reason: String = "",
     val createdAt: Long = 0L
 )

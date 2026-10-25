@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 import com.petpulse.app.data.model.CommunityPost
+import com.petpulse.app.ui.components.ReportDialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -80,9 +81,13 @@ fun PetCommunityScreen(
     currentUid: String?,
     onAddPost: (message: String, petName: String, photoUri: Uri?) -> Unit,
     onDeletePost: (CommunityPost) -> Unit,
+    onReportPost: (String, String) -> Unit = { _, _ -> },
     onOpenLostPetAlerts: () -> Unit = {}
 ) {
     var showNewPostDialog by remember { mutableStateOf(false) }
+    // Post awaiting a report (state is hoisted above the LazyColumn, never inside
+    // a lazy content lambda).
+    var reportingPost by remember { mutableStateOf<CommunityPost?>(null) }
 
     MaterialTheme {
         Scaffold(
@@ -170,7 +175,8 @@ fun PetCommunityScreen(
                         PostCard(
                             post = post,
                             isOwnPost = post.ownerId == currentUid,
-                            onDelete = { onDeletePost(post) }
+                            onDelete = { onDeletePost(post) },
+                            onReport = { reportingPost = post }
                         )
                     }
                 }
@@ -190,13 +196,24 @@ fun PetCommunityScreen(
             }
         )
     }
+
+    reportingPost?.let { target ->
+        ReportDialog(
+            onDismiss = { reportingPost = null },
+            onSubmit = { reason ->
+                onReportPost(target.id, reason)
+                reportingPost = null
+            }
+        )
+    }
 }
 
 @Composable
 private fun PostCard(
     post: CommunityPost,
     isOwnPost: Boolean,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onReport: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -252,6 +269,15 @@ private fun PostCard(
                             contentDescription = "Delete my post",
                             tint = SosRed,
                             modifier = Modifier.size(18.dp)
+                        )
+                    }
+                } else {
+                    TextButton(onClick = onReport) {
+                        Text(
+                            stringResource(R.string.report_action),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }

@@ -321,6 +321,36 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ---------- adminLog (admin audit trail for soft-archive actions; ADDED) ----------
+    // Admin-only read and write. The app writes one entry every time an admin
+    // archives (or deletes) an order / booking - see
+    // FirestoreCommerceRepository.writeAdminLog(). Fields written by the app:
+    // actorUid, actorEmail, action, targetType, targetId, at (epoch millis).
+    match /adminLog/{entryId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------- reports (user-submitted content reports; ADDED) ----------
+    // A signed-in user may CREATE one report per target, bound to their own uid.
+    // The document id is deterministic: "{targetType}_{targetId}_{reporterUid}",
+    // so a repeat report by the same user for the same target lands on the SAME
+    // document - which is an update - and is DENIED here (update is false). That
+    // enforces exactly one report per user per target without any extra read.
+    // Admin-only read and delete; there is NO public read and no update.
+    // Fields written by the app: reporterUid, targetType, targetId, reason,
+    // createdAt (epoch millis).
+    match /reports/{reportId} {
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['reporterUid', 'targetType', 'targetId', 'reason', 'createdAt'])
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.targetType is string
+        && request.resource.data.targetId is string
+        && request.resource.data.reason is string
+        && request.resource.data.createdAt is number;
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
     // ---------- everything else: denied (MUST stay last) ----------
     match /{document=**} {
       allow read, write: if false;

@@ -1052,5 +1052,48 @@
     <!-- Find My Pet: active lost-pet alerts heading + real distance -->
     <string name="partners_lost_alerts_title">സജീവമായ നഷ്ടപ്പെട്ട പെറ്റ് അലേർട്ടുകൾ</string>
     <string name="partners_km_away">%1$.1f കി.മീ അകലെ</string>
+    <!-- Round 2: customer order cancel (item 8) -->
+    <string name="order_cancel_action">ഓർഡർ റദ്ദാക്കുക</string>
+    <string name="order_cancel_title">ഈ ഓർഡർ റദ്ദാക്കണോ?</string>
+    <string name="order_cancel_body">നിങ്ങളുടെ ഓർഡർ റദ്ദാക്കും. ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
+    <string name="order_cancel_confirm">അതെ, റദ്ദാക്കുക</string>
+    <string name="order_cancel_success">ഓർഡർ റദ്ദാക്കി.</string>
+    <string name="order_cancel_failed">ഓർഡർ റദ്ദാക്കാനായില്ല - കണക്ഷൻ പരിശോധിക്കുക.</string>
+    <!-- Round 2: soft archive wording (item 9) -->
+    <string name="admin_archive">ആർക്കൈവ് ചെയ്യുക</string>
+    <string name="admin_archived">ആർക്കൈവ് ചെയ്തു</string>
+    <string name="admin_archive_failed">ആർക്കൈവ് ചെയ്യാനായില്ല - കണക്ഷൻ പരിശോധിക്കുക.</string>
+    <string name="admin_archive_order_title">ഈ ഓർഡർ ആർക്കൈവ് ചെയ്യണോ?</string>
+    <string name="admin_archive_order_body">ഈ ഓർഡർ ആർക്കൈവ് ചെയ്ത് എല്ലാ ലിസ്റ്റുകളിൽ നിന്നും മറയ്ക്കും. ശാശ്വതമായി ഡിലീറ്റ് ചെയ്യുന്നില്ല.</string>
+    <string name="admin_archive_booking_title">ഈ ബുക്കിംഗ് ആർക്കൈവ് ചെയ്യണോ?</string>
+    <string name="admin_archive_booking_body">ഈ ബുക്കിംഗ് ആർക്കൈവ് ചെയ്ത് എല്ലാ ലിസ്റ്റുകളിൽ നിന്നും മറയ്ക്കും. ശാശ്വതമായി ഡിലീറ്റ് ചെയ്യുന്നില്ല.</string>
+    <string name="admin_archive_reset_title">പൂർത്തിയായവ ആർക്കൈവ് ചെയ്യണോ?</string>
+    <string name="admin_archive_reset_orders_body">%1$d പൂർത്തിയായ ഓർഡറുകൾ ആർക്കൈവ് ചെയ്യണോ? അവ എല്ലാ ലിസ്റ്റുകളിൽ നിന്നും മറയ്ക്കും, ശാശ്വതമായി ഡിലീറ്റ് ചെയ്യില്ല.</string>
+    <string name="admin_archive_reset_bookings_body">%1$d പൂർത്തിയായ ബുക്കിംഗുകൾ ആർക്കൈവ് ചെയ്യണോ? അവ എല്ലാ ലിസ്റ്റുകളിൽ നിന്നും മറയ്ക്കും, ശാശ്വതമായി ഡിലീറ്റ് ചെയ്യില്ല.</string>
+    <!-- Round 2: admin Reports + Admin Log sections (items 9 and 10) -->
+    <string name="admin_reports_card_title">റിപ്പോർട്ടുകൾ</string>
+    <string name="admin_reports_card_subtitle">പോസ്റ്റുകളിലും ലിസ്റ്റിംഗുകളിലുമുള്ള ഉപയോക്തൃ റിപ്പോർട്ടുകൾ</string>
+    <string name="admin_log_card_title">അഡ്മിൻ ലോഗ്</string>
+    <string name="admin_log_card_subtitle">ആർക്കൈവ് / മോഡറേഷൻ ചരിത്രം</string>
+    <string name="admin_reports_empty">ഇതുവരെ റിപ്പോർട്ടുകളില്ല.</string>
+    <string name="admin_log_empty">ഇതുവരെ അഡ്മിൻ പ്രവർത്തനങ്ങളില്ല.</string>
+    <string name="admin_report_target">%1$s: %2$s</string>
+    <string name="admin_report_reason">കാരണം: %1$s</string>
+    <string name="admin_report_delete">നീക്കം ചെയ്യുക</string>
+    <string name="admin_log_actor">ആരാൽ: %1$s</string>
+    <!-- Round 2: report action (item 10) -->
+    <string name="report_action">റിപ്പോർട്ട് ചെയ്യുക</string>
+    <string name="report_title">ഈ ഉള്ളടക്കം റിപ്പോർട്ട് ചെയ്യണോ?</string>
+    <string name="report_pick_reason">ഒരു കാരണം തിരഞ്ഞെടുക്കുക:</string>
+    <string name="report_submit">റിപ്പോർട്ട് സമർപ്പിക്കുക</string>
+    <string name="report_submitted">നന്ദി - നിങ്ങളുടെ റിപ്പോർട്ട് അയച്ചു.</string>
+    <string name="report_failed">റിപ്പോർട്ട് അയയ്ക്കാനായില്ല - കണക്ഷൻ പരിശോധിക്കുക.</string>
+    <string name="report_reason_spam">സ്പാം</string>
+    <string name="report_reason_inappropriate">അനുചിതമായ ഉള്ളടക്കം</string>
+    <string name="report_reason_fraud">വഞ്ചന അല്ലെങ്കിൽ തട്ടിപ്പ്</string>
+    <string name="report_reason_cruelty">മൃഗ ക്രൂരത</string>
+    <string name="report_reason_other">മറ്റുള്ളവ</string>
+    <string name="admin_reports_section">റിപ്പോർട്ടുകൾ</string>
+    <string name="admin_log_section">അഡ്മിൻ ലോഗ്</string>
 </resources>
 

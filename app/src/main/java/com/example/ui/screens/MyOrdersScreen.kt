@@ -93,6 +93,7 @@ fun MyOrdersScreen(
     dealerReviews: List<Review> = emptyList(),
     onSubmitDealerReview: (String, Int, String, String) -> Unit = { _, _, _, _ -> },
     onConfirmReceived: (String) -> Unit = {},
+    onCancelOrder: (String) -> Unit = {},
     onDeleteOrder: (String) -> Unit = {},
     onDeleteBooking: (String) -> Unit = {},
     onDeleteOrders: (List<String>) -> Unit = {},
@@ -104,6 +105,9 @@ fun MyOrdersScreen(
     var selectedTab by remember { mutableStateOf(0) } // 0 = Orders, 1 = Bookings
     var pendingDeleteOrder by remember { mutableStateOf<AdminOrder?>(null) }
     var pendingDeleteBooking by remember { mutableStateOf<ServiceBooking?>(null) }
+    // Order awaiting the customer's cancel confirmation (hoisted above the
+    // LazyColumn, never inside a lazy content lambda).
+    var pendingCancelOrder by remember { mutableStateOf<AdminOrder?>(null) }
     var pendingClearOrders by remember { mutableStateOf(false) }
     var pendingClearBookings by remember { mutableStateOf(false) }
     val finishedOrders = orders.filter { it.status == "DELIVERED" || it.status == "CANCELLED" }
@@ -206,6 +210,7 @@ fun MyOrdersScreen(
                                 dealerReviews = dealerReviews,
                                 onSubmitDealerReview = onSubmitDealerReview,
                                 onBuyAgain = { onBuyAgain(order) },
+                                onRequestCancel = { pendingCancelOrder = order },
                                 onRequestDelete = { pendingDeleteOrder = order },
                                 onCallDealer = { phone ->
                                     if (phone.isNotBlank()) {
@@ -272,6 +277,26 @@ fun MyOrdersScreen(
                 }
             }
         }
+    }
+    pendingCancelOrder?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingCancelOrder = null },
+            title = { Text(stringResource(R.string.order_cancel_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.order_cancel_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onCancelOrder(target.id)
+                    pendingCancelOrder = null
+                }) {
+                    Text(stringResource(R.string.order_cancel_confirm), color = CancelledRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingCancelOrder = null }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
     }
     pendingDeleteOrder?.let { target ->
         AlertDialog(
@@ -384,6 +409,7 @@ private fun MyOrderCard(
     onSubmitDealerReview: (String, Int, String, String) -> Unit = { _, _, _, _ -> },
     onBuyAgain: () -> Unit,
     onCallDealer: (String) -> Unit,
+    onRequestCancel: () -> Unit = {},
     onRequestDelete: () -> Unit = {}
 ) {
     val dateText = if (order.createdAt > 0) {
@@ -491,6 +517,26 @@ private fun MyOrderCard(
                             Text("Call", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
+                }
+            }
+
+            // Cancel is offered ONLY while the order is still at "NEW" (Order
+            // Placed) - the single status the customer is still allowed to change.
+            // It is never shown once the order is ASSIGNED (out for delivery) or
+            // DELIVERED.
+            if (order.status == "NEW") {
+                Spacer(Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = onRequestCancel,
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth().height(40.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.order_cancel_action),
+                        color = CancelledRed,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 

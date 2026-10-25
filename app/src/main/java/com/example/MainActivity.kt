@@ -174,6 +174,8 @@ val gpsTrackers by viewModel.gpsTrackers.collectAsStateWithLifecycle()
 val adminSupportTickets by viewModel.supportTickets.collectAsStateWithLifecycle()
 val adminRescueReports by viewModel.rescueReports.collectAsStateWithLifecycle()
 val adminFoundReports by viewModel.foundReports.collectAsStateWithLifecycle()
+val adminLogEntries by viewModel.adminLog.collectAsStateWithLifecycle()
+val contentReports by viewModel.contentReports.collectAsStateWithLifecycle()
 val adminPartnerApplications by viewModel.partnerApplications.collectAsStateWithLifecycle()
 val appCtx = LocalContext.current
     val healthScore by viewModel.healthScore.collectAsStateWithLifecycle()
@@ -443,6 +445,7 @@ val appCtx = LocalContext.current
                                 snackbarHostState.showSnackbar("🗑️ '${pet.name}' listing removed.")
                             }
                         },
+                        onReportListing = { id, reason -> viewModel.submitContentReport("market_listing", id, reason) },
                         onAddToCart = { product ->
                             viewModel.addProductToCart(product)
                             coroutineScope.launch {
@@ -681,6 +684,7 @@ val appCtx = LocalContext.current
                 viewModel.submitDealerReview(name, rating, text, orderId)
             },
             onConfirmReceived = { id -> viewModel.markBookingReceived(id) },
+            onCancelOrder = { id -> viewModel.cancelMyOrder(id) },
             onDeleteOrder = { id -> viewModel.deleteMyOrder(id) },
             onDeleteBooking = { id -> viewModel.deleteMyBooking(id) },
             onDeleteOrders = { ids -> viewModel.deleteMyOrders(ids) },
@@ -708,10 +712,14 @@ val appCtx = LocalContext.current
             onDeleteDealer = { id -> viewModel.adminDeleteDealer(id) },
             onAssignBooking = { id, name, phone -> viewModel.adminAssignBooking(id, name, phone) },
             onUpdateBookingStatus = { id, status -> viewModel.adminUpdateBookingStatus(id, status) },
-            onDeleteOrder = { id -> viewModel.adminDeleteOrder(id) },
-            onDeleteBooking = { id -> viewModel.adminDeleteBooking(id) },
-            onDeleteOrders = { ids -> viewModel.adminDeleteOrders(ids) },
-            onDeleteBookings = { ids -> viewModel.adminDeleteBookings(ids) },
+            onDeleteOrder = { id -> viewModel.adminArchiveOrder(id) },
+            onDeleteBooking = { id -> viewModel.adminArchiveBooking(id) },
+            onDeleteOrders = { ids -> viewModel.adminArchiveOrders(ids) },
+            onDeleteBookings = { ids -> viewModel.adminArchiveBookings(ids) },
+            reports = contentReports,
+            adminLog = adminLogEntries,
+            onDeleteReport = { id -> viewModel.adminDeleteContentReport(id) },
+            onReportFoundReport = { id, reason -> viewModel.submitContentReport("found_report", id, reason) },
             vets = adminVets,
             listings = adminListings,
             lostAlerts = adminLostAlerts,
@@ -829,6 +837,7 @@ val appCtx = LocalContext.current
                         snackbarHostState.showSnackbar("Post deleted.")
                     }
                 },
+                onReportPost = { id, reason -> viewModel.submitContentReport("community_post", id, reason) },
                 onOpenLostPetAlerts = { showLostPetAlertsScreen = true }
             )
             FloatingActionButton(onClick = { showCommunityScreen = false }, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp), containerColor = MaterialTheme.colorScheme.primary) { Text("X", color = Color.White, fontWeight = FontWeight.Bold) }

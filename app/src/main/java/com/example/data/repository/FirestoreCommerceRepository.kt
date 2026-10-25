@@ -13,7 +13,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.petpulse.app.data.model.AdminLogEntry
 import com.petpulse.app.data.model.AdminLostPetAlert
+import com.petpulse.app.data.model.ContentReport
 import com.petpulse.app.data.model.FoundPetReport
 import com.petpulse.app.data.model.LostPetAlert
 import com.petpulse.app.data.model.AdminOrder
@@ -279,6 +281,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             trySend(
                 snap?.documents
                     ?.mapNotNull { it.toAdminOrder() }
+                    ?.filter { !it.archived }
                     ?.sortedByDescending { it.createdAt }
                     ?: emptyList()
             )
@@ -304,6 +307,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 trySend(
                     snap?.documents
                         ?.mapNotNull { it.toAdminOrder() }
+                        ?.filter { !it.archived }
                         ?.sortedByDescending { it.createdAt }
                         ?: emptyList()
                 )
@@ -334,7 +338,9 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             dealerPhone = getString("dealerPhone") ?: "",
             createdAt = getLong("createdAt") ?: 0L,
             accidentCover = getBoolean("accidentCover") ?: false,
-            ownerId = getString("ownerId") ?: ""
+            ownerId = getString("ownerId") ?: "",
+            archived = getBoolean("archived") ?: false,
+            archivedAt = getLong("archivedAt") ?: 0L
         )
     } catch (e: Exception) {
         Log.e("FsCommerce", "Skipping malformed order ${id}", e)
@@ -397,6 +403,23 @@ class FirestoreCommerceRepository(private val appContext: Context) {
     }
 
     /**
+     * Customer cancels their OWN order while it is still at the "NEW" (Order
+     * Placed) status. firestore.rules allow the owner to change exactly ONE field
+     * - `status` - and only to "CANCELLED", so this writes exactly that one field.
+     * The result is returned so the caller can surface a real error on failure.
+     */
+    suspend fun cancelOrder(orderId: String): Result<Unit> {
+        return try {
+            if (orderId.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_ID"))
+            db.collection("orders").document(orderId).update("status", "CANCELLED").await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "cancelOrder failed for $orderId", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
      * Delete a single order. Allowed by firestore.rules for an admin OR the
      * order's own owner (resource.data.ownerId == request.auth.uid).
      */
@@ -448,6 +471,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             trySend(
                 snap?.documents
                     ?.mapNotNull { it.toServiceBooking() }
+                    ?.filter { !it.archived }
                     ?.sortedByDescending { it.createdAt }
                     ?: emptyList()
             )
@@ -473,6 +497,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 trySend(
                     snap?.documents
                         ?.mapNotNull { it.toServiceBooking() }
+                        ?.filter { !it.archived }
                         ?.sortedByDescending { it.createdAt }
                         ?: emptyList()
                 )
@@ -497,7 +522,9 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             status = getString("status") ?: "NEW",
             assignedName = getString("assignedName") ?: "",
             assignedPhone = getString("assignedPhone") ?: "",
-            createdAt = getLong("createdAt") ?: 0L
+            createdAt = getLong("createdAt") ?: 0L,
+            archived = getBoolean("archived") ?: false,
+            archivedAt = getLong("archivedAt") ?: 0L
         )
     } catch (e: Exception) {
         Log.e("FsCommerce", "Skipping malformed booking ${id}", e)
@@ -1330,6 +1357,221 @@ class FirestoreCommerceRepository(private val appContext: Context) {
 
     suspend fun deleteReview(reviewId: String): Result<Unit> = try {
         db.collection("reviews").document(reviewId).delete().await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    // ---------- soft archive (replaces hard delete) + admin audit log ----------
+
+    /**
+     * Writes one entry to the "adminLog" collection (admin-only per rules).
+     * Called every time an admin archives (or deletes) an order / booking. A
+     * logging failure never fails the archive itself - it is only logged locally.
+     */
+    private suspend fun writeAdminLog(action: String, targetType: String, targetId: String) {
+        try {
+            db.collection("adminLog").document().set(
+                mapOf(
+                    "actorUid" to (auth.currentUser?.uid ?: ""),
+                    "actorEmail" to (auth.currentUser?.email ?: ""),
+                    "action" to action,
+                    "targetType" to targetType,
+                    "targetId" to targetId,
+                    "at" to System.currentTimeMillis()
+                )
+            ).await()
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "writeAdminLog failed", e)
+        }
+    }
+
+    /**
+     * SOFT-ARCHIVE one order instead of deleting it. Sets archived = true and
+     * archivedAt = now (an admin update, already permitted by the isAdmin()
+     * branch of the orders update rule), then records an adminLog entry.
+     */
+    suspend fun archiveOrder(orderId: String): Result<Unit> {
+        return try {
+            if (orderId.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_ID"))
+            db.collection("orders").document(orderId).update(
+                mapOf("archived" to true, "archivedAt" to System.currentTimeMillis())
+            ).await()
+            writeAdminLog("ARCHIVE_ORDER", "order", orderId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "archiveOrder failed for $orderId", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * SOFT-ARCHIVE several orders at once (Clear finished). Every id is
+     * attempted; the call reports failure if ANY archive failed so the UI can
+     * show a real error instead of silently claiming success.
+     */
+    suspend fun archiveOrders(orderIds: List<String>): Result<Unit> {
+        return try {
+            var firstError: Exception? = null
+            orderIds.filter { it.isNotBlank() }.forEach { id ->
+                try {
+                    db.collection("orders").document(id).update(
+                        mapOf("archived" to true, "archivedAt" to System.currentTimeMillis())
+                    ).await()
+                    writeAdminLog("ARCHIVE_ORDER", "order", id)
+                } catch (e: Exception) {
+                    Log.e("FsCommerce", "archiveOrders failed for $id", e)
+                    if (firstError == null) firstError = e
+                }
+            }
+            val err = firstError
+            if (err != null) Result.failure(err) else Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "archiveOrders failed", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * SOFT-ARCHIVE one booking instead of deleting it. Sets archived = true and
+     * archivedAt = now (an admin update, already permitted by the isAdmin()
+     * branch of the bookings update rule), then records an adminLog entry.
+     */
+    suspend fun archiveBooking(bookingId: String): Result<Unit> {
+        return try {
+            if (bookingId.isBlank()) return Result.failure(IllegalArgumentException("EMPTY_ID"))
+            db.collection("bookings").document(bookingId).update(
+                mapOf("archived" to true, "archivedAt" to System.currentTimeMillis())
+            ).await()
+            writeAdminLog("ARCHIVE_BOOKING", "booking", bookingId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "archiveBooking failed for $bookingId", e)
+            Result.failure(e)
+        }
+    }
+
+    /** SOFT-ARCHIVE several bookings at once (Clear finished). Reports failure if ANY failed. */
+    suspend fun archiveBookings(bookingIds: List<String>): Result<Unit> {
+        return try {
+            var firstError: Exception? = null
+            bookingIds.filter { it.isNotBlank() }.forEach { id ->
+                try {
+                    db.collection("bookings").document(id).update(
+                        mapOf("archived" to true, "archivedAt" to System.currentTimeMillis())
+                    ).await()
+                    writeAdminLog("ARCHIVE_BOOKING", "booking", id)
+                } catch (e: Exception) {
+                    Log.e("FsCommerce", "archiveBookings failed for $id", e)
+                    if (firstError == null) firstError = e
+                }
+            }
+            val err = firstError
+            if (err != null) Result.failure(err) else Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "archiveBookings failed", e)
+            Result.failure(e)
+        }
+    }
+
+    /** Live stream of the admin audit log, newest first (admin-only per rules). */
+    fun observeAdminLog(): Flow<List<AdminLogEntry>> = callbackFlow {
+        val sub = db.collection("adminLog").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
+            if (err != null) {
+                Log.e("FsCommerce", "adminLog listen failed", err)
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(
+                snap?.documents
+                    ?.mapNotNull { it.toAdminLogEntry() }
+                    ?.sortedByDescending { it.at }
+                    ?: emptyList()
+            )
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toAdminLogEntry(): AdminLogEntry? = try {
+        AdminLogEntry(
+            id = id,
+            actorUid = getString("actorUid") ?: "",
+            actorEmail = getString("actorEmail") ?: "",
+            action = getString("action") ?: "",
+            targetType = getString("targetType") ?: "",
+            targetId = getString("targetId") ?: "",
+            at = getLong("at") ?: 0L
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed adminLog ${id}", e)
+        null
+    }
+
+    // ---------- content reports (community post / market listing / found report) ----------
+
+    /**
+     * Stores a report under the DETERMINISTIC id "{targetType}_{targetId}_{uid}",
+     * so a user can hold at most ONE report per target (a repeat write lands on
+     * the same document and is denied by the reports create-only rule). The
+     * reporterUid is forced to the signed-in uid so it matches the security rule.
+     */
+    suspend fun submitReport(targetType: String, targetId: String, reason: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
+            if (targetType.isBlank() || targetId.isBlank()) {
+                return Result.failure(IllegalArgumentException("EMPTY_TARGET"))
+            }
+            val docId = targetType + "_" + targetId + "_" + user.uid
+            db.collection("reports").document(docId).set(
+                mapOf(
+                    "reporterUid" to user.uid,
+                    "targetType" to targetType,
+                    "targetId" to targetId,
+                    "reason" to reason,
+                    "createdAt" to System.currentTimeMillis()
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "submitReport failed", e)
+            Result.failure(e)
+        }
+    }
+
+    /** Live stream of every report, newest first (admin-only read per rules). */
+    fun observeReports(): Flow<List<ContentReport>> = callbackFlow {
+        val sub = db.collection("reports").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
+            if (err != null) {
+                Log.e("FsCommerce", "reports listen failed", err)
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            trySend(
+                snap?.documents
+                    ?.mapNotNull { it.toContentReport() }
+                    ?.sortedByDescending { it.createdAt }
+                    ?: emptyList()
+            )
+        }
+        awaitClose { sub.remove() }
+    }
+
+    private fun DocumentSnapshot.toContentReport(): ContentReport? = try {
+        ContentReport(
+            id = id,
+            reporterUid = getString("reporterUid") ?: "",
+            targetType = getString("targetType") ?: "",
+            targetId = getString("targetId") ?: "",
+            reason = getString("reason") ?: "",
+            createdAt = getLong("createdAt") ?: 0L
+        )
+    } catch (e: Exception) {
+        Log.e("FsCommerce", "Skipping malformed report ${id}", e)
+        null
+    }
+
+    suspend fun deleteReport(reportId: String): Result<Unit> = try {
+        db.collection("reports").document(reportId).delete().await()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)

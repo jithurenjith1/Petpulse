@@ -43,6 +43,9 @@ import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.data.model.PartnerCommission
 import com.petpulse.app.data.model.NewsPost
 import com.petpulse.app.data.model.Review
+import com.petpulse.app.data.model.AdminLogEntry
+import com.petpulse.app.data.model.ContentReport
+import com.petpulse.app.ui.components.ReportDialog
 import com.petpulse.app.ui.components.StarRow
 import com.petpulse.app.ui.components.formatReviewDate
 import coil.compose.AsyncImage
@@ -104,6 +107,10 @@ fun AdminScreen(
     onDeleteBooking: (String) -> Unit = {},
     onDeleteOrders: (List<String>) -> Unit = {},
     onDeleteBookings: (List<String>) -> Unit = {},
+    reports: List<ContentReport> = emptyList(),
+    adminLog: List<AdminLogEntry> = emptyList(),
+    onDeleteReport: (String) -> Unit = {},
+    onReportFoundReport: (String, String) -> Unit = { _, _ -> },
     onAddVet: (String, String, String, String, String, Double, Double, Boolean, Boolean) -> Unit = { _, _, _, _, _, _, _, _, _ -> },
     onDeleteVet: (String) -> Unit = {},
     onSetVetOnline: (String, Boolean) -> Unit = { _, _ -> },
@@ -150,7 +157,8 @@ fun AdminScreen(
                         "FOUND" to foundReports.size,
                         "SUPPORT" to (supportTickets.size + rescueReports.size),
                         "PARTNERS" to partnerApplications.size,
-                        "LISTINGS" to listings.size
+                        "LISTINGS" to listings.size,
+                        "REPORTS" to reports.size
                     )
                     // The Partner Ledger card is actionable, so it keeps a badge:
                     // the number of DISTINCT partners in the ledger, deduplicated
@@ -180,6 +188,8 @@ fun AdminScreen(
                                 "LEDGER" -> stringResource(R.string.admin_ledger_section)
                                 "NEWS" -> stringResource(R.string.admin_news_section)
                                 "CUSTOMERS" -> stringResource(R.string.admin_customers_section)
+                                "REPORTS" -> stringResource(R.string.admin_reports_section)
+                                "ADMINLOG" -> stringResource(R.string.admin_log_section)
                                 else -> sectionTitle(section)
                             },
                             fontWeight = FontWeight.Bold,
@@ -327,7 +337,9 @@ fun AdminScreen(
                                 LostAlertsAdminTab(alerts = lostAlerts, onDelete = onDeleteLostAlert)
                             }
                         }
-                        "FOUND" -> FoundReportsAdminTab(reports = foundReports, onDelete = onDeleteFoundReport)
+                        "FOUND" -> FoundReportsAdminTab(reports = foundReports, onDelete = onDeleteFoundReport, onReport = onReportFoundReport)
+                        "REPORTS" -> ReportsAdminTab(reports = reports, onDelete = onDeleteReport)
+                        "ADMINLOG" -> AdminLogAdminTab(entries = adminLog)
                         "LEDGER" -> PartnerLedgerTab(
                             rows = partnerRows,
                             unattributedOrders = orders.count { it.dealerName.isBlank() },
@@ -631,14 +643,14 @@ private fun BookingsAdminTab(
     pendingDelete?.let { target ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text(stringResource(R.string.admin_delete_booking_title), fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.admin_delete_booking_body)) },
+            title = { Text(stringResource(R.string.admin_archive_booking_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_archive_booking_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     onDelete(target.id)
                     pendingDelete = null
                 }) {
-                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                    Text(stringResource(R.string.admin_archive), color = Color(0xFFD32F2F))
                 }
             },
             dismissButton = {
@@ -651,14 +663,14 @@ private fun BookingsAdminTab(
     if (pendingClear) {
         AlertDialog(
             onDismissRequest = { pendingClear = false },
-            title = { Text(stringResource(R.string.admin_reset_title), fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.admin_reset_bookings_body, finished.size)) },
+            title = { Text(stringResource(R.string.admin_archive_reset_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_archive_reset_bookings_body, finished.size)) },
             confirmButton = {
                 TextButton(onClick = {
                     onClearFinished(finished.map { it.id })
                     pendingClear = false
                 }) {
-                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                    Text(stringResource(R.string.admin_archive), color = Color(0xFFD32F2F))
                 }
             },
             dismissButton = {
@@ -724,6 +736,8 @@ private fun AdminDashboard(
         "LISTINGS" to ("Sale & Adoption" to "All pet listings"),
         "ALERTS" to ("Find My Pet" to "SOS alerts + GPS trackers"),
         "FOUND" to ("Found Reports" to "Sighting reports from users"),
+        "REPORTS" to (stringResource(R.string.admin_reports_card_title) to stringResource(R.string.admin_reports_card_subtitle)),
+        "ADMINLOG" to (stringResource(R.string.admin_log_card_title) to stringResource(R.string.admin_log_card_subtitle)),
         "SUPPORT" to ("Help & Support" to "Customer tickets + rescue reports"),
         "PARTNERS" to ("Partner Applications" to "Business joins + featured plans"),
         "LEDGER" to (stringResource(R.string.admin_ledger_title_card) to stringResource(R.string.admin_ledger_subtitle)),
@@ -919,7 +933,13 @@ private fun LostAlertsAdminTab(alerts: List<AdminLostPetAlert>, onDelete: (Strin
 
 /** "I saw this pet" sighting reports — photo, where/when, finder's phone, Call + WhatsApp + delete. */
 @Composable
-private fun FoundReportsAdminTab(reports: List<FoundPetReport>, onDelete: (String) -> Unit) {
+private fun FoundReportsAdminTab(
+    reports: List<FoundPetReport>,
+    onDelete: (String) -> Unit,
+    onReport: (String, String) -> Unit = { _, _ -> }
+) {
+    // Report target is hoisted above the LazyColumn, never inside a lazy lambda.
+    var reportingReport by remember { mutableStateOf<FoundPetReport?>(null) }
     if (reports.isEmpty()) {
         Text("No sighting reports yet. \"I saw this pet\" reports from users will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
         return
@@ -972,7 +992,93 @@ private fun FoundReportsAdminTab(reports: List<FoundPetReport>, onDelete: (Strin
                         TextButton(onClick = { onDelete(report.id) }) {
                             Text("Delete report", fontSize = 12.sp, color = Color(0xFFD32F2F))
                         }
+                        TextButton(onClick = { reportingReport = report }) {
+                            Text(stringResource(R.string.report_action), fontSize = 12.sp, color = Color(0xFF1976D2))
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    reportingReport?.let { target ->
+        ReportDialog(
+            onDismiss = { reportingReport = null },
+            onSubmit = { reason ->
+                onReport(target.id, reason)
+                reportingReport = null
+            }
+        )
+    }
+}
+
+/** User-submitted content reports (community posts / market listings / found reports). */
+@Composable
+private fun ReportsAdminTab(reports: List<ContentReport>, onDelete: (String) -> Unit) {
+    if (reports.isEmpty()) {
+        Text(stringResource(R.string.admin_reports_empty), fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(reports, key = { it.id }) { report ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        stringResource(R.string.admin_report_target, report.targetType, report.targetId),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
+                    Text(
+                        stringResource(R.string.admin_report_reason, report.reason),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        stringResource(R.string.admin_log_actor, report.reporterUid),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        formatTimestamp(report.createdAt),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    TextButton(onClick = { onDelete(report.id) }) {
+                        Text(stringResource(R.string.admin_report_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Admin audit log: every archive (or delete) action, newest first. */
+@Composable
+private fun AdminLogAdminTab(entries: List<AdminLogEntry>) {
+    if (entries.isEmpty()) {
+        Text(stringResource(R.string.admin_log_empty), fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+        return
+    }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(entries, key = { it.id }) { entry ->
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(entry.action, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(
+                        stringResource(R.string.admin_report_target, entry.targetType, entry.targetId),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        stringResource(R.string.admin_log_actor, entry.actorEmail.ifBlank { entry.actorUid }),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        formatTimestamp(entry.at),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -1086,7 +1192,7 @@ private fun AdminBookingCard(
                 }
                 if (booking.status == "COMPLETED" || booking.status == "CANCELLED") {
                     TextButton(onClick = onRequestDelete) {
-                        Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
+                        Text(stringResource(R.string.admin_archive), fontSize = 12.sp, color = Color(0xFFD32F2F))
                     }
                 }
             }
@@ -1191,14 +1297,14 @@ private fun OrdersAdminTab(
     pendingDelete?.let { target ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text(stringResource(R.string.admin_delete_order_title), fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.admin_delete_order_body)) },
+            title = { Text(stringResource(R.string.admin_archive_order_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_archive_order_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     onDelete(target.id)
                     pendingDelete = null
                 }) {
-                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                    Text(stringResource(R.string.admin_archive), color = Color(0xFFD32F2F))
                 }
             },
             dismissButton = {
@@ -1211,14 +1317,14 @@ private fun OrdersAdminTab(
     if (pendingClear) {
         AlertDialog(
             onDismissRequest = { pendingClear = false },
-            title = { Text(stringResource(R.string.admin_reset_title), fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.admin_reset_orders_body, finished.size)) },
+            title = { Text(stringResource(R.string.admin_archive_reset_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_archive_reset_orders_body, finished.size)) },
             confirmButton = {
                 TextButton(onClick = {
                     onClearFinished(finished.map { it.id })
                     pendingClear = false
                 }) {
-                    Text(stringResource(R.string.admin_delete), color = Color(0xFFD32F2F))
+                    Text(stringResource(R.string.admin_archive), color = Color(0xFFD32F2F))
                 }
             },
             dismissButton = {
@@ -1666,7 +1772,7 @@ private fun AdminOrderCard(
                 }
                 if (order.status == "DELIVERED" || order.status == "CANCELLED") {
                     TextButton(onClick = onRequestDelete) {
-                        Text(stringResource(R.string.admin_delete), fontSize = 12.sp, color = Color(0xFFD32F2F))
+                        Text(stringResource(R.string.admin_archive), fontSize = 12.sp, color = Color(0xFFD32F2F))
                     }
                 }
             }

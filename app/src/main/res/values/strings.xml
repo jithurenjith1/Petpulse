@@ -1052,5 +1052,48 @@
     <!-- Find My Pet: active lost-pet alerts heading + real distance -->
     <string name="partners_lost_alerts_title">Active Lost Pet Alerts</string>
     <string name="partners_km_away">%1$.1f km away</string>
+    <!-- Round 2: customer order cancel (item 8) -->
+    <string name="order_cancel_action">Cancel order</string>
+    <string name="order_cancel_title">Cancel this order?</string>
+    <string name="order_cancel_body">Your order will be cancelled. This cannot be undone.</string>
+    <string name="order_cancel_confirm">Yes, cancel</string>
+    <string name="order_cancel_success">Order cancelled.</string>
+    <string name="order_cancel_failed">Could not cancel the order - check connection.</string>
+    <!-- Round 2: soft archive wording (item 9) -->
+    <string name="admin_archive">Archive</string>
+    <string name="admin_archived">Archived</string>
+    <string name="admin_archive_failed">Could not archive - check connection.</string>
+    <string name="admin_archive_order_title">Archive this order?</string>
+    <string name="admin_archive_order_body">This order will be archived and hidden from all lists. It is not permanently deleted.</string>
+    <string name="admin_archive_booking_title">Archive this booking?</string>
+    <string name="admin_archive_booking_body">This booking will be archived and hidden from all lists. It is not permanently deleted.</string>
+    <string name="admin_archive_reset_title">Archive finished items?</string>
+    <string name="admin_archive_reset_orders_body">Archive %1$d finished orders? They will be hidden from all lists, not permanently deleted.</string>
+    <string name="admin_archive_reset_bookings_body">Archive %1$d finished bookings? They will be hidden from all lists, not permanently deleted.</string>
+    <!-- Round 2: admin Reports + Admin Log sections (items 9 and 10) -->
+    <string name="admin_reports_card_title">Reports</string>
+    <string name="admin_reports_card_subtitle">User reports on posts &amp; listings</string>
+    <string name="admin_log_card_title">Admin Log</string>
+    <string name="admin_log_card_subtitle">Archive / moderation history</string>
+    <string name="admin_reports_empty">No reports yet.</string>
+    <string name="admin_log_empty">No admin activity yet.</string>
+    <string name="admin_report_target">%1$s: %2$s</string>
+    <string name="admin_report_reason">Reason: %1$s</string>
+    <string name="admin_report_delete">Remove</string>
+    <string name="admin_log_actor">By: %1$s</string>
+    <!-- Round 2: report action (item 10) -->
+    <string name="report_action">Report</string>
+    <string name="report_title">Report this content?</string>
+    <string name="report_pick_reason">Pick a reason:</string>
+    <string name="report_submit">Submit report</string>
+    <string name="report_submitted">Thanks - your report was sent.</string>
+    <string name="report_failed">Could not send report - check connection.</string>
+    <string name="report_reason_spam">Spam</string>
+    <string name="report_reason_inappropriate">Inappropriate content</string>
+    <string name="report_reason_fraud">Fraud or scam</string>
+    <string name="report_reason_cruelty">Animal cruelty</string>
+    <string name="report_reason_other">Other</string>
+    <string name="admin_reports_section">Reports</string>
+    <string name="admin_log_section">Admin Log</string>
 </resources>
 
