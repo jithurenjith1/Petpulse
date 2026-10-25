@@ -1,5 +1,6 @@
 package com.petpulse.app.ui.screens
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -54,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.petpulse.app.R
 import com.google.firebase.FirebaseApp
 import com.google.firebase.ai.FirebaseAI
 import com.google.firebase.ai.type.ImagePart
@@ -96,6 +98,41 @@ private const val AI_PHOTO_PROMPT =
         "Be careful and never claim a diagnosis."
 
 private const val WHATSAPP_NUMBER = "919526632311"
+
+// ---------------------------------------------------------------------------
+// Client-side per-user daily cap on Gemini photo analysis.
+//
+// This is a COST GUARD, not security: it stops a single user from burning the
+// shared Gemini quota with unlimited calls in one day. The count and the date
+// are kept on-device in SharedPreferences (no new dependency) keyed per
+// signed-in user, and the counter resets automatically when the date changes.
+// A determined user could clear app data - that is fine, this is not a security
+// control, it is only here to bound the Gemini bill.
+// ---------------------------------------------------------------------------
+private const val AI_PHOTO_DAILY_LIMIT = 10
+private const val AI_PHOTO_CAP_PREFS = "wagmiya_ai_photo_cap"
+
+private fun aiPhotoCapKey(uid: String): String = "count_" + (if (uid.isBlank()) "anon" else uid)
+
+private fun aiPhotoToday(): String =
+    java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
+
+/** True while the user is still under today's cap. A stale date means a new day. */
+private fun aiPhotoUnderDailyLimit(context: Context, uid: String): Boolean {
+    val prefs = context.getSharedPreferences(AI_PHOTO_CAP_PREFS, Context.MODE_PRIVATE)
+    val key = aiPhotoCapKey(uid)
+    if (prefs.getString(key + "_date", "") != aiPhotoToday()) return true
+    return prefs.getInt(key, 0) < AI_PHOTO_DAILY_LIMIT
+}
+
+/** Records one Gemini call for today, resetting the counter when the date changes. */
+private fun aiPhotoRecordUse(context: Context, uid: String) {
+    val prefs = context.getSharedPreferences(AI_PHOTO_CAP_PREFS, Context.MODE_PRIVATE)
+    val key = aiPhotoCapKey(uid)
+    val today = aiPhotoToday()
+    val used = if (prefs.getString(key + "_date", "") == today) prefs.getInt(key, 0) else 0
+    prefs.edit().putString(key + "_date", today).putInt(key, used + 1).apply()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -362,6 +399,11 @@ private fun AiPhotoAnalysisContent(
                         errorText = "Please pick a pet photo first."
                         return@Button
                     }
+                    val capUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                    if (!aiPhotoUnderDailyLimit(context, capUid)) {
+                        errorText = context.getString(R.string.ai_photo_daily_limit_reached, AI_PHOTO_DAILY_LIMIT)
+                        return@Button
+                    }
                     isAnalysing = true
                     errorText = ""
                     aiText = ""
@@ -376,6 +418,8 @@ private fun AiPhotoAnalysisContent(
                                 val imagePart = ImagePart(bitmap, "image/jpeg")
                                 val model = FirebaseAI.getInstance(FirebaseApp.getInstance())
                                     .generativeModel("gemini-2.0-flash")
+                                // Count this call against the user's daily cap.
+                                aiPhotoRecordUse(context, capUid)
                                 val response = model.generateContent(
                                     content {
                                         text(AI_PHOTO_PROMPT)

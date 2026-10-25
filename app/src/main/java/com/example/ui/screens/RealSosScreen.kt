@@ -248,6 +248,12 @@ fun RealSosScreen(
                                 lng = currentLon,
                                 priority = isPriorityMember
                             )
+                            if (alertSent) {
+                                // Analytics: the lost-pet SOS alert was posted successfully.
+                                com.google.firebase.analytics.FirebaseAnalytics
+                                    .getInstance(context)
+                                    .logEvent("sos_sent", null)
+                            }
                             alertSending = false
                         }
                     }

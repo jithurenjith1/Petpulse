@@ -136,6 +136,7 @@
     <string name="triage_book_vet_consultation">Book Vet Consultation</string>
     <string name="triage_select_species">Select species</string>
     <string name="triage_tap_all_symptoms_that_apply">Tap all symptoms that apply</string>
+    <string name="triage_symptom_guide_subtitle">Symptom guide for %1$s</string>
     <string name="dialogs_access_your_pet_s_records_partner_bookings">Access your pet\'s records &amp; partner bookings</string>
     <string name="dialogs_adoption_free_rescue">Adoption (Free/Rescue)</string>
     <string name="dialogs_age">Age</string>
@@ -348,7 +349,7 @@
     <string name="vet_offline_try_later">Currently offline - try later</string>
     <string name="admin_vet_availability">Availability</string>
     <string name="vet_pet_name">Pet name</string>
-    <string name="vet_vet_teleconsultation">Vet Teleconsultation</string>
+    <string name="vet_vet_teleconsultation">Book a vet consultation</string>
     <string name="triage_disclaimer">Guidance only — not a veterinary diagnosis. Always consult a registered vet.</string>
     <string name="market_empty_no_listings">No listings yet — be the first to post!</string>
     <string name="market_empty_filtered">No listings found matching current filters in %1$s.</string>
@@ -407,6 +408,7 @@
 
     <!-- Wagmiya new features: Toxic Food Check, Verified badge, Service Price Card -->
     <string name="toxic_food_title">Toxic Food Check</string>
+    <string name="toxic_food_reviewed_by_label">Reviewed by %1$s</string>
     <string name="toxic_food_subtitle">Foods and substances that are dangerous to your pet</string>
     <string name="toxic_food_search_hint">Search a food or substance</string>
     <string name="toxic_food_no_results">No match. If you are unsure, call your vet.</string>
@@ -540,6 +542,7 @@
     <string name="consent_point_data">Pet profiles, health records, contact details and photos that you add to the app.</string>
     <string name="consent_point_firebase">Your data is stored securely in Firebase (Google Cloud) and sent only over HTTPS.</string>
     <string name="consent_point_ai">When you use AI photo analysis, the pet photo you choose is sent to Google Gemini through Firebase AI Logic to generate the result.</string>
+    <string name="ai_photo_daily_limit_reached">Daily limit reached. You can run up to %1$d AI photo analyses a day. Please try again tomorrow.</string>
     <string name="consent_point_location">Location is used only to show nearby services and for the lost-pet SOS alert. It is not used for advertising.</string>
     <string name="consent_point_no_ads">There are no ads in Wagmiya and no third-party advertising trackers.</string>
     <string name="consent_point_delete">You can delete your account and your data from inside the app at any time (My Pet &gt; Health &amp; Settings).</string>
@@ -665,7 +668,6 @@
     <string name="care_plan_basic_f4">Community access</string>
     <string name="care_plan_basic_f5">Standard lost-pet alert</string>
     <string name="care_plan_care_f1">Everything in Basic</string>
-    <string name="care_plan_care_f2">Unlimited AI photo analysis for your pet</string>
     <string name="care_plan_care_f3" formatted="false">10% off every marketplace order</string>
     <string name="care_plan_care_f4">Free delivery on orders above Rs 500</string>
     <string name="care_plan_care_f5">Priority SOS - a priority badge on your lost-pet alert</string>
@@ -677,6 +679,7 @@
     <string name="care_plan_premium_f5">1 free pet QR tag with your pet\'s details</string>
     <string name="care_plan_premium_f6">Insurance claim assistance</string>
     <string name="care_plan_premium_f7">Dedicated care support</string>
+    <string name="care_plan_premium_f8">Unlimited AI photo analysis for your pet</string>
     <string name="care_subscribe_note">Tap Subscribe and our team confirms on WhatsApp, then activates your plan.</string>
     <string name="care_btn_subscribe">Subscribe</string>
     <string name="care_btn_current_plan">Current Plan</string>
@@ -685,7 +688,7 @@
     <string name="care_helpline_button">Chat on WhatsApp</string>
     <string name="care_helpline_message">Hi Wagmiya! I am a Premium member and need help with my care plan.</string>
     <string name="care_incl_triage_title">Symptom Triage</string>
-    <string name="care_incl_triage_desc">Describe your pet\'s symptoms and get instant guidance on urgency and next steps. Care and Premium add unlimited AI photo analysis for rashes, wounds and eye or ear issues.</string>
+    <string name="care_incl_triage_desc">Describe your pet\'s symptoms and get instant guidance on urgency and next steps. Premium adds unlimited AI photo analysis for rashes, wounds and eye or ear issues.</string>
     <string name="care_incl_market_title">Marketplace Discounts</string>
     <string name="care_incl_market_desc" formatted="false">Automatic discounts at checkout: 10% off every order with Care, 15% with Premium.</string>
     <string name="care_incl_delivery_title">Delivery</string>
@@ -744,6 +747,7 @@
 
     <!-- Emergency & First Aid area -->
     <string name="emerg_title">Emergency &amp; First Aid</string>
+    <string name="emerg_reviewed_by_label">Reviewed by %1$s</string>
     <string name="emerg_subtitle">What to do right now, while you get your pet to a vet</string>
     <string name="emerg_disclaimer">First aid guidance only, not a diagnosis. Call a veterinarian immediately.</string>
     <string name="emerg_choose_label">What is happening right now?</string>

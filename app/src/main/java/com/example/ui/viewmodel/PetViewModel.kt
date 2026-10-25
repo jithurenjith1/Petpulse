@@ -11,6 +11,7 @@ import com.petpulse.app.data.repository.PetRepository
 import com.petpulse.app.data.repository.FirestorePetRepository
 import com.petpulse.app.data.repository.PartialAccountDeletionException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
@@ -1113,6 +1114,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     city = newOrder.deliveryCity,
                     accidentCover = addAccidentCover
                 )
+                if (result.isSuccess) {
+                    // Analytics: the order was placed successfully.
+                    FirebaseAnalytics.getInstance(getApplication()).logEvent("order_placed", null)
+                }
                 _commerceEvent.value = when {
                     result.exceptionOrNull()?.message == "NOT_SIGNED_IN" -> R.string.order_sign_in_to_place
                     result.isSuccess -> R.string.order_placed_msg
@@ -1255,7 +1260,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _placing.value = true
             try {
-                _commerceEvent.value = if (commerceRepo.placeBooking(booking).isSuccess) R.string.admin_saved else R.string.admin_failed
+                val bookingCreated = commerceRepo.placeBooking(booking).isSuccess
+                if (bookingCreated) {
+                    // Analytics: the vet consultation booking was created.
+                    FirebaseAnalytics.getInstance(getApplication()).logEvent("booking_created", null)
+                }
+                _commerceEvent.value = if (bookingCreated) R.string.admin_saved else R.string.admin_failed
             } finally {
                 _placing.value = false
             }
@@ -2230,7 +2240,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 // freshly-added pet can be selected directly — no guessing from an
                 // unordered list.
                 val newId = firestoreRepo.savePet(newPet)
-                if (newId > 0L) _activePetId.value = newId
+                if (newId > 0L) {
+                    _activePetId.value = newId
+                    // Analytics: a pet was added and saved successfully.
+                    FirebaseAnalytics.getInstance(getApplication()).logEvent("pet_added", null)
+                }
             } catch (e: Exception) {
                 android.util.Log.e("PetViewModel", "Error saving new pet", e)
             }

@@ -246,9 +246,12 @@ fun VetTeleconsultScreen(
                     vet = vet,
                     onDismiss = { bookingVet = null },
                     onConfirm = { slot, petName, symptoms ->
+                        // No call/video link is created by the reachable booking flow
+                        // (bookings are stored as a ServiceBooking with no meeting link),
+                        // so the copy must not promise one.
                         confirmedMessage =
                             "Booking confirmed! ${vet.name} will consult $petName at $slot. " +
-                                    "You'll receive a call/video link."
+                                    "Our team will contact you to confirm the appointment."
                         bookingVet = null
                     }
                 )

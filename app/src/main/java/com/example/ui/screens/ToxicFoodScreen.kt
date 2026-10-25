@@ -77,28 +77,31 @@ private data class ToxicEntry(
     val nameRes: Int,
     val happensRes: Int,
     val actionRes: Int,
-    val severity: ToxicSeverity
+    val severity: ToxicSeverity,
+    // Vet review credit. Leave empty until a registered vet has reviewed this
+    // entry's wording; nothing is shown in the UI while it is blank.
+    val reviewedBy: String = ""
 )
 
 private val ToxicEntries: List<ToxicEntry> = listOf(
-    ToxicEntry(R.string.toxic_item_chocolate_name, R.string.toxic_item_chocolate_happens, R.string.toxic_item_chocolate_action, ToxicSeverity.EMERGENCY),
-    ToxicEntry(R.string.toxic_item_onion_name, R.string.toxic_item_onion_happens, R.string.toxic_item_onion_action, ToxicSeverity.TOXIC),
-    ToxicEntry(R.string.toxic_item_garlic_name, R.string.toxic_item_garlic_happens, R.string.toxic_item_garlic_action, ToxicSeverity.TOXIC),
-    ToxicEntry(R.string.toxic_item_grapes_name, R.string.toxic_item_grapes_happens, R.string.toxic_item_grapes_action, ToxicSeverity.EMERGENCY),
-    ToxicEntry(R.string.toxic_item_xylitol_name, R.string.toxic_item_xylitol_happens, R.string.toxic_item_xylitol_action, ToxicSeverity.EMERGENCY),
-    ToxicEntry(R.string.toxic_item_avocado_name, R.string.toxic_item_avocado_happens, R.string.toxic_item_avocado_action, ToxicSeverity.CAUTION),
-    ToxicEntry(R.string.toxic_item_alcohol_name, R.string.toxic_item_alcohol_happens, R.string.toxic_item_alcohol_action, ToxicSeverity.EMERGENCY),
-    ToxicEntry(R.string.toxic_item_caffeine_name, R.string.toxic_item_caffeine_happens, R.string.toxic_item_caffeine_action, ToxicSeverity.TOXIC),
-    ToxicEntry(R.string.toxic_item_macadamia_name, R.string.toxic_item_macadamia_happens, R.string.toxic_item_macadamia_action, ToxicSeverity.TOXIC),
-    ToxicEntry(R.string.toxic_item_milk_name, R.string.toxic_item_milk_happens, R.string.toxic_item_milk_action, ToxicSeverity.CAUTION),
-    ToxicEntry(R.string.toxic_item_raw_bones_name, R.string.toxic_item_raw_bones_happens, R.string.toxic_item_raw_bones_action, ToxicSeverity.CAUTION),
-    ToxicEntry(R.string.toxic_item_salt_name, R.string.toxic_item_salt_happens, R.string.toxic_item_salt_action, ToxicSeverity.TOXIC),
-    ToxicEntry(R.string.toxic_item_citrus_name, R.string.toxic_item_citrus_happens, R.string.toxic_item_citrus_action, ToxicSeverity.CAUTION),
-    ToxicEntry(R.string.toxic_item_coconut_name, R.string.toxic_item_coconut_happens, R.string.toxic_item_coconut_action, ToxicSeverity.CAUTION),
-    ToxicEntry(R.string.toxic_item_raw_yeast_dough_name, R.string.toxic_item_raw_yeast_dough_happens, R.string.toxic_item_raw_yeast_dough_action, ToxicSeverity.EMERGENCY),
-    ToxicEntry(R.string.toxic_item_artificial_sweetener_name, R.string.toxic_item_artificial_sweetener_happens, R.string.toxic_item_artificial_sweetener_action, ToxicSeverity.EMERGENCY),
-    ToxicEntry(R.string.toxic_item_nutmeg_name, R.string.toxic_item_nutmeg_happens, R.string.toxic_item_nutmeg_action, ToxicSeverity.TOXIC),
-    ToxicEntry(R.string.toxic_item_cooked_bones_name, R.string.toxic_item_cooked_bones_happens, R.string.toxic_item_cooked_bones_action, ToxicSeverity.CAUTION)
+    ToxicEntry(R.string.toxic_item_chocolate_name, R.string.toxic_item_chocolate_happens, R.string.toxic_item_chocolate_action, ToxicSeverity.EMERGENCY, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_onion_name, R.string.toxic_item_onion_happens, R.string.toxic_item_onion_action, ToxicSeverity.TOXIC, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_garlic_name, R.string.toxic_item_garlic_happens, R.string.toxic_item_garlic_action, ToxicSeverity.TOXIC, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_grapes_name, R.string.toxic_item_grapes_happens, R.string.toxic_item_grapes_action, ToxicSeverity.EMERGENCY, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_xylitol_name, R.string.toxic_item_xylitol_happens, R.string.toxic_item_xylitol_action, ToxicSeverity.EMERGENCY, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_avocado_name, R.string.toxic_item_avocado_happens, R.string.toxic_item_avocado_action, ToxicSeverity.CAUTION, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_alcohol_name, R.string.toxic_item_alcohol_happens, R.string.toxic_item_alcohol_action, ToxicSeverity.EMERGENCY, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_caffeine_name, R.string.toxic_item_caffeine_happens, R.string.toxic_item_caffeine_action, ToxicSeverity.TOXIC, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_macadamia_name, R.string.toxic_item_macadamia_happens, R.string.toxic_item_macadamia_action, ToxicSeverity.TOXIC, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_milk_name, R.string.toxic_item_milk_happens, R.string.toxic_item_milk_action, ToxicSeverity.CAUTION, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_raw_bones_name, R.string.toxic_item_raw_bones_happens, R.string.toxic_item_raw_bones_action, ToxicSeverity.CAUTION, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_salt_name, R.string.toxic_item_salt_happens, R.string.toxic_item_salt_action, ToxicSeverity.TOXIC, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_citrus_name, R.string.toxic_item_citrus_happens, R.string.toxic_item_citrus_action, ToxicSeverity.CAUTION, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_coconut_name, R.string.toxic_item_coconut_happens, R.string.toxic_item_coconut_action, ToxicSeverity.CAUTION, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_raw_yeast_dough_name, R.string.toxic_item_raw_yeast_dough_happens, R.string.toxic_item_raw_yeast_dough_action, ToxicSeverity.EMERGENCY, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_artificial_sweetener_name, R.string.toxic_item_artificial_sweetener_happens, R.string.toxic_item_artificial_sweetener_action, ToxicSeverity.EMERGENCY, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_nutmeg_name, R.string.toxic_item_nutmeg_happens, R.string.toxic_item_nutmeg_action, ToxicSeverity.TOXIC, reviewedBy = ""),
+    ToxicEntry(R.string.toxic_item_cooked_bones_name, R.string.toxic_item_cooked_bones_happens, R.string.toxic_item_cooked_bones_action, ToxicSeverity.CAUTION, reviewedBy = "")
 )
 
 @Composable
@@ -294,6 +297,14 @@ private fun ToxicFoodRow(entry: ToxicEntry) {
                 fontWeight = FontWeight.Medium,
                 color = entry.severity.color
             )
+            // Vet review credit - shown only once the owner fills it in.
+            if (entry.reviewedBy.isNotBlank()) {
+                Text(
+                    text = stringResource(R.string.toxic_food_reviewed_by_label, entry.reviewedBy),
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

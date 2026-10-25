@@ -2,7 +2,8 @@ package com.petpulse.app.ui.viewmodel
 
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -24,7 +25,7 @@ data class AuthState(
     val isAuthenticated: Boolean = false
 )
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableStateFlow(AuthState())
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -53,6 +54,10 @@ class AuthViewModel : ViewModel() {
             .addOnSuccessListener { result ->
                 _authState.value = AuthState(isLoading = false, user = result.user, isAuthenticated = true)
                 syncFcmToken()
+                // Analytics: a brand-new account was created successfully.
+                com.google.firebase.analytics.FirebaseAnalytics
+                    .getInstance(getApplication())
+                    .logEvent("sign_up", null)
             }
             .addOnFailureListener { exception ->
                 _authState.value = _authState.value.copy(isLoading = false, error = exception.localizedMessage ?: "Sign-up failed")

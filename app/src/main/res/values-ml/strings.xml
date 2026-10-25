@@ -136,6 +136,7 @@
     <string name="triage_book_vet_consultation">വെറ്ററിനറി കൺസൾട്ടേഷൻ ബുക്ക് ചെയ്യുക</string>
     <string name="triage_select_species">സ്പീഷീസ് തിരഞ്ഞെടുക്കുക</string>
     <string name="triage_tap_all_symptoms_that_apply">ബാധകമായ എല്ലാ ലക്ഷണങ്ങളിലും ടാപ്പ് ചെയ്യുക</string>
+    <string name="triage_symptom_guide_subtitle">ലക്ഷണ ഗൈഡ്: %1$s</string>
     <string name="dialogs_access_your_pet_s_records_partner_bookings">നിങ്ങളുടെ വളർത്തുമൃഗത്തിന്റെ റെക്കോർഡുകളും പാർട്ണർ ബുക്കിംഗുകളും ആക്സസ് ചെയ്യുക</string>
     <string name="dialogs_adoption_free_rescue">ദത്തെടുക്കൽ (സൗജന്യം/റെസ്ക്യൂ)</string>
     <string name="dialogs_age">പ്രായം</string>
@@ -348,7 +349,7 @@
     <string name="vet_offline_try_later">ഇപ്പോൾ ഓഫ്‌ലൈൻ - പിന്നീട് ശ്രമിക്കുക</string>
     <string name="admin_vet_availability">ലഭ്യത</string>
     <string name="vet_pet_name">വളർത്തുമൃഗത്തിന്റെ പേര്</string>
-    <string name="vet_vet_teleconsultation">വെറ്റ് ടെലി കൺസൾട്ടേഷൻ</string>
+    <string name="vet_vet_teleconsultation">വെറ്ററിനറി കൺസൾട്ടേഷൻ ബുക്ക് ചെയ്യുക</string>
     <string name="triage_disclaimer">മാർഗ്ഗനിർദേശം മാത്രം — ഇത് വെറ്ററിനറി രോഗനിർണയമല്ല. എപ്പോഴും രേജിസ്റ്റർ ചെയ്ത വെറ്ററിനറി ഡോക്ടറെയെ കാണുക.</string>
     <string name="market_empty_no_listings">ഇതുവരെ ലിസ്റ്റിംഗുകളൊന്നുമില്ല — പോസ്റ്റ് ചെയ്യുന്ന ആദ്യത്തെ ആളാകൂ!</string>
     <string name="market_empty_filtered">%1$s-ൽ നിലവിലെ ഫിൽറ്ററുകൾക്ക് അനുയോജ്യമായ ലിസ്റ്റിംഗുകളൊന്നും കണ്ടെത്തിയില്ല.</string>
@@ -407,6 +408,7 @@
 
     <!-- Wagmiya new features: Toxic Food Check, Verified badge, Service Price Card -->
     <string name="toxic_food_title">വിഷഭക്ഷണ പരിശോധന</string>
+    <string name="toxic_food_reviewed_by_label">അവലോകനം ചെയ്തത്: %1$s</string>
     <string name="toxic_food_subtitle">നിങ്ങളുടെ വളർത്തുമൃഗത്തിന് അപകടകരമായ ഭക്ഷണങ്ങളും പദാർത്ഥങ്ങളും</string>
     <string name="toxic_food_search_hint">ഭക്ഷണമോ പദാർത്ഥമോ തിരയുക</string>
     <string name="toxic_food_no_results">ഫലമില്ല. സംശയമുണ്ടെങ്കിൽ വെറ്ററിനറിയെ വിളിക്കുക.</string>
@@ -540,6 +542,7 @@
     <string name="consent_point_data">നിങ്ങൾ ആപ്പിൽ ചേർക്കുന്ന പെറ്റ് പ്രൊഫൈലുകൾ, ആരോഗ്യ രേഖകൾ, ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ, ഫോട്ടോകൾ.</string>
     <string name="consent_point_firebase">നിങ്ങളുടെ ഡാറ്റ Firebase-ൽ (Google Cloud) സുരക്ഷിതമായി സൂക്ഷിക്കുന്നു, HTTPS വഴി മാത്രം കൈമാറുന്നു.</string>
     <string name="consent_point_ai">AI ഫോട്ടോ വിശകലനം ഉപയോഗിക്കുമ്പോൾ, നിങ്ങൾ തിരഞ്ഞെടുക്കുന്ന പെറ്റ് ഫോട്ടോ ഫലം നൽകാൻ Firebase AI Logic വഴി Google Gemini-യിലേക്ക് അയയ്ക്കുന്നു.</string>
+    <string name="ai_photo_daily_limit_reached">ദിവസേനയുള്ള പരിധി എത്തി. ഒരു ദിവസം പരമാവധി %1$d AI ഫോട്ടോ വിശകലനങ്ങൾ ചെയ്യാം. നാളെ വീണ്ടും ശ്രമിക്കുക.</string>
     <string name="consent_point_location">ലൊക്കേഷൻ അടുത്തുള്ള സേവനങ്ങൾ കാണിക്കാനും നഷ്ടപ്പെട്ട പെറ്റ് SOS അലേർട്ടിനും മാത്രം ഉപയോഗിക്കുന്നു. പരസ്യങ്ങൾക്കായി ഉപയോഗിക്കുന്നില്ല.</string>
     <string name="consent_point_no_ads">വാഗ്മിയയിൽ പരസ്യങ്ങളില്ല, മൂന്നാം കക്ഷി പരസ്യ ട്രാക്കറുകളുമില്ല.</string>
     <string name="consent_point_delete">എപ്പോൾ വേണമെങ്കിലും ആപ്പിനുള്ളിൽ നിന്ന് നിങ്ങളുടെ അക്കൗണ്ടും ഡാറ്റയും ഇല്ലാതാക്കാം (My Pet &gt; Health &amp; Settings).</string>
@@ -665,7 +668,6 @@
     <string name="care_plan_basic_f4">കമ്മ്യൂണിറ്റി ആക്സസ്</string>
     <string name="care_plan_basic_f5">സാധാരണ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ്</string>
     <string name="care_plan_care_f1">ബേസിക്കിലുള്ളതെല്ലാം</string>
-    <string name="care_plan_care_f2">നിങ്ങളുടെ പെറ്റിനായി പരിധിയില്ലാത്ത AI ഫോട്ടോ വിശകലനം</string>
     <string name="care_plan_care_f3" formatted="false">എല്ലാ മാർക്കറ്റ്‍പ്ലേസ് ഓർഡറിനും 10% കിഴിവ്</string>
     <string name="care_plan_care_f4">₹500-ന് മുകളിലുള്ള ഓർഡറുകള്ക് സൗജന്യ ഡെലിവറി</string>
     <string name="care_plan_care_f5">പ്രയോറിറ്റി SOS - നിങ്ങളുടെ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റിൽ ഒരു പ്രയോറിറ്റി ബാഡ്ജ്</string>
@@ -677,6 +679,7 @@
     <string name="care_plan_premium_f5">നിങ്ങളുടെ പെറ്റിന്റെ വിവരങ്ങളോടെ 1 സൗജന്യ പെറ്റ് QR ടാഗ്</string>
     <string name="care_plan_premium_f6">ഇൻഷുറൻസ് ക്ലെയിം സഹായം</string>
     <string name="care_plan_premium_f7">സമർപ്പിത കെയർ സപ്പോർട്ട്</string>
+    <string name="care_plan_premium_f8">നിങ്ങളുടെ പെറ്റിനായി പരിധിയില്ലാത്ത AI ഫോട്ടോ വിശകലനം</string>
     <string name="care_subscribe_note">Subscribe ടാപ്പ് ചെയ്യുക, ഞങ്ങളുടെ ടീം WhatsApp-ൽ സ്ഥിരീകരിച്ച് നിങ്ങളുടെ പ്ലാൻ സജീവമാക്കും.</string>
     <string name="care_btn_subscribe">സബ്സ്ക്രൈബ് ചെയ്യുക</string>
     <string name="care_btn_current_plan">നിലവിലെ പ്ലാൻ</string>
@@ -685,7 +688,7 @@
     <string name="care_helpline_button">WhatsApp-ൽ ചാറ്റ് ചെയ്യുക</string>
     <string name="care_helpline_message">ഹായ് വാഗ്മിയ! ഞാൻ ഒരു പ്രീമിയം അംഗമാണ്, എന്റെ കെയർ പ്ലാനിൽ സഹായം വേണം.</string>
     <string name="care_incl_triage_title">ലക്ഷണ പരിശോധന</string>
-    <string name="care_incl_triage_desc">നിങ്ങളുടെ പെറ്റിന്റെ ലക്ഷണങ്ങള് വിവരിക്കുക, അടിയന്തിരതയെയും അടുത്ത നടപടികളെയും കുറിച്ച് ഉടനടി മാർഗ്ഗനിർദ്ദേശം ലഭിക്കും.</string>
+    <string name="care_incl_triage_desc">നിങ്ങളുടെ പെറ്റിന്റെ ലക്ഷണങ്ങള് വിവരിക്കുക, അടിയന്തിരതയെയും അടുത്ത നടപടികളെയും കുറിച്ച് ഉടനടി മാർഗ്ഗനിർദ്ദേശം ലഭിക്കും. പ്രീമിയം ചർമ്മപ്രശ്നങ്ങൾ, മുറിവുകൾ, കണ്ണ് അല്ലെങ്കിൽ ചെവി പ്രശ്നങ്ങൾ എന്നിവയ്ക്ക് പരിധിയില്ലാത്ത AI ഫോട്ടോ വിശകലനം നൽകുന്നു.</string>
     <string name="care_incl_market_title">മാർക്കറ്റ്‍പ്ലേസ് കിഴിവുകള്</string>
     <string name="care_incl_market_desc" formatted="false">ചെക്ക്ഔട്ടിൽ സ്വയമേവയുള്ള കിഴിവുകള്: കെയറിനൊപ്പം എല്ലാ ഓർഡറിനും 10%, പ്രീമിയത്തിനൊപ്പം 15%.</string>
     <string name="care_incl_delivery_title">ഡെലിവറി</string>
@@ -744,6 +747,7 @@
 
     <!-- Emergency & First Aid area -->
     <string name="emerg_title">അടിയന്തിരാവസ്ഥയും പ്രഥമശുശ്രൂഷയും</string>
+    <string name="emerg_reviewed_by_label">അവലോകനം ചെയ്തത്: %1$s</string>
     <string name="emerg_subtitle">വെറ്ററിനറിയിലേക്ക് എത്തുന്നതിനിടയിൽ ഇപ്പോൾ ചെയ്യേണ്ടത്</string>
     <string name="emerg_disclaimer">ഇത് പ്രഥമശുശ്രൂഷാ മാർഗ്ഗനിർദ്ദേശം മാത്രമാണ്, രോഗനിർണ്ണയമല്ല. ഉടൻ ഒരു വെറ്ററിനറിയെ വിളിക്കുക.</string>
     <string name="emerg_choose_label">ഇപ്പോൾ എന്താണ് സംഭവിക്കുന്നത്?</string>

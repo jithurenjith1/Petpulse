@@ -129,6 +129,9 @@ dependencies {
   // Firebase Cloud Messaging: receive SOS / care notifications. Version is
   // managed by the Firebase BOM above - do NOT pin a version here.
   implementation(libs.firebase.messaging)
+  // Firebase Analytics: log the five key product events. Version is managed by
+  // the Firebase BOM above - do NOT pin a version, and use the non-ktx artifact.
+  implementation("com.google.firebase:firebase-analytics")
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.logging.interceptor)

@@ -98,7 +98,6 @@ private val Plans = listOf(
         yearlyPriceLabel = "₹2,999/yr",
         featureRes = listOf(
             R.string.care_plan_care_f1,
-            R.string.care_plan_care_f2,
             R.string.care_plan_care_f3,
             R.string.care_plan_care_f4,
             R.string.care_plan_care_f5,
@@ -118,7 +117,8 @@ private val Plans = listOf(
             R.string.care_plan_premium_f4,
             R.string.care_plan_premium_f5,
             R.string.care_plan_premium_f6,
-            R.string.care_plan_premium_f7
+            R.string.care_plan_premium_f7,
+            R.string.care_plan_premium_f8
         )
     )
 )

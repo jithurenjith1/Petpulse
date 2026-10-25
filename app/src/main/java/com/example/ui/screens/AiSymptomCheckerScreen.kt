@@ -262,7 +262,7 @@ fun AiSymptomCheckerScreen(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Triage assistant for $petName",
+                text = stringResource(R.string.triage_symptom_guide_subtitle, petName),
                 color = OnDarkMuted,
                 fontSize = 14.sp
             )

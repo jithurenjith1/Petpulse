@@ -71,7 +71,10 @@ private data class EmergencyType(
     // Critical = the "call a vet now" action becomes the most prominent thing.
     val isCritical: Boolean = false,
     // Poisoning-style cases also surface the existing Toxic Food list.
-    val opensToxicFood: Boolean = false
+    val opensToxicFood: Boolean = false,
+    // Vet review credit. Leave empty until a registered vet has reviewed this
+    // entry's wording; nothing is shown in the UI while it is blank.
+    val reviewedBy: String = ""
 )
 
 private val EmergencyTypes: List<EmergencyType> = listOf(
@@ -87,7 +90,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_bleeding_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "not_breathing",
@@ -101,7 +105,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_not_breathing_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "seizure",
@@ -115,7 +120,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_seizure_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "vomiting",
@@ -129,7 +135,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_vomiting_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "not_eating",
@@ -143,7 +150,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_not_eating_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "limping",
@@ -157,7 +165,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_limping_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "collapse",
@@ -171,7 +180,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_collapse_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "poisoning",
@@ -185,7 +195,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_poisoning_6,
         ),
         isCritical = true,
-        opensToxicFood = true
+        opensToxicFood = true,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "dog_bite",
@@ -199,7 +210,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_dog_bite_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "plant_toxin",
@@ -213,7 +225,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_plant_toxin_6,
         ),
         isCritical = false,
-        opensToxicFood = true
+        opensToxicFood = true,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "blood_in_stool",
@@ -227,7 +240,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_blood_in_stool_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "heatstroke",
@@ -241,7 +255,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_heatstroke_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "choking",
@@ -255,7 +270,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_choking_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "eye_injury",
@@ -269,7 +285,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_eye_injury_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "allergic_reaction",
@@ -283,7 +300,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_allergic_reaction_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "tick_emergency",
@@ -297,7 +315,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_tick_emergency_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "fracture",
@@ -311,7 +330,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_fracture_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "drowning",
@@ -325,7 +345,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_drowning_6,
         ),
         isCritical = true,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     ),
     EmergencyType(
         id = "other",
@@ -339,7 +360,8 @@ private val EmergencyTypes: List<EmergencyType> = listOf(
             R.string.emerg_steps_other_6,
         ),
         isCritical = false,
-        opensToxicFood = false
+        opensToxicFood = false,
+        reviewedBy = ""
     )
 )
 
@@ -610,6 +632,15 @@ private fun EmergencyDetailCard(
                         modifier = Modifier.weight(1f)
                     )
                 }
+            }
+
+            // Vet review credit - shown only once the owner fills it in.
+            if (type.reviewedBy.isNotBlank()) {
+                Text(
+                    text = stringResource(R.string.emerg_reviewed_by_label, type.reviewedBy),
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             // Poisoning-style cases also open the existing Toxic Food list.
