@@ -383,11 +383,11 @@ val appCtx = LocalContext.current
                             viewModel.deleteAccount { success ->
                                 if (success) {
                                     authViewModel?.signOut()
-                                } else {
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar("Account deletion failed. Please try again.")
-                                    }
                                 }
+                                // On failure the accountDeleteEvent collector below
+                                // shows the SPECIFIC message (a generic failure vs
+                                // the half-success where the data is already gone
+                                // but the Auth account could not be removed).
                             }
                         },
                         onDeletePet = {
@@ -754,6 +754,14 @@ val appCtx = LocalContext.current
             if (ev != null) {
                 snackbarHostState.showSnackbar(marketCtx.getString(ev))
                 viewModel.onCommerceEventShown()
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.accountDeleteEvent.collect { ev ->
+            if (ev != null) {
+                snackbarHostState.showSnackbar(marketCtx.getString(ev))
+                viewModel.onAccountDeleteEventShown()
             }
         }
     }

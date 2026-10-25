@@ -832,7 +832,11 @@ class FirestorePetRepository(private val appContext: Context) {
     suspend fun deleteAllUserData(): Result<Unit> {
         val currentUid = auth.currentUser?.uid
             ?: return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
-        return try {
+
+        // STEP 1 - delete the user's Firestore data. A failure here means the
+        // wipe is incomplete, and the Auth account has NOT been touched yet, so
+        // it is reported as an ordinary failure (the user can simply retry).
+        try {
             val userRoot = db.collection("users").document(currentUid)
             // 1. pets + their subcollections + their PUBLIC pet_tags documents
             val pets = userRoot.collection("pets").get().await()
@@ -876,18 +880,42 @@ class FirestorePetRepository(private val appContext: Context) {
             // 7. own lost_pet_alerts (ownerId)
             val lostPetAlerts = db.collection("lost_pet_alerts").whereEqualTo("ownerId", currentUid).get().await()
             for (d in lostPetAlerts.documents) d.reference.delete().await()
-            // 8. the Firebase Auth account itself. Required for a complete deletion,
-            //    so a failure here is reported honestly (Firebase may demand a
-            //    recent login) instead of being swallowed.
-            val user = auth.currentUser
-            if (user == null) {
-                return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
-            }
-            user.delete().await()
-            Result.success(Unit)
         } catch (e: Exception) {
-            Log.e("FirestorePetRepo", "deleteAllUserData failed", e)
-            Result.failure(e)
+            Log.e("FirestorePetRepo", "deleteAllUserData: data deletion failed", e)
+            return Result.failure(e)
         }
+
+        // STEP 2 - delete the Firebase Auth account itself. This is deliberately
+        // a SEPARATE step: if the data is already gone but this fails (Firebase
+        // can demand a recent login, or the network can drop), the account is in
+        // a HALF-DELETED state. Reporting a generic "deletion failed" there is
+        // dishonest and confusing, so we return a distinct
+        // PartialAccountDeletionException that the UI turns into a specific,
+        // actionable message (sign out and back in, or retry).
+        val user = auth.currentUser
+            ?: return Result.failure(
+                PartialAccountDeletionException(
+                    "User data was deleted, but the session ended before the account could be removed."
+                )
+            )
+        try {
+            user.delete().await()
+        } catch (e: Exception) {
+            Log.e("FirestorePetRepo", "deleteAllUserData: Auth account delete failed after data deletion", e)
+            return Result.failure(
+                PartialAccountDeletionException(
+                    "User data was deleted, but the Auth account could not be removed: ${e.message}"
+                )
+            )
+        }
+        return Result.success(Unit)
     }
 }
+
+/**
+ * Thrown when the user's Firestore data was deleted but the Firebase Auth
+ * account itself could not be removed. Kept separate from an ordinary failure
+ * so the UI can tell the user the account is half-deleted and that signing out
+ * and back in (or simply retrying) will finish the job.
+ */
+class PartialAccountDeletionException(message: String = "") : Exception(message)

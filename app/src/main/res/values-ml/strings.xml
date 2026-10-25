@@ -101,6 +101,7 @@
     <string name="partners_email_address">ഇമെയിൽ വിലാസം</string>
     <string name="partners_featured_partner">ഫീച്ചർ ചെയ്ത പങ്കാളി</string>
     <string name="partners_find_my_pet_5km_sos_network">എന്റെ വളർത്തുമൃഗത്തെ കണ്ടെത്തുക — 5 കി.മീ SOS നെറ്റ്‌വർക്ക്</string>
+    <string name="partners_sos_broadcast_desc">നിങ്ങളുടെ പെറ്റ് നഷ്ടപ്പെടുകയോ മോഷ്ടിക്കപ്പെടുകയോ ചെയ്താൽ, അടുത്തുള്ള പെറ്റ് രക്ഷിതാക്കൾക്ക് കുറച്ച് മിനിറ്റുകൾക്കുള്ളിൽ നിങ്ങളുടെ അലറ്റ് എത്തും.</string>
     <string name="partners_food_accessories">ഭക്ഷണവും അനുബന്ധ സാധനങ്ങളും</string>
     <string name="partners_get_featured">ഫീച്ചർ ചെയ്യുക</string>
     <string name="partners_get_featured_top_placement">ഫീച്ചർ ചെയ്യുക — ടോപ്പ് പ്ലേസ്മെന്റ്</string>
@@ -526,11 +527,11 @@
     <string name="price_item_training_name">പരിശീലന സെഷൻ (ഒരു സെഷന്)</string>
     <string name="price_item_training_note">അനുസരണയോ പെരുമാറ്റമോ പരിശീലനം</string>
     <string name="price_item_training_range">₹500 – ₹2,000</string>
-    <string name="verified_badge_id_verified">ഐഡി സ്ഥിരീകരിച്ചു</string>
-    <string name="verified_badge_note">വാഗ്മിയ ഐഡിയും വിലാസവും പരിശോധിച്ചു</string>
+    <string name="verified_badge_id_verified">പരിശോധിച്ചു</string>
+    <string name="verified_badge_note">ഈ പ്രൊഫൈൽ വാഗ്മിയ ടീം പരിശോധിച്ചു</string>
     <string name="verified_become_partner_title">സ്ഥിരീകരിച്ച പങ്കാളിയാകൂ</string>
     <string name="verified_become_partner_desc">ഉപഭോക്തൃ വിശ്വാസവും കൂടുതൽ ബുക്കിംഗുകളും നേടാൻ നിങ്ങളുടെ ഐഡിയും വിലാസവും സ്ഥിരീകരിക്കുക.</string>
-    <string name="admin_verified_provider">സ്ഥിരീകരിച്ച ദാതാവ് (ഐഡി + വിലാസം)</string>
+    <string name="admin_verified_provider">വാഗ്മിയ ടീം പരിശോധിച്ച ദാതാവ് പ്രൊഫൈൽ</string>
     <!-- Privacy & Consent (India DPDP-style) -->
     <string name="consent_title">സ്വകാര്യതയും സമ്മതവും</string>
     <string name="consent_subtitle">തുടരുന്നതിന് മുമ്പ്, വാഗ്മിയ നിങ്ങളുടെ ഡാറ്റ എങ്ങനെ കൈകാര്യം ചെയ്യുന്നു എന്ന് വായിക്കുക.</string>
@@ -541,6 +542,8 @@
     <string name="consent_point_location">ലൊക്കേഷൻ അടുത്തുള്ള സേവനങ്ങൾ കാണിക്കാനും നഷ്ടപ്പെട്ട പെറ്റ് SOS അലേർട്ടിനും മാത്രം ഉപയോഗിക്കുന്നു. പരസ്യങ്ങൾക്കായി ഉപയോഗിക്കുന്നില്ല.</string>
     <string name="consent_point_no_ads">വാഗ്മിയയിൽ പരസ്യങ്ങളില്ല, മൂന്നാം കക്ഷി പരസ്യ ട്രാക്കറുകളുമില്ല.</string>
     <string name="consent_point_delete">എപ്പോൾ വേണമെങ്കിലും ആപ്പിനുള്ളിൽ നിന്ന് നിങ്ങളുടെ അക്കൗണ്ടും ഡാറ്റയും ഇല്ലാതാക്കാം (My Pet &gt; Health &amp; Settings).</string>
+    <string name="account_delete_failed">അക്കൗണ്ട് ഇല്ലാതാക്കൽ പരാജയപ്പെട്ടു. വീണ്ടും ശ്രമിക്കുക.</string>
+    <string name="account_delete_partial_failed">നിങ്ങളുടെ ഡാറ്റ ഇല്ലാതാക്കി, പക്ഷേ അക്കൗണ്ട് നീക്കം ചെയ്യാൻ കഴിഞ്ഞില്ല. സൈൻ ഔട്ട് ചെയ്ത് വീണ്ടും സൈൻ ഇൻ ചെയ്ത ശേഷം വീണ്ടും ശ്രമിക്കുക.</string>
     <string name="consent_privacy_policy_link">പൂർണ്ണ സ്വകാര്യതാ നയം വായിക്കുക</string>
     <string name="consent_agree">ഞാൻ സമ്മതിക്കുന്നു</string>
     <string name="consent_not_now">ഇപ്പോൾ വേണ്ട</string>
@@ -664,20 +667,20 @@
     <string name="care_plan_care_f2">നിങ്ങളുടെ പെറ്റിനായി പരിധിയില്ലാത്ത AI ഫോട്ടോ വിശകലനം</string>
     <string name="care_plan_care_f3" formatted="false">എല്ലാ മാർക്കറ്റ്‍പ്ലേസ് ഓർഡറിനും 10% കിഴിവ്</string>
     <string name="care_plan_care_f4">₹500-ന് മുകളിലുള്ള ഓർഡറുകള്ക് സൗജന്യ ഡെലിവറി</string>
-    <string name="care_plan_care_f5">പ്രയോറിറ്റി SOS - നിങ്ങളുടെ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ് ബൂസ്റ്റ് ചെയ്യുന്നു</string>
+    <string name="care_plan_care_f5">പ്രയോറിറ്റി SOS - നിങ്ങളുടെ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റിൽ ഒരു പ്രയോറിറ്റി ബാഡ്ജ്</string>
     <string name="care_plan_care_f6">എക്സ്ക്ലൂസീവ് പാർട്ണർ ഡീലുകള്</string>
     <string name="care_plan_premium_f1">കെയറിലുള്ളതെല്ലാം</string>
     <string name="care_plan_premium_f2" formatted="false">എല്ലാ മാർക്കറ്റ്‍പ്ലേസ് ഓർഡറിനും 15% കിഴിവ്</string>
     <string name="care_plan_premium_f3">കുറഞ്ഞ ഓർഡർ ഇല്ലാതെ സൗജന്യ ഡെലിവറി</string>
-    <string name="care_plan_premium_f4">ടോപ്പ്-പ്രയോറിറ്റി SOS കൂടാതെ 24x7 ഹെൽപ്പ്‍ലൈൻ</string>
+    <string name="care_plan_premium_f4">പ്രയോറിറ്റി SOS ബാഡ്ജും WhatsApp ഹെൽപ്പ്‌ലൈനും</string>
     <string name="care_plan_premium_f5">നിങ്ങളുടെ പെറ്റിന്റെ വിവരങ്ങളോടെ 1 സൗജന്യ പെറ്റ് QR ടാഗ്</string>
     <string name="care_plan_premium_f6">ഇൻഷുറൻസ് ക്ലെയിം സഹായം</string>
     <string name="care_plan_premium_f7">സമർപ്പിത കെയർ സപ്പോർട്ട്</string>
     <string name="care_subscribe_note">Subscribe ടാപ്പ് ചെയ്യുക, ഞങ്ങളുടെ ടീം WhatsApp-ൽ സ്ഥിരീകരിച്ച് നിങ്ങളുടെ പ്ലാൻ സജീവമാക്കും.</string>
     <string name="care_btn_subscribe">സബ്സ്ക്രൈബ് ചെയ്യുക</string>
     <string name="care_btn_current_plan">നിലവിലെ പ്ലാൻ</string>
-    <string name="care_helpline_title">24x7 പ്രീമിയം ഹെൽപ്പ്‍ലൈൻ</string>
-    <string name="care_helpline_desc">പ്രീമിയം അംഗങ്ങള്ക്ക് എപ്പോൾ വേണമെങ്കിലും WhatsApp-ൽ ഞങ്ങളുടെ കെയർ ടീമിനെ ബന്ധപ്പെടാം.</string>
+    <string name="care_helpline_title">പ്രീമിയം WhatsApp ഹെൽപ്പ്‌ലൈൻ</string>
+    <string name="care_helpline_desc">പ്രീമിയം അംഗങ്ങൾക്ക് സപ്പോർട്ട് സമയങ്ങളിൽ WhatsApp-ൽ ഞങ്ങളുടെ കെയർ ടീമിനെ ബന്ധപ്പെടാം.</string>
     <string name="care_helpline_button">WhatsApp-ൽ ചാറ്റ് ചെയ്യുക</string>
     <string name="care_helpline_message">ഹായ് വാഗ്മിയ! ഞാൻ ഒരു പ്രീമിയം അംഗമാണ്, എന്റെ കെയർ പ്ലാനിൽ സഹായം വേണം.</string>
     <string name="care_incl_triage_title">ലക്ഷണ പരിശോധന</string>
@@ -687,7 +690,7 @@
     <string name="care_incl_delivery_title">ഡെലിവറി</string>
     <string name="care_incl_delivery_desc">കെയർ ₹500-ന് മുകളിലുള്ള ഓർഡറുകള്ക് സൗജന്യ ഡെലിവറി നൽകുന്നു.</string>
     <string name="care_incl_sos_title">പ്രയോറിറ്റി SOS</string>
-    <string name="care_incl_sos_desc">നിങ്ങളുടെ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ് Lost Pet Alerts ഫീഡിൽ ബൂസ്റ്റ് ചെയ്യുന്നു. പ്രീമിയം ടോപ്പ്-പ്രയോറിറ്റി കൈകാര്യവും 24x7 ഹെൽപ്പ്‍ലൈനും നൽകുന്നു.</string>
+    <string name="care_incl_sos_desc">നിങ്ങളുടെ നഷ്ടപ്പെട്ട പെറ്റ് അലറ്റ് Lost Pet Alerts ഫീഡിൽ ഒരു പ്രയോറിറ്റി ബാഡ്ജ് കാണിക്കുന്നു. പ്രീമിയം ഒരു WhatsApp ഹെൽപ്പ്‌ലൈനും നൽകുന്നു.</string>
     <string name="care_incl_qr_title">പെറ്റ് QR ടാഗ്</string>
     <string name="care_incl_qr_desc">എല്ലാ പെറ്റിനും സൗജന്യ ഡിജിറ്റൽ QR ടാഗ് ലഭിക്കും. പ്രീമിയം അംഗങ്ങള്ക്ക് പെറ്റിന്റെ വിവരങ്ങളോടെ ഒരു സൗജന്യ പ്രിന്റ് ചെയ്ത ടാഗും അഭ്യർത്ഥിക്കാം.</string>
     <string name="care_incl_reminders_title">വാക്സിനേഷന് &amp; ഡിവേംമിംഗ് ഓർമ്മപ്പെടുത്തലുകള്</string>
@@ -981,7 +984,7 @@
     <string name="booking_delete_title">ഈ ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യണോ?</string>
     <string name="booking_delete_body">ഈ ബുക്കിംഗ് നിങ്ങളുടെ ലിസ്റ്റിൽ നിന്ന് ശാശ്വതമായി നീക്കം ചെയ്യും. ഇത് പഴയപടിയാക്കാനാകില്ല.</string>
     <string name="booking_delete_action">ബുക്കിംഗ് ഡിലീറ്റ് ചെയ്യുക</string>
-    <string name="partners_connecting_helpline">24/7 പെറ്റ് ഹെൽപ്പ്‌ലൈനിലേക്ക് ബന്ധിപ്പിക്കുന്നു +%1$s</string>
+    <string name="partners_connecting_helpline">വാഗ്മിയ പെറ്റ് ഹെൽപ്പ്‌ലൈനിലേക്ക് ബന്ധിപ്പിക്കുന്നു +%1$s</string>
     <string name="profile_est_monthly_na">ലഭ്യമല്ല</string>
     <string name="admin_search_orders_hint">ഓർഡർ നമ്പർ, പേര്, ഫോൺ, നഗരം തിരയുക</string>
     <string name="admin_filter_all">എല്ലാം</string>

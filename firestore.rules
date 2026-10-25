@@ -304,7 +304,19 @@ service cloud.firestore {
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.rating is int
         && request.resource.data.rating >= 1
-        && request.resource.data.rating <= 5;
+        && request.resource.data.rating <= 5
+        // DELIVERED-ORDER GATE (audit FIX 1): a review may only be created for an
+        // order that really belongs to the caller AND is DELIVERED, not merely
+        // for a product the client claims to own. The review document already
+        // carries orderId, so get() reads that single order document. orderId is
+        // checked to be a non-empty string FIRST so the document path is always
+        // well-formed, and exists() guards the get() so a MISSING order denies
+        // cleanly (false) instead of erroring on a null document.
+        && request.resource.data.orderId is string
+        && request.resource.data.orderId != ''
+        && exists(/databases/$(database)/documents/orders/$(request.resource.data.orderId))
+        && get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.get('ownerId', '') == request.auth.uid
+        && get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.get('status', '') == 'DELIVERED';
       allow delete: if isAdmin();
       allow update: if false;
     }

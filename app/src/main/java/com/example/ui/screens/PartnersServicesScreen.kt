@@ -1062,7 +1062,7 @@ fun FindMyPetSection(
                 }
 
                 Text(
-                    text = "If your pet is lost or stolen, broadcast an instant push notification to all app users within a 5 km radius.",
+                    text = stringResource(R.string.partners_sos_broadcast_desc),
                     fontSize = 12.sp,
                     color = Color(0xFF4A148C)
                 )

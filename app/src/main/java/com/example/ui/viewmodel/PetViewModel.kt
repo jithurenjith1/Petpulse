@@ -9,6 +9,7 @@ import com.petpulse.app.data.model.*
 import com.petpulse.app.data.repository.MarketplaceRepository
 import com.petpulse.app.data.repository.PetRepository
 import com.petpulse.app.data.repository.FirestorePetRepository
+import com.petpulse.app.data.repository.PartialAccountDeletionException
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.flatMapLatest
@@ -234,6 +235,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     private val _commerceEvent = MutableStateFlow<Int?>(null)
     val commerceEvent: StateFlow<Int?> = _commerceEvent.asStateFlow()
     fun onCommerceEventShown() { _commerceEvent.value = null }
+
+    // One-shot feedback for account deletion. Carries a SPECIFIC message so a
+    // half-success (data deleted, Auth account not) is never reported as a
+    // generic failure. R.string id or null.
+    private val _accountDeleteEvent = MutableStateFlow<Int?>(null)
+    val accountDeleteEvent: StateFlow<Int?> = _accountDeleteEvent.asStateFlow()
+    fun onAccountDeleteEventShown() { _accountDeleteEvent.value = null }
 
     // Emits the currently signed-in uid and re-emits whenever the auth state
     // changes (sign-in / sign-out). The commerce repository resolves
@@ -2115,6 +2123,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteAccount(onDone: (Boolean) -> Unit) {
         viewModelScope.launch {
             val result = firestoreRepo.deleteAllUserData()
+            if (!result.isSuccess) {
+                // Distinguish the half-success: data already deleted but the Auth
+                // account could not be removed. The user needs the specific,
+                // actionable message, not a generic failure.
+                _accountDeleteEvent.value = if (result.exceptionOrNull() is PartialAccountDeletionException) {
+                    R.string.account_delete_partial_failed
+                } else {
+                    R.string.account_delete_failed
+                }
+            }
             onDone(result.isSuccess)
         }
     }

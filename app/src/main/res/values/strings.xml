@@ -101,6 +101,7 @@
     <string name="partners_email_address">Email Address</string>
     <string name="partners_featured_partner">Featured Partner</string>
     <string name="partners_find_my_pet_5km_sos_network">Find My Pet — 5km SOS Network</string>
+    <string name="partners_sos_broadcast_desc">If your pet is lost or stolen, your alert is pushed to nearby pet parents within a few minutes.</string>
     <string name="partners_food_accessories">Food &amp; Accessories</string>
     <string name="partners_get_featured">Get Featured</string>
     <string name="partners_get_featured_top_placement">Get Featured — Top Placement</string>
@@ -526,11 +527,11 @@
     <string name="price_item_training_name">Training session (per session)</string>
     <string name="price_item_training_note">Obedience or behaviour session</string>
     <string name="price_item_training_range">₹500 – ₹2,000</string>
-    <string name="verified_badge_id_verified">ID VERIFIED</string>
-    <string name="verified_badge_note">ID and address checked by Wagmiya</string>
+    <string name="verified_badge_id_verified">REVIEWED</string>
+    <string name="verified_badge_note">This profile was reviewed by the Wagmiya team</string>
     <string name="verified_become_partner_title">Become a verified partner</string>
     <string name="verified_become_partner_desc">Get your ID and address verified to earn customer trust and more bookings.</string>
-    <string name="admin_verified_provider">Verified provider (ID + address)</string>
+    <string name="admin_verified_provider">Provider profile reviewed by the Wagmiya team</string>
     <!-- Privacy & Consent (India DPDP-style) -->
     <string name="consent_title">Privacy &amp; Consent</string>
     <string name="consent_subtitle">Before you continue, please read how Wagmiya handles your data.</string>
@@ -541,6 +542,8 @@
     <string name="consent_point_location">Location is used only to show nearby services and for the lost-pet SOS alert. It is not used for advertising.</string>
     <string name="consent_point_no_ads">There are no ads in Wagmiya and no third-party advertising trackers.</string>
     <string name="consent_point_delete">You can delete your account and your data from inside the app at any time (My Pet &gt; Health &amp; Settings).</string>
+    <string name="account_delete_failed">Account deletion failed. Please try again.</string>
+    <string name="account_delete_partial_failed">Your data was deleted, but the account itself could not be removed. Please sign out and back in, then try again.</string>
     <string name="consent_privacy_policy_link">Read the full Privacy Policy</string>
     <string name="consent_agree">I Agree</string>
     <string name="consent_not_now">Not now</string>
@@ -664,20 +667,20 @@
     <string name="care_plan_care_f2">Unlimited AI photo analysis for your pet</string>
     <string name="care_plan_care_f3" formatted="false">10% off every marketplace order</string>
     <string name="care_plan_care_f4">Free delivery on orders above Rs 500</string>
-    <string name="care_plan_care_f5">Priority SOS - your lost-pet alert is boosted</string>
+    <string name="care_plan_care_f5">Priority SOS - a priority badge on your lost-pet alert</string>
     <string name="care_plan_care_f6">Exclusive partner deals</string>
     <string name="care_plan_premium_f1">Everything in Care</string>
     <string name="care_plan_premium_f2" formatted="false">15% off every marketplace order</string>
     <string name="care_plan_premium_f3">Free delivery with no minimum order</string>
-    <string name="care_plan_premium_f4">Top-priority SOS plus a 24x7 helpline</string>
+    <string name="care_plan_premium_f4">Priority SOS badge plus a WhatsApp helpline</string>
     <string name="care_plan_premium_f5">1 free pet QR tag with your pet\'s details</string>
     <string name="care_plan_premium_f6">Insurance claim assistance</string>
     <string name="care_plan_premium_f7">Dedicated care support</string>
     <string name="care_subscribe_note">Tap Subscribe and our team confirms on WhatsApp, then activates your plan.</string>
     <string name="care_btn_subscribe">Subscribe</string>
     <string name="care_btn_current_plan">Current Plan</string>
-    <string name="care_helpline_title">24x7 Premium Helpline</string>
-    <string name="care_helpline_desc">Premium members can reach our care team any time on WhatsApp.</string>
+    <string name="care_helpline_title">Premium WhatsApp Helpline</string>
+    <string name="care_helpline_desc">Premium members can reach our care team on WhatsApp during support hours.</string>
     <string name="care_helpline_button">Chat on WhatsApp</string>
     <string name="care_helpline_message">Hi Wagmiya! I am a Premium member and need help with my care plan.</string>
     <string name="care_incl_triage_title">Symptom Triage</string>
@@ -687,7 +690,7 @@
     <string name="care_incl_delivery_title">Delivery</string>
     <string name="care_incl_delivery_desc">Care gives free delivery on orders above Rs 500. Premium gives free delivery with no minimum order.</string>
     <string name="care_incl_sos_title">Priority SOS</string>
-    <string name="care_incl_sos_desc">Your lost-pet alert is boosted in the Lost Pet Alerts feed. Premium adds top-priority handling and a 24x7 helpline.</string>
+    <string name="care_incl_sos_desc">Your lost-pet alert shows a priority badge in the Lost Pet Alerts feed. Premium adds a WhatsApp helpline.</string>
     <string name="care_incl_qr_title">Pet QR Tag</string>
     <string name="care_incl_qr_desc">Every pet gets a free digital QR tag. Premium members can also request one free printed tag with their pet\'s details.</string>
     <string name="care_incl_reminders_title">Vaccination &amp; Deworming Reminders</string>
@@ -981,7 +984,7 @@
     <string name="booking_delete_title">Delete this booking?</string>
     <string name="booking_delete_body">This booking will be permanently removed from your list. This cannot be undone.</string>
     <string name="booking_delete_action">Delete booking</string>
-    <string name="partners_connecting_helpline">Connecting to 24/7 Pet Helpline +%1$s</string>
+    <string name="partners_connecting_helpline">Connecting to the Wagmiya Pet Helpline +%1$s</string>
     <string name="profile_est_monthly_na">Not available</string>
     <string name="admin_search_orders_hint">Search order no, name, phone, city</string>
     <string name="admin_filter_all">All</string>
