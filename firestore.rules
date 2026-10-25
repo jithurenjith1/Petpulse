@@ -235,9 +235,23 @@ service cloud.firestore {
 
     // ---------- found pet sighting reports (v10: users report, admin connects) ----------
     // CHANGED: read is now admin-only (documents hold the finder's phone number).
+    // CHANGED (Round 3): the LOST-PET OWNER may also read a sighting report that
+    // belongs to THEIR OWN alert, so the owner finally sees that someone spotted
+    // their pet. The report carries `alertId` (written by submitFoundReport()) and
+    // the alert carries `ownerId` (written by postSosAlert() / submitLostPetAlert()),
+    // so the rule reads the linked alert with get() and compares ownerId to the
+    // caller. exists() guards the get() so a missing alert denies cleanly instead
+    // of erroring on a null document, and alertId is checked to be a non-empty
+    // string FIRST so the document path is always well-formed. This stays strictly
+    // owner-scoped: nothing is publicly readable.
     match /found_reports/{reportId} {
       allow create: if isSignedIn();
-      allow read: if isAdmin();
+      allow read: if isAdmin()
+        || (isSignedIn()
+            && resource.data.alertId is string
+            && resource.data.alertId != ''
+            && exists(/databases/$(database)/documents/lost_pet_alerts/$(resource.data.alertId))
+            && get(/databases/$(database)/documents/lost_pet_alerts/$(resource.data.alertId)).data.get('ownerId', '') == request.auth.uid);
       allow delete: if isAdmin();
       allow update: if isAdmin();
     }

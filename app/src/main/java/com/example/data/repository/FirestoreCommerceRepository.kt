@@ -876,7 +876,9 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                                 // Alert coordinates; absent / malformed decodes to 0.0
                                 // ("no usable coordinates"), never a fabricated value.
                                 lat = doc.getDouble("lat") ?: 0.0,
-                                lng = doc.getDouble("lng") ?: 0.0
+                                lng = doc.getDouble("lng") ?: 0.0,
+                                // Owner uid; absent on very old documents decodes to "".
+                                ownerId = doc.getString("ownerId") ?: ""
                             )
                         } catch (e: Exception) {
                             Log.e("FsCommerce", "Skipping malformed lost alert", e)

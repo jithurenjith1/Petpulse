@@ -1095,5 +1095,16 @@
     <string name="report_reason_other">മറ്റുള്ളവ</string>
     <string name="admin_reports_section">റിപ്പോർട്ടുകൾ</string>
     <string name="admin_log_section">അഡ്മിൻ ലോഗ്</string>
+
+    <!-- Round 3: owner sighting list (item 2b) + real order status (item 3b) -->
+    <string name="lostpet_sightings_title">നിങ്ങളുടെ വളർത്തുമൃഗത്തെ കണ്ടതായി റിപ്പോർട്ടുകൾ</string>
+    <string name="lostpet_sightings_empty">ഇതുവരെ ആരും കണ്ടതായി റിപ്പോർട്ട് ചെയ്തിട്ടില്ല.</string>
+    <string name="lostpet_sighting_seen_at">കണ്ട സ്ഥലം</string>
+    <string name="lostpet_sighting_note">കുറിപ്പ്</string>
+    <string name="modals_order_current_status">നിലവിലെ സ്റ്റാറ്റസ്</string>
+    <string name="order_status_new">ഓർഡർ നൽകി</string>
+    <string name="order_status_assigned">ഡെലിവറിക്കായി പുറത്ത്</string>
+    <string name="order_status_delivered">ഡെലിവർ ചെയ്തു</string>
+    <string name="order_status_cancelled">റദ്ദാക്കി</string>
 </resources>
 

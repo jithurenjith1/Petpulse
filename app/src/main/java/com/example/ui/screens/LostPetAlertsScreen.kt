@@ -43,6 +43,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,11 +57,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.petpulse.app.data.model.FoundPetReport
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 // Wagmiya brand colors
 private val CoralPrimary = Color(0xFF6A4C93)
@@ -94,7 +99,10 @@ data class LostPetAlertItem(
     val date: String = "",
     // True when the owner's Care/Premium plan boosted this alert. Defaulted so
     // Firestore toObject() keeps working for documents that predate the field.
-    val priority: Boolean = false
+    val priority: Boolean = false,
+    // The alert owner's uid (Firestore: "ownerId"). Defaulted so older documents
+    // keep decoding. Used to show an owner their own sighting reports.
+    val ownerId: String = ""
 )
 
 /**
@@ -124,6 +132,33 @@ suspend fun fetchLostPetAlertsOnce(
     return snapshot.documents.mapNotNull { it.toObject<LostPetAlertItem>()?.copy(id = it.id) }
 }
 
+/**
+ * The owner's OWN sighting reports for the given alert ids. Firestore rules
+ * only allow reading a found-report when its linked alert belongs to the
+ * signed-in user, so this is scoped to the owner by the rules themselves.
+ * A denied or offline read simply yields nothing rather than crashing.
+ */
+private suspend fun fetchMySightings(alertIds: List<String>): List<FoundPetReport> {
+    if (alertIds.isEmpty()) return emptyList()
+    val db = FirebaseFirestore.getInstance()
+    val out = mutableListOf<FoundPetReport>()
+    for (id in alertIds) {
+        if (id.isBlank()) continue
+        try {
+            val snap = db.collection("found_reports")
+                .whereEqualTo("alertId", id)
+                .get()
+                .await()
+            snap.documents.forEach { doc ->
+                doc.toObject<FoundPetReport>()?.let { out.add(it.copy(id = doc.id)) }
+            }
+        } catch (e: Exception) {
+            // Denied by rules or offline: show nothing rather than crash.
+        }
+    }
+    return out.sortedByDescending { it.createdAt }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LostPetAlertsScreen(
@@ -134,6 +169,21 @@ fun LostPetAlertsScreen(
     // The alerts come from the ViewModel's single shared listener (see
     // PetViewModel.lostPetAlertsUiState) instead of a screen-owned listener.
     var reportingAlert by remember { mutableStateOf<LostPetAlertItem?>(null) }
+
+    // The signed-in user, so an owner can be shown the sightings reported on
+    // THEIR OWN alert. Firestore rules only allow reading a found-report when
+    // its linked alert belongs to this uid.
+    val currentUid = remember { FirebaseAuth.getInstance().currentUser?.uid ?: "" }
+    val ownerAlertIds = (uiState as? LostPetUiState.Success)
+        ?.alerts
+        ?.filter { currentUid.isNotBlank() && it.ownerId == currentUid }
+        ?.map { it.id }
+        ?: emptyList()
+    // Hoisted above the list (never a remember inside a lazy content lambda).
+    var mySightings by remember { mutableStateOf<List<FoundPetReport>>(emptyList()) }
+    LaunchedEffect(ownerAlertIds.joinToString(",")) {
+        mySightings = fetchMySightings(ownerAlertIds)
+    }
 
     MaterialTheme {
         Scaffold(
@@ -188,9 +238,12 @@ fun LostPetAlertsScreen(
                                 item { Spacer(modifier = Modifier.height(4.dp)) }
                                 items(state.alerts) { alert ->
                                     val isFound = foundReports.any { it.alertId == alert.id }
+                                    val isOwner = currentUid.isNotBlank() && alert.ownerId == currentUid
                                     LostPetAlertCard(
                                         alert = alert,
                                         isFound = isFound,
+                                        isOwner = isOwner,
+                                        sightings = if (isOwner) mySightings.filter { it.alertId == alert.id } else emptyList(),
                                         onReport = { reportingAlert = it }
                                     )
                                 }
@@ -216,6 +269,8 @@ fun LostPetAlertsScreen(
 private fun LostPetAlertCard(
     alert: LostPetAlertItem,
     isFound: Boolean,
+    isOwner: Boolean = false,
+    sightings: List<FoundPetReport> = emptyList(),
     onReport: (LostPetAlertItem) -> Unit
 ) {
     val context = LocalContext.current
@@ -354,6 +409,13 @@ private fun LostPetAlertCard(
                 }
             }
 
+            // The OWNER sees the sightings reported on their own alert (empty
+            // state when there are none). Everyone else never sees this.
+            if (isOwner) {
+                Spacer(modifier = Modifier.height(10.dp))
+                SightingList(sightings = sightings)
+            }
+
             Spacer(modifier = Modifier.height(10.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -372,6 +434,58 @@ private fun LostPetAlertCard(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SightingList(sightings: List<FoundPetReport>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(CoralLight.copy(alpha = 0.35f))
+            .padding(12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.lostpet_sightings_title),
+            color = CoralPrimary,
+            fontWeight = FontWeight.Bold,
+            fontSize = 13.sp
+        )
+        if (sightings.isEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.lostpet_sightings_empty),
+                color = DarkText.copy(alpha = 0.7f),
+                fontSize = 12.sp
+            )
+        } else {
+            sightings.forEach { report ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Column {
+                    Text(
+                        text = stringResource(R.string.lostpet_sighting_seen_at) + " " + report.location.ifBlank { "-" },
+                        color = DarkText,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.sp
+                    )
+                    if (report.note.isNotBlank()) {
+                        Text(
+                            text = stringResource(R.string.lostpet_sighting_note) + " " + report.note,
+                            color = DarkText.copy(alpha = 0.75f),
+                            fontSize = 11.sp
+                        )
+                    }
+                    if (report.createdAt > 0) {
+                        Text(
+                            text = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()).format(Date(report.createdAt)),
+                            color = DarkText.copy(alpha = 0.55f),
+                            fontSize = 10.sp
+                        )
+                    }
                 }
             }
         }

@@ -620,7 +620,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                         contactPhone = a.contactPhone,
                         alternatePhone = a.alternatePhone,
                         date = a.date,
-                        priority = a.priority
+                        priority = a.priority,
+                        ownerId = a.ownerId
                     )
                 }
             )
@@ -1072,45 +1073,14 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             customerPhone = phone.ifBlank { _customerProfile.value.phone },
             paymentMethod = paymentMethod,
             isEscrowProtected = false,
-            status = OrderStatus.MERCHANT_CONFIRMED,
+            // A freshly placed order is at the real "NEW" status (shown as
+            // "Order Placed"). The order's status is the single source of truth.
+            status = OrderStatus.NEW,
             deliveryOtp = "",
             deliveryRiderName = "",
             deliveryRiderVehicle = "",
             deliveryRiderPhone = "",
-            orderDate = "Just now",
-            timeline = listOf(
-                OrderTimelineEvent(
-                    title = "Order Placed",
-                    description = "Your order has been received.",
-                    timestamp = "Just now",
-                    isCompleted = true
-                ),
-                OrderTimelineEvent(
-                    title = "Confirmed by $city Partner Hub",
-                    description = "Order accepted and packing started.",
-                    timestamp = "1 min ago",
-                    isCompleted = true,
-                    isCurrent = true
-                ),
-                OrderTimelineEvent(
-                    title = "Packed & Sealed",
-                    description = "Safe transit with tamper-evident packaging.",
-                    timestamp = "Upcoming",
-                    isCompleted = false
-                ),
-                OrderTimelineEvent(
-                    title = "Out for Doorstep Delivery",
-                    description = "Our delivery partner will contact you before arrival.",
-                    timestamp = "Estimated in 45-60 mins",
-                    isCompleted = false
-                ),
-                OrderTimelineEvent(
-                    title = "Delivered",
-                    description = "Please pay the delivery partner in cash on delivery.",
-                    timestamp = "Pending Delivery",
-                    isCompleted = false
-                )
-            )
+            orderDate = "Just now"
         )
 
         val updatedOrders = listOf(newOrder) + _activeOrders.value

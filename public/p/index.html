@@ -115,21 +115,6 @@
     .status.err { color: var(--danger); }
     .center { text-align: center; color: var(--muted); font-size: 14px; }
     .privacy { margin-top: 18px; font-size: 11px; color: var(--muted); text-align: center; line-height: 1.5; }
-    /* Small, unobtrusive monospace block shown only when a load fails. */
-    .diag {
-      margin-top: 14px;
-      padding: 10px 12px;
-      background: #f4f1f7;
-      border: 1px solid var(--outline);
-      border-radius: 10px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
-      font-size: 11px;
-      line-height: 1.45;
-      color: var(--muted);
-      white-space: pre-wrap;
-      word-break: break-all;
-      text-align: left;
-    }
   </style>
 </head>
 <body>
@@ -163,9 +148,6 @@
       </div>
 
       <div class="center" id="error" style="display:none"></div>
-
-      <!-- Diagnostics: shown only when a load fails, so the real cause is visible. -->
-      <pre class="diag" id="diag" style="display:none"></pre>
     </div>
 
     <p class="privacy">
@@ -185,24 +167,30 @@
     //
     // "Notify the owner" creates one document in "tag_scans" (public create).
     //
-    // On any load failure the page now prints the exact request URL, the HTTP
-    // status and the first 300 characters of the response body in a small
-    // monospace block (and to the browser console), so the real cause is visible.
+    // On any load failure the page shows a short, friendly message. It never
+    // prints the request URL or the raw response, so nothing internal leaks to
+    // anyone who opens the page.
     // ---------------------------------------------------------------------
 
     // Project id from app/google-services.json (project_info.project_id).
     var PROJECT_ID = "petz-58515";
 
-    // API key used for the Firestore REST call.
+    // Firebase WEB API key - a public client identifier, NOT a secret.
     //
-    // NOTE: this is the ANDROID key copied from app/google-services.json
-    // (client[0].api_key[0].current_key). If the key is restricted in Google Cloud
-    // with an "Android apps" application restriction it will be rejected when used
-    // from a web page. In that case create a Web app in the Firebase console
-    // (Project settings -> General -> Your apps -> Add app -> Web) and paste the
-    // Web app's apiKey value here. Firebase Web API keys are public client
-    // identifiers, not secrets.
-    var API_KEY = "AIzaSyB-ljDxF2bwPoD95WMnpj0CXXZwUQW5W4w";
+    // PASTE YOUR OWN WEB KEY BELOW. Where to get it:
+    //   Firebase Console -> Project settings -> General -> Your apps
+    //   -> Add app -> Web -> register the app -> copy the "apiKey" value
+    //   from the web app config (firebaseConfig.apiKey).
+    //
+    // Do NOT reuse the ANDROID key from app/google-services.json here. If that
+    // key is restricted to "Android apps" in Google Cloud it is rejected when
+    // used from a web page and the page stops working; and loosening the Android
+    // key's restriction just to make this page work would weaken the Android app.
+    // Use a separate Web key instead.
+    const FIREBASE_WEB_API_KEY = "PASTE_YOUR_FIREBASE_WEB_API_KEY_HERE";
+
+    // API key used for the Firestore REST calls. Uses the WEB key above.
+    var API_KEY = FIREBASE_WEB_API_KEY;
 
     var FIRESTORE = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID +
       "/databases/(default)/documents";
@@ -235,28 +223,6 @@
       e.textContent = msg;
       e.style.display = "block";
     }
-
-    // ---- diagnostics -----------------------------------------------------
-    function bodyPreview(text) {
-      if (text === null || text === undefined || text === "") return "(empty body)";
-      return text.length > 300 ? text.slice(0, 300) + " ... [truncated]" : text;
-    }
-
-    function showDiag(lines) {
-      var d = document.getElementById("diag");
-      if (!d) return;
-      d.textContent = lines.join("\n");
-      d.style.display = "block";
-      try {
-        console.error("[Wagmiya pet tag] " + lines.join(" | "));
-      } catch (e) { /* console may be unavailable */ }
-    }
-
-    function hideDiag() {
-      var d = document.getElementById("diag");
-      if (d) { d.style.display = "none"; d.textContent = ""; }
-    }
-    // ----------------------------------------------------------------------
 
     var currentOwnerUid = "";
 
@@ -304,7 +270,6 @@
     }
 
     function loadPet() {
-      hideDiag();
       var id = tagId();
       if (!id) { showError("This tag link is missing its id."); return; }
 
@@ -312,62 +277,31 @@
 
       fetch(url, { method: "GET" })
         .then(function (r) {
-          // Read the raw body first so we can show it in the diagnostics block.
-          return r.text().then(function (body) {
-            return { status: r.status, ok: r.ok, body: body };
+          if (r.status === 404) {
+            showError("This pet tag was not found. It may have been removed.");
+            return null;
+          }
+          if (!r.ok) {
+            showError("Could not load this tag. Please try again later.");
+            return null;
+          }
+          return r.json().catch(function () {
+            // The response was not valid JSON.
+            showError("Could not load this tag. Please try again later.");
+            return null;
           });
         })
-        .then(function (res) {
-          if (!res.ok) {
-            if (res.status === 404) {
-              showError("This pet tag was not found. It may have been removed.");
-            } else {
-              showError("Could not load this pet tag. Please try again.");
-            }
-            showDiag([
-              "Requested URL: " + url,
-              "HTTP status: " + res.status,
-              "Response body (first 300 chars):",
-              bodyPreview(res.body)
-            ]);
-            return;
-          }
-
-          var doc;
-          try {
-            doc = JSON.parse(res.body);
-          } catch (e) {
-            showError("Could not load this pet tag. Please try again.");
-            showDiag([
-              "Requested URL: " + url,
-              "HTTP status: " + res.status + " (response was not valid JSON)",
-              "Response body (first 300 chars):",
-              bodyPreview(res.body)
-            ]);
-            return;
-          }
-
-          if (!doc || !doc.fields) {
+        .then(function (doc) {
+          if (!doc) return;
+          if (!doc.fields) {
             showError("This pet tag was not found. It may have been removed.");
-            showDiag([
-              "Requested URL: " + url,
-              "HTTP status: " + res.status,
-              "Response body (first 300 chars):",
-              bodyPreview(res.body)
-            ]);
             return;
           }
-
           renderPet(doc.fields);
         })
-        .catch(function (err) {
+        .catch(function () {
           // fetch itself threw: network error, DNS, or a blocked CORS request.
-          showError("Could not load this pet tag. Please try again.");
-          showDiag([
-            "Requested URL: " + url,
-            "HTTP status: (no response - network or CORS error)",
-            "Error: " + (err && err.message ? err.message : String(err))
-          ]);
+          showError("Could not load this tag. Please try again later.");
         });
     }
 
@@ -390,9 +324,7 @@
         body: JSON.stringify({ fields: fields })
       }).then(function (r) {
         if (!r.ok) {
-          return r.text().then(function (body) {
-            throw new Error("http " + r.status + " " + bodyPreview(body));
-          });
+          throw new Error("http " + r.status);
         }
         return r.json();
       });

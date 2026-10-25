@@ -1107,7 +1107,7 @@ fun OrderCardWithTimeline(
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = stringResource(R.string.modals_live_order_timeline),
+                text = stringResource(R.string.modals_order_current_status),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -1115,55 +1115,20 @@ fun OrderCardWithTimeline(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Stepper
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                order.timeline.forEachIndexed { index, event ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (event.isCurrent) Color(0xFF2E7D32)
-                                    else if (event.isCompleted) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.surfaceVariant
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (event.isCompleted) {
-                                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
-                            }
-                        }
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = event.title,
-                                    fontWeight = if (event.isCurrent || event.isCompleted) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = 12.sp,
-                                    color = if (event.isCurrent) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = event.timestamp,
-                                    fontSize = 10.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Text(
-                                text = event.description,
-                                fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
+            // The REAL current status of this order, read straight from the order's
+            // status field. No device-built status progression is shown.
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = orderStatusLabel(order.status),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2E7D32),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -1177,6 +1142,15 @@ fun OrderCardWithTimeline(
             )
         }
     }
+}
+
+/** Human label for an order's REAL status (NEW / ASSIGNED / DELIVERED / CANCELLED). */
+@Composable
+private fun orderStatusLabel(status: OrderStatus): String = when (status) {
+    OrderStatus.NEW -> stringResource(R.string.order_status_new)
+    OrderStatus.ASSIGNED -> stringResource(R.string.order_status_assigned)
+    OrderStatus.DELIVERED -> stringResource(R.string.order_status_delivered)
+    OrderStatus.CANCELLED -> stringResource(R.string.order_status_cancelled)
 }
 
 // ================= 4. FORM FOR PET OWNERS TO LIST PETS =================

@@ -40,7 +40,10 @@ data class AdminLostPetAlert(
     // Defaulted to 0.0 so Firestore reads keep working for older documents that
     // predate the field; 0.0 means "no usable coordinates".
     val lat: Double = 0.0,
-    val lng: Double = 0.0
+    val lng: Double = 0.0,
+    // The alert owner's uid (Firestore: "ownerId"). Defaulted so Firestore reads
+    // keep working for documents that predate the field.
+    val ownerId: String = ""
 )
 
 data class MarketPet(
@@ -151,22 +154,15 @@ data class CartItem(
     val quantity: Int = 1
 )
 
+// The REAL order statuses, matching the Firestore order document's `status`
+// field (NEW / ASSIGNED / DELIVERED / CANCELLED). There is no device-built
+// progression any more: the UI shows only the order's current status.
 enum class OrderStatus {
-    ESCROW_FUNDED,
-    MERCHANT_CONFIRMED,
-    PACKED_DISPATCHED,
-    OUT_FOR_DELIVERY,
-    DELIVERED_RELEASED,
+    NEW,
+    ASSIGNED,
+    DELIVERED,
     CANCELLED
 }
-
-data class OrderTimelineEvent(
-    val title: String,
-    val description: String,
-    val timestamp: String,
-    val isCompleted: Boolean,
-    val isCurrent: Boolean = false
-)
 
 data class EscrowOrder(
     val orderId: String,
@@ -184,13 +180,12 @@ data class EscrowOrder(
     val customerPhone: String,
     val paymentMethod: String, // "Cash on Delivery (COD)" — the app has no online payment SDK
     val isEscrowProtected: Boolean = false,
-    val status: OrderStatus = OrderStatus.OUT_FOR_DELIVERY,
+    val status: OrderStatus = OrderStatus.NEW,
     val deliveryOtp: String = "",
     val deliveryRiderName: String = "",
     val deliveryRiderVehicle: String = "",
     val deliveryRiderPhone: String = "",
-    val orderDate: String,
-    val timeline: List<OrderTimelineEvent>
+    val orderDate: String
 )
 
 data class DoctorBooking(

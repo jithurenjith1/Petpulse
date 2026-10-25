@@ -1095,5 +1095,16 @@
     <string name="report_reason_other">Other</string>
     <string name="admin_reports_section">Reports</string>
     <string name="admin_log_section">Admin Log</string>
+
+    <!-- Round 3: owner sighting list (item 2b) + real order status (item 3b) -->
+    <string name="lostpet_sightings_title">Sightings reported for your pet</string>
+    <string name="lostpet_sightings_empty">No one has reported a sighting yet.</string>
+    <string name="lostpet_sighting_seen_at">Seen at</string>
+    <string name="lostpet_sighting_note">Note</string>
+    <string name="modals_order_current_status">Current status</string>
+    <string name="order_status_new">Order Placed</string>
+    <string name="order_status_assigned">Out for Delivery</string>
+    <string name="order_status_delivered">Delivered</string>
+    <string name="order_status_cancelled">Cancelled</string>
 </resources>
 

@@ -529,45 +529,12 @@ class MarketplaceRepository {
             customerPhone = "+91 98470 12345",
             paymentMethod = "Cash on Delivery (COD)",
             isEscrowProtected = true,
-            status = OrderStatus.OUT_FOR_DELIVERY,
+            status = OrderStatus.ASSIGNED,
             deliveryOtp = "7392",
             deliveryRiderName = "Sreejith K. (Kochi Hub)",
             deliveryRiderVehicle = "KL-07-CB-4412",
             deliveryRiderPhone = "+91 98471 99221",
-            orderDate = "Today, 11:15 AM",
-            timeline = listOf(
-                OrderTimelineEvent(
-                    title = "Order Placed & Escrow Secured",
-                    description = "₹4,810 held securely in Wagmiya Escrow vault.",
-                    timestamp = "11:15 AM",
-                    isCompleted = true
-                ),
-                OrderTimelineEvent(
-                    title = "Confirmed by Kochi Pharmacy Hub",
-                    description = "Inventory verified & batch expiry checked (Exp: Oct 2027).",
-                    timestamp = "11:22 AM",
-                    isCompleted = true
-                ),
-                OrderTimelineEvent(
-                    title = "Packed in Eco-Insulated Box",
-                    description = "Dispatched from Ernakulam Central Logistics Center.",
-                    timestamp = "11:45 AM",
-                    isCompleted = true
-                ),
-                OrderTimelineEvent(
-                    title = "Out for Doorstep Delivery",
-                    description = "Rider Sreejith K. is on the way (KL-07-CB-4412). Share OTP 7392 on arrival.",
-                    timestamp = "12:10 PM",
-                    isCompleted = true,
-                    isCurrent = true
-                ),
-                OrderTimelineEvent(
-                    title = "Delivered & Escrow Released",
-                    description = "Funds will only be released to merchant after OTP verification.",
-                    timestamp = "Estimated 12:45 PM",
-                    isCompleted = false
-                )
-            )
+            orderDate = "Today, 11:15 AM"
         )
     )
 
