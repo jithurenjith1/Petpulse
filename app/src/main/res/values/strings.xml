@@ -190,6 +190,7 @@
     <string name="records_allergy_or_condition">Allergy or condition</string>
     <string name="records_cancel">Cancel</string>
     <string name="records_close">Close</string>
+    <string name="records_coming_soon">Coming soon</string>
     <string name="records_copy_link">Copy Link</string>
     <string name="records_date">Date</string>
     <string name="records_date_given">Date Given</string>
@@ -992,6 +993,9 @@
     <string name="admin_share_orders_csv">Share orders as CSV</string>
     <string name="admin_orders_csv_subject">Wagmiya orders CSV</string>
     <string name="admin_orders_csv_header">Order Number,Date,Customer,Phone,City,Items,Total,Status,Dealer</string>
+    <string name="admin_share_orders_csv_title">Share customer data?</string>
+    <string name="admin_share_orders_csv_body">The CSV file contains customer personal data: names, phone numbers and cities. Please handle it carefully and share it only with people who need it. This cannot be recalled once shared.</string>
+    <string name="admin_share_orders_csv_confirm">Share</string>
     <string name="admin_sales_summary_title">Sales summary</string>
     <string name="admin_summary_today">Today</string>
     <string name="admin_summary_week">This week</string>

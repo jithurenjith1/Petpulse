@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Scale
@@ -81,7 +80,6 @@ fun HealthRecordsHubScreen(
 
     var showAddWeight by remember { mutableStateOf(false) }
     var showAddDeworming by remember { mutableStateOf(false) }
-    var showShare by remember { mutableStateOf(false) }
     var showAddAllergy by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().background(bgColor)) {
@@ -117,8 +115,12 @@ fun HealthRecordsHubScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Weight and deworming entries are NOT persisted (the timeline below is
+                // in-memory only), so these entry points are disabled and labelled
+                // "Coming soon" rather than shipping a non-persisted feature.
                 OutlinedButton(
                     onClick = { showAddWeight = true },
+                    enabled = false,
                     modifier = Modifier.weight(1f).height(44.dp),
                     shape = RoundedCornerShape(10.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, PurplePrimary)
@@ -129,6 +131,7 @@ fun HealthRecordsHubScreen(
                 }
                 OutlinedButton(
                     onClick = { showAddDeworming = true },
+                    enabled = false,
                     modifier = Modifier.weight(1f).height(44.dp),
                     shape = RoundedCornerShape(10.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GreenOk)
@@ -137,8 +140,11 @@ fun HealthRecordsHubScreen(
                     Spacer(Modifier.width(4.dp))
                     Text(stringResource(R.string.records_deworming), fontSize = 11.sp, maxLines = 1)
                 }
+                // Record sharing has no backend; the old dialog showed a fake
+                // "wagmiya.app/records/ABC123" link. Disabled and labelled instead.
                 OutlinedButton(
-                    onClick = { showShare = true },
+                    onClick = { },
+                    enabled = false,
                     modifier = Modifier.weight(1f).height(44.dp),
                     shape = RoundedCornerShape(10.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GoldAccent)
@@ -146,6 +152,12 @@ fun HealthRecordsHubScreen(
                     Text(stringResource(R.string.records_share), fontSize = 11.sp, color = GoldAccent, fontWeight = FontWeight.Bold)
                 }
             }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(R.string.records_coming_soon),
+                color = mutedColor,
+                fontSize = 11.sp
+            )
             Spacer(Modifier.height(20.dp))
 
             // Timeline
@@ -172,9 +184,13 @@ fun HealthRecordsHubScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(stringResource(R.string.records_allergies_conditions), color = textColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                        IconButton(onClick = { showAddAllergy = true }, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Filled.Add, contentDescription = "Add Allergy", tint = GoldAccent, modifier = Modifier.size(20.dp))
-                        }
+                        // Allergy entries are also not persisted yet; shown as "Coming soon"
+                        // instead of a working add button.
+                        Text(
+                            stringResource(R.string.records_coming_soon),
+                            color = mutedColor,
+                            fontSize = 11.sp
+                        )
                     }
                     Spacer(Modifier.height(6.dp))
                     if (allergies.isEmpty()) {
@@ -222,13 +238,6 @@ fun HealthRecordsHubScreen(
                 timeline.add(0, TimelineEntry(EntryType.DEWORMING, "Deworming", d, "$med, next due $next"))
                 showAddDeworming = false
             }
-        )
-    }
-
-    if (showShare) {
-        ShareRecordsDialog(
-            petName = petName,
-            onDismiss = { showShare = false }
         )
     }
 
@@ -404,48 +413,6 @@ private fun AddDewormingDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.records_cancel)) }
-        }
-    )
-}
-
-// ---- Share Records Dialog ----
-@Composable
-private fun ShareRecordsDialog(
-    petName: String,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Share $petName's Records") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(
-                    "A shareable link will be generated. Your vet can view all records without installing the app.",
-                    fontSize = 13.sp
-                )
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Text(
-                        "wagmiya.app/records/ABC123",
-                        fontSize = 12.sp,
-                        color = PurplePrimary,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(10.dp)
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)
-            ) { Text(stringResource(R.string.records_copy_link)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.records_close)) }
         }
     )
 }

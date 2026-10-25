@@ -1104,6 +1104,9 @@ private fun OrdersAdminTab(
 ) {
     var pendingDelete by remember { mutableStateOf<AdminOrder?>(null) }
     var pendingClear by remember { mutableStateOf(false) }
+    // Guards the CSV export: personal customer data must not leave the app
+    // without an explicit confirmation.
+    var pendingCsvExport by remember { mutableStateOf(false) }
     // Search + status filter state is hoisted ABOVE the list, never inside items{}.
     var query by remember { mutableStateOf("") }
     var statusFilter by remember { mutableStateOf("ALL") }
@@ -1153,13 +1156,7 @@ private fun OrdersAdminTab(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = {
-                    shareOrdersCsv(
-                        context = context,
-                        csv = buildOrdersCsv(orders, csvHeader),
-                        subject = csvSubject
-                    )
-                }) {
+                TextButton(onClick = { pendingCsvExport = true }) {
                     Text(stringResource(R.string.admin_share_orders_csv), fontSize = 12.sp, color = Color(0xFF1976D2))
                 }
                 if (finished.isNotEmpty()) {
@@ -1226,6 +1223,30 @@ private fun OrdersAdminTab(
             },
             dismissButton = {
                 TextButton(onClick = { pendingClear = false }) {
+                    Text(stringResource(R.string.admin_cancel))
+                }
+            }
+        )
+    }
+    if (pendingCsvExport) {
+        AlertDialog(
+            onDismissRequest = { pendingCsvExport = false },
+            title = { Text(stringResource(R.string.admin_share_orders_csv_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.admin_share_orders_csv_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    shareOrdersCsv(
+                        context = context,
+                        csv = buildOrdersCsv(orders, csvHeader),
+                        subject = csvSubject
+                    )
+                    pendingCsvExport = false
+                }) {
+                    Text(stringResource(R.string.admin_share_orders_csv_confirm), color = Color(0xFF1976D2))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingCsvExport = false }) {
                     Text(stringResource(R.string.admin_cancel))
                 }
             }
