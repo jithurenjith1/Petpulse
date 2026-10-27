@@ -194,6 +194,11 @@ val appCtx = LocalContext.current
     val reviews by viewModel.reviews.collectAsStateWithLifecycle()
 
     val filteredMarketPets by viewModel.filteredMarketPets.collectAsStateWithLifecycle()
+    // Pet listing filter state lives in the ViewModel (above every lazy container)
+    // and allMarketPets is the listing list BEFORE the breed/price/age/gender
+    // filters, used for the "Showing X of Y" counter.
+    val marketPetFilter by viewModel.marketPetFilter.collectAsStateWithLifecycle()
+    val allMarketPets by viewModel.marketPets.collectAsStateWithLifecycle()
     val marketFoods by viewModel.marketFoodsFiltered.collectAsStateWithLifecycle()
     val foodPetType by viewModel.foodPetType.collectAsStateWithLifecycle()
     val foodKind by viewModel.foodKind.collectAsStateWithLifecycle()
@@ -424,6 +429,9 @@ val appCtx = LocalContext.current
                         speciesFilter = marketSpeciesFilter,
                         onSelectSpeciesFilter = { viewModel.setMarketSpeciesFilter(it) },
                         pets = filteredMarketPets,
+                        petFilter = marketPetFilter,
+                        onPetFilterChange = { viewModel.setMarketPetFilter(it) },
+                        petFilterTotalCount = allMarketPets.size,
                         foods = marketFoods,
                         medicines = marketMedicines,
                         groomingServices = groomingServices,

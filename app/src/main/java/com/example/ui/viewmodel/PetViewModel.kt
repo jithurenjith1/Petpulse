@@ -212,6 +212,15 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val marketPetSpeciesFilter: StateFlow<String> = _marketPetSpeciesFilter.asStateFlow()
     val marketSpeciesFilter: StateFlow<String> = _marketPetSpeciesFilter.asStateFlow()
 
+    /**
+     * Breed / price / age / gender / sort state for the Market pet listings.
+     * It lives HERE in the ViewModel - above every lazy container in the UI - so
+     * no remember(...) is ever needed inside a LazyColumn / LazyRow content
+     * lambda. Applied client-side over the already-loaded listing list.
+     */
+    private val _marketPetFilter = MutableStateFlow(MarketPetFilter())
+    val marketPetFilter: StateFlow<MarketPetFilter> = _marketPetFilter.asStateFlow()
+
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
 
@@ -384,7 +393,17 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             matchesCity && matchesExotic && matchesSpecies
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    val filteredMarketPets: StateFlow<List<MarketPet>> = marketPets
+    /**
+     * [marketPets] narrowed by [marketPetFilter] (breed / price / age / gender)
+     * and ordered by the chosen sort. Still entirely client-side: the same
+     * already-loaded list, no Firestore query change.
+     */
+    val filteredMarketPets: StateFlow<List<MarketPet>> = combine(
+        marketPets,
+        _marketPetFilter
+    ) { pets, filter ->
+        applyMarketPetFilter(pets, filter)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val keralaCities: StateFlow<List<KeralaCity>> = flowOf(marketplaceRepo.getKeralaCities())
         .stateIn(viewModelScope, SharingStarted.Eagerly, marketplaceRepo.getKeralaCities())
@@ -877,6 +896,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setMarketPetSpeciesFilter(species: String) = setMarketSpeciesFilter(species)
+
+    /** Replaces the whole pet-listing filter (the UI sends a copy with one field changed). */
+    fun setMarketPetFilter(filter: MarketPetFilter) {
+        _marketPetFilter.value = filter
+    }
+
+    /** Resets breed / price / age / gender and puts the sort back to newest first. */
+    fun clearMarketPetFilter() {
+        _marketPetFilter.value = MarketPetFilter()
+    }
 
     fun toggleExpressDelivery(enabled: Boolean) {
         _isExpressDelivery.value = enabled
@@ -2292,6 +2321,95 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         deleteCurrentPet()
     }
 
+}
+
+// ===================== PET LISTING FILTER / SORT HELPERS =====================
+// Pure, side-effect free, and CLIENT-SIDE only: they run over the listing list
+// that PetViewModel has already loaded. No Firestore query, index or rule is
+// involved.
+
+/**
+ * Reads a human age string such as "3 Months", "2.5 Months", "6 Months
+ * (Hand-fed)" or "1 year" and returns the age in months, or null when the text
+ * holds no number + unit pair (a listing whose age was typed as free text
+ * without a unit cannot be banded, so it is left out of a specific age band).
+ */
+private fun parsePetAgeMonths(age: String): Double? {
+    val text = age.trim().lowercase()
+    if (text.isEmpty()) return null
+    val match = Regex("(\\d+(?:\\.\\d+)?)").find(text) ?: return null
+    val value = match.groupValues[1].toDoubleOrNull() ?: return null
+    val unitText = text.substring(match.range.last + 1)
+    return when {
+        unitText.contains("year") || unitText.contains("yr") -> value * 12.0
+        unitText.contains("month") || unitText.contains("mon") || unitText.contains("mo") -> value
+        unitText.contains("week") || unitText.contains("wk") -> value / 4.0
+        else -> null
+    }
+}
+
+/** True when [age] falls inside the chosen age band (AGE_BAND_ANY always matches). */
+private fun matchesAgeBand(age: String, band: String): Boolean {
+    if (band == MarketPetFilter.AGE_BAND_ANY) return true
+    val months = parsePetAgeMonths(age) ?: return false
+    return when (band) {
+        MarketPetFilter.AGE_BAND_UNDER_3M -> months < 3.0
+        MarketPetFilter.AGE_BAND_3_TO_12M -> months >= 3.0 && months < 12.0
+        MarketPetFilter.AGE_BAND_1_TO_2Y -> months >= 12.0 && months < 24.0
+        MarketPetFilter.AGE_BAND_2Y_PLUS -> months >= 24.0
+        else -> true
+    }
+}
+
+/**
+ * True when [gender] matches the chosen chip. "female" is checked first so a
+ * "Female" listing is never counted as "Male" (it contains the substring), and
+ * a mixed value such as "Pair (M/F)" matches neither Male nor Female.
+ */
+private fun matchesGenderFilter(gender: String, selected: String): Boolean {
+    if (selected == MarketPetFilter.GENDER_ANY) return true
+    val value = gender.trim().lowercase()
+    if (value.isEmpty()) return false
+    return when (selected) {
+        MarketPetFilter.GENDER_MALE -> value.contains("male") && !value.contains("female")
+        MarketPetFilter.GENDER_FEMALE -> value.contains("female")
+        else -> true
+    }
+}
+
+/** Parses a typed price bound, ignoring spaces, commas and the rupee sign. */
+private fun parsePriceBound(text: String): Double? {
+    val cleaned = text.filter { it.isDigit() || it == '.' }
+    return cleaned.toDoubleOrNull()
+}
+
+/**
+ * Applies [filter] to the already-loaded [pets] list and returns it sorted.
+ * Breed is a case-insensitive contains match; price is the real
+ * MarketPet.priceInr; age is parsed from the free-text age; gender is the
+ * MarketPet.gender string. Newest first sorts on the real MarketPet.createdAt
+ * (epoch millis, written by postListing), and the sort is stable so listings
+ * that share a timestamp keep the order they arrived in.
+ */
+private fun applyMarketPetFilter(pets: List<MarketPet>, filter: MarketPetFilter): List<MarketPet> {
+    val breed = filter.breedQuery.trim()
+    val minPrice = parsePriceBound(filter.minPriceInr)
+    val maxPrice = parsePriceBound(filter.maxPriceInr)
+    val matching = pets.filter { pet ->
+        val matchesBreed = breed.isEmpty() || pet.breed.contains(breed, ignoreCase = true)
+        val matchesMinPrice = minPrice == null || pet.priceInr >= minPrice
+        val matchesMaxPrice = maxPrice == null || pet.priceInr <= maxPrice
+        matchesBreed &&
+            matchesMinPrice &&
+            matchesMaxPrice &&
+            matchesAgeBand(pet.age, filter.ageBand) &&
+            matchesGenderFilter(pet.gender, filter.gender)
+    }
+    return when (filter.sort) {
+        MarketPetFilter.SORT_PRICE_LOW_HIGH -> matching.sortedBy { it.priceInr }
+        MarketPetFilter.SORT_PRICE_HIGH_LOW -> matching.sortedByDescending { it.priceInr }
+        else -> matching.sortedByDescending { it.createdAt }
+    }
 }
 
 

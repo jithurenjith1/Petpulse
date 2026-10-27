@@ -1106,5 +1106,34 @@
     <string name="order_status_assigned">Out for Delivery</string>
     <string name="order_status_delivered">Delivered</string>
     <string name="order_status_cancelled">Cancelled</string>
+    <!-- Pet listing FILTER + SORT bar (Market screen, client-side only) -->
+    <string name="market_pet_filters_title">Filters</string>
+    <string name="market_pet_filter_count">Showing %1$d of %2$d</string>
+    <string name="market_pet_filter_breed">Breed</string>
+    <string name="market_pet_filter_breed_hint">e.g. Husky, Persian</string>
+    <string name="market_pet_filter_price">Price (INR)</string>
+    <string name="market_pet_filter_price_min">Min</string>
+    <string name="market_pet_filter_price_max">Max</string>
+    <string name="market_pet_filter_price_any">Any price</string>
+    <string name="market_pet_filter_price_under_5k">Under 5k</string>
+    <string name="market_pet_filter_price_5k_10k">5k - 10k</string>
+    <string name="market_pet_filter_price_10k_25k">10k - 25k</string>
+    <string name="market_pet_filter_price_25k_plus">25k+</string>
+    <string name="market_pet_filter_age">Age</string>
+    <string name="market_pet_filter_age_any">Any</string>
+    <string name="market_pet_filter_age_under_3m">Under 3 months</string>
+    <string name="market_pet_filter_age_3_12m">3-12 months</string>
+    <string name="market_pet_filter_age_1_2y">1-2 years</string>
+    <string name="market_pet_filter_age_2y_plus">2+ years</string>
+    <string name="market_pet_filter_gender">Gender</string>
+    <string name="market_pet_filter_gender_any">Any</string>
+    <string name="market_pet_filter_gender_male">Male</string>
+    <string name="market_pet_filter_gender_female">Female</string>
+    <string name="market_pet_filter_sort">Sort: %1$s</string>
+    <string name="market_sort_newest">Newest first</string>
+    <string name="market_sort_price_low_high">Price: low to high</string>
+    <string name="market_sort_price_high_low">Price: high to low</string>
+    <string name="market_pet_filters_clear">Clear filters</string>
+    <string name="market_pets_no_match">No pets match these filters</string>
 </resources>
 

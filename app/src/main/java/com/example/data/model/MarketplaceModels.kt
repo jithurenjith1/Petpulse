@@ -76,6 +76,66 @@ data class MarketPet(
     val createdAt: Long = 0L
 )
 
+/**
+ * Client-side FILTER + SORT state for the Market screen's pet listings.
+ *
+ * This is pure UI state: it never reaches Firestore. The listings are already
+ * loaded into PetViewModel, so every filter below is applied in memory over that
+ * loaded list - no query change, no new index, no rules change.
+ *
+ * Every field carries a default so existing constructions keep compiling.
+ * The chip values are canonical English strings (like the existing species /
+ * accessory filters) so the filter logic stays stable while the visible labels
+ * come from strings.xml.
+ */
+data class MarketPetFilter(
+    val breedQuery: String = "",
+    val minPriceInr: String = "",
+    val maxPriceInr: String = "",
+    // The three literals below mirror the constants of the same meaning in the
+    // companion object (a plain literal keeps the default value independent of
+    // any declaration order).
+    val ageBand: String = "Any",
+    val gender: String = "Any",
+    val sort: String = "Newest first"
+) {
+    /** True when at least one listing filter (not the sort) is narrowing the list. */
+    val isActive: Boolean
+        get() = breedQuery.isNotBlank() ||
+            minPriceInr.isNotBlank() ||
+            maxPriceInr.isNotBlank() ||
+            ageBand != AGE_BAND_ANY ||
+            gender != GENDER_ANY
+
+    companion object {
+        const val AGE_BAND_ANY = "Any"
+        const val AGE_BAND_UNDER_3M = "Under 3 months"
+        const val AGE_BAND_3_TO_12M = "3-12 months"
+        const val AGE_BAND_1_TO_2Y = "1-2 years"
+        const val AGE_BAND_2Y_PLUS = "2+ years"
+
+        const val GENDER_ANY = "Any"
+        const val GENDER_MALE = "Male"
+        const val GENDER_FEMALE = "Female"
+
+        const val SORT_NEWEST_FIRST = "Newest first"
+        const val SORT_PRICE_LOW_HIGH = "Price low to high"
+        const val SORT_PRICE_HIGH_LOW = "Price high to low"
+
+        val AGE_BANDS: List<String> = listOf(
+            AGE_BAND_ANY,
+            AGE_BAND_UNDER_3M,
+            AGE_BAND_3_TO_12M,
+            AGE_BAND_1_TO_2Y,
+            AGE_BAND_2Y_PLUS
+        )
+
+        val GENDERS: List<String> = listOf(GENDER_ANY, GENDER_MALE, GENDER_FEMALE)
+
+        val SORTS: List<String> = listOf(SORT_NEWEST_FIRST, SORT_PRICE_LOW_HIGH, SORT_PRICE_HIGH_LOW)
+    }
+}
+
 data class MarketProduct(
     val id: String,
     val name: String,

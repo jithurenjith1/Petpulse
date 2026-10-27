@@ -1106,5 +1106,34 @@
     <string name="order_status_assigned">ഡെലിവറിക്കായി പുറത്ത്</string>
     <string name="order_status_delivered">ഡെലിവർ ചെയ്തു</string>
     <string name="order_status_cancelled">റദ്ദാക്കി</string>
+    <!-- Pet listing FILTER + SORT bar (Market screen, client-side only) -->
+    <string name="market_pet_filters_title">ഫിൽട്ടറുകൾ</string>
+    <string name="market_pet_filter_count">%2$d-ൽ %1$d എണ്ണം കാണിക്കുന്നു</string>
+    <string name="market_pet_filter_breed">ഇനം</string>
+    <string name="market_pet_filter_breed_hint">ഉദാ: ഹസ്കി, പേർഷ്യൻ</string>
+    <string name="market_pet_filter_price">വില (INR)</string>
+    <string name="market_pet_filter_price_min">കുറഞ്ഞത്</string>
+    <string name="market_pet_filter_price_max">കൂടിയത്</string>
+    <string name="market_pet_filter_price_any">ഏതു വിലയും</string>
+    <string name="market_pet_filter_price_under_5k">5k-ൽ താഴെ</string>
+    <string name="market_pet_filter_price_5k_10k">5k - 10k</string>
+    <string name="market_pet_filter_price_10k_25k">10k - 25k</string>
+    <string name="market_pet_filter_price_25k_plus">25k-ന് മുകളിൽ</string>
+    <string name="market_pet_filter_age">പ്രായം</string>
+    <string name="market_pet_filter_age_any">എല്ലാം</string>
+    <string name="market_pet_filter_age_under_3m">3 മാസത്തിൽ താഴെ</string>
+    <string name="market_pet_filter_age_3_12m">3-12 മാസം</string>
+    <string name="market_pet_filter_age_1_2y">1-2 വർഷം</string>
+    <string name="market_pet_filter_age_2y_plus">2 വർഷത്തിന് മുകളിൽ</string>
+    <string name="market_pet_filter_gender">ലിംഗം</string>
+    <string name="market_pet_filter_gender_any">എല്ലാം</string>
+    <string name="market_pet_filter_gender_male">ആൺ</string>
+    <string name="market_pet_filter_gender_female">പെൺ</string>
+    <string name="market_pet_filter_sort">ക്രമം: %1$s</string>
+    <string name="market_sort_newest">പുതിയത് ആദ്യം</string>
+    <string name="market_sort_price_low_high">വില: കുറഞ്ഞത് മുതൽ</string>
+    <string name="market_sort_price_high_low">വില: കൂടിയത് മുതൽ</string>
+    <string name="market_pet_filters_clear">ഫിൽട്ടറുകൾ മായ്ക്കുക</string>
+    <string name="market_pets_no_match">ഈ ഫിൽട്ടറുകളുമായി പൊരുത്തപ്പെടുന്ന വളർത്തുമൃഗങ്ങളില്ല</string>
 </resources>
 

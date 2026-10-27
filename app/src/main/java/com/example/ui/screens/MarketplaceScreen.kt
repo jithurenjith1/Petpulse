@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -153,6 +155,14 @@ fun MarketplaceScreen(
     reviews: List<Review> = emptyList(),
     myOrders: List<AdminOrder> = emptyList(),
     onSubmitReview: (MarketProduct, Int, String, String) -> Unit = { _, _, _, _ -> },
+    // Breed / price / age / gender / sort state for the pet listings. It is owned
+    // by PetViewModel (hoisted above every lazy container) and passed in here, so
+    // no remember(...) is ever needed inside a LazyColumn / LazyRow content lambda.
+    petFilter: MarketPetFilter = MarketPetFilter(),
+    onPetFilterChange: (MarketPetFilter) -> Unit = {},
+    // Listings available BEFORE the breed / price / age / gender filters, used for
+    // the honest "Showing 6 of 24" counter.
+    petFilterTotalCount: Int = 0,
     modifier: Modifier = Modifier
 ) {
     var listingToDelete by remember { mutableStateOf<MarketPet?>(null) }
@@ -182,6 +192,9 @@ fun MarketplaceScreen(
     val filteredFoods = remember(foods, marketSearchQuery) { filterMarketProducts(foods, marketSearchQuery) }
     val filteredMedicines = remember(medicines, marketSearchQuery) { filterMarketProducts(medicines, marketSearchQuery) }
     val filteredAccessories = remember(accessoryProducts, marketSearchQuery) { filterMarketProducts(accessoryProducts, marketSearchQuery) }
+    // Sort dropdown open/closed state for the pet listing filter bar. HOISTED here,
+    // above the LazyColumn, so no remember(...) lives inside a lazy content lambda.
+    var petSortMenuExpanded by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
     if (currentCategory == MarketplaceCategory.ACCESSORIES) {
@@ -321,9 +334,40 @@ fun MarketplaceScreen(
                     )
                 }
 
+                // Breed / price / age / gender / sort bar for the pet listings. Every
+                // value it shows comes from PetViewModel (or is hoisted at the top of
+                // this screen) - nothing is remembered inside this lazy content lambda.
+                item {
+                    PetListingFilterBar(
+                        filter = petFilter,
+                        onFilterChange = onPetFilterChange,
+                        shownCount = pets.size,
+                        totalCount = maxOf(petFilterTotalCount, pets.size),
+                        sortMenuExpanded = petSortMenuExpanded,
+                        onSortMenuExpandedChange = { petSortMenuExpanded = it },
+                        onClearFilters = {
+                            onPetFilterChange(MarketPetFilter())
+                            onToggleExotics(false)
+                            onSelectSpeciesFilter("All")
+                        }
+                    )
+                }
+
                 if (pets.isEmpty()) {
                     item {
-                        if (!isExoticsOnly && speciesFilter == "All") {
+                        if (petFilter.isActive) {
+                            // Honest empty state: listings exist for this region /
+                            // species, but none match the filters just applied.
+                            EmptyMarketState(
+                                message = stringResource(R.string.market_pets_no_match),
+                                actionLabel = stringResource(R.string.market_pet_filters_clear),
+                                onAction = {
+                                    onPetFilterChange(MarketPetFilter())
+                                    onToggleExotics(false)
+                                    onSelectSpeciesFilter("All")
+                                }
+                            )
+                        } else if (!isExoticsOnly && speciesFilter == "All") {
                             EmptyMarketState(
                                 message = stringResource(R.string.market_empty_no_listings),
                                 actionLabel = stringResource(R.string.market_empty_action_post),
@@ -1093,6 +1137,242 @@ fun PetListingsHeader(
                         color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                     )
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PetFilterChipRow(
+    label: String,
+    options: List<Pair<String, Int>>,
+    selected: String,
+    onSelect: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            items(options) { option ->
+                val value = option.first
+                val labelRes = option.second
+                FilterChip(
+                    selected = selected == value,
+                    onClick = { onSelect(value) },
+                    label = { Text(stringResource(labelRes), fontSize = 11.sp) }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * The pet-listing FILTER + SORT bar shown above the listing cards.
+ *
+ * Every piece of state it renders - the filter itself and whether the sort menu
+ * is open - is passed in from above (PetViewModel + the top of MarketplaceScreen),
+ * so this composable remembers nothing and is safe to call from inside a
+ * LazyColumn item. All filtering happens client-side over the already-loaded
+ * listings.
+ */
+@Composable
+private fun PetListingFilterBar(
+    filter: MarketPetFilter,
+    onFilterChange: (MarketPetFilter) -> Unit,
+    shownCount: Int,
+    totalCount: Int,
+    sortMenuExpanded: Boolean,
+    onSortMenuExpandedChange: (Boolean) -> Unit,
+    onClearFilters: () -> Unit
+) {
+    val ageOptions = listOf(
+        MarketPetFilter.AGE_BAND_ANY to R.string.market_pet_filter_age_any,
+        MarketPetFilter.AGE_BAND_UNDER_3M to R.string.market_pet_filter_age_under_3m,
+        MarketPetFilter.AGE_BAND_3_TO_12M to R.string.market_pet_filter_age_3_12m,
+        MarketPetFilter.AGE_BAND_1_TO_2Y to R.string.market_pet_filter_age_1_2y,
+        MarketPetFilter.AGE_BAND_2Y_PLUS to R.string.market_pet_filter_age_2y_plus
+    )
+    val genderOptions = listOf(
+        MarketPetFilter.GENDER_ANY to R.string.market_pet_filter_gender_any,
+        MarketPetFilter.GENDER_MALE to R.string.market_pet_filter_gender_male,
+        MarketPetFilter.GENDER_FEMALE to R.string.market_pet_filter_gender_female
+    )
+    // Preset price bands: label, min bound, max bound (blank = open ended).
+    val pricePresets = listOf(
+        Triple(R.string.market_pet_filter_price_any, "", ""),
+        Triple(R.string.market_pet_filter_price_under_5k, "", "5000"),
+        Triple(R.string.market_pet_filter_price_5k_10k, "5000", "10000"),
+        Triple(R.string.market_pet_filter_price_10k_25k, "10000", "25000"),
+        Triple(R.string.market_pet_filter_price_25k_plus, "25000", "")
+    )
+    val sortOptions = listOf(
+        MarketPetFilter.SORT_NEWEST_FIRST to R.string.market_sort_newest,
+        MarketPetFilter.SORT_PRICE_LOW_HIGH to R.string.market_sort_price_low_high,
+        MarketPetFilter.SORT_PRICE_HIGH_LOW to R.string.market_sort_price_high_low
+    )
+    val sortLabelRes = sortOptions.firstOrNull { it.first == filter.sort }?.second
+        ?: R.string.market_sort_newest
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .testTag("pet_listing_filter_bar"),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.market_pet_filters_title),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.market_pet_filter_count, shownCount, totalCount),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // BREED - case-insensitive contains match on MarketPet.breed.
+            OutlinedTextField(
+                value = filter.breedQuery,
+                onValueChange = { onFilterChange(filter.copy(breedQuery = it)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("pet_filter_breed_field"),
+                label = { Text(stringResource(R.string.market_pet_filter_breed), fontSize = 12.sp) },
+                placeholder = { Text(stringResource(R.string.market_pet_filter_breed_hint), fontSize = 12.sp) },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            // PRICE - min / max over the real MarketPet.priceInr field.
+            Text(
+                text = stringResource(R.string.market_pet_filter_price),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = filter.minPriceInr,
+                    onValueChange = { onFilterChange(filter.copy(minPriceInr = it)) },
+                    modifier = Modifier.weight(1f),
+                    label = { Text(stringResource(R.string.market_pet_filter_price_min), fontSize = 12.sp) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = filter.maxPriceInr,
+                    onValueChange = { onFilterChange(filter.copy(maxPriceInr = it)) },
+                    modifier = Modifier.weight(1f),
+                    label = { Text(stringResource(R.string.market_pet_filter_price_max), fontSize = 12.sp) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(pricePresets) { preset ->
+                    val labelRes = preset.first
+                    val presetMin = preset.second
+                    val presetMax = preset.third
+                    val isSelected = filter.minPriceInr == presetMin && filter.maxPriceInr == presetMax
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            onFilterChange(filter.copy(minPriceInr = presetMin, maxPriceInr = presetMax))
+                        },
+                        label = { Text(stringResource(labelRes), fontSize = 11.sp) }
+                    )
+                }
+            }
+
+            PetFilterChipRow(
+                label = stringResource(R.string.market_pet_filter_age),
+                options = ageOptions,
+                selected = filter.ageBand,
+                onSelect = { onFilterChange(filter.copy(ageBand = it)) }
+            )
+
+            PetFilterChipRow(
+                label = stringResource(R.string.market_pet_filter_gender),
+                options = genderOptions,
+                selected = filter.gender,
+                onSelect = { onFilterChange(filter.copy(gender = it)) }
+            )
+
+            // SORT + CLEAR
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box {
+                    TextButton(onClick = { onSortMenuExpandedChange(true) }) {
+                        Text(
+                            text = stringResource(R.string.market_pet_filter_sort, stringResource(sortLabelRes)),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = sortMenuExpanded,
+                        onDismissRequest = { onSortMenuExpandedChange(false) }
+                    ) {
+                        sortOptions.forEach { option ->
+                            val value = option.first
+                            val labelRes = option.second
+                            DropdownMenuItem(
+                                text = { Text(stringResource(labelRes), fontSize = 13.sp) },
+                                onClick = {
+                                    onSortMenuExpandedChange(false)
+                                    onFilterChange(filter.copy(sort = value))
+                                }
+                            )
+                        }
+                    }
+                }
+                TextButton(onClick = onClearFilters) {
+                    Text(
+                        text = stringResource(R.string.market_pet_filters_clear),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
