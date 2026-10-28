@@ -72,6 +72,12 @@ data class MarketPet(
     // Defaulted so Firestore toObject() keeps working for listings that predate
     // this field.
     val photoUrls: List<String> = emptyList(),
+    // Raw base64 JPEG payloads exactly as stored in Firestore ("photoData").
+    // The repository normally turns these into local cache files (photoUris); the
+    // payload is kept here as the LAST-RESORT fallback so a listing whose photo
+    // exists only as base64 still renders instead of showing a blank box.
+    // Defaulted so every existing construction keeps compiling.
+    val photoData: List<String> = emptyList(),
     val ownerId: String = "",
     val createdAt: Long = 0L
 )
@@ -97,7 +103,11 @@ data class MarketPetFilter(
     // any declaration order).
     val ageBand: String = "Any",
     val gender: String = "Any",
-    val sort: String = "Newest first"
+    val sort: String = "Newest first",
+    // Pet SEGMENT. Empty string = every listing (All); otherwise it holds the
+    // exact MarketPet.listingType value written by postListing(), i.e. "Sale" or
+    // "Adoption". Defaulted to "" so existing constructions mean "All".
+    val listingType: String = ""
 ) {
     /** True when at least one listing filter (not the sort) is narrowing the list. */
     val isActive: Boolean
@@ -105,7 +115,8 @@ data class MarketPetFilter(
             minPriceInr.isNotBlank() ||
             maxPriceInr.isNotBlank() ||
             ageBand != AGE_BAND_ANY ||
-            gender != GENDER_ANY
+            gender != GENDER_ANY ||
+            listingType.isNotBlank()
 
     companion object {
         const val AGE_BAND_ANY = "Any"
@@ -121,6 +132,18 @@ data class MarketPetFilter(
         const val SORT_NEWEST_FIRST = "Newest first"
         const val SORT_PRICE_LOW_HIGH = "Price low to high"
         const val SORT_PRICE_HIGH_LOW = "Price high to low"
+
+        // SEGMENT values. They are the REAL MarketPet.listingType literals that
+        // postListing() writes to Firestore, so the filter never invents a value.
+        const val LISTING_TYPE_ALL = ""
+        const val LISTING_TYPE_SALE = "Sale"
+        const val LISTING_TYPE_ADOPTION = "Adoption"
+
+        val LISTING_TYPES: List<String> = listOf(
+            LISTING_TYPE_ALL,
+            LISTING_TYPE_SALE,
+            LISTING_TYPE_ADOPTION
+        )
 
         val AGE_BANDS: List<String> = listOf(
             AGE_BAND_ANY,

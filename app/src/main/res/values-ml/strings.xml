@@ -1134,6 +1134,12 @@
     <string name="market_sort_price_low_high">വില: കുറഞ്ഞത് മുതൽ</string>
     <string name="market_sort_price_high_low">വില: കൂടിയത് മുതൽ</string>
     <string name="market_pet_filters_clear">ഫിൽട്ടറുകൾ മായ്ക്കുക</string>
+    <string name="market_pet_segment_title">ലിസ്റ്റിംഗ് വിഭാഗം</string>
+    <string name="market_pet_segment_all">എല്ലാം</string>
+    <string name="market_pet_segment_sale">വിൽപ്പനയ്ക്ക്</string>
+    <string name="market_pet_segment_adoption">ദത്തെടുക്കാൻ</string>
+    <string name="market_pet_segment_count">%2$d-ൽ %1$d എണ്ണം കാണിക്കുന്നു</string>
+    <string name="market_pet_photo_placeholder">ഫോട്ടോ ഇല്ല</string>
     <string name="market_pets_no_match">ഈ ഫിൽട്ടറുകളുമായി പൊരുത്തപ്പെടുന്ന വളർത്തുമൃഗങ്ങളില്ല</string>
 </resources>
 

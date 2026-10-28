@@ -1134,6 +1134,12 @@
     <string name="market_sort_price_low_high">Price: low to high</string>
     <string name="market_sort_price_high_low">Price: high to low</string>
     <string name="market_pet_filters_clear">Clear filters</string>
+    <string name="market_pet_segment_title">Listing segment</string>
+    <string name="market_pet_segment_all">All</string>
+    <string name="market_pet_segment_sale">For Sale</string>
+    <string name="market_pet_segment_adoption">Adoption</string>
+    <string name="market_pet_segment_count">Showing %1$d of %2$d</string>
+    <string name="market_pet_photo_placeholder">No photo</string>
     <string name="market_pets_no_match">No pets match these filters</string>
 </resources>
 

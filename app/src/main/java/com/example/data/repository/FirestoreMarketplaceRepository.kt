@@ -67,8 +67,11 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
 
     private fun toMarketPet(doc: DocumentSnapshot): MarketPet? {
         return try {
-            val photoData = (doc.get("photoData") as? List<*>)?.filterIsInstance<String>().orEmpty()
-            val photoUrls = (doc.get("photoUrls") as? List<*>)?.filterIsInstance<String>().orEmpty()
+            val photoData = readBase64Photos(doc)
+            val photoUrls = (doc.get("photoUrls") as? List<*>)
+                ?.filterIsInstance<String>()
+                ?.filter { it.isNotBlank() }
+                .orEmpty()
             MarketPet(
                 id = doc.id,
                 name = doc.getString("name") ?: return null,
@@ -93,12 +96,33 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
                 photoUris = photoData.mapIndexed { i, b64 -> photoFileFor(doc.id, i, b64) }
                     .filter { it.isNotBlank() },
                 photoUrls = photoUrls,
+                // Kept on the model as the last-resort fallback: if the cache file
+                // above could not be written the card can still decode the payload.
+                photoData = photoData,
                 ownerId = doc.getString("ownerId") ?: "",
                 createdAt = doc.getLong("createdAt") ?: 0L
             )
         } catch (e: Exception) {
             Log.e("FsMarketRepo", "Skipping malformed listing ${doc.id}", e)
             null
+        }
+    }
+
+    /**
+     * Reads the base64 photo payloads of a listing document.
+     *
+     * postListing() stores a LIST of base64 JPEGs under "photoData", but older
+     * documents in the same collection stored a single base64 STRING under the
+     * same key. The old read only accepted a List, so every one of those legacy
+     * listings came back with NO photo at all (photoUrls was empty because the
+     * Cloudinary upload path did not exist yet, and photoUris stayed empty
+     * because photoData could not be parsed). Both shapes are accepted now.
+     */
+    private fun readBase64Photos(doc: DocumentSnapshot): List<String> {
+        return when (val raw = doc.get("photoData")) {
+            is List<*> -> raw.filterIsInstance<String>().filter { it.isNotBlank() }
+            is String -> if (raw.isBlank()) emptyList() else listOf(raw)
+            else -> emptyList()
         }
     }
 

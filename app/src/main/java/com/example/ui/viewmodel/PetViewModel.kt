@@ -394,8 +394,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     /**
-     * [marketPets] narrowed by [marketPetFilter] (breed / price / age / gender)
-     * and ordered by the chosen sort. Still entirely client-side: the same
+     * [marketPets] narrowed by [marketPetFilter] (segment / breed / price / age /
+     * gender) and ordered by the chosen sort. Still entirely client-side: the same
      * already-loaded list, no Firestore query change.
      */
     val filteredMarketPets: StateFlow<List<MarketPet>> = combine(
@@ -902,7 +902,10 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         _marketPetFilter.value = filter
     }
 
-    /** Resets breed / price / age / gender and puts the sort back to newest first. */
+    /**
+     * Resets the segment, breed / price / age / gender and puts the sort back to
+     * newest first (a fresh MarketPetFilter carries every default).
+     */
     fun clearMarketPetFilter() {
         _marketPetFilter.value = MarketPetFilter()
     }
@@ -2387,7 +2390,9 @@ private fun parsePriceBound(text: String): Double? {
  * Applies [filter] to the already-loaded [pets] list and returns it sorted.
  * Breed is a case-insensitive contains match; price is the real
  * MarketPet.priceInr; age is parsed from the free-text age; gender is the
- * MarketPet.gender string. Newest first sorts on the real MarketPet.createdAt
+ * MarketPet.gender string; the segment is the real MarketPet.listingType
+ * ("Sale" / "Adoption", blank = every listing). Newest first sorts on the real
+ * MarketPet.createdAt
  * (epoch millis, written by postListing), and the sort is stable so listings
  * that share a timestamp keep the order they arrived in.
  */
@@ -2399,9 +2404,14 @@ private fun applyMarketPetFilter(pets: List<MarketPet>, filter: MarketPetFilter)
         val matchesBreed = breed.isEmpty() || pet.breed.contains(breed, ignoreCase = true)
         val matchesMinPrice = minPrice == null || pet.priceInr >= minPrice
         val matchesMaxPrice = maxPrice == null || pet.priceInr <= maxPrice
+        // SEGMENT: blank means "All". Compared case-insensitively against the real
+        // MarketPet.listingType so a hand-typed document value still matches.
+        val matchesListingType = filter.listingType.isBlank() ||
+            pet.listingType.trim().equals(filter.listingType.trim(), ignoreCase = true)
         matchesBreed &&
             matchesMinPrice &&
             matchesMaxPrice &&
+            matchesListingType &&
             matchesAgeBand(pet.age, filter.ageBand) &&
             matchesGenderFilter(pet.gender, filter.gender)
     }

@@ -1,7 +1,10 @@
 package com.petpulse.app.ui.screens
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Base64
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
@@ -325,6 +328,19 @@ fun MarketplaceScreen(
         // 4. Dynamic Content based on selected Category
         when (currentCategory) {
             MarketplaceCategory.PET_LISTINGS -> {
+                // SEGMENT selector (All / For Sale / Adoption). It writes into the
+                // SAME MarketPetFilter the breed / price / age / gender bar uses, so
+                // the segment composes with those filters and "Clear filters" (a
+                // fresh MarketPetFilter) resets it too.
+                item {
+                    PetListingSegmentSelector(
+                        filter = petFilter,
+                        onFilterChange = onPetFilterChange,
+                        shownCount = pets.size,
+                        totalCount = maxOf(petFilterTotalCount, pets.size)
+                    )
+                }
+
                 item {
                     PetListingsHeader(
                         isExoticsOnly = isExoticsOnly,
@@ -1045,6 +1061,85 @@ fun MarketplaceCategorySelector(
     }
 }
 
+/**
+ * SEGMENT selector shown at the top of the pet listing section.
+ *
+ * It filters on the REAL MarketPet.listingType field, whose values are exactly
+ * "Sale" and "Adoption" (written by ListPetFormModal -> postListing). The empty
+ * value means "All". The choice lives in MarketPetFilter, so it composes with
+ * the breed / price / age / gender filters below it and is reset by "Clear
+ * filters" (which installs a fresh MarketPetFilter).
+ *
+ * State is passed in from above - nothing is remembered here, so this is safe
+ * to call from a LazyColumn item.
+ */
+@Composable
+private fun PetListingSegmentSelector(
+    filter: MarketPetFilter,
+    onFilterChange: (MarketPetFilter) -> Unit,
+    shownCount: Int,
+    totalCount: Int
+) {
+    val segments = listOf(
+        MarketPetFilter.LISTING_TYPE_ALL to R.string.market_pet_segment_all,
+        MarketPetFilter.LISTING_TYPE_SALE to R.string.market_pet_segment_sale,
+        MarketPetFilter.LISTING_TYPE_ADOPTION to R.string.market_pet_segment_adoption
+    )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .testTag("pet_listing_segment_selector"),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.market_pet_segment_title),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.market_pet_segment_count, shownCount, totalCount),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(segments) { segment ->
+                    val value = segment.first
+                    val labelRes = segment.second
+                    val isSelected = filter.listingType == value
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onFilterChange(filter.copy(listingType = value)) },
+                        label = {
+                            Text(
+                                text = stringResource(labelRes),
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun PetListingsHeader(
     isExoticsOnly: Boolean,
@@ -1378,6 +1473,34 @@ private fun PetListingFilterBar(
     }
 }
 
+/**
+ * Every usable image of a listing, in the order the card must try them:
+ *
+ *  1. photoUrls - hosted Cloudinary URLs written by postListing().
+ *  2. photoUris - local cache files the repository decoded from base64.
+ *  3. photoData - the raw base64 JPEGs, decoded here as the LAST resort.
+ *
+ * Blank entries are skipped, so a document that stored an empty string under
+ * photoUrls can no longer swallow the real photo that sits in photoUris.
+ */
+private fun resolveMarketPetPhotos(pet: MarketPet): List<Any> {
+    val urls = pet.photoUrls.filter { it.isNotBlank() }
+    if (urls.isNotEmpty()) return urls
+    val uris = pet.photoUris.filter { it.isNotBlank() }
+    if (uris.isNotEmpty()) return uris
+    return pet.photoData.filter { it.isNotBlank() }.mapNotNull { decodeMarketPhoto(it) }
+}
+
+/** Decodes one base64 JPEG payload into a Bitmap Coil can render, or null when invalid. */
+private fun decodeMarketPhoto(base64: String): Bitmap? {
+    return try {
+        val bytes = Base64.decode(base64, Base64.NO_WRAP)
+        if (bytes.isEmpty()) null else BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    } catch (e: IllegalArgumentException) {
+        null
+    }
+}
+
 @Composable
 fun MarketPetCard(
     pet: MarketPet,
@@ -1386,8 +1509,13 @@ fun MarketPetCard(
     onDelete: () -> Unit = {},
     onReport: () -> Unit = {}
 ) {
-    // Cloudinary URLs first; fall back to the base64-decoded local files.
-    val petPhotos = if (pet.photoUrls.isNotEmpty()) pet.photoUrls else pet.photoUris
+    // Resolved ONCE per listing, in the real precedence order: photoUrls
+    // (Cloudinary) -> photoUris (local files) -> decoded photoData (base64).
+    // The remember(...) lives in this composable's body, never in a lazy content
+    // lambda.
+    val petPhotos = remember(pet.id, pet.photoUrls, pet.photoUris, pet.photoData) {
+        resolveMarketPetPhotos(pet)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1421,16 +1549,13 @@ fun MarketPetCard(
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
-                        Text(
-                            text = when (pet.species.lowercase()) {
-                                "dog" -> "🐶"
-                                "cat" -> "🐱"
-                                "bird" -> "🦜"
-                                "reptile" -> "🦎"
-                                "rabbit" -> "🐰"
-                                else -> "🐾"
-                            },
-                            fontSize = 24.sp
+                        // Clean placeholder on the soft tinted box - never a blank
+                        // white space and never a broken image.
+                        Icon(
+                            imageVector = Icons.Default.Pets,
+                            contentDescription = stringResource(R.string.market_pet_photo_placeholder),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
