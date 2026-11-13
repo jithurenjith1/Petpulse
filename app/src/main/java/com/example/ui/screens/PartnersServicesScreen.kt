@@ -75,6 +75,8 @@ fun PartnersServicesScreen(
     var showPartnerCategoryMenu by remember { mutableStateOf(false) }
     var showFeaturedPlansDialog by remember { mutableStateOf(false) }
     var sitterToBook by remember { mutableStateOf<BoardingSitter?>(null) }
+    // Landing page: show the card grid until a service is picked.
+    var showServiceGrid by remember { mutableStateOf(true) }
 
     LazyColumn(
         modifier = modifier
@@ -201,56 +203,62 @@ fun PartnersServicesScreen(
             }
         }
 
-        // 2. Navigation Horizontal Tabs for Partners & Services
+        // 2. Service hub — a two-column card grid instead of 8 numbered tabs.
         item {
-            ScrollableTabRow(
-                selectedTabIndex = currentSubTab.ordinal,
-                edgePadding = 16.dp,
-                containerColor = Color.Transparent,
-                divider = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .testTag("partner_subtabs")
-            ) {
-                PartnerSubTab.values().forEach { tab ->
-                    val isSelected = currentSubTab == tab
-                    val title = when (tab) {
-                        PartnerSubTab.GROOMING_CENTERS -> "💈 1. Grooming"
-                        PartnerSubTab.FOOD_SUBSCRIPTION -> "📦 2. Subscriptions"
-                        PartnerSubTab.PET_BOARDING -> "🏡 3. Boarding & Sitters"
-                        PartnerSubTab.FIND_MY_PET -> "🚨 4. Find My Pet / GPS"
-                        PartnerSubTab.SALE_AND_ADOPTION -> "🐾 5. Sale & Adoption"
-                        PartnerSubTab.NEWS_AND_EVENTS -> stringResource(R.string.partners_tab_whatsnew)
-                        PartnerSubTab.SUPPORT -> "🆘 7. Help & Rescue"
-                        PartnerSubTab.TRAINERS -> stringResource(R.string.partners_trainers_behaviour)
-                    }
-                    Tab(
-                        selected = isSelected,
-                        onClick = { onSelectSubTab(tab) },
-                        modifier = Modifier.padding(end = 8.dp),
-                        text = {
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.surface,
-                                shadowElevation = if (isSelected) 3.dp else 0.dp,
-                                modifier = Modifier.padding(vertical = 4.dp)
-                            ) {
-                                Text(
-                                    text = title,
-                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 12.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                                )
-                            }
+            if (showServiceGrid) {
+                ServiceHubGrid(
+                    header = "Services & partners",
+                    helper = "Pick what you need. Each card does one job.",
+                    items = listOf(
+                        HubItem(PartnerSubTab.GROOMING_CENTERS.name, "\u2702\uFE0F", "Grooming", "Salons near you"),
+                        HubItem(PartnerSubTab.PET_BOARDING.name, "\uD83C\uDFE1", "Boarding", "Sitters & stays"),
+                        HubItem(PartnerSubTab.TRAINERS.name, "\uD83C\uDF93", "Training", "Trainers & videos"),
+                        HubItem(PartnerSubTab.FIND_MY_PET.name, "\uD83D\uDEA8", "Lost pet", "Alerts & GPS"),
+                        HubItem(PartnerSubTab.SALE_AND_ADOPTION.name, "\uD83D\uDC3E", "Adopt / sell", "Pet listings"),
+                        HubItem(PartnerSubTab.FOOD_SUBSCRIPTION.name, "\uD83D\uDCE6", "Subscriptions", "Repeat food orders"),
+                        HubItem(PartnerSubTab.SUPPORT.name, "\uD83C\uDD98", "Help & rescue", "Support & rescues"),
+                        HubItem(PartnerSubTab.NEWS_AND_EVENTS.name, "\uD83D\uDCF0", "What's new", "News & events")
+                    ),
+                    selectedId = currentSubTab.name,
+                    onSelect = { id ->
+                        PartnerSubTab.values().firstOrNull { it.name == id }?.let { picked ->
+                            onSelectSubTab(picked)
+                            showServiceGrid = false
                         }
-                    )
+                    }
+                )
+            } else {
+                val icon = when (currentSubTab) {
+                    PartnerSubTab.GROOMING_CENTERS -> "\u2702\uFE0F"
+                    PartnerSubTab.FOOD_SUBSCRIPTION -> "\uD83D\uDCE6"
+                    PartnerSubTab.PET_BOARDING -> "\uD83C\uDFE1"
+                    PartnerSubTab.FIND_MY_PET -> "\uD83D\uDEA8"
+                    PartnerSubTab.SALE_AND_ADOPTION -> "\uD83D\uDC3E"
+                    PartnerSubTab.NEWS_AND_EVENTS -> "\uD83D\uDCF0"
+                    PartnerSubTab.SUPPORT -> "\uD83C\uDD98"
+                    PartnerSubTab.TRAINERS -> "\uD83C\uDF93"
                 }
+                val label = when (currentSubTab) {
+                    PartnerSubTab.GROOMING_CENTERS -> "Grooming"
+                    PartnerSubTab.FOOD_SUBSCRIPTION -> "Subscriptions"
+                    PartnerSubTab.PET_BOARDING -> "Boarding & sitters"
+                    PartnerSubTab.FIND_MY_PET -> "Lost pet & GPS"
+                    PartnerSubTab.SALE_AND_ADOPTION -> "Sale & adoption"
+                    PartnerSubTab.NEWS_AND_EVENTS -> stringResource(R.string.partners_tab_whatsnew)
+                    PartnerSubTab.SUPPORT -> "Help & rescue"
+                    PartnerSubTab.TRAINERS -> stringResource(R.string.partners_trainers_behaviour)
+                }
+                ServiceHubCollapsedBar(
+                    icon = icon,
+                    title = label,
+                    subtitle = "Tap All services to switch",
+                    onBack = { showServiceGrid = true }
+                )
             }
         }
 
         // 3. Submenu Dynamic Content
+        if (!showServiceGrid) {
         when (currentSubTab) {
             PartnerSubTab.GROOMING_CENTERS -> {
                 // Section 1: Grooming Centers Nearby
@@ -556,6 +564,7 @@ fun PartnersServicesScreen(
                     )
                 }
             }
+        }
         }
     }
 

@@ -183,6 +183,8 @@ fun MyPetsScreen(
     var showAddCertificateDialog by remember { mutableStateOf(false) }
     var certificatePhotoViewer by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    // Landing page: show the card grid until a section is picked.
+    var showSectionGrid by remember { mutableStateOf(true) }
 
     // The placeholder pet (UserPet() with id 0L) is shown only when the account
     // has no real saved pet yet. Its fields are all blank defaults now, so present
@@ -489,56 +491,48 @@ fun MyPetsScreen(
             VaccinationReminderBanner(vaccinations = vaccinations)
         }
 
-        // 3. Pet Submenu Navigation Chips (Certificate, Vaccination, Food & Plays, Training)
+        // 3. Pet sections — a two-column card grid instead of 5 numbered chips.
         item {
-            ScrollableTabRow(
-                selectedTabIndex = selectedSubmenu.ordinal,
-                edgePadding = 16.dp,
-                containerColor = Color.Transparent,
-                divider = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .testTag("pet_submenu_tabs")
-            ) {
-                PetDetailSubmenu.values().forEach { submenu ->
-                    val isSelected = selectedSubmenu == submenu
-                    val title = when (submenu) {
-                        PetDetailSubmenu.CERTIFICATE -> "📜 1. Certificate"
-                        PetDetailSubmenu.VACCINATION_MEDICAL -> "💉 2. Medical & Vaccines"
-                        PetDetailSubmenu.FOOD_AND_PLAYS -> "🍖 3. Food & Plays"
-                        PetDetailSubmenu.TRAINING -> "🎓 4. Training"
-                        PetDetailSubmenu.HEALTH_SETTINGS -> "⚖️ 5. Health & Settings"
-                    }
-                    Tab(
-                        selected = isSelected,
-                        onClick = { selectedSubmenu = submenu },
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .testTag("tab_${submenu.name.lowercase()}"),
-                        text = {
-                            // Outline chip treatment: only the SELECTED chip is filled with the
-                            // primary; the others are transparent with a hairline border.
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = if (isSelected) BluePrimary else Color.Transparent,
-                                border = androidx.compose.foundation.BorderStroke(
-                                    1.dp,
-                                    if (isSelected) BluePrimary else MaterialTheme.colorScheme.outline
-                                ),
-                                modifier = Modifier.padding(vertical = 4.dp)
-                            ) {
-                                Text(
-                                    text = title,
-                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 13.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                                )
-                            }
+            if (showSectionGrid) {
+                ServiceHubGrid(
+                    header = "Your pet",
+                    helper = "Everything about this pet, in one place.",
+                    items = listOf(
+                        HubItem(PetDetailSubmenu.CERTIFICATE.name, "\uD83D\uDCDC", "Certificates", "Papers & photos"),
+                        HubItem(PetDetailSubmenu.VACCINATION_MEDICAL.name, "\uD83D\uDC89", "Medical", "Vaccines & reports"),
+                        HubItem(PetDetailSubmenu.FOOD_AND_PLAYS.name, "\uD83C\uDF56", "Food & play", "Diet & favourites"),
+                        HubItem(PetDetailSubmenu.TRAINING.name, "\uD83C\uDF93", "Training", "Programmes & level"),
+                        HubItem(PetDetailSubmenu.HEALTH_SETTINGS.name, "\u2696\uFE0F", "Health", "Weight & settings")
+                    ),
+                    selectedId = selectedSubmenu.name,
+                    onSelect = { id ->
+                        PetDetailSubmenu.values().firstOrNull { it.name == id }?.let { picked ->
+                            selectedSubmenu = picked
+                            showSectionGrid = false
                         }
-                    )
+                    }
+                )
+            } else {
+                val icon = when (selectedSubmenu) {
+                    PetDetailSubmenu.CERTIFICATE -> "\uD83D\uDCDC"
+                    PetDetailSubmenu.VACCINATION_MEDICAL -> "\uD83D\uDC89"
+                    PetDetailSubmenu.FOOD_AND_PLAYS -> "\uD83C\uDF56"
+                    PetDetailSubmenu.TRAINING -> "\uD83C\uDF93"
+                    PetDetailSubmenu.HEALTH_SETTINGS -> "\u2696\uFE0F"
                 }
+                val label = when (selectedSubmenu) {
+                    PetDetailSubmenu.CERTIFICATE -> "Certificates"
+                    PetDetailSubmenu.VACCINATION_MEDICAL -> "Medical & vaccines"
+                    PetDetailSubmenu.FOOD_AND_PLAYS -> "Food & plays"
+                    PetDetailSubmenu.TRAINING -> "Training"
+                    PetDetailSubmenu.HEALTH_SETTINGS -> "Health & settings"
+                }
+                ServiceHubCollapsedBar(
+                    icon = icon,
+                    title = label,
+                    subtitle = "Tap All services to switch",
+                    onBack = { showSectionGrid = true }
+                )
             }
         }
 
@@ -548,6 +542,7 @@ fun MyPetsScreen(
             AiPhotoAnalysisEntryCard(isPremium = isPremium, onOpen = onOpenAiPhoto)
         }
 
+        if (!showSectionGrid) {
         when (selectedSubmenu) {
             PetDetailSubmenu.CERTIFICATE -> {
                 item {
@@ -609,6 +604,7 @@ fun MyPetsScreen(
                     )
                 }
             }
+        }
         }
 
         item {
