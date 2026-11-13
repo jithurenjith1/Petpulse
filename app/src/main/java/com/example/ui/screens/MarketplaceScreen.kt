@@ -198,6 +198,8 @@ fun MarketplaceScreen(
     // Sort dropdown open/closed state for the pet listing filter bar. HOISTED here,
     // above the LazyColumn, so no remember(...) lives inside a lazy content lambda.
     var petSortMenuExpanded by remember { mutableStateOf(false) }
+    // Market landing page: show the category card grid until a category is picked.
+    var showMarketGrid by remember { mutableStateOf(true) }
 
     Box(modifier = modifier.fillMaxSize()) {
     if (currentCategory == MarketplaceCategory.ACCESSORIES) {
@@ -226,10 +228,35 @@ fun MarketplaceScreen(
                 MarketplaceQuickActionRow(onOpenListPetModal = onOpenListPetModal)
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
-                MarketplaceCategorySelector(
-                    selectedCategory = currentCategory,
-                    onSelectCategory = onSelectCategory
-                )
+                if (showMarketGrid) {
+                    ServiceHubGrid(
+                        header = "What are you looking for?",
+                        helper = "Pick a category. Each one does one job.",
+                        items = listOf(
+                            HubItem(MarketplaceCategory.PET_LISTINGS.name, "\uD83D\uDC3E", "Pets", "Sale & adoption"),
+                            HubItem(MarketplaceCategory.FOOD.name, "\uD83C\uDF56", "Food", "Food & treats"),
+                            HubItem(MarketplaceCategory.MEDICINES.name, "\uD83D\uDC8A", "Medicines", "Rx & supplements"),
+                            HubItem(MarketplaceCategory.ACCESSORIES.name, "\uD83D\uDECD\uFE0F", "Accessories", "Collars & toys"),
+                            HubItem(MarketplaceCategory.GROOMING_SERVICES.name, "\u2702\uFE0F", "Grooming", "Salons near you"),
+                            HubItem(MarketplaceCategory.VET_CONSULTATIONS.name, "\uD83E\uDE7A", "Vets", "Consult & clinics"),
+                            HubItem(MarketplaceCategory.TRAINING.name, "\uD83C\uDF93", "Training", "Trainers & videos")
+                        ),
+                        selectedId = currentCategory.name,
+                        onSelect = { id ->
+                            MarketplaceCategory.values().firstOrNull { it.name == id }?.let { picked ->
+                                onSelectCategory(picked)
+                                showMarketGrid = false
+                            }
+                        }
+                    )
+                } else {
+                    ServiceHubCollapsedBar(
+                        icon = "\uD83D\uDECD\uFE0F",
+                        title = "Accessories",
+                        subtitle = "Tap All services to switch",
+                        onBack = { showMarketGrid = true }
+                    )
+                }
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
                 MarketSectionHeader(
@@ -306,17 +333,76 @@ fun MarketplaceScreen(
             )
         }
 
-        // 3. Category Tabs (Pet Listings, Food, Medicines, Grooming, Doctors)
+        // 3. Market landing — a two-column category card grid (same component the
+        // Services tab uses) instead of a horizontal icon tab row.
         item {
-            MarketplaceCategorySelector(
-                selectedCategory = currentCategory,
-                onSelectCategory = onSelectCategory
-            )
+            if (showMarketGrid) {
+                ServiceHubGrid(
+                    header = "What are you looking for?",
+                    helper = "Pick a category. Each one does one job.",
+                    items = listOf(
+                        HubItem(MarketplaceCategory.PET_LISTINGS.name, "\uD83D\uDC3E", "Pets", "Sale & adoption"),
+                        HubItem(MarketplaceCategory.FOOD.name, "\uD83C\uDF56", "Food", "Food & treats"),
+                        HubItem(MarketplaceCategory.MEDICINES.name, "\uD83D\uDC8A", "Medicines", "Rx & supplements"),
+                        HubItem(MarketplaceCategory.ACCESSORIES.name, "\uD83D\uDECD\uFE0F", "Accessories", "Collars & toys"),
+                        HubItem(MarketplaceCategory.GROOMING_SERVICES.name, "\u2702\uFE0F", "Grooming", "Salons near you"),
+                        HubItem(MarketplaceCategory.VET_CONSULTATIONS.name, "\uD83E\uDE7A", "Vets", "Consult & clinics"),
+                        HubItem(MarketplaceCategory.TRAINING.name, "\uD83C\uDF93", "Training", "Trainers & videos")
+                    ),
+                    selectedId = currentCategory.name,
+                    onSelect = { id ->
+                        MarketplaceCategory.values().firstOrNull { it.name == id }?.let { picked ->
+                            onSelectCategory(picked)
+                            showMarketGrid = false
+                        }
+                    }
+                )
+            } else {
+                val icon = when (currentCategory) {
+                    MarketplaceCategory.PET_LISTINGS -> "\uD83D\uDC3E"
+                    MarketplaceCategory.FOOD -> "\uD83C\uDF56"
+                    MarketplaceCategory.MEDICINES -> "\uD83D\uDC8A"
+                    MarketplaceCategory.ACCESSORIES -> "\uD83D\uDECD\uFE0F"
+                    MarketplaceCategory.GROOMING_SERVICES -> "\u2702\uFE0F"
+                    MarketplaceCategory.VET_CONSULTATIONS -> "\uD83E\uDE7A"
+                    MarketplaceCategory.TRAINING -> "\uD83C\uDF93"
+                }
+                val label = when (currentCategory) {
+                    MarketplaceCategory.PET_LISTINGS -> "Pets"
+                    MarketplaceCategory.FOOD -> "Food"
+                    MarketplaceCategory.MEDICINES -> "Medicines"
+                    MarketplaceCategory.ACCESSORIES -> "Accessories"
+                    MarketplaceCategory.GROOMING_SERVICES -> "Grooming"
+                    MarketplaceCategory.VET_CONSULTATIONS -> "Vets"
+                    MarketplaceCategory.TRAINING -> "Training"
+                }
+                ServiceHubCollapsedBar(
+                    icon = icon,
+                    title = label,
+                    subtitle = "Tap All services to switch",
+                    onBack = { showMarketGrid = true }
+                )
+            }
+        }
+
+        // 3b. "Popular near you" — real catalogue products, only on the landing page
+        // and only when the catalogue actually has items.
+        if (showMarketGrid) {
+            val popular = (foods + medicines).take(3)
+            if (popular.isNotEmpty()) {
+                item {
+                    PopularProductsStrip(
+                        products = popular,
+                        onAdd = onAddToCart,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                    )
+                }
+            }
         }
 
         // Product search — filters the food and medicine product lists. Hidden for
         // the categories it does not apply to (the accessories grid has its own).
-        if (currentCategory == MarketplaceCategory.FOOD || currentCategory == MarketplaceCategory.MEDICINES) {
+        if (!showMarketGrid && (currentCategory == MarketplaceCategory.FOOD || currentCategory == MarketplaceCategory.MEDICINES)) {
             item {
                 MarketProductSearchField(
                     query = marketSearchQuery,
@@ -326,6 +412,7 @@ fun MarketplaceScreen(
         }
 
         // 4. Dynamic Content based on selected Category
+        if (!showMarketGrid) {
         when (currentCategory) {
             MarketplaceCategory.PET_LISTINGS -> {
                 // SEGMENT selector (All / For Sale / Adoption). It writes into the
@@ -663,6 +750,7 @@ fun MarketplaceScreen(
                     TrainerOnDemandCard(onRequestTrainer = onRequestTrainer)
                 }
             }
+        }
         }
     }
     }  // end else: non-accessories LazyColumn
