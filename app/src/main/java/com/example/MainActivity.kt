@@ -31,6 +31,7 @@ import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.MarketProduct
 import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.ui.components.PetAppBottomBar
+import com.petpulse.app.ui.components.OfflineBanner
 import com.petpulse.app.ui.screens.MapScreen
 import com.petpulse.app.ui.screens.RealSosScreen
 import com.petpulse.app.ui.screens.PetInsuranceScreen
@@ -283,6 +284,8 @@ val appCtx = LocalContext.current
         Column(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
+            // Global connectivity banner — appears on every screen while offline.
+            OfflineBanner()
             // Pet selector row — shown ONLY in My Pet section
             if (currentTab == MainNavTab.MY_PETS) {
             PetSwitcher(

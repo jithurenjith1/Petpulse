@@ -1,5 +1,7 @@
 package com.petpulse.app.ui.screens
 
+import com.petpulse.app.ui.components.InlineFieldError
+
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
@@ -53,6 +55,16 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    // Inline field validation. Errors appear only after the user has touched a
+    // field, so a blank form never opens covered in red.
+    var emailTouched by remember { mutableStateOf(false) }
+    var passwordTouched by remember { mutableStateOf(false) }
+    val emailError: String? = if (
+        emailTouched && email.isNotBlank() &&
+        !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
+    ) "Enter a valid email address" else null
+    val passwordError: String? = if (passwordTouched && password.isNotEmpty() && password.length < 6)
+        "Password must be at least 6 characters" else null
 
     val googleLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -80,9 +92,9 @@ fun LoginScreen(authViewModel: AuthViewModel, onAuthSuccess: () -> Unit) {
             Text(text = "Wagmiya", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             Text(text = if (isLoginMode) "Welcome back!" else "Create your account", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
             Spacer(modifier = Modifier.height(32.dp))
-            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.login_email)) }, leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline, focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = email, onValueChange = { email = it; emailTouched = true }, isError = emailError != null, supportingText = { InlineFieldError(emailError) }, label = { Text(stringResource(R.string.login_email)) }, leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline, focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.login_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }, trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = "Toggle password", tint = MaterialTheme.colorScheme.onSurfaceVariant) } }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline, focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = password, onValueChange = { password = it; passwordTouched = true }, isError = passwordError != null, supportingText = { InlineFieldError(passwordError) }, label = { Text(stringResource(R.string.login_password)) }, leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }, trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = "Toggle password", tint = MaterialTheme.colorScheme.onSurfaceVariant) } }, singleLine = true, visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), shape = RoundedCornerShape(12.dp), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline, focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth())
             AnimatedVisibility(visible = !isLoginMode, enter = fadeIn(), exit = fadeOut()) {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
