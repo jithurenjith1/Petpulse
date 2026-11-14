@@ -31,6 +31,8 @@ import com.petpulse.app.data.model.MarketPet
 import com.petpulse.app.data.model.MarketProduct
 import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.ui.components.PetAppBottomBar
+import com.petpulse.app.data.AppDataStatus
+import com.petpulse.app.ui.components.SessionExpiredDialog
 import com.petpulse.app.ui.components.OfflineBanner
 import com.petpulse.app.ui.screens.MapScreen
 import com.petpulse.app.ui.screens.RealSosScreen
@@ -213,6 +215,34 @@ val appCtx = LocalContext.current
 
     // Dialog state controllers
     var showLoginDialog by remember { mutableStateOf(false) }
+
+    // ---- Repository error plumbing -------------------------------------------------
+    // Firestore listeners used to swallow failures into emptyList(), so a failed read
+    // looked exactly like an empty catalogue. They now report through AppDataStatus and
+    // surface here: a snackbar for ordinary failures, a sign-in prompt for access errors.
+    val dataIssue by AppDataStatus.issue.collectAsStateWithLifecycle()
+    var showSessionExpired by remember { mutableStateOf(false) }
+
+    LaunchedEffect(dataIssue) {
+        val current = dataIssue ?: return@LaunchedEffect
+        if (current.isPermissionDenied) {
+            showSessionExpired = true
+        } else if (!current.isOffline) {
+            snackbarHostState.showSnackbar(current.message)
+        }
+        AppDataStatus.clear()
+    }
+
+    if (showSessionExpired) {
+        SessionExpiredDialog(
+            onSignIn = {
+                showSessionExpired = false
+                authViewModel?.signOut()
+                showLoginDialog = true
+            },
+            onDismiss = { showSessionExpired = false }
+        )
+    }
     var showEditPetDialog by remember { mutableStateOf(false) }
     var showAddListingDialog by remember { mutableStateOf(false) }
     var showMapScreen by remember { mutableStateOf(false) }
