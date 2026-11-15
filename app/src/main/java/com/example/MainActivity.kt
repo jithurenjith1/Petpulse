@@ -33,6 +33,8 @@ import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.ui.components.PetAppBottomBar
 import com.petpulse.app.data.AppDataStatus
 import com.petpulse.app.ui.components.SessionExpiredDialog
+import com.petpulse.app.data.model.EscrowOrder
+import com.petpulse.app.ui.screens.OrderPlacedSuccess
 import com.petpulse.app.ui.components.LoadingBar
 import com.petpulse.app.ui.components.OfflineBanner
 import com.petpulse.app.ui.screens.MapScreen
@@ -273,6 +275,8 @@ val appCtx = LocalContext.current
     var showCartModal by remember { mutableStateOf(false) }
     var showAdminScreen by remember { mutableStateOf(false) }
     var showEscrowCheckoutModal by remember { mutableStateOf(false) }
+    // Set the moment an order is created; drives the full-screen confirmation.
+    var placedOrder by remember { mutableStateOf<EscrowOrder?>(null) }
     var showMyOrdersScreen by remember { mutableStateOf(false) }
     var showListPetModal by remember { mutableStateOf(false) }
     var selectedDoctorForBooking by remember { mutableStateOf<VerifiedDoctor?>(null) }
@@ -711,11 +715,20 @@ val appCtx = LocalContext.current
             onConfirmOrder = { city, address, name, phone, paymentMethod, addAccidentCover ->
                 val newOrder = viewModel.placeEscrowOrder(city, address, name, phone, paymentMethod, addAccidentCover)
                 showEscrowCheckoutModal = false
-                showMyOrdersScreen = true
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("✅ Order #${newOrder.orderId} placed! Live status tracking is in My Orders.")
-                }
+                // Show the confirmation screen instead of jumping straight into My Orders.
+                placedOrder = newOrder
             }
+        )
+    }
+
+    placedOrder?.let { order ->
+        OrderPlacedSuccess(
+            order = order,
+            onTrackOrder = {
+                placedOrder = null
+                showMyOrdersScreen = true
+            },
+            onContinueShopping = { placedOrder = null }
         )
     }
 
