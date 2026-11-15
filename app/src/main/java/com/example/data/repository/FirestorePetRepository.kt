@@ -1,5 +1,6 @@
 package com.petpulse.app.data.repository
 
+import com.petpulse.app.data.AppDataStatus
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -68,6 +69,7 @@ class FirestorePetRepository(private val appContext: Context) {
     fun getAllUserPets(): Flow<List<UserPet>> = callbackFlow {
         val subscription = petsRef().addSnapshotListener { snapshot, error ->
             if (error != null) {
+                AppDataStatus.report(error)
                 // Log but NEVER close with error — that crashes the app
                 Log.e("FirestorePetRepo", "Error getting pets", error)
                 trySend(emptyList())
@@ -128,6 +130,7 @@ class FirestorePetRepository(private val appContext: Context) {
         } else {
             val subscription = petsRef().document(docId).addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     // NEVER close with error — crash source. Log and emit null instead.
                     Log.e("FirestorePetRepo", "Pet listener error", error)
                     trySend(null)
@@ -233,6 +236,7 @@ class FirestorePetRepository(private val appContext: Context) {
             .collection("vaccinations")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Vaccination listener error", error)
                     trySend(emptyList())
                     return@addSnapshotListener
@@ -322,6 +326,7 @@ class FirestorePetRepository(private val appContext: Context) {
             .collection("certificates")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Certificate listener error", error)
                     trySend(emptyList())
                     return@addSnapshotListener
@@ -489,6 +494,7 @@ class FirestorePetRepository(private val appContext: Context) {
             .collection("medical_reports")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Medical reports listener error", error)
                     trySend(emptyList())
                     return@addSnapshotListener
@@ -628,6 +634,7 @@ class FirestorePetRepository(private val appContext: Context) {
         val subscription = db.collection("pet_tags").document(publicId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Pet tag listener error", error)
                     trySend(null)
                     return@addSnapshotListener
@@ -658,6 +665,7 @@ class FirestorePetRepository(private val appContext: Context) {
             .whereEqualTo("ownerUid", ownerUid)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Tag scan listener error", error)
                     trySend(emptyList())
                     return@addSnapshotListener
@@ -716,6 +724,7 @@ class FirestorePetRepository(private val appContext: Context) {
         val subscription = db.collection("users").document(uid())
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Customer profile listener error", error)
                     trySend(CustomerProfile())
                     return@addSnapshotListener

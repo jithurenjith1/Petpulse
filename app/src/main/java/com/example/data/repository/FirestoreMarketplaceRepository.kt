@@ -1,5 +1,6 @@
 package com.petpulse.app.data.repository
 
+import com.petpulse.app.data.AppDataStatus
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -52,6 +53,7 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
             .limit(LISTEN_LIMIT)
             .addSnapshotListener(bgExecutor) { snapshot, error ->
                 if (error != null) {
+                    AppDataStatus.report(error)
                     Log.e("FsMarketRepo", "Error observing listings", error)
                     trySend(emptyList())
                     return@addSnapshotListener
