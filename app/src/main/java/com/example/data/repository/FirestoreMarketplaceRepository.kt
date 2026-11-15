@@ -55,7 +55,6 @@ class FirestoreMarketplaceRepository(private val appContext: Context) {
                 if (error != null) {
                     AppDataStatus.report(error)
                     Log.e("FsMarketRepo", "Error observing listings", error)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 val pets = snapshot?.documents

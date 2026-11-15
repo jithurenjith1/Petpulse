@@ -91,7 +91,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "products listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(snap?.documents?.mapNotNull { it.toShopProduct() } ?: emptyList())
@@ -231,7 +230,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         val sub = db.collection("dealers").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 AppDataStatus.report(err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(snap?.documents?.mapNotNull {
@@ -280,7 +278,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "orders listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(
@@ -307,7 +304,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 if (err != null) {
                     AppDataStatus.report(err)
                     Log.e("FsCommerce", "my orders listen failed", err)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 trySend(
@@ -472,7 +468,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "bookings listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(
@@ -499,7 +494,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 if (err != null) {
                     AppDataStatus.report(err)
                     Log.e("FsCommerce", "my bookings listen failed", err)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 trySend(
@@ -632,7 +626,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "vets listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(
@@ -730,7 +723,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 if (err != null) {
                     AppDataStatus.report(err)
                     Log.e("FsCommerce", "community posts listen failed", err)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 trySend(
@@ -793,7 +785,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 if (err != null) {
                     AppDataStatus.report(err)
                     Log.e("FsCommerce", "news posts listen failed", err)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 trySend(
@@ -868,7 +859,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 if (err != null) {
                     AppDataStatus.report(err)
                     Log.e("FsCommerce", "lost alerts listen failed", err)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 trySend(
@@ -913,7 +903,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 // Non-admin listeners are denied by rules - just show nothing.
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(snap?.documents?.mapNotNull { it.toSupportTicket() } ?: emptyList())
@@ -967,7 +956,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         val sub = db.collection("rescue_reports").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 AppDataStatus.report(err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(snap?.documents?.mapNotNull { it.toRescueReport() } ?: emptyList())
@@ -1021,7 +1009,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         val sub = db.collection("partner_applications").limit(LISTEN_LIMIT).addSnapshotListener { snap, err ->
             if (err != null) {
                 AppDataStatus.report(err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(snap?.documents?.mapNotNull { it.toPartnerApplication() } ?: emptyList())
@@ -1114,7 +1101,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "found reports listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(
@@ -1263,7 +1249,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "partner ledger listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(snap?.documents?.mapNotNull { it.toPartnerCommission() } ?: emptyList())
@@ -1319,7 +1304,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "reviews listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(
@@ -1500,7 +1484,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "adminLog listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(
@@ -1565,7 +1548,6 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             if (err != null) {
                 AppDataStatus.report(err)
                 Log.e("FsCommerce", "reports listen failed", err)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             trySend(

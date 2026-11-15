@@ -30,14 +30,32 @@ object AppDataStatus {
      * "loaded, and genuinely empty" — both used to look like an empty list.
      */
     private val _loadingKeys = MutableStateFlow<Set<String>>(emptySet())
+    private val beginTimes = java.util.concurrent.ConcurrentHashMap<String, Long>()
     val loadingKeys: StateFlow<Set<String>> = _loadingKeys.asStateFlow()
 
     fun begin(key: String) {
+        beginTimes[key] = System.currentTimeMillis()
         _loadingKeys.update { it + key }
     }
 
     fun end(key: String) {
+        beginTimes.remove(key)
         _loadingKeys.update { it - key }
+    }
+
+    /**
+     * Drops keys that have been pending for too long.
+     *
+     * A listener whose first read fails now emits nothing (so the previous data is
+     * kept instead of being wiped), which means it may never clear its own key.
+     * This guard keeps the progress bar from sticking forever.
+     */
+    fun expireStale(maxAgeMs: Long = 8000L) {
+        val now = System.currentTimeMillis()
+        val stale = beginTimes.filterValues { now - it > maxAgeMs }.keys.toSet()
+        if (stale.isEmpty()) return
+        stale.forEach { beginTimes.remove(it) }
+        _loadingKeys.update { it - stale }
     }
 
     fun isLoading(key: String): Boolean = _loadingKeys.value.contains(key)

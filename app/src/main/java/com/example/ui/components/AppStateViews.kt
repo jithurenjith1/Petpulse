@@ -24,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -218,6 +219,16 @@ private fun StateScaffold(
 @Composable
 fun LoadingBar(modifier: Modifier = Modifier) {
     val loadingKeys by AppDataStatus.loadingKeys.collectAsState()
+
+    // Self-healing: a listener that fails before its first snapshot emits nothing,
+    // so it can never clear its own key. Drop stale keys after a few seconds.
+    LaunchedEffect(loadingKeys) {
+        if (loadingKeys.isNotEmpty()) {
+            kotlinx.coroutines.delay(8000)
+            AppDataStatus.expireStale(8000)
+        }
+    }
+
     if (loadingKeys.isEmpty()) return
 
     LinearProgressIndicator(

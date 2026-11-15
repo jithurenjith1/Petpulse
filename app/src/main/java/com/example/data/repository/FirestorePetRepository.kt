@@ -72,7 +72,6 @@ class FirestorePetRepository(private val appContext: Context) {
                 AppDataStatus.report(error)
                 // Log but NEVER close with error — that crashes the app
                 Log.e("FirestorePetRepo", "Error getting pets", error)
-                trySend(emptyList())
                 return@addSnapshotListener
             }
             val pets = mutableListOf<UserPet>()
@@ -238,7 +237,6 @@ class FirestorePetRepository(private val appContext: Context) {
                 if (error != null) {
                     AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Vaccination listener error", error)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 val records = snapshot?.documents?.mapNotNull { doc ->
@@ -328,7 +326,6 @@ class FirestorePetRepository(private val appContext: Context) {
                 if (error != null) {
                     AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Certificate listener error", error)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 val certs = snapshot?.documents?.mapNotNull { doc ->
@@ -496,7 +493,6 @@ class FirestorePetRepository(private val appContext: Context) {
                 if (error != null) {
                     AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Medical reports listener error", error)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 val reports = snapshot?.documents?.mapNotNull { doc ->
@@ -667,7 +663,6 @@ class FirestorePetRepository(private val appContext: Context) {
                 if (error != null) {
                     AppDataStatus.report(error)
                     Log.e("FirestorePetRepo", "Tag scan listener error", error)
-                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 val scans = snapshot?.documents?.mapNotNull { doc ->
