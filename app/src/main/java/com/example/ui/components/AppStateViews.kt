@@ -18,11 +18,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.petpulse.app.data.AppDataStatus
 
 /**
  * Shared state views for the whole app.
@@ -203,6 +207,24 @@ private fun StateScaffold(
             }
         }
     }
+}
+
+// ---------------------------------------------------------------- LOADING BAR
+/**
+ * Thin indeterminate bar shown while any repository listener is still waiting for
+ * its first snapshot. Sits under the top bar, costs 3dp when idle (it renders
+ * nothing at all), and never blocks the screen.
+ */
+@Composable
+fun LoadingBar(modifier: Modifier = Modifier) {
+    val loadingKeys by AppDataStatus.loadingKeys.collectAsState()
+    if (loadingKeys.isEmpty()) return
+
+    LinearProgressIndicator(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+    )
 }
 
 // ---------------------------------------------------------------- OFFLINE BANNER

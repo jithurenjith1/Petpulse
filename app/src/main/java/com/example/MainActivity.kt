@@ -33,6 +33,7 @@ import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.ui.components.PetAppBottomBar
 import com.petpulse.app.data.AppDataStatus
 import com.petpulse.app.ui.components.SessionExpiredDialog
+import com.petpulse.app.ui.components.LoadingBar
 import com.petpulse.app.ui.components.OfflineBanner
 import com.petpulse.app.ui.screens.MapScreen
 import com.petpulse.app.ui.screens.RealSosScreen
@@ -316,6 +317,8 @@ val appCtx = LocalContext.current
         ) {
             // Global connectivity banner — appears on every screen while offline.
             OfflineBanner()
+            // Thin progress bar while listeners are still fetching their first snapshot.
+            LoadingBar()
             // Pet selector row — shown ONLY in My Pet section
             if (currentTab == MainNavTab.MY_PETS) {
             PetSwitcher(

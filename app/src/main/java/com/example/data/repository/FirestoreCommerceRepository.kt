@@ -1,5 +1,6 @@
 package com.petpulse.app.data.repository
 
+import com.petpulse.app.data.trackLoading
 import com.petpulse.app.data.AppDataStatus
 import android.content.Context
 import android.graphics.Bitmap
@@ -82,7 +83,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             auth.removeAuthStateListener(authListener)
             registration[0]?.remove()
         }
-    }
+    }.trackLoading("isAdmin")
 
     // ---------- products ----------
     fun observeProducts(): Flow<List<ShopProduct>> = callbackFlow {
@@ -96,7 +97,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             trySend(snap?.documents?.mapNotNull { it.toShopProduct() } ?: emptyList())
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("products")
 
     private fun DocumentSnapshot.toShopProduct(): ShopProduct? {
         return try {
@@ -252,7 +253,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             } ?: emptyList())
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("dealers")
 
     suspend fun addDealer(d: Dealer): Result<Unit> {
         return try {
@@ -291,7 +292,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             )
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("orders")
 
     /** Live orders of the signed-in customer only (for the My Orders screen). */
     fun observeMyOrders(): Flow<List<AdminOrder>> = callbackFlow {
@@ -318,7 +319,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 )
             }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("myOrders")
 
     private fun DocumentSnapshot.toAdminOrder(): AdminOrder? = try {
         val rawItems = (get("items") as? List<*>).orEmpty()
@@ -483,7 +484,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             )
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("bookings")
 
     /** Live bookings of the signed-in customer only (My Bookings tab). */
     fun observeMyBookings(): Flow<List<ServiceBooking>> = callbackFlow {
@@ -510,7 +511,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 )
             }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("myBookings")
 
     private fun DocumentSnapshot.toServiceBooking(): ServiceBooking? = try {
         ServiceBooking(
@@ -642,7 +643,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             )
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("vets")
 
     private fun DocumentSnapshot.toVet(): VerifiedDoctor? {
         return try {
@@ -737,7 +738,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 )
             }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("communityPosts")
 
     private fun DocumentSnapshot.toCommunityPost(): CommunityPost? {
         return try {
@@ -800,7 +801,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 )
             }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("newsPosts")
 
     private fun DocumentSnapshot.toNewsPost(): NewsPost? {
         return try {
@@ -899,7 +900,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
                 )
             }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("lostPetAlerts")
 
     suspend fun deleteLostPetAlert(alertId: String) {
         if (alertId.isBlank()) return
@@ -918,7 +919,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             trySend(snap?.documents?.mapNotNull { it.toSupportTicket() } ?: emptyList())
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("supportTickets")
 
     private fun DocumentSnapshot.toSupportTicket(): SupportTicket? = try {
         SupportTicket(
@@ -972,7 +973,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             trySend(snap?.documents?.mapNotNull { it.toRescueReport() } ?: emptyList())
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("rescueReports")
 
     private fun DocumentSnapshot.toRescueReport(): RescueReport? = try {
         RescueReport(
@@ -1026,7 +1027,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             trySend(snap?.documents?.mapNotNull { it.toPartnerApplication() } ?: emptyList())
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("partnerApplications")
 
     private fun DocumentSnapshot.toPartnerApplication(): PartnerApplication? = try {
         PartnerApplication(
@@ -1124,7 +1125,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             )
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("foundReports")
 
     private fun DocumentSnapshot.toFoundPetReport(): FoundPetReport? = try {
         @Suppress("UNCHECKED_CAST")
@@ -1268,7 +1269,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             trySend(snap?.documents?.mapNotNull { it.toPartnerCommission() } ?: emptyList())
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("partnerCommissions")
 
     private fun DocumentSnapshot.toPartnerCommission(): PartnerCommission? = try {
         PartnerCommission(
@@ -1329,7 +1330,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             )
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("reviews")
 
     private fun DocumentSnapshot.toReview(): Review? = try {
         Review(
@@ -1510,7 +1511,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             )
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("adminLog")
 
     private fun DocumentSnapshot.toAdminLogEntry(): AdminLogEntry? = try {
         AdminLogEntry(
@@ -1575,7 +1576,7 @@ class FirestoreCommerceRepository(private val appContext: Context) {
             )
         }
         awaitClose { sub.remove() }
-    }
+    }.trackLoading("reports")
 
     private fun DocumentSnapshot.toContentReport(): ContentReport? = try {
         ContentReport(
