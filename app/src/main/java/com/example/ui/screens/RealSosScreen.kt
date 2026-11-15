@@ -1,5 +1,7 @@
 package com.petpulse.app.ui.screens
 
+import com.petpulse.app.ui.components.LocationPermissionBanner
+import com.petpulse.app.ui.components.rememberLocationPermissionState
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
@@ -140,6 +142,9 @@ fun RealSosScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        // Location permission: asks on tap, and offers Settings once Android
+        // stops showing the dialog. Renders nothing when already granted.
+        LocationPermissionBanner(rememberLocationPermissionState())
         // SOS Header
         Card(
             modifier = Modifier.fillMaxWidth().padding(12.dp),

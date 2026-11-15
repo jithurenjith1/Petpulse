@@ -1,5 +1,7 @@
 package com.petpulse.app.ui.screens
 
+import com.petpulse.app.ui.components.LocationPermissionBanner
+import com.petpulse.app.ui.components.rememberLocationPermissionState
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
@@ -186,6 +188,9 @@ fun MapScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        // Location permission: asks on tap, and offers Settings once Android
+        // stops showing the dialog. Renders nothing when already granted.
+        LocationPermissionBanner(rememberLocationPermissionState())
         // Filter chips
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
