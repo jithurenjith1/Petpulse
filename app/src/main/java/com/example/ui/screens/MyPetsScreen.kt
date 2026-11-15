@@ -478,13 +478,6 @@ fun MyPetsScreen(
             }
         }
 
-        // 2.5 Contextual insurance nudge — a small, dismissible card shown once per
-        // pet (persisted in "wagmiya_prefs") that opens the existing insurance screen.
-        if (hasPetDetails) {
-            item {
-                InsuranceNudgeCard(petId = pet.id, onSeePlans = onOpenInsurance)
-            }
-        }
 
         // 2.6 Vaccination Reminder Banner — overdue or due within 3 days
         item {
@@ -611,13 +604,6 @@ fun MyPetsScreen(
             PetCareTipCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
         }
 
-        // Second gap fill: a small "next reminder" card directly under the Tip of the day card.
-        item {
-            PetNextReminderCard(
-                vaccinations = vaccinations,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-        }
     }
 
     // Dialogs
@@ -2007,30 +1993,6 @@ fun HealthAndSettingsSection(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
-            )
-            HealthToolRow(
-                icon = Icons.Default.Notifications,
-                title = stringResource(R.string.mypets_vaccination_reminders),
-                subtitle = stringResource(R.string.mypets_vaccination_reminders_note),
-                onClick = onOpenVaccinationReminders
-            )
-            HealthToolRow(
-                icon = Icons.Default.Warning,
-                title = stringResource(R.string.mypets_emergency_first_aid),
-                subtitle = stringResource(R.string.mypets_emergency_first_aid_note),
-                onClick = onOpenEmergency
-            )
-            HealthToolRow(
-                icon = Icons.Default.Info,
-                title = stringResource(R.string.mypets_service_price_card),
-                subtitle = stringResource(R.string.mypets_service_price_card_note),
-                onClick = onOpenServicePrice
-            )
-            HealthToolRow(
-                icon = Icons.Default.Home,
-                title = stringResource(R.string.mypets_housing_help),
-                subtitle = stringResource(R.string.mypets_housing_help_note),
-                onClick = onOpenHousingHelp
             )
             HealthToolRow(
                 icon = Icons.Default.PrivacyTip,

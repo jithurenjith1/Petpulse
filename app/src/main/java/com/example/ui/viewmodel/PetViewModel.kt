@@ -38,6 +38,7 @@ enum class MainNavTab {
     MY_PETS,
     MARKETPLACE,
     PARTNERS_SERVICES,
+    WAGMIYA,
 }
 
 enum class ExploreSubTab {

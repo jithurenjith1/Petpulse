@@ -35,6 +35,8 @@ import com.petpulse.app.data.AppDataStatus
 import com.petpulse.app.ui.components.SessionExpiredDialog
 import com.petpulse.app.data.model.EscrowOrder
 import com.petpulse.app.ui.screens.OrderPlacedSuccess
+import com.petpulse.app.ui.screens.WagmiyaHubScreen
+import com.petpulse.app.ui.screens.WagmiyaHubItem
 import com.petpulse.app.ui.components.LoadingBar
 import com.petpulse.app.ui.components.OfflineBanner
 import com.petpulse.app.ui.screens.MapScreen
@@ -592,6 +594,26 @@ val appCtx = LocalContext.current
                         }
                     )
 
+                }
+                MainNavTab.WAGMIYA -> {
+                    WagmiyaHubScreen(
+                        onOpen = { item ->
+                            when (item) {
+                                WagmiyaHubItem.CARE_PLANS -> showSubscriptionScreen = true
+                                WagmiyaHubItem.PRICE_LIST -> showServicePriceScreen = true
+                                WagmiyaHubItem.INSURANCE -> showInsuranceScreen = true
+                                WagmiyaHubItem.FIRST_AID -> showEmergencyScreen = true
+                                WagmiyaHubItem.TOXIC_FOOD -> showToxicFoodScreen = true
+                                WagmiyaHubItem.SYMPTOMS -> showSymptomScreen = true
+                                WagmiyaHubItem.COMMUNITY -> showCommunityScreen = true
+                                WagmiyaHubItem.WHATS_NEW -> showWhatsNewScreen = true
+                                WagmiyaHubItem.QR_TAG -> showPetQrScreen = true
+                                WagmiyaHubItem.REMINDERS -> showVaccinationRemindersScreen = true
+                                WagmiyaHubItem.SETTINGS -> showProfileSettingsScreen = true
+                            }
+                        },
+                        onContactSupport = { showProfileSettingsScreen = true }
+                    )
                 }
             }
         }

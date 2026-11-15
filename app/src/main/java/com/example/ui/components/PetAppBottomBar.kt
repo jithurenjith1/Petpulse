@@ -1,5 +1,7 @@
 package com.petpulse.app.ui.components
 
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
@@ -111,6 +113,32 @@ fun PetAppBottomBar(
             modifier = Modifier.testTag("nav_partners")
         )
 
-    }
+    
+            NavigationBarItem(
+                selected = currentTab == MainNavTab.WAGMIYA,
+                onClick = { onTabSelected(MainNavTab.WAGMIYA) },
+                icon = {
+                    Icon(
+                        imageVector = if (currentTab == MainNavTab.WAGMIYA) Icons.Filled.Favorite else Icons.Outlined.Favorite,
+                        contentDescription = "Wagmiya",
+                        modifier = Modifier.size(22.dp)
+                    )
+                },
+                label = {
+                    Text(
+                        text = "Wagmiya",
+                        fontSize = 11.sp,
+                        fontWeight = if (currentTab == MainNavTab.WAGMIYA) FontWeight.Bold else FontWeight.Normal
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
 }
 
