@@ -64,7 +64,6 @@ private val HUB_GROUPS = listOf(
     HubGroup("Help, fast", listOf(WagmiyaHubItem.FIRST_AID, WagmiyaHubItem.TOXIC_FOOD, WagmiyaHubItem.SYMPTOMS, WagmiyaHubItem.VET_ONLINE)),
     HubGroup("Near me", listOf(WagmiyaHubItem.NEARBY, WagmiyaHubItem.COMMUNITY, WagmiyaHubItem.CARE_TIPS, WagmiyaHubItem.WHATS_NEW)),
     HubGroup("Account", listOf(WagmiyaHubItem.QR_TAG, WagmiyaHubItem.REMINDERS, WagmiyaHubItem.HOUSING_HELP, WagmiyaHubItem.SETTINGS))
-))
 )
 
 @Composable
