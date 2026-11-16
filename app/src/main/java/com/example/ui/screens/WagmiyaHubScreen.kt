@@ -42,23 +42,29 @@ enum class WagmiyaHubItem(val title: String, val subtitle: String, val emoji: St
     CARE_PLANS("Care plans", "Basic · Care · Premium", "💜"),
     PRICE_LIST("Price list", "Service rates", "📋"),
     INSURANCE("Insurance", "Protect my pet", "🛡️"),
+    RECORDS("Records", "Health records", "📁"),
     FIRST_AID("First aid", "Emergency steps", "➕"),
     TOXIC_FOOD("Toxic foods", "Is it safe?", "🚫"),
     SYMPTOMS("Symptoms", "Guided check", "📈"),
+    VET_ONLINE("Vet online", "Talk to a vet", "🩺"),
+    NEARBY("Nearby", "Vets & shops", "📍"),
     COMMUNITY("Community", "Pet parents", "👥"),
+    CARE_TIPS("Care tips", "Daily advice", "💡"),
     WHATS_NEW("What's new", "News & events", "📰"),
     QR_TAG("QR tag", "Lost & found", "▦"),
     REMINDERS("Reminders", "Vaccine alerts", "⏰"),
+    HOUSING_HELP("Housing help", "Rent & rules", "🏠"),
     SETTINGS("Settings", "Profile & more", "⚙️")
 }
 
 private data class HubGroup(val title: String, val items: List<WagmiyaHubItem>)
 
 private val HUB_GROUPS = listOf(
-    HubGroup("Care & plans", listOf(WagmiyaHubItem.CARE_PLANS, WagmiyaHubItem.PRICE_LIST, WagmiyaHubItem.INSURANCE)),
-    HubGroup("Help, fast", listOf(WagmiyaHubItem.FIRST_AID, WagmiyaHubItem.TOXIC_FOOD, WagmiyaHubItem.SYMPTOMS)),
-    HubGroup("Community", listOf(WagmiyaHubItem.COMMUNITY, WagmiyaHubItem.WHATS_NEW)),
-    HubGroup("Account", listOf(WagmiyaHubItem.QR_TAG, WagmiyaHubItem.REMINDERS, WagmiyaHubItem.SETTINGS))
+    HubGroup("Care & plans", listOf(WagmiyaHubItem.CARE_PLANS, WagmiyaHubItem.PRICE_LIST, WagmiyaHubItem.INSURANCE, WagmiyaHubItem.RECORDS)),
+    HubGroup("Help, fast", listOf(WagmiyaHubItem.FIRST_AID, WagmiyaHubItem.TOXIC_FOOD, WagmiyaHubItem.SYMPTOMS, WagmiyaHubItem.VET_ONLINE)),
+    HubGroup("Near me", listOf(WagmiyaHubItem.NEARBY, WagmiyaHubItem.COMMUNITY, WagmiyaHubItem.CARE_TIPS, WagmiyaHubItem.WHATS_NEW)),
+    HubGroup("Account", listOf(WagmiyaHubItem.QR_TAG, WagmiyaHubItem.REMINDERS, WagmiyaHubItem.HOUSING_HELP, WagmiyaHubItem.SETTINGS))
+))
 )
 
 @Composable

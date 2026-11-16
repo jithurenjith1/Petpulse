@@ -338,31 +338,6 @@ val appCtx = LocalContext.current
                 }
             )
             }
-            // Feature buttons grid — shown ONLY in My Pet section
-            if (currentTab == MainNavTab.MY_PETS) {
-            // Feature tabs - wrapped so all 11 are visible without horizontal scrolling.
-            // Every chip is now an OUTLINE chip (light/transparent fill, coloured border
-            // and coloured text) with generous 16dp outer padding and 8dp gaps, so nothing
-            // is cramped. A chip fills with the primary ONLY while it is the selected one.
-            androidx.compose.foundation.layout.FlowRow(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FeatureButton(stringResource(R.string.whatsnew_tab), MaterialTheme.colorScheme.primary) { showWhatsNewScreen = true }
-                FeatureButton("Nearby", MaterialTheme.colorScheme.primary) { showMapScreen = true }
-                FeatureButton("Insurance", MaterialTheme.colorScheme.primary) { showInsuranceScreen = true }
-                FeatureButton("Community", MaterialTheme.colorScheme.primary) { showCommunityScreen = true }
-                FeatureButton("Care Tips", MaterialTheme.colorScheme.primary) { showCareTipsScreen = true }
-                FeatureButton(stringResource(R.string.mypets_feature_symptom_guide), MaterialTheme.colorScheme.primary) { showSymptomScreen = true }
-                FeatureButton("Vet Online", MaterialTheme.colorScheme.primary) { showVetScreen = true }
-                FeatureButton("Care Plan", MaterialTheme.colorScheme.primary) { showSubscriptionScreen = true }
-                FeatureButton("Records", MaterialTheme.colorScheme.primary) { showHealthRecordsScreen = true }
-                FeatureButton(stringResource(R.string.mypets_feature_emergency), Color(0xFFB0605A)) { showEmergencyScreen = true }
-                FeatureButton(stringResource(R.string.mypets_feature_price_card), MaterialTheme.colorScheme.primary) { showServicePriceScreen = true }
-            }
-            }
-
         Crossfade(
             targetState = currentTab,
             label = "ScreenTransition",
@@ -602,13 +577,18 @@ val appCtx = LocalContext.current
                                 WagmiyaHubItem.CARE_PLANS -> showSubscriptionScreen = true
                                 WagmiyaHubItem.PRICE_LIST -> showServicePriceScreen = true
                                 WagmiyaHubItem.INSURANCE -> showInsuranceScreen = true
+                                WagmiyaHubItem.RECORDS -> showHealthRecordsScreen = true
                                 WagmiyaHubItem.FIRST_AID -> showEmergencyScreen = true
                                 WagmiyaHubItem.TOXIC_FOOD -> showToxicFoodScreen = true
                                 WagmiyaHubItem.SYMPTOMS -> showSymptomScreen = true
+                                WagmiyaHubItem.VET_ONLINE -> showVetScreen = true
+                                WagmiyaHubItem.NEARBY -> showMapScreen = true
                                 WagmiyaHubItem.COMMUNITY -> showCommunityScreen = true
+                                WagmiyaHubItem.CARE_TIPS -> showCareTipsScreen = true
                                 WagmiyaHubItem.WHATS_NEW -> showWhatsNewScreen = true
                                 WagmiyaHubItem.QR_TAG -> showPetQrScreen = true
                                 WagmiyaHubItem.REMINDERS -> showVaccinationRemindersScreen = true
+                                WagmiyaHubItem.HOUSING_HELP -> showHousingHelpScreen = true
                                 WagmiyaHubItem.SETTINGS -> showProfileSettingsScreen = true
                             }
                         },
