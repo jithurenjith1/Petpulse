@@ -50,6 +50,7 @@ enum class ExploreSubTab {
 
 enum class PartnerSubTab {
     GROOMING_CENTERS,
+    VET_CONSULTATIONS,
     FOOD_SUBSCRIPTION,
     PET_BOARDING,
     FIND_MY_PET,

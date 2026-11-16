@@ -558,6 +558,9 @@ val appCtx = LocalContext.current
                             viewModel.placeSubscriptionBooking(title, planType, monthlyEstimate)
                         },
                         activePetName = activePet.name,
+                        doctors = verifiedDoctors,
+                        onBookDoctor = { doctor -> selectedDoctorForBooking = doctor },
+                        trainingGuides = marketTrainingGuides,
                         newsPosts = newsPosts,
                         onTriggerSosDialog = { showSosScreen = true },
                         onAddListingDialog = { showAddListingDialog = true },

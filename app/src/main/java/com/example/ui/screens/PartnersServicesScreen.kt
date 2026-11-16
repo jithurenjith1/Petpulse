@@ -1,5 +1,7 @@
 package com.petpulse.app.ui.screens
 
+import com.petpulse.app.data.model.VerifiedDoctor
+import com.petpulse.app.data.model.TrainingGuide
 import androidx.compose.ui.res.stringResource
 import com.petpulse.app.R
 
@@ -68,6 +70,11 @@ fun PartnersServicesScreen(
     trainerSpeciality: String = "",
     onSelectTrainerSpeciality: (String) -> Unit = {},
     activePetName: String = "",
+    // Vets and training guides moved here from the Market tab so all services live
+    // in one place. Both default to empty so older call sites still compile.
+    doctors: List<VerifiedDoctor> = emptyList(),
+    onBookDoctor: (VerifiedDoctor) -> Unit = {},
+    trainingGuides: List<TrainingGuide> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     var showBusinessPartnerDialog by remember { mutableStateOf(false) }
@@ -211,6 +218,7 @@ fun PartnersServicesScreen(
                     helper = "Pick what you need. Each card does one job.",
                     items = listOf(
                         HubItem(PartnerSubTab.GROOMING_CENTERS.name, "\u2702\uFE0F", "Grooming", "Salons near you"),
+                        HubItem(PartnerSubTab.VET_CONSULTATIONS.name, "\uD83E\uDE7A", "Vets", "Consult & clinics"),
                         HubItem(PartnerSubTab.PET_BOARDING.name, "\uD83C\uDFE1", "Boarding", "Sitters & stays"),
                         HubItem(PartnerSubTab.TRAINERS.name, "\uD83C\uDF93", "Training", "Trainers & videos"),
                         HubItem(PartnerSubTab.FIND_MY_PET.name, "\uD83D\uDEA8", "Lost pet", "Alerts & GPS"),
@@ -230,6 +238,7 @@ fun PartnersServicesScreen(
             } else {
                 val icon = when (currentSubTab) {
                     PartnerSubTab.GROOMING_CENTERS -> "\u2702\uFE0F"
+                    PartnerSubTab.VET_CONSULTATIONS -> "\uD83E\uDE7A"
                     PartnerSubTab.FOOD_SUBSCRIPTION -> "\uD83D\uDCE6"
                     PartnerSubTab.PET_BOARDING -> "\uD83C\uDFE1"
                     PartnerSubTab.FIND_MY_PET -> "\uD83D\uDEA8"
@@ -240,6 +249,7 @@ fun PartnersServicesScreen(
                 }
                 val label = when (currentSubTab) {
                     PartnerSubTab.GROOMING_CENTERS -> "Grooming"
+                    PartnerSubTab.VET_CONSULTATIONS -> "Vets"
                     PartnerSubTab.FOOD_SUBSCRIPTION -> "Subscriptions"
                     PartnerSubTab.PET_BOARDING -> "Boarding & sitters"
                     PartnerSubTab.FIND_MY_PET -> "Lost pet & GPS"
@@ -260,6 +270,28 @@ fun PartnersServicesScreen(
         // 3. Submenu Dynamic Content
         if (!showServiceGrid) {
         when (currentSubTab) {
+            PartnerSubTab.VET_CONSULTATIONS -> {
+                // Moved from the Market tab: verified vets for tele-consults.
+                item {
+                    MarketSectionHeader(
+                        title = "Consult a vet",
+                        subtitle = "Verified vets for tele-consults, vaccinations and check-ups",
+                        icon = Icons.Default.LocalHospital
+                    )
+                }
+                if (doctors.isEmpty()) {
+                    item {
+                        EmptyMarketState(message = "No vets listed in your region yet.")
+                    }
+                }
+                items(doctors, key = { "vet_" + it.id }) { doctor ->
+                    VerifiedDoctorCard(
+                        doctor = doctor,
+                        onBook = { onBookDoctor(doctor) }
+                    )
+                }
+            }
+
             PartnerSubTab.GROOMING_CENTERS -> {
                 // Section 1: Grooming Centers Nearby
                 item {
@@ -495,6 +527,24 @@ fun PartnersServicesScreen(
             }
 
             PartnerSubTab.TRAINERS -> {
+                // Training guides moved here from the Market tab, so the Services
+                // Training tab is the single place for programmes AND trainers.
+                item {
+                    MarketSectionHeader(
+                        title = "Training guides",
+                        subtitle = "Basic to advanced programmes for your pet",
+                        icon = Icons.Default.School
+                    )
+                }
+                if (trainingGuides.isEmpty()) {
+                    item {
+                        EmptyMarketState(message = "No training guides published yet.")
+                    }
+                }
+                items(trainingGuides, key = { "tg_" + it.title }) { guide ->
+                    TrainingGuideCard(guide = guide)
+                }
+
                 // Section 8: Trainers & Behaviour — partner-listed trainers and
                 // behaviourists, reusing the same listing + booking pattern as
                 // boarding / sitters (Products collection, listType "Trainer").

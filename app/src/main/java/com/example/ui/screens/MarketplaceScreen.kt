@@ -236,10 +236,7 @@ fun MarketplaceScreen(
                             HubItem(MarketplaceCategory.PET_LISTINGS.name, "\uD83D\uDC3E", "Pets", "Sale & adoption"),
                             HubItem(MarketplaceCategory.FOOD.name, "\uD83C\uDF56", "Food", "Food & treats"),
                             HubItem(MarketplaceCategory.MEDICINES.name, "\uD83D\uDC8A", "Medicines", "Rx & supplements"),
-                            HubItem(MarketplaceCategory.ACCESSORIES.name, "\uD83D\uDECD\uFE0F", "Accessories", "Collars & toys"),
-                            HubItem(MarketplaceCategory.GROOMING_SERVICES.name, "\u2702\uFE0F", "Grooming", "Salons near you"),
-                            HubItem(MarketplaceCategory.VET_CONSULTATIONS.name, "\uD83E\uDE7A", "Vets", "Consult & clinics"),
-                            HubItem(MarketplaceCategory.TRAINING.name, "\uD83C\uDF93", "Training", "Trainers & videos")
+                            HubItem(MarketplaceCategory.ACCESSORIES.name, "\uD83D\uDECD\uFE0F", "Accessories", "Collars & toys")
                         ),
                         selectedId = currentCategory.name,
                         onSelect = { id ->
@@ -344,10 +341,7 @@ fun MarketplaceScreen(
                         HubItem(MarketplaceCategory.PET_LISTINGS.name, "\uD83D\uDC3E", "Pets", "Sale & adoption"),
                         HubItem(MarketplaceCategory.FOOD.name, "\uD83C\uDF56", "Food", "Food & treats"),
                         HubItem(MarketplaceCategory.MEDICINES.name, "\uD83D\uDC8A", "Medicines", "Rx & supplements"),
-                        HubItem(MarketplaceCategory.ACCESSORIES.name, "\uD83D\uDECD\uFE0F", "Accessories", "Collars & toys"),
-                        HubItem(MarketplaceCategory.GROOMING_SERVICES.name, "\u2702\uFE0F", "Grooming", "Salons near you"),
-                        HubItem(MarketplaceCategory.VET_CONSULTATIONS.name, "\uD83E\uDE7A", "Vets", "Consult & clinics"),
-                        HubItem(MarketplaceCategory.TRAINING.name, "\uD83C\uDF93", "Training", "Trainers & videos")
+                        HubItem(MarketplaceCategory.ACCESSORIES.name, "\uD83D\uDECD\uFE0F", "Accessories", "Collars & toys")
                     ),
                     selectedId = currentCategory.name,
                     onSelect = { id ->
