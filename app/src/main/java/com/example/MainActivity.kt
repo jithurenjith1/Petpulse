@@ -230,7 +230,7 @@ val appCtx = LocalContext.current
 
     LaunchedEffect(dataIssue) {
         val current = dataIssue ?: return@LaunchedEffect
-        if (current.isPermissionDenied) {
+        if (current.isSessionExpired) {
             showSessionExpired = true
         } else if (!current.isOffline) {
             snackbarHostState.showSnackbar(current.message)

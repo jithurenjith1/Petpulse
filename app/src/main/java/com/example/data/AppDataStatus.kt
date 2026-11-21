@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
  */
 data class DataIssue(
     val message: String,
-    val isPermissionDenied: Boolean = false,
+    val isSessionExpired: Boolean = false,
     val isOffline: Boolean = false,
     val timestamp: Long = System.currentTimeMillis()
 )
@@ -67,25 +67,46 @@ object AppDataStatus {
      * Report a read failure. Safe to call from any thread; called from Firestore
      * listener callbacks, which run on the background executor.
      */
+    // Last issue shown, used to suppress repeats of the same message.
+    @Volatile
+    private var lastReport: DataIssue? = null
+
     fun report(throwable: Throwable?) {
         if (throwable == null) return
         val code = (throwable as? FirebaseFirestoreException)?.code
-        val permissionDenied = code == FirebaseFirestoreException.Code.PERMISSION_DENIED ||
-            code == FirebaseFirestoreException.Code.UNAUTHENTICATED
+
+        // Only a genuinely invalid credential means the session is over.
+        // A plain PERMISSION_DENIED is a Firestore rules decision (or a failed
+        // App Check), NOT a logout. Treating the two the same is what produced a
+        // "Session expired" dialog for a customer who was still signed in.
+        val sessionExpired = code == FirebaseFirestoreException.Code.UNAUTHENTICATED
+        val denied = code == FirebaseFirestoreException.Code.PERMISSION_DENIED
         val offline = code == FirebaseFirestoreException.Code.UNAVAILABLE
+
         val message = when {
-            permissionDenied -> "You no longer have access to this. Please sign in again."
+            sessionExpired -> "Your session has ended. Please sign in again."
+            denied -> "Some content isn't available for your account right now."
             offline -> "You're offline — we couldn't refresh this."
             else -> throwable.localizedMessage
                 ?.takeIf { it.isNotBlank() }
                 ?.let { "Couldn't load: $it" }
                 ?: "Couldn't load this right now."
         }
-        _issue.value = DataIssue(
+
+        // One denied listener must not spam the UI with the same line every retry.
+        val now = System.currentTimeMillis()
+        val previous = lastReport
+        if (previous != null && previous.message == message && now - previous.timestamp < 20_000L) {
+            return
+        }
+
+        val issue = DataIssue(
             message = message,
-            isPermissionDenied = permissionDenied,
+            isSessionExpired = sessionExpired,
             isOffline = offline
         )
+        lastReport = issue
+        _issue.value = issue
     }
 
     fun clear() {
