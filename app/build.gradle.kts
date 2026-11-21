@@ -7,7 +7,6 @@ plugins {
   alias(libs.plugins.roborazzi)
   alias(libs.plugins.secrets)
   alias(libs.plugins.google.services)
-  alias(libs.plugins.crashlytics)
 }
 
 android {
@@ -123,22 +122,11 @@ dependencies {
   implementation(libs.firebase.appcheck)
   implementation(libs.firebase.appcheck.playintegrity)
   implementation(libs.firebase.appcheck.debug)
-  // Firebase Crashlytics: crash and non-fatal reporting. Auto-initialises via
-  // the Google Services plugin, so no manual initialisation is required.
-  implementation(libs.firebase.crashlytics)
-  // Firebase Cloud Messaging: receive SOS / care notifications. Version is
-  // managed by the Firebase BOM above - do NOT pin a version here.
-  implementation(libs.firebase.messaging)
-  // Firebase Analytics: log the five key product events. Version is managed by
-  // the Firebase BOM above - do NOT pin a version, and use the non-ktx artifact.
-  implementation("com.google.firebase:firebase-analytics")
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.logging.interceptor)
   implementation(libs.moshi.kotlin)
   implementation(libs.okhttp)
-  // QR code generation for the Pet QR Tag feature (rendered to a Compose bitmap).
-  implementation(libs.zxing.core)
   implementation(libs.play.services.location)
     implementation("org.osmdroid:osmdroid-android:6.1.20")
   implementation(libs.retrofit)
