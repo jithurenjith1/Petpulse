@@ -434,8 +434,29 @@ private fun AiPhotoAnalysisContent(
                                 aiText = result
                             }
                         } catch (e: Exception) {
-                            errorText = "Analysis failed: " +
+                            val base = "Analysis failed: " +
                                 (e.localizedMessage ?: "please check your connection and try again.")
+                            errorText = base
+                            // Debug builds: print the App Check token right under the error.
+                            // It is the only value needed to fix an "App Check token is
+                            // invalid" failure, and logcat is not readable from a phone.
+                            if (com.petpulse.app.BuildConfig.DEBUG) {
+                                try {
+                                    com.google.firebase.appcheck.FirebaseAppCheck.getInstance()
+                                        .getAppCheckToken(false)
+                                        .addOnSuccessListener { token ->
+                                            errorText = base +
+                                                "\n\nDEBUG App Check token — register this in Firebase Console → App Check → Manage debug tokens:\n" +
+                                                token.token
+                                        }
+                                        .addOnFailureListener {
+                                            errorText = base +
+                                                "\n\n(could not read the App Check token on this build)"
+                                        }
+                                } catch (_: Exception) {
+                                    // Never let diagnostics mask the real error.
+                                }
+                            }
                         } finally {
                             isAnalysing = false
                         }
@@ -467,12 +488,14 @@ private fun AiPhotoAnalysisContent(
 
             if (errorText.isNotBlank()) {
                 Spacer(Modifier.height(12.dp))
-                Text(
-                    text = errorText,
-                    color = Color(0xFFE57373),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+                androidx.compose.foundation.text.selection.SelectionContainer {
+                    Text(
+                        text = errorText,
+                        color = Color(0xFFE57373),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
 
             // ---- Result card ----
