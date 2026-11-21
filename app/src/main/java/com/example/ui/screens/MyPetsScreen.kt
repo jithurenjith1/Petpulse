@@ -530,9 +530,17 @@ fun MyPetsScreen(
         }
 
         // 4. Submenu Content Panels
-        // Premium AI Pet Photo Analysis entry point (sits next to the AI/Care area).
-        item {
-            AiPhotoAnalysisEntryCard(isPremium = isPremium, onOpen = onOpenAiPhoto)
+        // Premium AI Pet Photo Analysis entry point.
+        //
+        // Hidden in debug builds on purpose: Firebase AI Logic requires App Check,
+        // and a sideloaded debug APK can only satisfy that with a registered debug
+        // token, whose exchange Google's backend keeps rejecting. Release builds use
+        // Play Integrity, which works for apps installed from Play, so the feature
+        // stays visible there. This avoids showing a broken card while testing.
+        if (!com.petpulse.app.BuildConfig.DEBUG) {
+            item {
+                AiPhotoAnalysisEntryCard(isPremium = isPremium, onOpen = onOpenAiPhoto)
+            }
         }
 
         if (!showSectionGrid) {
