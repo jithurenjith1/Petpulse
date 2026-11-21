@@ -80,26 +80,43 @@ class PetpulseApp : Application() {
 }
 
 /**
+ * Result of looking for the App Check debug token on disk.
+ *
+ * @param token  the token, when one was found
+ * @param detail short diagnostic text listing what was actually on disk, shown in
+ *               debug builds so a wrong assumption can be corrected without a guess
+ */
+data class DebugTokenLookup(val token: String?, val detail: String)
+
+/**
  * Reads the App Check debug token that the debug provider generated for this install.
  *
- * The token lives in logcat, which cannot be read from a phone, so we read the same
- * SharedPreferences entry the provider writes (names verified against
- * firebase-appcheck-debug 19.4.0). Returns null until the provider has run once.
+ * The token is written to logcat (unreadable from a phone) and to a SharedPreferences
+ * file whose name embeds an app suffix we cannot know for certain, so this scans the
+ * app's own shared_prefs directory instead of guessing the file name.
  */
-fun readDebugAppCheckToken(context: android.content.Context): String? {
+fun lookupDebugAppCheckToken(context: android.content.Context): DebugTokenLookup {
     val prefsKey = "com.google.firebase.appcheck.debug.DEBUG_SECRET"
-    val suffixes = listOf(
-        com.google.firebase.FirebaseApp.getInstance().name,
-        context.packageName,
-        "[DEFAULT]"
-    ).distinct()
-    for (suffix in suffixes) {
-        val prefs = context.getSharedPreferences(
-            "com.google.firebase.appcheck.debug.store." + suffix,
-            android.content.Context.MODE_PRIVATE
-        )
-        val token = prefs.getString(prefsKey, null)
-        if (!token.isNullOrBlank()) return token
+    val dir = java.io.File(context.applicationInfo.dataDir, "shared_prefs")
+    val files = dir.listFiles()
+    if (files == null || files.isEmpty()) {
+        return DebugTokenLookup(null, "shared_prefs is empty (" + dir.absolutePath + ")")
     }
-    return null
+    val names = files.map { it.name.removeSuffix(".xml") }.sorted()
+    val candidates = names.filter { it.contains("appcheck", ignoreCase = true) }
+
+    for (name in candidates) {
+        val prefs = context.getSharedPreferences(name, android.content.Context.MODE_PRIVATE)
+        val token = prefs.getString(prefsKey, null)
+        if (!token.isNullOrBlank()) {
+            return DebugTokenLookup(token, "found in " + name)
+        }
+    }
+
+    // Nothing matched: report what exists so the next attempt can be exact.
+    return DebugTokenLookup(
+        null,
+        "no token yet. appcheck prefs: " + (if (candidates.isEmpty()) "none" else candidates.joinToString()) +
+            " | all prefs: " + names.joinToString()
+    )
 }

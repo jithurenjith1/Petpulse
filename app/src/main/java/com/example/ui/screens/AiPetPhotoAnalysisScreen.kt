@@ -441,17 +441,17 @@ private fun AiPhotoAnalysisContent(
                             // It is the only value needed to fix an "App Check token is
                             // invalid" failure, and logcat is not readable from a phone.
                             if (com.petpulse.app.BuildConfig.DEBUG) {
-                                // The debug provider stores its token locally, so read it
+                                // The debug provider stores its token on disk, so read it
                                 // from there. getAppCheckToken() cannot be used: it exchanges
                                 // the token with the backend, which is the call that fails
                                 // until the token is registered.
-                                val debugToken = com.petpulse.app.readDebugAppCheckToken(context)
-                                errorText = if (debugToken.isNullOrBlank()) {
-                                    base + "\n\n(App Check debug token not generated yet — open this screen once more.)"
-                                } else {
+                                val lookup = com.petpulse.app.lookupDebugAppCheckToken(context)
+                                errorText = if (lookup.token != null) {
                                     base +
                                         "\n\nDEBUG App Check token — register this in Firebase Console → App Check → Manage debug tokens:\n" +
-                                        debugToken
+                                        lookup.token
+                                } else {
+                                    base + "\n\n" + lookup.detail
                                 }
                             }
                         } finally {
