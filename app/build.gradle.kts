@@ -114,6 +114,9 @@ dependencies {
 
   // Firebase Auth and Google Sign-In via Credential Manager:
   implementation(libs.firebase.auth)
+  // Push messaging (WagmiyaMessagingService) and Analytics (order_placed events).
+  implementation(libs.firebase.messaging)
+  implementation(libs.firebase.analytics)
   implementation(libs.androidx.credentials)
   implementation(libs.androidx.credentials.play.services)
   implementation(libs.googleid)
