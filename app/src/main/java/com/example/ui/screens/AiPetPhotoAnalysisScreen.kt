@@ -441,21 +441,13 @@ private fun AiPhotoAnalysisContent(
                             // It is the only value needed to fix an "App Check token is
                             // invalid" failure, and logcat is not readable from a phone.
                             if (com.petpulse.app.BuildConfig.DEBUG) {
-                                try {
-                                    com.google.firebase.appcheck.FirebaseAppCheck.getInstance()
-                                        .getAppCheckToken(false)
-                                        .addOnSuccessListener { token ->
-                                            errorText = base +
-                                                "\n\nDEBUG App Check token — register this in Firebase Console → App Check → Manage debug tokens:\n" +
-                                                token.token
-                                        }
-                                        .addOnFailureListener {
-                                            errorText = base +
-                                                "\n\n(could not read the App Check token on this build)"
-                                        }
-                                } catch (_: Exception) {
-                                    // Never let diagnostics mask the real error.
-                                }
+                                // The token is a fixed constant in debug builds, so it can be
+                                // shown directly. getAppCheckToken() cannot be used here: it
+                                // exchanges the token with the backend, which is exactly the
+                                // call that fails until the token is registered.
+                                errorText = base +
+                                    "\n\nDEBUG App Check token — register this in Firebase Console → App Check → Manage debug tokens:\n" +
+                                    com.petpulse.app.DEBUG_APP_CHECK_TOKEN
                             }
                         } finally {
                             isAnalysing = false
