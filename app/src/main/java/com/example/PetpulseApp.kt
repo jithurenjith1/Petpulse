@@ -1,10 +1,6 @@
 package com.petpulse.app
 
-import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
-import com.google.firebase.appcheck.AppCheckProvider
-import com.google.firebase.appcheck.AppCheckProviderFactory
-import com.google.firebase.appcheck.AppCheckToken
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,6 +10,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -74,11 +71,7 @@ class PetpulseApp : Application() {
      */
     private fun installAppCheck() {
         val factory = if (BuildConfig.DEBUG) {
-            // A sideloaded debug APK has no Play Integrity, and the auto-generated
-            // debug token only exists in logcat (unreadable from a phone). Pinning the
-            // token makes it a known constant that can be registered once in the
-            // Firebase console. Release builds never reach this branch.
-            FixedDebugAppCheckProviderFactory(DEBUG_APP_CHECK_TOKEN)
+            DebugAppCheckProviderFactory.getInstance()
         } else {
             PlayIntegrityAppCheckProviderFactory.getInstance()
         }
@@ -87,29 +80,26 @@ class PetpulseApp : Application() {
 }
 
 /**
- * Debug-only App Check token.
+ * Reads the App Check debug token that the debug provider generated for this install.
  *
- * Register this exact value once in Firebase Console -> App Check -> Apps ->
- * (the com.petpulse.app app) -> Manage debug tokens. It is only used when
- * BuildConfig.DEBUG is true; release builds use Play Integrity.
+ * The token lives in logcat, which cannot be read from a phone, so we read the same
+ * SharedPreferences entry the provider writes (names verified against
+ * firebase-appcheck-debug 19.4.0). Returns null until the provider has run once.
  */
-const val DEBUG_APP_CHECK_TOKEN = "3c6b6dc2-2606-4883-899e-648fe3fb154b"
-
-private class FixedDebugAppCheckProvider(
-    private val token: String
-) : AppCheckProvider {
-    private fun freshToken() = AppCheckToken(token, System.currentTimeMillis() + 3_600_000L)
-
-    override fun getToken(): com.google.android.gms.tasks.Task<AppCheckToken> =
-        Tasks.forResult(freshToken())
-
-    override fun getLimitedUseToken(): com.google.android.gms.tasks.Task<AppCheckToken> =
-        Tasks.forResult(freshToken())
-}
-
-private class FixedDebugAppCheckProviderFactory(
-    private val token: String
-) : AppCheckProviderFactory {
-    override fun create(firebaseApp: FirebaseApp): AppCheckProvider =
-        FixedDebugAppCheckProvider(token)
+fun readDebugAppCheckToken(context: android.content.Context): String? {
+    val prefsKey = "com.google.firebase.appcheck.debug.DEBUG_SECRET"
+    val suffixes = listOf(
+        com.google.firebase.FirebaseApp.getInstance().name,
+        context.packageName,
+        "[DEFAULT]"
+    ).distinct()
+    for (suffix in suffixes) {
+        val prefs = context.getSharedPreferences(
+            "com.google.firebase.appcheck.debug.store." + suffix,
+            android.content.Context.MODE_PRIVATE
+        )
+        val token = prefs.getString(prefsKey, null)
+        if (!token.isNullOrBlank()) return token
+    }
+    return null
 }
