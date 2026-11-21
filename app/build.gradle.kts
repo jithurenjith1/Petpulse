@@ -117,6 +117,8 @@ dependencies {
   // Push messaging (WagmiyaMessagingService) and Analytics (order_placed events).
   implementation(libs.firebase.messaging)
   implementation(libs.firebase.analytics)
+  // QR generation for pet tags (PetQrScreen).
+  implementation(libs.zxing.core)
   implementation(libs.androidx.credentials)
   implementation(libs.androidx.credentials.play.services)
   implementation(libs.googleid)
