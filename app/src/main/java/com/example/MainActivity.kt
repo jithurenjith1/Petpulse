@@ -718,10 +718,35 @@ val appCtx = LocalContext.current
             planKey = planKey,
             onDismiss = { showEscrowCheckoutModal = false },
             onConfirmOrder = { city, address, name, phone, paymentMethod, addAccidentCover ->
-                val newOrder = viewModel.placeEscrowOrder(city, address, name, phone, paymentMethod, addAccidentCover)
+                // Hold the new order so the confirmation screen opens only AFTER the
+                // Firestore write succeeds. Showing it optimistically told the customer
+                // "Order placed!" even when the order was never saved.
+                var pendingOrder: EscrowOrder? = null
+                val newOrder = viewModel.placeEscrowOrder(
+                    city = city,
+                    address = address,
+                    name = name,
+                    phone = phone,
+                    paymentMethod = paymentMethod,
+                    addAccidentCover = addAccidentCover,
+                    onSaved = { saved, needsSignIn ->
+                        if (saved) {
+                            placedOrder = pendingOrder
+                        } else {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    if (needsSignIn) {
+                                        "Please sign in first - the order was not saved."
+                                    } else {
+                                        "The order could not be saved. Please check your connection and try again."
+                                    }
+                                )
+                            }
+                        }
+                    }
+                )
+                pendingOrder = newOrder
                 showEscrowCheckoutModal = false
-                // Show the confirmation screen instead of jumping straight into My Orders.
-                placedOrder = newOrder
             }
         )
     }

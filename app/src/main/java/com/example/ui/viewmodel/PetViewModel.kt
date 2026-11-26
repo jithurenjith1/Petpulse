@@ -1082,7 +1082,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         name: String,
         phone: String,
         paymentMethod: String,
-        addAccidentCover: Boolean = false
+        addAccidentCover: Boolean = false,
+        // Called once the Firestore write finishes. Without this the caller had no
+        // way to know whether the order was actually saved - it showed "Order placed!"
+        // even when the write failed (for example when nobody was signed in).
+        onSaved: (saved: Boolean, needsSignIn: Boolean) -> Unit = { _, _ -> }
     ): EscrowOrder {
         val items = _cartItems.value
         val subtotal = items.sumOf { it.priceInr * it.quantity }
@@ -1140,11 +1144,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     // Analytics: the order was placed successfully.
                     FirebaseAnalytics.getInstance(getApplication()).logEvent("order_placed", null)
                 }
+                val needsSignIn = result.exceptionOrNull()?.message == "NOT_SIGNED_IN"
                 _commerceEvent.value = when {
-                    result.exceptionOrNull()?.message == "NOT_SIGNED_IN" -> R.string.order_sign_in_to_place
+                    needsSignIn -> R.string.order_sign_in_to_place
                     result.isSuccess -> R.string.order_placed_msg
                     else -> R.string.order_failed_msg
                 }
+                onSaved(result.isSuccess, needsSignIn)
             } finally {
                 _placing.value = false
             }
