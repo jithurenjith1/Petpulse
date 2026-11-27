@@ -1422,65 +1422,7 @@ private fun PetCareTipCard(modifier: Modifier = Modifier) {
  * has already passed). When there is no readable reminder it shows an honest empty
  * line rather than an invented date.
  */
-@Composable
-private fun PetNextReminderCard(
-    vaccinations: List<VaccinationRecord> = emptyList(),
-    modifier: Modifier = Modifier
-) {
-    val nextReminder = vaccinations
-        .filter { it.status != "Completed" }
-        .mapNotNull { record -> parseVaccineDate(record.nextDueDate)?.let { due -> record to due } }
-        .minByOrNull { it.second }
 
-    Card(
-        modifier = modifier.fillMaxWidth().testTag("pet_next_reminder_card"),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.mypets_reminder_title),
-                fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (nextReminder == null) {
-                Text(
-                    text = stringResource(R.string.mypets_reminder_none),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } else {
-                val (record, due) = nextReminder
-                val overdue = due.isBefore(LocalDate.now())
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = record.vaccineName.ifBlank { stringResource(R.string.mypets_reminder_vaccination) },
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.mypets_reminder_due, record.nextDueDate),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    ReminderStatusPill(overdue = overdue)
-                }
-            }
-        }
-    }
-}
 
 /** Small pill: soft green "On track", or a muted brick "Overdue" when the date has passed. */
 @Composable
@@ -2230,56 +2172,4 @@ private fun HealthToolRow(
  * "See plans" opens the EXISTING insurance screen (PetInsuranceScreen) - no new
  * insurer or payment flow is introduced.
  */
-@Composable
-private fun InsuranceNudgeCard(petId: Long, onSeePlans: () -> Unit) {
-    val context = LocalContext.current
-    val prefs = remember { context.getSharedPreferences("wagmiya_prefs", android.content.Context.MODE_PRIVATE) }
-    val flagKey = "insurance_nudge_pet_" + petId
-    var dismissed by remember(petId) { mutableStateOf(prefs.getBoolean(flagKey, false)) }
-    if (!dismissed) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 6.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-        ) {
-            Column(modifier = Modifier.padding(14.dp)) {
-                Text(
-                    text = stringResource(R.string.insurance_nudge_title),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.insurance_nudge_body),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Button(
-                        onClick = {
-                            prefs.edit().putBoolean(flagKey, true).apply()
-                            dismissed = true
-                            onSeePlans()
-                        },
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Text(stringResource(R.string.insurance_nudge_see_plans), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
-                    TextButton(
-                        onClick = {
-                            prefs.edit().putBoolean(flagKey, true).apply()
-                            dismissed = true
-                        }
-                    ) {
-                        Text(stringResource(R.string.insurance_nudge_not_now), fontSize = 12.sp)
-                    }
-                }
-            }
-        }
-    }
-}
+

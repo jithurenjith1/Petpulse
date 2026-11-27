@@ -60,10 +60,10 @@ enum class WagmiyaHubItem(val title: String, val subtitle: String, val emoji: St
 private data class HubGroup(val title: String, val items: List<WagmiyaHubItem>)
 
 private val HUB_GROUPS = listOf(
-    HubGroup("Care & plans", listOf(WagmiyaHubItem.CARE_PLANS, WagmiyaHubItem.PRICE_LIST, WagmiyaHubItem.INSURANCE, WagmiyaHubItem.RECORDS)),
+    HubGroup("Care & plans", listOf(WagmiyaHubItem.CARE_PLANS, WagmiyaHubItem.PRICE_LIST, WagmiyaHubItem.INSURANCE)),
     HubGroup("Help, fast", listOf(WagmiyaHubItem.FIRST_AID, WagmiyaHubItem.TOXIC_FOOD, WagmiyaHubItem.SYMPTOMS, WagmiyaHubItem.VET_ONLINE)),
     HubGroup("Near me", listOf(WagmiyaHubItem.NEARBY, WagmiyaHubItem.COMMUNITY, WagmiyaHubItem.CARE_TIPS, WagmiyaHubItem.WHATS_NEW)),
-    HubGroup("Account", listOf(WagmiyaHubItem.QR_TAG, WagmiyaHubItem.REMINDERS, WagmiyaHubItem.HOUSING_HELP, WagmiyaHubItem.SETTINGS))
+    HubGroup("Account", listOf(WagmiyaHubItem.HOUSING_HELP, WagmiyaHubItem.SETTINGS))
 )
 
 @Composable
