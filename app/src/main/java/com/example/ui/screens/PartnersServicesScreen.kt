@@ -1,5 +1,6 @@
 package com.petpulse.app.ui.screens
 
+import com.petpulse.app.ui.components.maskPhone
 import com.petpulse.app.data.model.VerifiedDoctor
 import com.petpulse.app.data.model.TrainingGuide
 import androidx.compose.ui.res.stringResource
@@ -318,7 +319,14 @@ fun PartnersServicesScreen(
                     GroomingCenterCard(
                         center = center,
                         onBookClick = { onActionNotification("Booking appointment at ${center.name}") },
-                        onCallClick = { onActionNotification("Calling ${center.phone}") }
+                        onCallClick = {
+                            // The partner's full number is never shown to a customer.
+                            // The next step is a booking, and the salon calls back to confirm.
+                            onActionNotification(
+                                center.name + "  \u00B7  " + maskPhone(center.phone) +
+                                    "  \u2014  book the appointment and the salon will call you to confirm."
+                            )
+                        }
                     )
                 }
 

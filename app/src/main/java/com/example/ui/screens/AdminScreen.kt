@@ -93,6 +93,7 @@ fun AdminScreen(
     onDeleteSupportTicket: (String) -> Unit = {},
     onDeleteRescueReport: (String) -> Unit = {},
     onDeletePartnerApplication: (String) -> Unit = {},
+    onSetPartnerVerification: (String, String, String) -> Unit = { _, _, _ -> },
     onDeleteLostAlert: (String) -> Unit = {},
     onDeleteFoundReport: (String) -> Unit = {},
     onAssignDealer: (String, Dealer) -> Unit,
@@ -296,7 +297,11 @@ fun AdminScreen(
                         }
                         "TRAINERS" -> ProductsAdminTab(products = products, listTypeFilter = "Trainer", onAdd = onAddProduct, onDelete = onDeleteProduct)
                         "LISTINGS" -> ListingsAdminTab(listings = listings, onDelete = onDeleteListing)
-                        "PARTNERS" -> PartnersAdminTab(applications = partnerApplications, onDelete = onDeletePartnerApplication)
+                        "PARTNERS" -> PartnersAdminTab(
+                            applications = partnerApplications,
+                            onDelete = onDeletePartnerApplication,
+                            onSetVerification = onSetPartnerVerification
+                        )
                         "SUPPORT" -> {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 FilterChip(
@@ -815,14 +820,23 @@ private fun AdminDashboardCard(title: String, subtitle: String, badge: Int = 0, 
 
 /** Business partner joining forms + featured-plan requests submitted from the app. */
 @Composable
-private fun PartnersAdminTab(applications: List<PartnerApplication>, onDelete: (String) -> Unit) {
+private fun PartnersAdminTab(
+    applications: List<PartnerApplication>,
+    onDelete: (String) -> Unit,
+    onSetVerification: (String, String, String) -> Unit
+) {
     if (applications.isEmpty()) {
         Text("No partner applications yet. Business join forms and featured-plan requests will appear here.", fontSize = 14.sp, modifier = Modifier.padding(16.dp))
         return
     }
     val context = LocalContext.current
+    // Hoisted ABOVE the LazyColumn - never remember state inside a lazy content lambda.
+    var rejectTarget by remember { mutableStateOf<PartnerApplication?>(null) }
+    var rejectReason by remember { mutableStateOf("") }
+
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(applications, key = { it.id }) { a ->
+            val status = a.verificationStatus.ifBlank { "PENDING" }
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Row(
@@ -830,7 +844,7 @@ private fun PartnersAdminTab(applications: List<PartnerApplication>, onDelete: (
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("🤝 " + a.kind, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("\uD83E\uDD1D " + a.kind, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Text(formatTimestamp(a.createdAt), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (a.name.isNotBlank()) Text(a.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
@@ -838,6 +852,39 @@ private fun PartnersAdminTab(applications: List<PartnerApplication>, onDelete: (
                     if (a.city.isNotBlank()) Text("City: " + a.city, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (a.planName.isNotBlank()) Text("Plan: " + a.planName, fontSize = 12.sp, color = Color(0xFFA87A1F), fontWeight = FontWeight.SemiBold)
                     if (a.phone.isNotBlank()) Text("Phone: " + a.phone, fontSize = 12.sp, color = Color(0xFF1976D2))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 6.dp)
+                    ) {
+                        val chipBg = when (status) {
+                            "VERIFIED" -> Color(0xFF1F7A4D).copy(alpha = 0.14f)
+                            "REJECTED" -> Color(0xFFD32F2F).copy(alpha = 0.12f)
+                            else -> Color(0xFFA87A1F).copy(alpha = 0.15f)
+                        }
+                        val chipFg = when (status) {
+                            "VERIFIED" -> Color(0xFF1F7A4D)
+                            "REJECTED" -> Color(0xFFD32F2F)
+                            else -> Color(0xFFA87A1F)
+                        }
+                        Surface(shape = RoundedCornerShape(8.dp), color = chipBg) {
+                            Text(
+                                text = status,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = chipFg,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                        if (a.docExpiry > 0L) {
+                            Text("Docs expire " + formatTimestamp(a.docExpiry), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    if (status == "REJECTED" && a.rejectReason.isNotBlank()) {
+                        Text("Reason: " + a.rejectReason, fontSize = 11.sp, color = Color(0xFFD32F2F))
+                    }
+
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (a.phone.isNotBlank()) {
                             TextButton(onClick = {
@@ -848,6 +895,19 @@ private fun PartnersAdminTab(applications: List<PartnerApplication>, onDelete: (
                                 Text("Call", fontSize = 12.sp, color = Color(0xFF1976D2))
                             }
                         }
+                        if (status != "VERIFIED") {
+                            TextButton(onClick = { onSetVerification(a.id, "VERIFIED", "") }) {
+                                Text("Approve", fontSize = 12.sp, color = Color(0xFF1F7A4D), fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        if (status != "REJECTED") {
+                            TextButton(onClick = {
+                                rejectReason = ""
+                                rejectTarget = a
+                            }) {
+                                Text("Reject", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                            }
+                        }
                         TextButton(onClick = { onDelete(a.id) }) {
                             Text("Delete", fontSize = 12.sp, color = Color(0xFFD32F2F))
                         }
@@ -855,6 +915,38 @@ private fun PartnersAdminTab(applications: List<PartnerApplication>, onDelete: (
                 }
             }
         }
+    }
+
+    val target = rejectTarget
+    if (target != null) {
+        AlertDialog(
+            onDismissRequest = { rejectTarget = null },
+            title = { Text("Reject application") },
+            text = {
+                Column {
+                    Text(
+                        "Give a reason. It stays on the record so the decision can be explained later, and so the partner can fix it and re-apply.",
+                        fontSize = 13.sp
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = rejectReason,
+                        onValueChange = { rejectReason = it },
+                        label = { Text("Reason") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onSetVerification(target.id, "REJECTED", rejectReason.trim())
+                    rejectTarget = null
+                }) { Text("Reject") }
+            },
+            dismissButton = {
+                TextButton(onClick = { rejectTarget = null }) { Text("Cancel") }
+            }
+        )
     }
 }
 

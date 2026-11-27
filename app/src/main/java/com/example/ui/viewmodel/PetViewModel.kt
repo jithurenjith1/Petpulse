@@ -1123,7 +1123,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
         val updatedOrders = listOf(newOrder) + _activeOrders.value
         _activeOrders.value = updatedOrders
-        clearCart()
+        // The cart is NOT cleared here. It is cleared only once Firestore confirms the
+        // write, so a failed order no longer wipes the basket the customer just built.
 
         // Also save the REAL order to Firestore so the owner sees it in Admin
         viewModelScope.launch {
@@ -1150,6 +1151,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     result.isSuccess -> R.string.order_placed_msg
                     else -> R.string.order_failed_msg
                 }
+                if (result.isSuccess) clearCart()
                 onSaved(result.isSuccess, needsSignIn)
             } finally {
                 _placing.value = false
@@ -2229,6 +2231,20 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun adminDeletePartnerApplication(id: String) {
         viewModelScope.launch { commerceRepo.deletePartnerApplication(id) }
+
+    /** Admin: approve or reject a partner application (verification workflow). */
+    fun adminSetPartnerVerification(
+        id: String,
+        status: String,
+        reason: String = "",
+        docUrl: String = "",
+        docExpiry: Long = 0L
+    ) {
+        viewModelScope.launch {
+            val ok = commerceRepo.setPartnerVerification(id, status, reason, docUrl, docExpiry).isSuccess
+            _commerceEvent.value = if (ok) R.string.admin_saved else R.string.admin_failed
+        }
+    }
     }
 
     fun adminDeleteSupportTicket(id: String) {

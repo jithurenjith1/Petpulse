@@ -828,6 +828,7 @@ val appCtx = LocalContext.current
             onDeleteRescueReport = { id -> viewModel.adminDeleteRescueReport(id) },
             partnerApplications = adminPartnerApplications,
             onDeletePartnerApplication = { id -> viewModel.adminDeletePartnerApplication(id) },
+            onSetPartnerVerification = { id, status, reason -> viewModel.adminSetPartnerVerification(id, status, reason) },
             partnerCommissions = partnerCommissions,
             onSetPartnerCommission = { entry -> viewModel.setPartnerCommission(entry) },
             onSetPartnerDuesPaid = { entry, paid -> viewModel.setPartnerDuesPaid(entry, paid) },

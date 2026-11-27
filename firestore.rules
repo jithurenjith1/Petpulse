@@ -230,7 +230,11 @@ service cloud.firestore {
     match /partner_applications/{appId} {
       allow create: if isSignedIn();
       allow read, delete: if isAdmin();
-      allow update: if false;
+      // Admin-only verification workflow. Only the verification fields may change,
+      // so an admin cannot silently rewrite what the partner submitted.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['verificationStatus', 'rejectReason', 'docUrl', 'verifiedAt', 'docExpiry']);
     }
 
     // ---------- found pet sighting reports (v10: users report, admin connects) ----------

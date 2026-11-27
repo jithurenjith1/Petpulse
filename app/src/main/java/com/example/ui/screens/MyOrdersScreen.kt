@@ -1,5 +1,6 @@
 package com.petpulse.app.ui.screens
 
+import com.petpulse.app.ui.components.shareOrderReceipt
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.EventAvailable
@@ -210,6 +212,7 @@ fun MyOrdersScreen(
                                 dealerReviews = dealerReviews,
                                 onSubmitDealerReview = onSubmitDealerReview,
                                 onBuyAgain = { onBuyAgain(order) },
+                                onShareReceipt = { shareOrderReceipt(context, order) },
                                 onRequestCancel = { pendingCancelOrder = order },
                                 onRequestDelete = { pendingDeleteOrder = order },
                                 onCallDealer = { phone ->
@@ -409,6 +412,7 @@ private fun MyOrderCard(
     onSubmitDealerReview: (String, Int, String, String) -> Unit = { _, _, _, _ -> },
     onBuyAgain: () -> Unit,
     onCallDealer: (String) -> Unit,
+    onShareReceipt: () -> Unit = {},
     onRequestCancel: () -> Unit = {},
     onRequestDelete: () -> Unit = {}
 ) {
@@ -552,6 +556,18 @@ private fun MyOrderCard(
                 Icon(Icons.Default.Replay, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("Buy Again", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = onShareReceipt,
+                modifier = Modifier.fillMaxWidth().height(40.dp),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Icon(Icons.Default.Receipt, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Receipt", fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
 
             // Delete is offered only for a FINISHED order (DELIVERED / CANCELLED).
@@ -841,7 +857,8 @@ private fun StatusChip(status: String) {
         "NEW" -> Triple("Order Placed", AmberLight, AmberGold)
         "ASSIGNED" -> Triple("Out for Delivery", TealLight, TealAccent)
         "DELIVERED" -> Triple("Delivered \u2713", GreenLight, DeliveredGreen)
-        else -> Triple(status, AmberLight, AmberGold)
+        "CANCELLED" -> Triple("Cancelled", CancelledLight, CancelledRed)
+        else -> Triple("In progress", AmberLight, AmberGold)
     }
     ChipContent(label, bg, fg)
 }

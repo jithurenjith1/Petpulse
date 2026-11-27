@@ -28,6 +28,22 @@ jobs:
           echo "=== SHA-1 FINGERPRINT ==="
           keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android 2>/dev/null | grep SHA1
 
+      - name: Check required dependencies are still declared
+        run: |
+          fail=0
+          for dep in firebase-messaging firebase-analytics zxing-core; do
+            if ! grep -q "$dep" app/build.gradle.kts; then
+              echo "MISSING from app/build.gradle.kts: $dep"
+              fail=1
+            fi
+          done
+          if [ "$fail" -ne 0 ]; then
+            echo "A required dependency has disappeared from the build file."
+            echo "This happened once and cached compilation hid it for eight days."
+            exit 1
+          fi
+          echo "All required dependencies present."
+
       - name: Build debug APK
         run: ./gradlew assembleDebug --no-daemon
 

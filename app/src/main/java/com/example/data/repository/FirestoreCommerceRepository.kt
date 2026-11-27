@@ -1054,6 +1054,36 @@ class FirestoreCommerceRepository(private val appContext: Context) {
         }
     }
 
+    /**
+     * Admin: move a partner application through the verification workflow.
+     *
+     * Only the verification fields are written. The partner's submitted details
+     * (name, phone, city) are never touched here, and the Firestore rules reject
+     * an update that changes anything else.
+     */
+    suspend fun setPartnerVerification(
+        id: String,
+        status: String,
+        reason: String = "",
+        docUrl: String = "",
+        docExpiry: Long = 0L
+    ): Result<Unit> {
+        return try {
+            val patch = mutableMapOf<String, Any>(
+                "verificationStatus" to status,
+                "rejectReason" to if (status == "REJECTED") reason else "",
+                "verifiedAt" to if (status == "VERIFIED") System.currentTimeMillis() else 0L,
+                "docExpiry" to docExpiry
+            )
+            if (docUrl.isNotBlank()) patch["docUrl"] = docUrl
+            db.collection("partner_applications").document(id).update(patch).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("FsCommerce", "setPartnerVerification failed", e)
+            Result.failure(e)
+        }
+    }
+
     suspend fun deletePartnerApplication(id: String): Result<Unit> = try {
         db.collection("partner_applications").document(id).delete().await()
         Result.success(Unit)

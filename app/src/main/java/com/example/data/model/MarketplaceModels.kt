@@ -436,7 +436,18 @@ data class PartnerApplication(
     val phone: String = "",
     val planName: String = "",
     val createdAt: Long = 0L,
-    val status: String = "NEW"
+    val status: String = "NEW",
+    // ---- Verification workflow -------------------------------------------
+    // PENDING  = submitted, nothing checked yet
+    // VERIFIED = documents checked, the "Verified" badge may be shown
+    // REJECTED = checked and refused; rejectReason says why
+    // Every field is defaulted so Firestore toObject() keeps working for
+    // applications that predate the workflow.
+    val verificationStatus: String = "PENDING",
+    val rejectReason: String = "",
+    val docUrl: String = "",
+    val verifiedAt: Long = 0L,
+    val docExpiry: Long = 0L
 )
 
 /**
