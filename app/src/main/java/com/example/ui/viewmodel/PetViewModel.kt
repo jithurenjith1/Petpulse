@@ -2231,6 +2231,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun adminDeletePartnerApplication(id: String) {
         viewModelScope.launch { commerceRepo.deletePartnerApplication(id) }
+    }
 
     /** Admin: approve or reject a partner application (verification workflow). */
     fun adminSetPartnerVerification(
@@ -2244,7 +2245,6 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
             val ok = commerceRepo.setPartnerVerification(id, status, reason, docUrl, docExpiry).isSuccess
             _commerceEvent.value = if (ok) R.string.admin_saved else R.string.admin_failed
         }
-    }
     }
 
     fun adminDeleteSupportTicket(id: String) {
