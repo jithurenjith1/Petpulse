@@ -29,17 +29,27 @@ jobs:
           keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android 2>/dev/null | grep SHA1
 
       - name: Check required dependencies are still declared
+        # These three once vanished from the build files and cached compilation hid
+        # it for eight days. They are declared in the version catalog and wired in
+        # through libs.* aliases, so BOTH files have to be checked - grepping only
+        # app/build.gradle.kts for the artifact name gives a false alarm.
         run: |
           fail=0
-          for dep in firebase-messaging firebase-analytics zxing-core; do
-            if ! grep -q "$dep" app/build.gradle.kts; then
-              echo "MISSING from app/build.gradle.kts: $dep"
+          check() {
+            if ! grep -qF "$2" "$1"; then
+              echo "MISSING in $1 : $3"
               fail=1
             fi
-          done
+          }
+          check gradle/libs.versions.toml firebase-messaging  "catalog entry for firebase-messaging"
+          check gradle/libs.versions.toml firebase-analytics  "catalog entry for firebase-analytics"
+          check gradle/libs.versions.toml zxing-core         "catalog entry for zxing-core"
+          check app/build.gradle.kts libs.firebase.messaging  "implementation(libs.firebase.messaging)"
+          check app/build.gradle.kts libs.firebase.analytics  "implementation(libs.firebase.analytics)"
+          check app/build.gradle.kts libs.zxing.core          "implementation(libs.zxing.core)"
           if [ "$fail" -ne 0 ]; then
-            echo "A required dependency has disappeared from the build file."
-            echo "This happened once and cached compilation hid it for eight days."
+            echo ""
+            echo "A required dependency is no longer declared. Fix the build files before shipping."
             exit 1
           fi
           echo "All required dependencies present."
